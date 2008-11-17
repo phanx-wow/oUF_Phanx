@@ -747,18 +747,18 @@ oUF:RegisterStyle("Phanx Party Pet", setmetatable({
 }, { __call = new }))
 
 oUF:SetActiveStyle("Phanx Player")
-oUF:Spawn("player"):SetPoint("TOPRIGHT", UIParent, "CENTER", -150, -250)
+oUF:Spawn("player"):SetPoint("TOPRIGHT", UIParent, "CENTER", -150, -150)
 oUF:Spawn("pet"):SetPoint("TOPRIGHT", oUF.units.player, "BOTTOMRIGHT", 0, 0)
 
 oUF:SetActiveStyle("Phanx Target")
-oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 150, -250)
+oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 150, -150)
 
 oUF:SetActiveStyle("Phanx Target Target")
 oUF:Spawn("targettarget"):SetPoint("TOPLEFT", oUF.units.target, "BOTTOMLEFT", 0, 0)
---[[
+
 oUF:SetActiveStyle("Phanx Party")
 local party = oUF:Spawn("header", "oUF_Party")
-party:SetPoint("BOTTOMLEFT", oUF.units.target, "BOTTOMRIGHT", 200 + (BORDER_WIDTH * 2), 0)
+party:SetPoint("BOTTOMRIGHT", oUF.units.target, "BOTTOMRIGHT", 240 + (BORDER_WIDTH * 2), 0)
 party:SetManyAttributes(
 	"showParty", true,
 	"point", "BOTTOM",
@@ -793,4 +793,4 @@ partyToggle:SetScript("OnEvent", function(self)
 		--	end
 		end
 	end
-end) ]]
+end)
