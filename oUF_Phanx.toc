@@ -1,0 +1,17 @@
+## Interface: 30000
+## Version: 3.0.2.wowi:revision
+
+## Title: oUF Phanx
+## Notes: Phanx's layout for oUF 1.2
+## X-Category: UnitFrame
+## X-Copyright: Copyright © 2007–2008 Alyssa Kinley, a.k.a. Phanx
+## X-License: Do not redistribute. See README for complete license terms.
+## X-Website: http://www.wowinterface.com/downloads/info.html
+
+## Author: Phanx
+## X-Email: addons@phanx.net
+
+## Dependencies: oUF
+## OptionalDeps: LibHealComm-3.0, LibResComm-3.0, oUF_Banzai, oUF_CombatFeedback, oUF_ReadyCheck
+
+oUF_Phanx.lua
