@@ -9,7 +9,7 @@
 if not oUF then return end
 
 local FONT = "Fonts\\FRIZQT__.ttf" -- "Interface\\AddOns\\SharedMedia\\font\\AkzidenzGroteskLightBold.ttf"
-local STATUSBAR = "Interface\\AddOns\\SharedMedia\\statusbar\\Savant1"
+local STATUSBAR = "Interface\\AddOns\\SharedMedia\\statusbar\\Armory" -- "Interface\\AddOns\\SharedMedia\\statusbar\\Savant1"
 
 local FMT_DEFICIT = "-%s"
 local FMT_DEFICIT_FULL = "%s|cffffeeee-%s|r"
@@ -173,9 +173,9 @@ local function UpdateEdgeGlowPosition(self, event, unit, bar, min, max)
 
 	local x
 	if self.reverse then
-		x = bar:GetWidth() * (min / max) - bar.edge:GetWidth()
-	else
 		x = bar:GetWidth() - (bar:GetWidth() * (min / max)) - bar.edge:GetWidth()
+	else
+		x = bar:GetWidth() * (min / max) - bar.edge:GetWidth()
 	end
 	if x < 0 then
 		bar.edge:Hide()
@@ -192,19 +192,19 @@ local function UpdateHealth(self, event, unit, bar, min, max)
 
 	if UnitIsDead(unit) then
 		r, g, b = unpack(colors.dead)
-		bar:SetValue(self.reverse and max or 0)
+		bar:SetValue(self.reverse and 0 or max)
 		bar.value:SetText("Dead")
 	elseif UnitIsGhost(unit) then
 		r, g, b = unpack(colors.ghost)
-		bar:SetValue(self.reverse and max or 0)
+		bar:SetValue(self.reverse and 0 or max)
 		bar.value:SetText("Ghost")
 	elseif not UnitIsConnected(unit) then
 		r, g, b = unpack(colors.offline)
-		bar:SetValue(self.reverse and max or 0)
+		bar:SetValue(self.reverse and 0 or max)
 		bar.value:SetText("Offline")
 	else
 		r, g, b = unpack(GetUnitColor(unit))
-		bar:SetValue(self.reverse and min or (max - min))
+		bar:SetValue(self.reverse and max - min or min)
 		if min < max then
 			if unit == "player" or unit == "pet" then
 				t = string.format(FMT_DEFICIT, AbbreviateValue(max - min))
@@ -227,11 +227,11 @@ local function UpdateHealth(self, event, unit, bar, min, max)
 	end
 
 	if self.reverse then
-		bar:SetStatusBarColor(r * .2, g * .2, b * .2)
-		bar.bg:SetVertexColor(r, g, b)
-	else
 		bar:SetStatusBarColor(r, g, b)
 		bar.bg:SetVertexColor(r * .2, g * .2, b * .2)
+	else
+		bar:SetStatusBarColor(r * .2, g * .2, b * .2)
+		bar.bg:SetVertexColor(r, g, b)
 	end
 
 	if bar.edge then
@@ -255,9 +255,9 @@ local function UpdatePower(self, event, unit, bar, min, max)
 
 	local t, r, g, b
 	if self.reverse then
-		bar:SetValue(min)
-	else
 		bar:SetValue(max - min)
+	else
+		bar:SetValue(min)
 	end
 	if unit == "pet" and playerClass == "HUNTER" then
 		r, g, b = unpack(colors.happiness[GetPetHappiness()] or colors.power.FOCUS)
@@ -306,11 +306,11 @@ local function UpdatePower(self, event, unit, bar, min, max)
 		end
 	end
 	if self.reverse then
-		bar:SetStatusBarColor(r, g, b)
-		bar.bg:SetVertexColor(r * .2, g * .2, b * .2)
-	else
 		bar:SetStatusBarColor(r * .2, g * .2, b * .2)
 		bar.bg:SetVertexColor(r, g, b)
+	else
+		bar:SetStatusBarColor(r, g, b)
+		bar.bg:SetVertexColor(r * .2, g * .2, b * .2)
 	end
 	if bar.value then
 		bar.value:SetText(t)
@@ -466,10 +466,6 @@ local function menu(self)
 end
 
 local function new(settings, self, unit)
-	if settings.reverse then
-		self.reverse = true
-	end
-
 	self.menu = menu
 
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
@@ -487,12 +483,14 @@ local function new(settings, self, unit)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
 
+	self.reverse = settings.reverse
+
 	self.overlay = CreateFrame("Frame")
 	self.overlay:SetParent(self)
 	self.overlay:SetFrameStrata("BACKGROUND")
 	self.overlay:SetFrameLevel(2)
 	self.overlay:SetAllPoints(self)
-
+	
 	local hp = CreateFrame("StatusBar")
 	hp:SetParent(self)
 	hp:SetFrameStrata("BACKGROUND")
@@ -701,6 +699,31 @@ local function new(settings, self, unit)
 	self.RaidIcon:SetHeight(32)
 	self.RaidIcon:SetTexture("Interface\\GroupFrame\\UI-RaidTargetingIcons")
 
+	if unit == "target" then
+		local buffs = CreateFrame("Frame", nil, self)
+		buffs:SetPoint("BOTTOM", self, "TOP", 0, 20)
+		buffs:SetHeight(20)
+		buffs:SetWidth(settings.width)
+
+		buffs.size = 20
+		buffs.num = math.floor(settings.width / buffs.size + .5)
+		--buffs.filter = true
+
+		self.Buffs = buffs
+
+		local debuffs = CreateFrame("Frame", nil, self)
+		debuffs:SetPoint("BOTTOM", self, "TOP", 0, 40)
+		debuffs:SetHeight(20)
+		debuffs:SetWidth(settings.width)
+
+		debuffs.size = 20
+		debuffs.showDebuffType = true
+		debuffs.num = math.floor(settings.width / debuffs.size + .5)
+		buffs.filter = true
+
+		self.Debuffs = debuffs
+	end
+
 	if not unit then
 		self.Range = true
 		self.inRangeAlpha = 1
@@ -721,29 +744,32 @@ end
 oUF:RegisterStyle("Phanx Player", setmetatable({
 	width = 200,
 	height = 25,
-	reverse = true,
 }, { __call = new }))
 
 oUF:RegisterStyle("Phanx Target", setmetatable({
 	width = 200,
 	height = 25,
+	reverse = true,
 }, { __call = new }))
 
 oUF:RegisterStyle("Phanx Target Target", setmetatable({
 	width = 200,
 	height = 20,
 	nopower = true,
+	reverse = true,
 }, { __call = new }))
 
 oUF:RegisterStyle("Phanx Party", setmetatable({
 	width = 160,
 	height = 25,
+	reverse = true,
 }, { __call = new }))
 
 oUF:RegisterStyle("Phanx Party Pet", setmetatable({
 	width = 160,
 	height = 20,
 	nopower = true,
+	reverse = true,
 }, { __call = new }))
 
 oUF:SetActiveStyle("Phanx Player")
