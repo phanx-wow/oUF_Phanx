@@ -510,10 +510,10 @@ local function new(settings, self, unit)
 
 	hp.value = hp:CreateFontString(nil, "OVERLAY")
 	hp.value:SetFont(FONT, 16, "OUTLINE")
-	if settings.reverse then
-		hp.value:SetPoint("RIGHT", -BORDER_WIDTH - 2, 0)
-	else
+	if self.reverse then
 		hp.value:SetPoint("LEFT", BORDER_WIDTH + 2, 0)
+	else
+		hp.value:SetPoint("RIGHT", -BORDER_WIDTH - 2, 0)
 	end
 --[[
 	hp.edge = hp:CreateTexture(nil, "OVERLAY")
@@ -522,9 +522,9 @@ local function new(settings, self, unit)
 	hp.edge:SetAlpha(0.4)
 	hp.edge:SetTexture("Interface\\AddOns\\oUF_HolySmurf\\textures\\SmurfStripe")
 	if self.reverse then
-		hp.edge:SetTexCoord(1, 0, 0, 1)
-	else
 		hp.edge:SetTexCoord(0, 1, 0, 1)
+	else
+		hp.edge:SetTexCoord(1, 0, 0, 1)
 	end
 	hp.edge:SetBlendMode("ADD")
 	hp.edge:Hide()
@@ -553,9 +553,9 @@ local function new(settings, self, unit)
 			pp.value = pp:CreateFontString(nil, "OVERLAY")
 			pp.value:SetFont(FONT, 16, "OUTLINE")
 			if settings.reverse then
-				pp.value:SetPoint("LEFT", hp, BORDER_WIDTH + 2, 0)
-			else
 				pp.value:SetPoint("RIGHT", hp, -BORDER_WIDTH - 2, 0)
+			else
+				pp.value:SetPoint("LEFT", hp, BORDER_WIDTH + 2, 0)
 			end
 		end
 
