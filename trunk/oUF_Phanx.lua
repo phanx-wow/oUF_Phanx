@@ -795,6 +795,13 @@ party:SetManyAttributes(
 )
 party:Show()
 
+oUF:SetActiveStyle("Phanx Party Pet")
+local partypets = {}
+for i = 1, 4 do
+	table.insert(partypets, oUF:Spawn("partypet"..i))
+	partypets[i]:SetPoint("TOPRIGHT", oUF.units["party"..i], "BOTTOMRIGHT", 0, 0)
+end
+--[[
 local partyToggle = CreateFrame("Frame")
 partyToggle:RegisterEvent("PLAYER_LOGIN")
 partyToggle:RegisterEvent("PARTY_LEADER_CHANGED")
@@ -807,16 +814,16 @@ partyToggle:SetScript("OnEvent", function(self)
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 		if GetNumRaidMembers() > 0 then
 			party:Hide()
-		--	for i, f in ipairs(partypets) do
-		--		UnregisterUnitWatch("partypet"..i, f)
-		--		f:Hide()
-		--	end
+			for i, f in ipairs(partypets) do
+				UnregisterUnitWatch("partypet"..i, f)
+				f:Hide()
+			end
 		else
 			party:Show()
-		--	for i, f in ipairs(partypets) do
-		--		RegisterUnitWatch("partypet"..i, f)
-		--		f:Show()
-		--	end
+			for i, f in ipairs(partypets) do
+				RegisterUnitWatch("partypet"..i, f)
+				f:Show()
+			end
 		end
 	end
-end)
+end)]]
