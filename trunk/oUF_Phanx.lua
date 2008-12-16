@@ -396,7 +396,7 @@ end
 
 local DispelType = {}
 for dispeltype, color in pairs(DebuffTypeColor) do
-	DispelType[rgb2hex(color.r, color.b, color.g)] = dispeltype
+	DispelType[rgb2hex(color.r, color.g, color.b)] = dispeltype
 end
 
 local CanDispel = {
@@ -409,10 +409,11 @@ local CanDispel = {
 CanDispel = CanDispel[playerClass] or {}
 
 local function UpdateBorderColor(self)
+	--print("UpdateBorderColor, " .. self.unit .. ", self.hasDebuff = " .. tostring(self.hasDebuff) .. ", self.hasAggro = " .. tostring(self.hasAggro))
 	local c
-	if self.hasDebuff and CanDispel(self.hasDebuff) then
+	if self.hasDebuff and CanDispel[self.hasDebuff] then
 		c = DebuffTypeColor[self.hasDebuff]
-	elseif hasAggro then
+	elseif self.hasAggro then
 		c = AGGRO_COLOR
 	elseif self.hasDebuff then
 		c = DebuffTypeColor[self.hasDebuff]
@@ -428,12 +429,9 @@ end
 
 local function UpdateAggro(self, unit, aggro)
 	if self.unit ~= unit then return end
+	--print("UpdateAggro, " .. unit .. ", " .. aggro)
 
-	if aggro == 1 then
-		self.hasAggro = false
-	else
-		self.hasAggro = true
-	end
+	self.hasAggro = aggro == 1
 
 	UpdateBorderColor(self)
 end
@@ -445,10 +443,15 @@ end
 
 local function SetBackdropColorToBorder(self, r, g, b, a)
 	local color = rgb2hex(r, g, b)
-	local dispeltype = DispelType[rgb2hex(r, g, b)]
+--	print("color = " .. color .. ", self.borderColor = " .. self.borderColor)
+	if color == self.borderColor then return end
+	self.borderColor = color
+	local dispeltype = DispelType[color]
 	if dispeltype then
+		--print("SetBackdropColorToBorder, " .. self.unit .. ", " .. color .. ", hasDebuff = " .. dispeltype)
 		self.hasDebuff = dispeltype
 	else
+		--print("SetBackdropColorToBorder, " .. self.unit .. ", " .. color .. ", hasDebuff = false")
 		self.hasDebuff = false
 	end
 	UpdateBorderColor(self)
@@ -729,14 +732,24 @@ local function new(settings, self, unit)
 		self.inRangeAlpha = 1
 		self.outsideRangeAlpha = 0.5
 	end
-
+--[[
+	self.Banzai = function(self, unit, aggro)
+		if unit ~= self.unit then return end
+		if aggro == 1 then
+			self:SetBackdropBorderColor(1, 0, 0, 1)
+		else
+			self:SetBackdropBorderColor(0, 0, 0, 0)
+		end
+	end
+--]]
 	self.Banzai = UpdateAggro
 
 	self.DebuffHighlightBackdrop = true
-	self.DebuffHighlightAlpha = 0.8
-	self.DebuffHighlightFilter = true
+	self.DebuffHighlightFilter = false
 
+	self.ReallySetBackdropColor = self.SetBackdropColor
 	self.SetBackdropColor = SetBackdropColorToBorder
+	self.borderColor = rgb2hex(self:GetBackdropBorderColor())
 
 	return self
 end
@@ -778,30 +791,28 @@ oUF:Spawn("pet"):SetPoint("TOPRIGHT", oUF.units.player, "BOTTOMRIGHT", 0, 0)
 
 oUF:SetActiveStyle("Phanx Target")
 oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 150, -150)
+oUF:Spawn("focus"):SetPoint("TOP", UIParent, "CENTER", 0, -20 - (BORDER_WIDTH * 2))
 
 oUF:SetActiveStyle("Phanx Target Target")
 oUF:Spawn("targettarget"):SetPoint("TOPLEFT", oUF.units.target, "BOTTOMLEFT", 0, 0)
-
+--[[
 oUF:SetActiveStyle("Phanx Party")
 local party = oUF:Spawn("header", "oUF_Party")
 party:SetPoint("BOTTOMRIGHT", oUF.units.target, "BOTTOMRIGHT", 240 + (BORDER_WIDTH * 2), 0)
 party:SetManyAttributes(
 	"showParty", true,
 	"point", "BOTTOM",
-	"sortMethod", "NAME",
-	"sortDir", "DESC",
 	"xOffset", 0,
 	"yOffset", 45
 )
 party:Show()
 
 oUF:SetActiveStyle("Phanx Party Pet")
-local partypets = {}
 for i = 1, 4 do
-	table.insert(partypets, oUF:Spawn("partypet"..i))
-	partypets[i]:SetPoint("TOPRIGHT", oUF.units["party"..i], "BOTTOMRIGHT", 0, 0)
+	local f = oUF:Spawn("partypet"..i)
+	f:SetPoint("TOPRIGHT", oUF.units["party"..i], "BOTTOMRIGHT", 0, 0)
 end
---[[
+
 local partyToggle = CreateFrame("Frame")
 partyToggle:RegisterEvent("PLAYER_LOGIN")
 partyToggle:RegisterEvent("PARTY_LEADER_CHANGED")
@@ -814,16 +825,17 @@ partyToggle:SetScript("OnEvent", function(self)
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 		if GetNumRaidMembers() > 0 then
 			party:Hide()
-			for i, f in ipairs(partypets) do
-				UnregisterUnitWatch("partypet"..i, f)
-				f:Hide()
+			for i = 1, 4 do
+				UnregisterUnitWatch(oUF.units["partypet"..i])
+				oUF.units["partypet"..i]:Hide()
 			end
 		else
 			party:Show()
-			for i, f in ipairs(partypets) do
-				RegisterUnitWatch("partypet"..i, f)
-				f:Show()
+			for i = 1, 4 do
+				RegisterUnitWatch(oUF.units["partypet"..i])
+				oUF.units["partypet"..i]:Show()
 			end
 		end
 	end
-end)]]
+end)
+]]

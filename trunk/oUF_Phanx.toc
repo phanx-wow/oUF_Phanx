@@ -15,3 +15,5 @@
 ## OptionalDeps: LibHealComm-3.0, LibResComm-3.0, oUF_Banzai, oUF_CombatFeedback, oUF_ReadyCheck
 
 oUF_Phanx.lua
+
+tests.lua
