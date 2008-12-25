@@ -8,6 +8,8 @@
 
 if not oUF then return end
 
+local debug = true
+
 local FONT = "Fonts\\FRIZQT__.ttf" -- "Interface\\AddOns\\SharedMedia\\font\\AkzidenzGroteskLightBold.ttf"
 local STATUSBAR = "Interface\\AddOns\\SharedMedia\\statusbar\\Armory" -- "Interface\\AddOns\\SharedMedia\\statusbar\\Savant1"
 
@@ -72,7 +74,7 @@ local BORDER_COLOR = { r = 0, g = 0, b = 0, a = 0 }
 local AGGRO_COLOR = { r = 1, g = 0, b = 0, a = 1 }
 
 local playerClass = select(2, UnitClass("player"))
-local MAX_LEVEL = MAX_PLAYER_LEVEL_TABLE[GetAccountExpansionLevel()] or 80
+local MAX_LEVEL = MAX_PLAYER_LEVEL_TABLE[GetAccountExpansionLevel()]
 
 local function AbbreviateValue(value)
 	if value >= 10000000 then
@@ -150,14 +152,20 @@ local function GetUnitColor(unit)
 		return colors.class[class] or colors.unknown
 	elseif UnitPlayerControlled(unit) then
 		local class = UnitCreatureType(unit)
-		local name = UnitName(unit)
 		if class == "Beast" then
 			return colors.class.HUNTER
-		elseif class == "Demon" then
+		end
+		if class == "Demon" then
 			return colors.class.WARLOCK
-		elseif class == "Humanoid" or name == "Shadowfiend" then
+		end
+		if class == "Undead" then
+			return colors.class.DEATHKNIGHT
+		end
+		local name = UnitName(unit)
+		if name == "Shadowfiend" then
 			return colors.class.PRIEST
-		elseif class == "Elemental" or name:match("Totem$") or name:match("^Totem") then
+		end
+		if class == "Elemental" or name:match(" Totem$") or name:match("^Totem ") then
 			return colors.class.SHAMAN
 		end
 	end
@@ -387,6 +395,29 @@ local function UpdateName(self, event, unit)
 end
 
 --
+-- Modify aura icons
+--
+
+local function PostCreateAuraIcon(self, button, icons, index, isDebuff)
+	button.cd:SetReverse(true)
+
+--	button.icon:SetTexCoord(.07, .93, .07, .93)
+
+	local overlay = button.overlay
+	overlay:SetAllPoints(button)
+	overlay:SetTexture("Interface\\AddOns\\ButtonFacade_simpleSquare\\Textures\\simpleSquareBase")
+	overlay:SetTexCoord(0, 1, 0, 1)
+	if not overlay:IsShown() then
+		overlay:SetVertexColor(1, 1, 1)
+		overlay:Show()
+	end
+
+	local count = button.count
+	count:ClearAllPoints()
+	count:SetPoint("BOTTOM")
+end
+
+--
 -- Color the frame border appropriately under various conditions
 --
 
@@ -493,7 +524,7 @@ local function new(settings, self, unit)
 	self.overlay:SetFrameStrata("BACKGROUND")
 	self.overlay:SetFrameLevel(2)
 	self.overlay:SetAllPoints(self)
-	
+
 	local hp = CreateFrame("StatusBar")
 	hp:SetParent(self)
 	hp:SetFrameStrata("BACKGROUND")
@@ -597,37 +628,40 @@ local function new(settings, self, unit)
 	end
 
 	if unit == "target" then
-		self.Info = self:CreateFontString(nil, "OVERLAY")
-		self.Info:SetFont(FONT, 12, "OUTLINE")
-		self.Info:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -BORDER_WIDTH + 3, -3)
-		self.Info:SetJustifyH("RIGHT")
+		local info = self:CreateFontString(nil, "OVERLAY")
+		info:SetFont(FONT, 12, "OUTLINE")
+		info:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -BORDER_WIDTH + 3, -3)
+		info:SetJustifyH("RIGHT")
 
-		self.UNIT_CLASSIFICATION_CHANGED = UpdateInfo
-		self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED")
-		self.UNIT_LEVEL = UpdateInfo
-		self:RegisterEvent("UNIT_LEVEL")
+		self.Info = info
+		self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", UpdateInfo)
+		self:RegisterEvent("UNIT_LEVEL", UpdateInfo)
 	end
 
 	if unit == "target" or unit == "focus" then
-		self.Name = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", BORDER_WIDTH - 3, -BORDER_WIDTH - 1)
+		local name = self.overlay:CreateFontString(nil, "OVERLAY")
+		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", BORDER_WIDTH - 3, -BORDER_WIDTH - 1)
 		if self.Info then
-			self.Name:SetPoint("BOTTOMRIGHT", self.Info, "BOTTOMLEFT", -BORDER_WIDTH - 4, -BORDER_WIDTH + 2)
+			name:SetPoint("BOTTOMRIGHT", self.Info, "BOTTOMLEFT", -BORDER_WIDTH - 4, -BORDER_WIDTH + 2)
 		else
-			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -BORDER_WIDTH + 3, -BORDER_WIDTH - 1)
+			name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -BORDER_WIDTH + 3, -BORDER_WIDTH - 1)
 		end
-		self.Name:SetFont(FONT, 18, "OUTLINE")
-		self.Name:SetJustifyH("LEFT")
+		name:SetFont(FONT, 18, "OUTLINE")
+		name:SetJustifyH("LEFT")
 
-		self.UNIT_NAME_UPDATE = UpdateName
+		self.Name = name
+		self:RegisterEvent("UNIT_NAME_UPDATE", UpdateName)
+		table.insert(self.__elements, UpdateName)
 	elseif unit == "targettarget" or unit == "focustarget" then
-		self.Name = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.Name:SetPoint("LEFT", hp, "LEFT", BORDER_WIDTH + 2, 0)
-		self.Name:SetPoint("RIGHT", hp.value, "LEFT", -4, 0)
-		self.Name:SetFont(FONT, 14, "OUTLINE")
-		self.Name:SetJustifyH("LEFT")
+		local name = hp:CreateFontString(nil, "OVERLAY")
+		name:SetPoint("LEFT", hp, "LEFT", BORDER_WIDTH + 2, 0)
+		name:SetPoint("RIGHT", hp.value, "LEFT", -4, 0)
+		name:SetFont(FONT, 14, "OUTLINE")
+		name:SetJustifyH("LEFT")
 
-		self.UNIT_NAME_UPDATE = UpdateName
+		self.Name = name
+		self:RegisterEvent("UNIT_NAME_UPDATE", UpdateName)
+		table.insert(self.__elements, UpdateName)
 	end
 
 	if unit == "target" and playerClass == "DRUID" or playerClass == "ROGUE" then
@@ -725,6 +759,8 @@ local function new(settings, self, unit)
 		buffs.filter = true
 
 		self.Debuffs = debuffs
+
+		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
 
 	if not unit then
