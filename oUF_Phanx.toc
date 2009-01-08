@@ -1,5 +1,5 @@
 ## Interface: 30000
-## Version: wowi:revision
+## Version: 3.0.3.wowi:revision
 
 ## Title: oUF Phanx
 ## Notes: Phanx's layout for oUF 1.3

@@ -10,8 +10,8 @@ if not oUF then return end
 
 local debug = true
 
-local FONT = "Fonts\\FRIZQT__.ttf" -- "Interface\\AddOns\\SharedMedia\\font\\AkzidenzGroteskLightBold.ttf"
-local STATUSBAR = "Interface\\AddOns\\SharedMedia\\statusbar\\Armory" -- "Interface\\AddOns\\SharedMedia\\statusbar\\Savant1"
+local FONT = "Fonts\\FRIZQT__.ttf"
+local STATUSBAR = "Interface\\TargetingFrame\\UI-StatusBar"
 
 local FMT_DEFICIT = "-%s"
 local FMT_DEFICIT_FULL = "%s|cffffeeee-%s|r"
@@ -398,6 +398,10 @@ end
 -- Modify aura icons
 --
 
+local function DontHide(tex)
+	tex:SetVertexColor(1, 1, 1)
+end
+
 local function PostCreateAuraIcon(self, button, icons, index, isDebuff)
 	button.cd:SetReverse(true)
 
@@ -407,10 +411,7 @@ local function PostCreateAuraIcon(self, button, icons, index, isDebuff)
 	overlay:SetAllPoints(button)
 	overlay:SetTexture("Interface\\AddOns\\ButtonFacade_simpleSquare\\Textures\\simpleSquareBase")
 	overlay:SetTexCoord(0, 1, 0, 1)
-	if not overlay:IsShown() then
-		overlay:SetVertexColor(1, 1, 1)
-		overlay:Show()
-	end
+	overlay.Hide = DontHide
 
 	local count = button.count
 	count:ClearAllPoints()
@@ -509,7 +510,7 @@ local function new(settings, self, unit)
 	self:SetAttribute("*type2", "menu")
 
 	self:SetAttribute("initial-width", settings.width + (BORDER_WIDTH * 2))
-	self:SetAttribute("initial-height", settings.height + (BORDER_WIDTH * 2))
+	self:SetAttribute("initial-height", settings.height + (BORDER_WIDTH * 2) + 1)
 
 	self:SetFrameStrata("BACKGROUND")
 	self:SetFrameLevel(0)
