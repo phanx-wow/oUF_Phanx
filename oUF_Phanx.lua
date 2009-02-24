@@ -10,8 +10,25 @@ if not oUF then return end
 
 local debug = true
 
+------------------------------------------------------------------------
+--	Configuration starts here   ---------------------------------------
+
 local FONT = "Fonts\\FRIZQT__.ttf"
-local STATUSBAR = "Interface\\TargetingFrame\\UI-StatusBar"
+local STATUSBAR = "Interface\\AddOns\\SharedMedia\\statusbar\\Neal" -- "Interface\\TargetingFrame\\UI-StatusBar"
+local BORDER = "Interface\\AddOns\\oUF_Phanx\\media\\borderTexture"
+
+local BACKDROP = {
+	bgFile = "Interface\\Addons\\Grid\\white16x16", tile = true, tileSize = 16,
+	edgeFile = "Interface\\Addons\\Grid\\white16x16", edgeSize = 3,
+	insets = { left = 3, right = 3, top = 3, bottom = 3 },
+}
+
+local BORDER_WIDTH = 1
+
+local BORDER_COLOR = { r = 0.75, g = 0.65, b = 0.65, a = 1 }
+local AGGRO_COLOR = { r = 1, g = 0.2, b = 0.2, a = 1 }
+
+local EDGEGLOW_WIDTH = 20
 
 local FMT_DEFICIT = "-%s"
 local FMT_DEFICIT_FULL = "%s|cffffeeee-%s|r"
@@ -45,36 +62,49 @@ local creaturetype = {
 
 local colors = oUF.colors
 do
-	colors.unknown = { 1, 0.5, 1 }
+	colors.unknown  = { 1,   0.5, 1   }
 
-	colors.dead = { .6, .6, .6 }
-	colors.ghost = { .6, .6, .6 }
-	colors.offline = { .6, .6, .6 }
+	colors.dead     = { 0.6, 0.6, 0.6 }
+	colors.ghost    = { 0.6, 0.6, 0.6 }
+	colors.offline  = { 0.6, 0.6, 0.6 }
 
-	colors.civilian = { 0, 0, 1 }
-	colors.friendly = { FACTION_BAR_COLORS[6].r, FACTION_BAR_COLORS[6].g, FACTION_BAR_COLORS[6].b }
-	colors.hostile = { FACTION_BAR_COLORS[2].r, FACTION_BAR_COLORS[2].g, FACTION_BAR_COLORS[2].b }
-	colors.neutral = { FACTION_BAR_COLORS[4].r, FACTION_BAR_COLORS[4].g, FACTION_BAR_COLORS[4].b }
+	colors.civilian = { 0.2, 0.2, 1   }
+	colors.friendly = { 0.2, 1,   0.2 }
+	colors.hostile  = { 1,   0.1, 0.1 }
+	colors.neutral  = { 1,   1,   0.2 }
 
 	colors.power.MANA = { 0, .82, 1 } -- 144/255
 	colors.power.RUNIC_POWER = { .41, .41, 1 }
 end
 
-local EDGEGLOW_WIDTH = 20
+--	Configuration ends here   -----------------------------------------
+------------------------------------------------------------------------
 
-local BORDER_WIDTH = 4
-
-local BACKDROP = {
-	bgFile = "Interface\\Addons\\Grid\\white16x16", tile = true, tileSize = 16,
-	edgeFile = "Interface\\Addons\\Grid\\white16x16", edgeSize = 3,
-	insets = {left = 3, right = 3, top = 3, bottom = 3},
-}
-
-local BORDER_COLOR = { r = 0, g = 0, b = 0, a = 0 }
-local AGGRO_COLOR = { r = 1, g = 0, b = 0, a = 1 }
+if CUSTOM_CLASS_COLORS then
+	for k, v in CUSTOM_CLASS_COLORS:IterateClasses() do
+		colors.class[k][1] = v.r
+		colors.class[k][2] = v.g
+		colors.class[k][3] = v.b
+	end
+	CUSTOM_CLASS_COLORS:RegisterCallback(function()
+		for k, v in CUSTOM_CLASS_COLORS:IterateClasses() do
+			colors.class[k][1] = v.r
+			colors.class[k][2] = v.g
+			colors.class[k][3] = v.b
+		end
+	end)
+end
 
 local playerClass = select(2, UnitClass("player"))
 local MAX_LEVEL = MAX_PLAYER_LEVEL_TABLE[GetAccountExpansionLevel()]
+
+------------------------------------------------------------------------
+--	AbbreviateValue
+--	arguments:
+--		value (number)
+--	returns:
+--		value (string) - nicely formatted value for display
+------------------------------------------------------------------------
 
 local function AbbreviateValue(value)
 	if value >= 10000000 then
@@ -90,6 +120,16 @@ local function AbbreviateValue(value)
 	end
 end
 
+------------------------------------------------------------------------
+--	GetDifficultyColor
+--	arguments:
+--		unit (string) - any valid unit token
+--	returns:
+--		r (number)
+--		g (number)
+--		b (number)
+------------------------------------------------------------------------
+
 local function GetDifficultyColor(level)
 	if level < 1 then level = 100 end
 	local levelDiff = level - UnitLevel("player")
@@ -104,6 +144,14 @@ local function GetDifficultyColor(level)
 	end
 	return 0.70, 0.70, 0.70
 end
+
+------------------------------------------------------------------------
+--	GetReactionColor
+--	arguments:
+--		unit (string) - any valid unit token
+--	returns:
+--		color (table) - array with r, g, b values
+------------------------------------------------------------------------
 
 local function GetReactionColor(unit)
 	if UnitIsPlayer(unit) or UnitPlayerControlled(unit) then
@@ -144,6 +192,17 @@ local function GetReactionColor(unit)
 	end
 end
 
+------------------------------------------------------------------------
+--	GetUnitColor
+--	arguments:
+--		unit (string) - any valid unit token
+--	returns:
+--		color (table) - an array containing r, g, b values
+--	notes:
+--		Class for players, most likely owner class for pets, tapped or
+--		reaction for NPCs.
+------------------------------------------------------------------------
+
 local function GetUnitColor(unit)
 	if UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
 		return colors.tapped
@@ -172,6 +231,10 @@ local function GetUnitColor(unit)
 	return GetReactionColor(unit)
 end
 
+------------------------------------------------------------------------
+--	Edge glow (NOT USED)
+------------------------------------------------------------------------
+
 local function UpdateEdgeGlowPosition(self, event, unit, bar, min, max)
 	if self.unit ~= unit then return end
 
@@ -192,6 +255,10 @@ local function UpdateEdgeGlowPosition(self, event, unit, bar, min, max)
 		bar.edge:Show()
 	end
 end
+
+------------------------------------------------------------------------
+--	Health
+------------------------------------------------------------------------
 
 local function UpdateHealth(self, event, unit, bar, min, max)
 	if self.unit ~= unit then return end
@@ -248,6 +315,10 @@ local function UpdateHealth(self, event, unit, bar, min, max)
 	end
 end
 
+------------------------------------------------------------------------
+--	Power
+------------------------------------------------------------------------
+
 local function UpdatePower(self, event, unit, bar, min, max)
 	if self.unit ~= unit then return end
 
@@ -290,7 +361,7 @@ local function UpdatePower(self, event, unit, bar, min, max)
 				if min > 0 then
 					t = min
 				end
-			else -- MANA, FOCUS, ENERGY
+			else -- MANA, FOCUS, or ENERGY
 				if min < max then
 					t = AbbreviateValue(min)
 				end
@@ -306,7 +377,7 @@ local function UpdatePower(self, event, unit, bar, min, max)
 				if min < max then
 					t = min
 				end
-			else
+			else -- FOCUS, RAGE, or RUNIC_POWER
 				if min > 0 then
 					t = min
 				end
@@ -326,6 +397,10 @@ local function UpdatePower(self, event, unit, bar, min, max)
 	end
 end
 
+------------------------------------------------------------------------
+--	Update pet happiness
+------------------------------------------------------------------------
+
 local function UpdateHappiness(self, event, unit)
 	if self.unit ~= unit then return end
 
@@ -343,6 +418,10 @@ local function UpdateHappiness(self, event, unit)
 	bar.bg:SetVertexColor(r * .2, g * .2, b * .2)
 	bar.value:SetTextColor(r / 2 + 0.5, g / 2 + 0.5, b / 2 + 0.5)
 end
+
+------------------------------------------------------------------------
+--	Info text
+------------------------------------------------------------------------
 
 local function UpdateInfo(self, event, unit)
 	if unit ~= self.unit then return end
@@ -370,6 +449,10 @@ local function UpdateInfo(self, event, unit)
 	self.Info:SetFormattedText(INFO_STRING, r * 255, g * 255, b * 255, level, classification[UnitClassification(unit)] or "", creature or "")
 end
 
+------------------------------------------------------------------------
+--	Name text
+------------------------------------------------------------------------
+
 local function UpdateName(self, event, unit)
 	if self.unit ~= unit then return end
 
@@ -394,33 +477,40 @@ local function UpdateName(self, event, unit)
 	end
 end
 
---
--- Modify aura icons
---
+------------------------------------------------------------------------
+--	Modify aura icons
+------------------------------------------------------------------------
 
-local function DontHide(tex)
-	tex:SetVertexColor(1, 1, 1)
+local function DontReallyHide(self)
+	self:SetVertexColor(0.65, 0.65, 0.65)
 end
 
 local function PostCreateAuraIcon(self, button, icons, index, isDebuff)
-	button.cd:SetReverse(true)
+	button.icon:ClearAllPoints()
+	button.icon:SetPoint("TOPLEFT", button, 2, -2)
+	button.icon:SetPoint("BOTTOMRIGHT", button, -2, 2)
+	button.icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
 
---	button.icon:SetTexCoord(.07, .93, .07, .93)
+	button.cd:SetReverse()
+	button.cd:ClearAllPoints()
+	button.cd:SetPoint("TOPLEFT", button, 1, -1)
+	button.cd:SetPoint("BOTTOMRIGHT", button, -1, 1)
 
-	local overlay = button.overlay
-	overlay:SetAllPoints(button)
-	overlay:SetTexture("Interface\\AddOns\\ButtonFacade_simpleSquare\\Textures\\simpleSquareBase")
-	overlay:SetTexCoord(0, 1, 0, 1)
-	overlay.Hide = DontHide
+	button.count:ClearAllPoints()
+	button.count:SetPoint("BOTTOM", button, 0, 2)
 
-	local count = button.count
-	count:ClearAllPoints()
-	count:SetPoint("BOTTOM")
+	button.overlay:SetTexture(BORDER)
+	button.overlay:SetTexCoord(0, 1, 0, 1)
+	button.overlay:ClearAllPoints()
+	button.overlay:SetPoint("TOPLEFT", button, -0.5, 0.5)
+	button.overlay:SetPoint("BOTTOMRIGHT", button, 0.5, -0.5)
+
+	button.overlay.Hide = DontReallyHide
 end
 
---
--- Color the frame border appropriately under various conditions
---
+------------------------------------------------------------------------
+--	Color the frame border appropriately under various conditions
+------------------------------------------------------------------------
 
 local function rgb2hex(r, g, b)
 	return string.format("%02x%02x%02x", r * 255, g * 255, b * 255)
@@ -441,7 +531,6 @@ local CanDispel = {
 CanDispel = CanDispel[playerClass] or {}
 
 local function UpdateBorderColor(self)
-	--print("UpdateBorderColor, " .. self.unit .. ", self.hasDebuff = " .. tostring(self.hasDebuff) .. ", self.hasAggro = " .. tostring(self.hasAggro))
 	local c
 	if self.hasDebuff and CanDispel[self.hasDebuff] then
 		c = DebuffTypeColor[self.hasDebuff]
@@ -452,41 +541,124 @@ local function UpdateBorderColor(self)
 	else
 		c = BORDER_COLOR
 	end
-	self:SetBackdropBorderColor(c.r, c.g, c.b, c.a or 1)
+	self:SetBackdropBorderColor(c.r, c.g, c.b, 1)
 end
 
---
+------------------------------------------------------------------------
 -- Handle callbacks from oUF_Banzai
---
+------------------------------------------------------------------------
 
 local function UpdateAggro(self, unit, aggro)
 	if self.unit ~= unit then return end
-	--print("UpdateAggro, " .. unit .. ", " .. aggro)
 
 	self.hasAggro = aggro == 1
 
 	UpdateBorderColor(self)
 end
 
---
+------------------------------------------------------------------------
 -- This is a hack to make oUF_DebuffHighlight color the frame's border
 -- instead of the background.
---
+------------------------------------------------------------------------
 
 local function SetBackdropColorToBorder(self, r, g, b, a)
 	local color = rgb2hex(r, g, b)
---	print("color = " .. color .. ", self.borderColor = " .. self.borderColor)
 	if color == self.borderColor then return end
 	self.borderColor = color
 	local dispeltype = DispelType[color]
 	if dispeltype then
-		--print("SetBackdropColorToBorder, " .. self.unit .. ", " .. color .. ", hasDebuff = " .. dispeltype)
 		self.hasDebuff = dispeltype
 	else
-		--print("SetBackdropColorToBorder, " .. self.unit .. ", " .. color .. ", hasDebuff = false")
 		self.hasDebuff = false
 	end
 	UpdateBorderColor(self)
+end
+
+------------------------------------------------------------------------
+--	Build the frames
+------------------------------------------------------------------------
+
+local function AddBorder(frame)
+	local TL = frame:CreateTexture(nil, "OVERLAY")
+	TL:SetPoint("TOPLEFT", -3, 4)
+	TL:SetWidth(12)
+	TL:SetHeight(12)
+	TL:SetTexture(BORDER)
+	TL:SetTexCoord(0, 1/3, 0, 1/3)
+	TL:SetVertexColor(0.75, 0.65, 0.65)
+
+	local TR = frame:CreateTexture(nil, "OVERLAY")
+	TR:SetPoint("TOPRIGHT", 4, 4)
+	TR:SetWidth(12)
+	TR:SetHeight(12)
+	TR:SetTexture(BORDER)
+	TR:SetTexCoord(2/3, 1, 0, 1/3)
+	TR:SetVertexColor(0.75, 0.65, 0.65)
+
+	local BL = frame:CreateTexture(nil, "OVERLAY")
+	BL:SetPoint("BOTTOMLEFT", -3, -4)
+	BL:SetWidth(12)
+	BL:SetHeight(12)
+	BL:SetTexture(BORDER)
+	BL:SetTexCoord(0, 1/3, 2/3, 1)
+	BL:SetVertexColor(0.75, 0.65, 0.65)
+
+	local BR = frame:CreateTexture(nil, "OVERLAY")
+	BR:SetPoint("BOTTOMRIGHT", 4, -4)
+	BR:SetWidth(12)
+	BR:SetHeight(12)
+	BR:SetTexture(BORDER)
+	BR:SetTexCoord(2/3, 1, 2/3, 1)
+	BR:SetVertexColor(0.75, 0.65, 0.65)
+
+	local TC = frame:CreateTexture(nil, "OVERLAY")
+	TC:SetPoint("TOPLEFT", TL, "TOPRIGHT")
+	TC:SetPoint("TOPRIGHT", TR, "TOPLEFT")
+	TC:SetHeight(12)
+	TC:SetTexture(BORDER)
+	TC:SetTexCoord(1/3, 2/3, 0, 1/3)
+	TC:SetVertexColor(0.75, 0.65, 0.65)
+
+	local BC = frame:CreateTexture(nil, "OVERLAY")
+	BC:SetPoint("BOTTOMLEFT", BL, "BOTTOMRIGHT")
+	BC:SetPoint("BOTTOMRIGHT", BR, "BOTTOMLEFT")
+	BC:SetHeight(12)
+	BC:SetTexture(BORDER)
+	BC:SetTexCoord(1/3, 2/3, 2/3, 1)
+	BC:SetVertexColor(0.75, 0.65, 0.65)
+
+	local CL = frame:CreateTexture(nil, "OVERLAY")
+	CL:SetPoint("TOPLEFT", TL, "BOTTOMLEFT")
+	CL:SetPoint("BOTTOMLEFT", BL, "TOPLEFT")
+	CL:SetWidth(12)
+	CL:SetTexture(BORDER)
+	CL:SetTexCoord(0, 1/3, 1/3, 2/3)
+	CL:SetVertexColor(0.75, 0.65, 0.65)
+
+	local CR = frame:CreateTexture(nil, "OVERLAY")
+	CR:SetPoint("TOPRIGHT", TR, "BOTTOMRIGHT")
+	CR:SetPoint("BOTTOMRIGHT", BR, "TOPRIGHT")
+	CR:SetWidth(12)
+	CR:SetTexture(BORDER)
+	CR:SetTexCoord(2/3, 1, 1/3, 2/3)
+	CR:SetVertexColor(0.75, 0.65, 0.65)
+
+	local r, g, b = frame:GetBackdropBorderColor()
+	frame:SetBackdropBorderColor(r, g, b, 0)
+
+	-- local prehook = frame.SetBackdropBorderColor
+	frame.SetBackdropBorderColor = function(frame, r, g, b, a)
+		-- prehook(frame, r, g, b, 0)
+
+		TL:SetVertexColor(r, g, b, 1)
+		TR:SetVertexColor(r, g, b, 1)
+		BL:SetVertexColor(r, g, b, 1)
+		BR:SetVertexColor(r, g, b, 1)
+		TC:SetVertexColor(r, g, b, 1)
+		BC:SetVertexColor(r, g, b, 1)
+		CL:SetVertexColor(r, g, b, 1)
+		CR:SetVertexColor(r, g, b, 1)
+	end
 end
 
 local function menu(self)
@@ -516,7 +688,9 @@ local function new(settings, self, unit)
 	self:SetFrameLevel(0)
 	self:SetBackdrop(BACKDROP)
 	self:SetBackdropColor(0, 0, 0, 1)
-	self:SetBackdropBorderColor(0, 0, 0, 0)
+	self:SetBackdropBorderColor(BORDER_COLOR.r, BORDER_COLOR.g, BORDER_COLOR.b, BORDER_COLOR.a)
+	
+	AddBorder(self)
 
 	self.reverse = settings.reverse
 
@@ -665,7 +839,7 @@ local function new(settings, self, unit)
 		table.insert(self.__elements, UpdateName)
 	end
 
-	if unit == "target" and playerClass == "DRUID" or playerClass == "ROGUE" then
+	if unit == "target" then
 		self.CPoints = self.overlay:CreateFontString(nil, "OVERLAY")
 		self.CPoints:SetPoint("CENTER")
 		self.CPoints:SetFont(FONT, 34, "OUTLINE")
@@ -739,46 +913,40 @@ local function new(settings, self, unit)
 
 	if unit == "target" then
 		local buffs = CreateFrame("Frame", nil, self)
-		buffs:SetPoint("BOTTOM", self, "TOP", 0, 20)
-		buffs:SetHeight(20)
+		buffs:SetPoint("BOTTOM", self, "TOP", 0, 14)
+		buffs:SetHeight(24)
 		buffs:SetWidth(settings.width)
 
-		buffs.size = 20
+		-- buffs.filter = "PLAYER"
+		buffs.showBuffType = true
+		buffs.size = 24
 		buffs.num = math.floor(settings.width / buffs.size + .5)
-		--buffs.filter = true
 
 		self.Buffs = buffs
 
 		local debuffs = CreateFrame("Frame", nil, self)
-		debuffs:SetPoint("BOTTOM", self, "TOP", 0, 40)
-		debuffs:SetHeight(20)
+		debuffs:SetPoint("BOTTOM", buffs, "TOP", 0, 4)
+		debuffs:SetHeight(24)
 		debuffs:SetWidth(settings.width)
 
-		debuffs.size = 20
+		-- debuffs.filter = "PLAYER"
 		debuffs.showDebuffType = true
+		debuffs.size = 24
 		debuffs.num = math.floor(settings.width / debuffs.size + .5)
-		buffs.filter = true
 
 		self.Debuffs = debuffs
 
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
 
+	self.disallowVehicleSwap = true
+
 	if not unit then
 		self.Range = true
 		self.inRangeAlpha = 1
 		self.outsideRangeAlpha = 0.5
 	end
---[[
-	self.Banzai = function(self, unit, aggro)
-		if unit ~= self.unit then return end
-		if aggro == 1 then
-			self:SetBackdropBorderColor(1, 0, 0, 1)
-		else
-			self:SetBackdropBorderColor(0, 0, 0, 0)
-		end
-	end
---]]
+
 	self.Banzai = UpdateAggro
 
 	self.DebuffHighlightBackdrop = true
@@ -787,6 +955,62 @@ local function new(settings, self, unit)
 	self.ReallySetBackdropColor = self.SetBackdropColor
 	self.SetBackdropColor = SetBackdropColorToBorder
 	self.borderColor = rgb2hex(self:GetBackdropBorderColor())
+
+	if unit == "player" or unit == "target" or unit == "focus" or unit == "pet" then
+		local Castbar = CreateFrame("StatusBar", nil, self)
+		Castbar:SetStatusBarTexture(STATUSBAR)
+		Castbar:SetParent(self)
+
+		local bg = Castbar:CreateTexture(nil, "BACKGROUND")
+		bg:SetTexture(STATUSBAR)
+		bg:SetAllPoints(Castbar)
+		bg:SetVertexColor(0, 0, 0, 0.75)
+
+		if unit == "player" then
+			Castbar:SetStatusBarColor(unpack(colors.power.MANA))
+			Castbar:SetPoint("TOP", UIParent, "CENTER", 0, -350)
+			Castbar:SetHeight(20)
+			Castbar:SetWidth(300)
+		elseif unit == "target" then
+			Castbar:SetStatusBarColor(unpack(colors.power.MANA))
+			Castbar:SetPoint("TOP", UIParent, "CENTER", 0, 100)
+			Castbar:SetHeight(20)
+			Castbar:SetWidth(300)
+		elseif unit == "focus" then
+			Castbar:SetStatusBarColor(unpack(colors.power.MANA))
+			Castbar:SetPoint("TOP", UIParent, "CENTER", 0, 70)
+			Castbar:SetHeight(20)
+			Castbar:SetWidth(300)
+		elseif unit == "pet" then
+			Castbar:SetStatusBarColor(unpack(colors.power.FOCUS))
+			Castbar:SetPoint("TOP", UIParent, "CENTER", 0, -380)
+			Castbar:SetHeight(15)
+			Castbar:SetWidth(300)
+		end
+
+		local Time = Castbar:CreateFontString(nil, "OVERLAY")
+		Time:SetPoint("RIGHT", Castbar, "RIGHT", -4.5, 0.5)
+		Time:SetFont(FONT, 20)
+		Time:SetJustifyH("RIGHT")
+		Time:SetShadowOffset(1, -1)
+
+		local Text = Castbar:CreateFontString(nil, "OVERLAY")
+		if unit == "pet" or unit == "focus" then
+			Text:SetPoint("TOPLEFT", Castbar, "BOTTOMLEFT", 4.5, 0)
+		else
+			Text:SetPoint("BOTTOMLEFT", Castbar, "TOPLEFT", 4.5, 0)
+		end
+		Text:SetFont(FONT, 18)
+		Text:SetJustifyH("LEFT")
+		Text:SetShadowOffset(1, -1)
+
+		AddBorder(Castbar)
+
+		Castbar.bg = bg
+		Castbar.Time = Time
+		Castbar.Text = Text
+		self.Castbar = Castbar
+	end
 
 	return self
 end
