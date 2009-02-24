@@ -1,5 +1,5 @@
 ## Interface: 30000
-## Version: 3.0.3.wowi:revision
+## Version: 3.0.9.wowi:revision
 
 ## Title: oUF Phanx
 ## Notes: Phanx's layout for oUF 1.3
@@ -9,7 +9,7 @@
 ## X-Website: http://www.wowinterface.com/downloads/info.html
 
 ## Author: Phanx
-## X-Email: addons@phanx.net
+## X-Email: addons(at)phanx(dot)net
 
 ## Dependencies: oUF
 ## OptionalDeps: LibHealComm-3.0, LibResComm-3.0, oUF_Banzai, oUF_CombatFeedback, oUF_HealingFeedback, oUF_HealEstimation, oUF_ReadyCheck, oUF_Smooth

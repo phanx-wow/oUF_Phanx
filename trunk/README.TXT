@@ -27,6 +27,7 @@ This layout supports the following libraries:
 This layout supports the following plugins:
 	oUF_AuraSort
 	oUF_Banzai
+	oUF_CombatFeedback
 	oUF_DebuffHighlight
 	oUF_HealEstimation
 	oUF_HealingFeedback
