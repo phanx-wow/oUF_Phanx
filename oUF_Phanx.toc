@@ -1,10 +1,10 @@
 ## Interface: 30100
-## Version: 3.1.0.wowi:revision
+## Version: 3.1.1.wowi:revision
 
 ## Title: oUF Phanx
 ## Notes: A fully featured, healer oriented layout for oUF.
 ## X-Category: UnitFrame
-## X-Copyright: Copyright © 2007–2008 Alyssa Kinley, a.k.a. Phanx
+## X-Copyright: Copyright © 2007–2009 Alyssa Kinley, a.k.a. Phanx
 ## X-License: Do not redistribute. See README for complete license terms.
 ## X-Website: http://www.wowinterface.com/downloads/info.html
 
@@ -21,3 +21,4 @@ threat.lua
 
 core.lua
 # raid.lua
+# tanks.lua
