@@ -1,6 +1,16 @@
+------------------------------------------------------------------------
+Description:
 
-oUF_Phanx is a World of Warcraft user interface addon to add my custom
-layout to oUF.
+oUF_Phanx is a fully featured, healer oriented layout for oUF.
+
+It supports the player, pet, target, targettarget, focus, focustarget,
+partyN, and partypetN units. It features incoming heal indications,
+smart debuff highlighting, threat highlighting, resurrection info, a
+five-second-rule spark for casters, and mana text for druids in feral
+forms. It supports various plugins to provide combat feedback, a global
+cooldown spark, ready check icons, and smooth bar updates.
+
+Raid units are not currently supported.
 
 ------------------------------------------------------------------------
 Download:
@@ -25,13 +35,9 @@ This layout supports the following libraries:
 	LibResComm-3.0
 
 This layout supports the following plugins:
-	oUF_AuraSort
-	oUF_Banzai
 	oUF_CombatFeedback
-	oUF_DebuffHighlight
-	oUF_HealEstimation
+	oUF_GCD
 	oUF_HealingFeedback
-	oUF_PowerSpark
 	oUF_ReadyCheck
 	oUF_Smooth
 
@@ -43,10 +49,10 @@ download page to report specific problems and request specific features.
 
 Use the comments section on the download page for general feedback only.
 
-If private communication is preferred, I can be contacted...
-	by email at addons@phanx.net
-	by in-game mail to Phanx on US Blackrock Horde
-	by private message to Phanx on wowinterface.com or wowace.com
+If private communication is necessary, I can be contacted...
+- by email: addons AT phanx net
+- by private message: Phanx on wowinterface.com or wowace.com
+- by in-game mail: Phanx on US Blackrock Horde
 
 ------------------------------------------------------------------------
 Credits:
@@ -57,5 +63,21 @@ layout would do absolutely nothing!
 ------------------------------------------------------------------------
 License:
 
-Alyssa S. Kinley grants anyone the right to use this work for any purpose,
-without any conditions, unless such conditions are required by law.
+Copyright © 2008-2009 Alyssa "Phanx" Kinley
+
+The contents of this addon, excluding third-party resources, are
+copyrighted to its author with all rights reserved under United States
+copyright law and various international treaties. You are hereby granted
+the following permissions, and agree to be bound by the following terms:
+
+You MAY download, install, run, and make modifications to this addon for
+your own personal use.
+
+You MAY NOT redistribute this addon, modified or unmodified, including
+as part of a compilation, without prior written consent from its author.
+
+You MAY use code from this addon, in whole or in part, in your own addon
+provided that the name and code of your addon contain no references to
+the name of this addon or its author.
+
+------------------------------------------------------------------------
