@@ -5,9 +5,9 @@
 
 	Example:
 
-	self.ResurrectionFeedback = self.Health:CreateFontString(nil, "OVERLAY")
-	self.ResurrectionFeedback:SetPoint("CENTER", self.Health)
-	self.ResurrectionFeedback:SetFont("Fonts\\FRIZQT__.ttf", 18, "OUTLINE")
+	self.ResurrectionStatus = self.Health:CreateFontString(nil, "OVERLAY")
+	self.ResurrectionStatus:SetPoint("CENTER", self.Health)
+	self.ResurrectionStatus:SetFont("Fonts\\FRIZQT__.ttf", 18, "OUTLINE")
 ------------------------------------------------------------------------]]
 
 if not oUF then return end
@@ -77,8 +77,8 @@ local function ResStart(event, _, _, target)
 	local unit = GetUnitFromName(target)
 	if not unit or not UnitIsDeadOrGhost(unit) or not frames[unit] then return end
 
-	frames[unit].ResurrectionFeedback:SetText("Resurrecting...")
-	frames[unit].ResurrectionFeedback:SetTextColor(0.2, 1, 0.2)
+	frames[unit].ResurrectionStatus:SetText("Resurrecting...")
+	frames[unit].ResurrectionStatus:SetTextColor(0.2, 1, 0.2)
 end
 
 ------------------------------------------------------------------------
@@ -87,7 +87,7 @@ local function ResEnd(event, _, target)
 	local unit = GetUnitFromName(target)
 	if not unit or not UnitIsDeadOrGhost(unit)  or not frames[unit] then return end
 
-	frames[unit].ResurrectionFeedback:SetText()
+	frames[unit].ResurrectionStatus:SetText()
 end
 
 ------------------------------------------------------------------------
@@ -96,8 +96,8 @@ local function Expired(event, name)
 	local unit = GetUnitFromName(name)
 	if not unit or not UnitIsDeadOrGhost(unit)  or not frames[unit] then return end
 
-	frames[unit].ResurrectionFeedback:SetText("Resurrected")
-	frames[unit].ResurrectionFeedback:SetTextColor(1, 0.2, 0.2)
+	frames[unit].ResurrectionStatus:SetText("Resurrected")
+	frames[unit].ResurrectionStatus:SetTextColor(1, 0.2, 0.2)
 
 	fading[frames[unit]] = FADE_TIME
 	element:Show()
@@ -109,8 +109,8 @@ local function Ressed(event, name)
 	local unit = GetUnitFromName(name)
 	if not unit or not UnitIsDeadOrGhost(unit) or not frames[unit] then return end
 
-	frames[unit].ResurrectionFeedback:SetText("Resurrected")
-	frames[unit].ResurrectionFeedback:SetTextColor(0.2, 1, 0.2)
+	frames[unit].ResurrectionStatus:SetText("Resurrected")
+	frames[unit].ResurrectionStatus:SetTextColor(0.2, 1, 0.2)
 end
 
 ------------------------------------------------------------------------
@@ -125,19 +125,19 @@ local function CanRes(event, name, type)
 	local unit = GetUnitFromName(name)
 	if not unit or not UnitIsDeadOrGhost(unit) or not frames[unit] or frames[unit].ResurrectionFeedback.ignoreSoulstone then return end
 
-	frames[unit].ResurrectionFeedback:SetText(text[type] or text["S"])
-	frames[unit].ResurrectionFeedback:SetTextColor(0.2, 1, 0.2)
+	frames[unit].ResurrectionStatus:SetText(text[type] or text["S"])
+	frames[unit].ResurrectionStatus:SetTextColor(0.2, 1, 0.2)
 end
 
 ------------------------------------------------------------------------
 
 local function hook(frame)
-	if not frame.ResurrectionFeedback then return end
+	if not frame.ResurrectionStatus then return end
 	frames[frame.unit] = frame
 
 	do
 		if not UnitIsDead(unit) then
-			frame.ResurrectionFeedback:SetText()
+			frame.ResurrectionStatus:SetText()
 		end
 	end
 end

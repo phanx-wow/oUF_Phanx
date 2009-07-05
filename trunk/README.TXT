@@ -1,45 +1,74 @@
 ------------------------------------------------------------------------
 Description:
 
-oUF_Phanx is a fully featured, healer oriented layout for oUF.
-
-It supports the player, pet, target, targettarget, focus, focustarget,
-partyN, and partypetN units. It features incoming heal indications,
-smart debuff highlighting, threat highlighting, resurrection info, a
-five-second-rule spark for casters, and mana text for druids in feral
-forms. It supports various plugins to provide combat feedback, a global
-cooldown spark, ready check icons, and smooth bar updates.
-
-Raid units are not currently supported.
+oUF_Phanx is a layout for oUF. It is primarily designed for healing, but 
+is suitable for tanking and damage dealing as well. The focus is on 
+presenting all the information you need to make effective healing 
+decisions in a compact, clear display format.
 
 ------------------------------------------------------------------------
 Download:
 
-http://www.wowinterface.com/downloads/info-oUF_Phanx.html
-http://wow.curse.com/downloads/wow-addons/details/ouf_phanx.aspx
+	http://www.wowinterface.com/downloads/info13993-oUFPhanx.html
+	http://wow.curse.com/downloads/wow-addons/details/oufphanx.aspx
+
+------------------------------------------------------------------------
+Features:
+
+	Debuff highlighting with dispel priority
+	Druid mana display *
+	Incoming heal display *
+	Resurrection status display *
+	Threat highlighting
+	Combat feedback text **
+	Global cooldown spark **
+	Ready check icons **
+	Smooth bar animation **
+
+*  Asterisk denotes incomplete feature.
+** Double asterisk denotes feature requires plugin installation.
+
+------------------------------------------------------------------------
+Supported Units:
+
+	Player
+	Pet
+	Target
+	Target Target
+	Focus
+	Focus Target
+	Party *
+	Party Pet *
+
+------------------------------------------------------------------------
+Supported Plugins:
+
+	oUF_AFK
+	http://www.wowace.com/projects/ouf_holysmurf/
+	
+	oUF_CombatFeedback
+	http://www.wowinterface.com/downloads/info8769-oUFCombatFeedback.html
+	
+	oUF_GCD
+	http://www.wowinterface.com/downloads/info12702-oUFGCD.html
+	
+	oUF_ReadyCheck
+	http://www.wowinterface.com/downloads/info9856-oUFReadyCheck.html
+	
+	oUF_Smooth
+	http://www.wowinterface.com/downloads/info11503-oUFSmoothUpdate.html
 
 ------------------------------------------------------------------------
 Dependencies:
 
-oUF
-http://www.wowinterface.com/downloads/info-oUF.html
+	oUF
+	http://www.wowinterface.com/downloads/info-oUF.html
 
 ------------------------------------------------------------------------
-Notes:
+Optional Dependencies:
 
-Font, statusbar texture, and some other basic options are available by
-editing some clearly labeled variables at the top of the Lua file.
-
-This layout supports the following libraries:
-	LibHealComm-3.0
-	LibResComm-3.0
-
-This layout supports the following plugins:
-	oUF_CombatFeedback
-	oUF_GCD
-	oUF_HealingFeedback
-	oUF_ReadyCheck
-	oUF_Smooth
+	LibHealComm-3.0 (required for incoming heal display)
+	LibResComm-3.0 (required for resurrection status display)
 
 ------------------------------------------------------------------------
 Feedback:
@@ -65,19 +94,30 @@ License:
 
 Copyright © 2008-2009 Alyssa "Phanx" Kinley
 
-The contents of this addon, excluding third-party resources, are
-copyrighted to its author with all rights reserved under United States
-copyright law and various international treaties. You are hereby granted
-the following permissions, and agree to be bound by the following terms:
+The contents of this addon, excluding third-party resources, are copyrighted
+to its author with all rights reserved under United States copyright law and
+international treaty. Copyright specifies certain rights and restrictions
+persuant to your use of this addon, and this license grants you certain
+additional rights. Installing, using, or distributing this addon shall
+constitute acceptance of the terms of this license.
 
-You MAY download, install, run, and make modifications to this addon for
-your own personal use.
+1. You MAY download, install, and use this addon for private use.
 
-You MAY NOT redistribute this addon, modified or unmodified, including
-as part of a compilation, without prior written consent from its author.
+2. You MAY make modifications to this addon for private use.
 
-You MAY use code from this addon, in whole or in part, in your own addon
-provided that the name and code of your addon contain no references to
-the name of this addon or its author.
+3. You MAY NOT distribute this addon, modified or unmodified, including as 
+part of a compilation or premade user interface, without the prior written 
+consent of the copyright holder. The copyright owner, through the act of 
+uploading this addon to a distributor, grants that distributor a 
+non-exclusive and terminable right to distribute this addon to end users.
+
+4. You MAY use source code from this addon in your own addon or for any 
+other purpose, provided that the name of this addon or its author do not 
+appear in the title, source code, file names, documentation, or any other 
+materials associated with your project, and that the name of this addon 
+and its author are not used to promote your project.
+
+All rights that are not explicitly addressed in this licence are reserved by
+the copyright holder.
 
 ------------------------------------------------------------------------

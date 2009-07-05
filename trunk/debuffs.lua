@@ -26,17 +26,18 @@
 ----------------------------------------------------------------------]]
 
 if not oUF then return end
+if select(4, GetAddOnInfo("oUF_DebuffHighlight")) then return end
 
 ------------------------------------------------------------------------
 
-local CanDispel = {
+local dispellable = {
 	PRIEST = { Disease = true, Magic = true, },
 	SHAMAN = { Curse = true, Disease = true, Poison = true, },
 	PALADIN = { Disease = true, Magic = true, Poison = true, },
 	MAGE = { Curse = true, },
 	DRUID = { Curse = true, Poison = true, }
 }
-CanDispel = CanDispel[select(2,UnitClass("player"))] or { }
+dispellable = dispellable[select(2, UnitClass("player"))] or { }
 
 ------------------------------------------------------------------------
 
@@ -50,7 +51,7 @@ do
 	local t = { }
 	for type in pairs(DispelPriority) do
 		table.insert(t, type)
-		t[type] = (CanDispel[type] and 10 or 5) - DispelPriority[type]
+		t[type] = (dispellable[type] and 10 or 5) - DispelPriority[type]
 	end
 	table.sort(t, function(a, b) return t[a] > t[b] end)
 	DispelPriority = t
@@ -70,13 +71,6 @@ end
 local unpack = unpack
 
 local validUnits = { }
-
-------------------------------------------------------------------------
-
-local function debug(str, ...)
-	if select(1, ...) then str = str:format(...) end
-	ChatFrame7:AddMessage(str)
-end
 
 ------------------------------------------------------------------------
 
@@ -132,7 +126,6 @@ eventFrame:SetScript("OnEvent", function(self, event, unit)
 	if not frame then return end
 
 	if event == "UNIT_AURA" then
-		-- debug("oUF_Phanx, debuffs.lua, UNIT_AURA, " .. unit)
 		wipe(hasDebuff)
 
 		local i = 1
@@ -149,9 +142,7 @@ eventFrame:SetScript("OnEvent", function(self, event, unit)
 		local change
 		for type, old in pairs(frame.hasDebuff) do
 			local new = hasDebuff[type]
-			-- debug("old: " .. tostring(old) .. "; new: " .. tostring(new))
 			if (old and not new) or (not old and new) then
-				debug("change: " .. type)
 				frame.hasDebuff[type] = new or false
 				change = true
 			end
@@ -159,16 +150,12 @@ eventFrame:SetScript("OnEvent", function(self, event, unit)
 
 		if change then
 			if type(frame.DebuffHighlight) == "function" then
-				-- debug("frame.DebuffHighlight: %s", unit)
 				frame:DebuffHighlight(event, unit)
 			else
-				-- debug("applyDebuffHighlight: %s", unit)
 				applyDebuffHighlight(frame, event, unit, frame.Health)
 			end
 		end
 	elseif event == "UNIT_HEALTH" then
-		-- debug("oUF_Phanx, debuffs.lua, UNIT_HEALTH, " .. unit)
-
 		if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
 			local change
 			for type, active in pairs(frame.hasDebuff) do
@@ -179,10 +166,8 @@ eventFrame:SetScript("OnEvent", function(self, event, unit)
 			end
 			if change then
 				if type(frame.DebuffHighlight) == "function" then
-					-- debug("frame.DebuffHighlight: %s", unit)
 					frame:DebuffHighlight(event, unit)
 				else
-					-- debug("applyDebuffHighlight: %s", unit)
 					applyDebuffHighlight(frame, event, unit, frame.Health)
 				end
 			end
