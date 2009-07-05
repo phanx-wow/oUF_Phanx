@@ -12,7 +12,12 @@
 ## X-Email: addons@phanx.net
 
 ## Dependencies: oUF
-## OptionalDeps: LibHealComm-3.0, LibResComm-3.0
+## OptionalDeps: LibHealComm-3.0, LibResComm-1.0
+
+# lib\LibStub.lua
+# lib\CallbackHandler-1.0.lua
+# lib\LibHealComm-3.0.lua
+# lib\LibResComm-1.0.lua
 
 debuffs.lua
 # heals.lua
