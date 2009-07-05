@@ -19,8 +19,8 @@
 		Target Target
 		Focus
 		Focus Target
-		Party
-		Party Pet
+		Party [NYI]
+		Party Pet [NYI]
 
 	Supported Plugins:
 		oUF_AFK
@@ -950,7 +950,7 @@ local function Spawn(self, unit)
 	hp.value:SetFont(settings.font, HEIGHT + 4, "OUTLINE")
 	hp.value:SetShadowOffset(1, -1)
 
-	if self.reverse then
+	if self.reverse and not (unit and unit:match("%a+target")) then
 		hp.value:SetPoint("LEFT", self, INSET, 1)
 		hp.value:SetJustifyH("LEFT")
 	else
@@ -1098,10 +1098,10 @@ local function Spawn(self, unit)
 
 	elseif unit == "targettarget" or unit == "focustarget" then
 		local name = hp:CreateFontString(nil, "OVERLAY")
-		name:SetPoint("LEFT", self , 3, 1)
-		name:SetPoint("RIGHT", hp.value, "LEFT", -4, 0)
+		name:SetPoint("LEFT", self, INSET, 1)
+		--name:SetPoint("RIGHT", hp.value, "LEFT", -INSET, 0)
 		name:SetFont(settings.font, 18, "OUTLINE")
-		name:SetShadowOffset(0, 0)
+		name:SetShadowOffset(1, -1)
 		name:SetJustifyH("LEFT")
 
 		self.Name = name
