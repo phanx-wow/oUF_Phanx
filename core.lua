@@ -7,160 +7,155 @@
 	See README for license terms and additional information.
 
 	Features:
-		Aggro highlighting (and optionally threat levels)
+		Aggro highlighting
 		Dispellable debuff highlighting
-		Estimated cast latency (Quartz style) (NYI)
-		Incoming heals (NYI)
-		Incoming resurrections (NYI)
+		Incoming heal display [NYI]
+		Resurrection display [NYI]
 
-	Units:
-		player, pet, target, targettarget, focus
+	Supported Units:
+		Player
+		Pet
+		Target
+		Target Target
+		Focus
+		Focus Target
+		Party
+		Party Pet
 
-	Notes:
-		Support for additional units is planned, but is not a high
-		priority as I currently use Grid for party and raid frames.
-
-	Required Dependencies:
-		oUF
-
-	Optional Dependencies:
-		LibHealComm-3.0
-		LibResComm-3.0
+	Supported Plugins:
+		oUF_AFK
 		oUF_CombatFeedback
 		oUF_GCD
 		oUF_ReadyCheck
 		oUF_Smooth
 
+	Required Dependencies:
+		oUF
+	
+	Optional Dependencies:
+		LibHealComm-3.0 (required for incoming heal display)
+		LibResComm-3.0 (required for resurrection display)
+
 ----------------------------------------------------------------------]]
 
-assert(oUF, "oUF_Phanx is just a layout. You need the base oUF addon too!")
-
-local function debug(str, ...)
-	do return end
-	if select(1, ...) then str = str:format(...) end
-	ChatFrame7:AddMessage("|cffff3333oUF_Phanx:|r " .. str)
-end
+assert(oUF, "oUF_Phanx requires oUF, newb.")
 
 ------------------------------------------------------------------------
---	Configuration starts here								--
+--	Configuration starts here
 ------------------------------------------------------------------------
 
 local settings = {
 	-- Disable this if you use a separate castbar addon
 	castBars = true,
+	
+	-- Disable this if you prefer a plain border on frames
+	fancyBorder = true,
 
 	-- Color pets using the color of the class most likely to own them
 	-- e.g. beasts are assumed to be hunter pets
-	guessPetColors = true,
+	guessPetColors = false,
 
 	-- Use the Blizzard threat levels to color borders based on threat
 	-- thresholds, instead of binary aggro coloring
 	threatLevels = false,
 
-	-- These should be obvious
 	font = "Fonts\\FRIZQT__.ttf",
-	statusbar = "Interface\\AddOns\\SharedMedia\\statusbar\\Neal",
+	statusbar = "Interface\\AddOns\\oUF_Phanx\\media\\statusbar",
 	border = "Interface\\AddOns\\oUF_Phanx\\media\\border",
-	borderColor = { 0.3, 0.3, 0.3, 1 },
-	backdropColor = { 0.1, 0.1, 0.1, 1 },
-
-	-- Don't change the insets
-	backdrop = {
-		bgFile = "Interface\\Addons\\Grid\\white16x16", tile = true, tileSize = 16,
-		edgeFile = "Interface\\Addons\\Grid\\white16x16", edgeSize = 3,
-		insets = { left = 0, right = 0, top = 0, bottom = 0 }, -- All to 3 for Grid-style border
-	},
+	borderColor = { 0.5, 0.5, 0.5 },
 
 	-- Unit configuration
 	-- Required:	width (number), height (number), point (table)
 	-- Optional:	power (boolean), reverse (boolean), vertical (boolean)
-	-- Special:	header (boolean), attributes (table), template (string)
+	-- Special:	header (boolean), template (string), attributes (table)
 	-- Points are relative to CENTER of the UIParent
 	units = {
 		player = {
 			width = 200,
-			height = 25,
+			height = 20,
 			power = true,
-			point = { "TOPRIGHT", -208, -105 },
+			point = { "TOP", 0, -250 },
 		},
 		pet = {
 			width = 200,
-			height = 25,
+			height = 20,
 			power = true,
-			point = { "TOPRIGHT", -208, -145 },
+			point = { "TOP", 0, -282 },
 		},
 		target = {
 			width = 200,
-			height = 25,
+			height = 20,
 			power = true,
 			reverse = true,
-			point = { "TOPLEFT", 208, -105 },
+			point = { "TOPLEFT", 200, -100 },
 		},
 		targettarget = {
 			width = 200,
-			height = 20,
+			height = 16,
 			reverse = true,
-			point = { "TOPLEFT", 208, -145 },
+			point = { "TOPLEFT", 200, -132 },
 		},
 		focus = {
 			width = 200,
-			height = 25,
-			point = { "TOPLEFT", 587, -105 },
+			height = 20,
+			point = { "TOPRIGHT", -200, -100 },
 		},
 		focustarget = {
 			width = 200,
-			height = 20,
-			reverse = true,
-			point = { "TOPLEFT", 587, -145 },
+			height = 16,
+			point = { "TOPRIGHT", -200, -132 },
 		},
---[[
-		maintank = {
-			width = 100,
-			height = 25,
-			reverse = true,
-			point = { "BOTTOMLEFT", 150 + 200 + 60 + 50 + 30, -150 - 60 },
-			header = true,
-			attributes = { "showRaid", true, "groupFilter", "MAINTANK", "yOffset", 10 },
-		},
-		mainassist = {
-			width = 100,
-			height = 25,
-			reverse = true,
-			point = { "BOTTOMLEFT", 150 + 200 + 60 + 50 + 30, -150 - 60 },
-			header = true,
-			attributes = { "showRaid", true, "groupFilter", "MAINASSIST", "yOffset", 10 },
-		},
-]]
 	},
 }
 
-local L = setmetatable({}, { __index = function(t, k) return k end })
+------------------------------------------------------------------------
+--	Localization
+------------------------------------------------------------------------
 
--- These only need editing if you play in a non-English locale.
+local L = setmetatable({}, { __index = function(t, k) t[k] = k return k end })
+--[[
+if GetLocale() == "xxXX" then
+	L["B"] = "B"		-- Boss
+	L["E"] = "E"		-- Elite
+	L["R"] = "R"		-- Rare
+	
+	L[" Be"] = " Be"	-- Beast
+	L[" De"] = " De"	-- Demon
+	L[" Dr"] = " Dr"	-- Dragonkin
+	L[" El"] = " El"	-- Elemental
+	L[" Gi"] = " Gi"	-- Giant
+	L[" Hu"] = " Hu"	-- Humanoid
+	L[" Me"] = " Me"	-- Mechanical
+	L[" Un"] = " Un"	-- Undead
+end
+]]
+------------------------------------------------------------------------
+--	Configuration ends here. Proceed at your own risk.
+------------------------------------------------------------------------
+
 local strings = {
 	classification = {
-		["elite"] = "|cffffd700E|r",
-		["rare"] = "|cffc7c7cfR|r",
-		["rareelite"] = "|cffc7c7cfR|r|cffffd700E|r",
-		["worldboss"] = "|cffeda55fB|r",
+		["elite"]		= "|cffffd700" .. L["E"] .. "|r",
+		["rare"]		= "|cffc7c7cf" .. L["R"] .. "|r",
+		["rareelite"]	= "|cffc7c7cf" .. L["R"] .. "|r|cffffd700" .. L["E"] .. "|r",
+		["worldboss"]	= "|cffeda55f" .. L["B"] .. "|r",
 	},
 	creaturetype = {
-		["Beast"] = "Be",
-		["Demon"] = "De",
-		["Dragonkin"] = "Dr",
-		["Elemental"] = "El",
-		["Giant"] = "Gi",
-		["Humanoid"] = "Hu",
-		["Mechanical"] = "Me",
-		["Undead"] = "Un",
-		["Critter"] = "",
+		["Beast"]		= L[" Be"],
+		["Demon"]		= L[" De"],
+		["Dragonkin"]	= L[" Dr"],
+		["Elemental"]	= L[" El"],
+		["Giant"]		= L[" Gi"],
+		["Humanoid"]	= L[" Hu"],
+		["Mechanical"]	= L[" Me"],
+		["Undead"]	= L[" Un"],
+		["Critter"]	= "",
 		["Non-combat Pet"] = "",
 		["Not specified"] = "",
-		["Unknown"] = "",
+		["Unknown"]	= "",
 	},
 }
 
--- These don't really need editing at all.
 local colors = oUF.colors
 do
 	colors.threat = {
@@ -190,8 +185,6 @@ do
 end
 
 ------------------------------------------------------------------------
---	Configuration ends here									--
-------------------------------------------------------------------------
 
 colors.debuff = { }
 for type, color in pairs(DebuffTypeColor) do
@@ -215,12 +208,18 @@ if CUSTOM_CLASS_COLORS then
 	end)
 end
 
--- colors.class.SHAMAN = { 0, 0.86, 0.72 }
+local function debug(str, ...)
+	do return end
+	if select(1, ...) then str = str:format(...) end
+	ChatFrame7:AddMessage("|cffff3333oUF_Phanx:|r " .. str)
+end
 
 ------------------------------------------------------------------------
 
+local BORDER_SIZE = 14
 local MAX_LEVEL = MAX_PLAYER_LEVEL_TABLE[GetAccountExpansionLevel()]
-local PLAYER_CLASS = select(2, UnitClass("player"))
+
+local playerClass = select(2, UnitClass("player"))
 
 --[[--------------------------------------------------------------------
 	AbbreviateValue
@@ -335,7 +334,7 @@ local function GetUnitColor(unit)
 		return colors.class[class] or colors.unknown
 	elseif settings.guessPetColors and UnitPlayerControlled(unit) then
 		if unit == "pet" then
-			return colors.class[PLAYER_CLASS]
+			return colors.class[playerClass]
 		end
 
 		local owner = unit:match("^(.+)pet$")
@@ -395,7 +394,7 @@ local function SetBorderSize(self, size)
 		AddBorder(self, size)
 	end
 	if not size then
-		size = 16
+		size = BORDER_SIZE
 	end
 	--debug("SetBorderSize: %s", size)
 
@@ -463,7 +462,7 @@ function AddBorder(frame, size)
 	t[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
 
 	SetBorderColor(frame, unpack(settings.borderColor))
-	SetBorderSize(frame)
+	SetBorderSize(frame, size)
 
 	frame.SetBorderColor = SetBorderColor
 	frame.SetBorderSize = SetBorderSize
@@ -473,8 +472,22 @@ end
 --	Border management
 ------------------------------------------------------------------------
 
+local IsTanking
+if playerClass == "DEATHKNIGHT" then
+	function IsTanking() return GetShapeshiftForm() == 2 end
+elseif playerClass == "DRUID" then
+	function IsTanking() return GetShapeshiftForm() == 1 end
+elseif playerClass == "PALADIN" then
+	local RIGHTEOUS_FURY = GetSpellInfo(25780)
+	function IsTanking() return UnitBuff("player", RIGHTEOUS_FURY) and true end
+elseif playerClass == "WARRIOR" then
+	function IsTanking() return GetShapeshiftForm() == 1 end
+else
+	function IsTanking() return false end
+end
+
 local function UpdateBorder(self)
-	if not self.unit:match("target$") then debug("UpdateBorder: %s", self.unit) end
+	-- if not self.unit:match("target$") then debug("UpdateBorder: %s", self.unit) end
 	local priority, color = 0
 
 	if self.DebuffPriority then
@@ -489,21 +502,30 @@ local function UpdateBorder(self)
 	end
 
 	if self.hasThreat then
-		debug("Checking for threat...")
-		if priority < 6 and self.hasThreat > 0 then
+		-- debug("Checking for threat (" .. (IsTanking() and "tanking" or "not tanking") .. ")...")
+		local threatPriority = IsTanking() and 10 or 5
+		if priority < threatPriority and self.hasThreat > 0 then
 			color = colors.threat[self.hasThreat]
-			priority = 5
+			priority = threatPriority
 			debug("hasThreat, %d, %d", self.hasThreat, priority)
 		end
 	end
 
-	if priority > 4 then
-		self:SetBorderSize(20)
+	if settings.fancyBorder then
+		local r, g, b = unpack(color or settings.borderColor)
+		self:SetBorderColor(r, g, b, 1)
+		self:SetBorderSize(BORDER_SIZE * (priority > 4 and 1.25 or 1))
 	else
-		self:SetBorderSize(16)
+		if priority > 4 then
+			local r, g, b = unpack(color or settings.borderColor)
+			self:SetBackdropBorderColor(r, g, b, 1)
+		elseif priority > 0 then
+			local r, g, b = unpack(color or settings.borderColor)
+			self:SetBackdropBorderColor(r, g, b, 0.5)
+		else
+			self:SetBackdropBorderColor(0, 0, 0, 0)
+		end
 	end
-
-	self:SetBorderColor(unpack(color or settings.borderColor))
 end
 
 ------------------------------------------------------------------------
@@ -539,11 +561,11 @@ local function UpdateHealth(self, event, unit, bar, min, max)
 			if unit == "player" or unit == "pet" then
 				bar.value:SetFormattedText("-%s", AbbreviateValue(max - min))
 			elseif unit == "targettarget" or unit == "focustarget" then
-				bar.value:SetFormattedText("%s%%", floor(min / max * 100))
-			elseif UnitPlayerControlled(unit) and UnitIsFriend(unit, "player") then
-				bar.value:SetFormattedText("%s|cffff9999 - %s|r", AbbreviateValue(max), AbbreviateValue(max - min))
+				bar.value:SetFormattedText("%s%%", ceil(min / max * 100))
+			elseif (UnitIsPlayer(unit) or UnitPlayerControlled(unit)) and UnitIsFriend(unit, "player") then
+				bar.value:SetFormattedText("%s|cffff6666-%s|r", AbbreviateValue(max), AbbreviateValue(max - min))
 			else
-				bar.value:SetFormattedText("%s (%d%%)", AbbreviateValue(min), floor(min / max * 100))
+				bar.value:SetFormattedText("%s (%d%%)", AbbreviateValue(min), ceil(min / max * 100))
 			end
 		elseif unit == "target" or unit == "focus" then
 			bar.value:SetText(AbbreviateValue(max))
@@ -573,6 +595,7 @@ end
 local UpdateDruidMana
 do
 	local time = 0
+	local SPELL_POWER_MANA = SPELL_POWER_MANA
 	function UpdateDruidMana(self, elapsed)
 		time = time + (elapsed or 1000)
 		if time > 0.5 then
@@ -596,7 +619,7 @@ end
 
 local function UpdatePower(self, event, unit, bar, min, max)
 	if self.unit ~= unit then return end
-	--debug("UpdatePower: %s, %s", event, unit)
+	-- debug("UpdatePower: %s, %s", tostring(event), tostring(unit))
 
 	if max == 0 or UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
 		bar:SetValue(0)
@@ -610,7 +633,7 @@ local function UpdatePower(self, event, unit, bar, min, max)
 
 	local r, g, b
 
-	if unit == "pet" and PLAYER_CLASS == "HUNTER" and self.power then
+	if unit == "pet" and playerClass == "HUNTER" and self.power then
 		r, g, b = unpack(colors.happiness[GetPetHappiness()] or colors.power.FOCUS)
 		if min < max and bar.value then
 			bar.value:SetText(min)
@@ -647,13 +670,13 @@ local function UpdatePower(self, event, unit, bar, min, max)
 					end
 				end
 			else
-				if powertype == "MANA" then
+				if type == "MANA" then
 					if min < max then
 						bar.value:SetFormattedText("%s|cff%02x%02x%02x.%s|r", AbbreviateValue(min), r * 255, g * 255, b * 255, AbbreviateValue(max))
 					else
-						bar.value:SetText(max)
+						bar.value:SetText(AbbreviateValue(max))
 					end
-				elseif powertype == "ENERGY" then
+				elseif type == "ENERGY" then
 					if min < max then
 						bar.value:SetText(min)
 					else
@@ -738,7 +761,7 @@ local function UpdateInfo(self, event, unit)
 		creature = strings.creaturetype[UnitCreatureType(unit)]
 	end
 
-	self.Info:SetFormattedText("|cff%02x%02x%02x%s|r%s %s", r * 255, g * 255, b * 255, level, strings.classification[UnitClassification(unit)] or "", creature or "")
+	self.Info:SetFormattedText("|cff%02x%02x%02x%s|r%s%s", r * 255, g * 255, b * 255, level, strings.classification[UnitClassification(unit)] or "", creature or "")
 end
 
 ------------------------------------------------------------------------
@@ -805,28 +828,24 @@ end
 local function PostCreateAuraIcon(self, button, icons, index, isDebuff)
 	--debug("PostCreateAuraIcon: %s, %s, %s", self.unit, index, isDebuff)
 	
-	button.icon:SetTexCoord(.07, .93, .07, .93)
+	button.icon:ClearAllPoints()
 	button.icon:SetPoint("TOPLEFT", button, 1, -1)
 	button.icon:SetPoint("BOTTOMRIGHT", button, -1, 1)
+	button.icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
 
---	button.icon:ClearAllPoints()
---	button.icon:SetPoint("TOPLEFT", button, 2, -2)
---	button.icon:SetPoint("BOTTOMRIGHT", button, -2, 2)
---	button.icon:SetTexCoord(0.04, 0.96, 0.04, 0.96)
-
-	button.cd:SetReverse()
 	button.cd:ClearAllPoints()
-	button.cd:SetPoint("TOPLEFT", button, 1, -1)
-	button.cd:SetPoint("BOTTOMRIGHT", button, -1, 1)
+	button.cd:SetPoint("TOPLEFT", button, 2, -2)
+	button.cd:SetPoint("BOTTOMRIGHT", button, -2, 2)
+	button.cd:SetReverse()
 
 	button.count:ClearAllPoints()
-	button.count:SetPoint("BOTTOM", button, 0, 2)
+	button.count:SetPoint("BOTTOMRIGHT", button, -2, 2)
 
-	button.overlay:SetTexture(settings.border)
-	button.overlay:SetTexCoord(0, 1, 0, 1)
 	button.overlay:ClearAllPoints()
 	button.overlay:SetPoint("TOPLEFT", button, -1, 1)
 	button.overlay:SetPoint("BOTTOMRIGHT", button, 1, -1)
+	button.overlay:SetTexture(settings.border)
+	button.overlay:SetTexCoord(0.06, 0.94, 0.06, 0.94)
 
 	button.overlay.Hide = DontReallyHide
 end
@@ -851,21 +870,31 @@ end
 --	Setup a frame
 ------------------------------------------------------------------------
 
-local BORDER_GAP = settings.backdrop.edgeSize - 1 -- +1 instead for Grid style border
+local BACKDROP = {
+	bgFile = "Interface\\Buttons\\WHITE8X8", tile = true, tileSize = 16,
+	edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 3,
+	insets = { left = 3, right = 3, top = 3, bottom = 3 },
+}
+if settings.fancyBorder then
+	BACKDROP.insets.left = 0
+	BACKDROP.insets.right = 0
+	BACKDROP.insets.top = 0
+	BACKDROP.insets.bottom = 0
+end
+
+local INSET = BACKDROP.edgeSize + (settings.fancyBorder and -1 or 1)
 
 local function Spawn(self, unit)
 	-- debug("Spawn: %s", unit)
 
-	-- self.disallowVehicleSwap = true
-
-	local config
-	if not unit then
-		config = settings.units[string.match(self:GetParent():GetName():lower(), "^ouf_phanx(%a+)$")]
+	local usettings
+	if unit then
+		usettings = settings.units[unit]
 	else
-		config = settings.units[unit]
+		usettings = settings.units[string.match(self:GetParent():GetName():lower(), "^ouf_phanx(%a+)$")]
 	end
 
-	self.reverse = config.reverse
+	self.reverse = usettings.reverse
 
 	self.menu = menu
 	self:SetAttribute("*type2", "menu")
@@ -875,18 +904,18 @@ local function Spawn(self, unit)
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
-	local width = config.width + (BORDER_GAP * 2)
-	self:SetAttribute("initial-width", width)
-	self:SetWidth(width)
+	local WIDTH = usettings.width + (INSET * 2)
+	self:SetAttribute("initial-width", WIDTH)
+	self:SetWidth(WIDTH)
 
-	local height = config.height + (BORDER_GAP * 2) + (config.power and 1 or 0)
-	self:SetAttribute("initial-height", height)
-	self:SetHeight(height)
+	local HEIGHT = usettings.height + (INSET * 2) + (usettings.power and 1 or 0)
+	self:SetAttribute("initial-height", HEIGHT)
+	self:SetHeight(HEIGHT)
 
 	self:SetFrameStrata("BACKGROUND")
 	self:SetFrameLevel(0)
-	self:SetBackdrop(settings.backdrop)
-	self:SetBackdropColor(unpack(settings.backdropColor))
+	self:SetBackdrop(BACKDROP)
+	self:SetBackdropColor(0, 0, 0, 0.85)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
 
 	self.overlay = CreateFrame("Frame", nil, self)
@@ -895,21 +924,22 @@ local function Spawn(self, unit)
 	self.overlay:SetAllPoints(self)
 
 	-------------------------------------------------------------------
-	--	Health bar, health text
+	--	Health
+	-------------------------------------------------------------------
 
 	local hp = CreateFrame("StatusBar", nil, self)
 	hp:SetFrameStrata("BACKGROUND")
-	hp:SetFrameLevel(1)
 	hp:SetStatusBarTexture(settings.statusbar)
-	if config.vertical then
-		hp:SetPoint("TOPLEFT", BORDER_GAP, -BORDER_GAP)
-		hp:SetPoint("BOTTOMLEFT", BORDER_GAP, BORDER_GAP)
-		hp:SetHeight(config.power and config.width / 5 * 4 or config.width)
+
+	if usettings.vertical then
+		hp:SetPoint("TOPLEFT", INSET, -INSET)
+		hp:SetPoint("BOTTOMLEFT", INSET, INSET)
+		hp:SetWidth(usettings.power and usettings.width / 5 * 4 or usettings.width)
 		hp:SetStatusBarOrientation("VERTICAL")
 	else
-		hp:SetPoint("BOTTOMLEFT", BORDER_GAP, BORDER_GAP)
-		hp:SetPoint("BOTTOMRIGHT", -BORDER_GAP, BORDER_GAP)
-		hp:SetHeight(config.power and config.height / 5 * 4 or config.height)
+		hp:SetPoint("BOTTOMLEFT", INSET, INSET)
+		hp:SetPoint("BOTTOMRIGHT", -INSET, INSET)
+		hp:SetHeight(usettings.power and usettings.height / 5 * 4 or usettings.height)
 	end
 
 	hp.bg = hp:CreateTexture(nil, "BORDER")
@@ -917,13 +947,15 @@ local function Spawn(self, unit)
 	hp.bg:SetTexture(settings.statusbar)
 
 	hp.value = hp:CreateFontString(nil, "OVERLAY")
-	hp.value:SetFont(settings.font, 20, "OUTLINE")
-	hp.value:SetShadowOffset(0, 0)
-	hp.value:SetTextColor(1, 1, 1)
-	if self.reverse and not (unit and unit:match("^%a+target$")) then
-		hp.value:SetPoint("LEFT", hp:GetHeight() / 2 - 8, 0)
+	hp.value:SetFont(settings.font, HEIGHT + 4, "OUTLINE")
+	hp.value:SetShadowOffset(1, -1)
+
+	if self.reverse then
+		hp.value:SetPoint("LEFT", self, INSET, 1)
+		hp.value:SetJustifyH("LEFT")
 	else
-		hp.value:SetPoint("RIGHT", -hp:GetHeight() / 2 + 8, 0)
+		hp.value:SetPoint("RIGHT", self, -INSET, 1)
+		hp.value:SetJustifyH("RIGHT")
 	end
 
 	hp.frequentUpdates = true
@@ -933,22 +965,24 @@ local function Spawn(self, unit)
 	self.OverrideUpdateHealth = UpdateHealth
 
 	-------------------------------------------------------------------
-	--	Power bar, power text, druid mana text
+	--	Power
+	-------------------------------------------------------------------
 
-	if config.power then
+	if usettings.power then
 		local pp = CreateFrame("StatusBar", nil, self)
 		pp:SetFrameStrata("BACKGROUND")
 		pp:SetFrameLevel(1)
 		pp:SetStatusBarTexture(settings.statusbar)
-		if config.vertical then
-			pp:SetPoint("TOPRIGHT", -BORDER_GAP, -BORDER_GAP)
-			pp:SetPoint("BOTTOMRIGHT", -BORDER_GAP, -BORDER_GAP)
-			pp:SetHeight(config.width / 5)
+
+		if usettings.vertical then
+			pp:SetPoint("TOPRIGHT", -INSET, -INSET)
+			pp:SetPoint("BOTTOMRIGHT", -INSET, -INSET)
+			pp:SetWidth(usettings.width / 5)
 			pp:SetStatusBarOrientation("VERTICAL")
 		else
-			pp:SetPoint("TOPLEFT", BORDER_GAP, -BORDER_GAP)
-			pp:SetPoint("TOPRIGHT", -BORDER_GAP, -BORDER_GAP)
-			pp:SetHeight(config.height / 5)
+			pp:SetPoint("TOPLEFT", INSET, -INSET)
+			pp:SetPoint("TOPRIGHT", -INSET, -INSET)
+			pp:SetHeight(usettings.height / 5)
 		end
 
 		pp.bg = pp:CreateTexture(nil, "BORDER")
@@ -956,12 +990,17 @@ local function Spawn(self, unit)
 		pp.bg:SetTexture(settings.statusbar)
 
 		pp.value = pp:CreateFontString(nil, "OVERLAY")
-		pp.value:SetFont(settings.font, 16, "OUTLINE")
-		pp.value:SetShadowOffset(0, 0)
+		pp.value:SetFont(settings.font, 18, "OUTLINE")
+		pp.value:SetShadowOffset(1, -1)
+
 		if self.reverse then
-			pp.value:SetPoint("RIGHT", hp, -hp:GetHeight() / 2 + 8, 0)
+			pp.value:SetPoint("RIGHT", self, -INSET, 1)
+			pp.value:SetPoint("LEFT", self.Health.value, "RIGHT", INSET * 2, 0)
+			pp.value:SetJustifyH("RIGHT")
 		else
-			pp.value:SetPoint("LEFT", hp, hp:GetHeight() / 2 - 8, 0)
+			pp.value:SetPoint("LEFT", self, INSET, 1)
+			pp.value:SetPoint("RIGHT", self.Health.value, "LEFT", INSET * 2, 0)
+			pp.value:SetJustifyH("LEFT")
 		end
 
 		if unit == "player" then
@@ -1003,10 +1042,11 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Global cooldown spark (oUF_GCD)
+	-------------------------------------------------------------------
 
 	if unit == "player" then
 		local gcd = CreateFrame("Frame", nil, self)
-		gcd:SetAllPoints(config.power and self.Power or self)
+		gcd:SetAllPoints(usettings.power and self.Power or self)
 
 		local spark = gcd:CreateTexture(nil, "OVERLAY")
 		spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
@@ -1020,11 +1060,12 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Info text
+	-------------------------------------------------------------------
 
 	if unit == "target" then
 		local info = self.overlay:CreateFontString(nil, "OVERLAY")
 		info:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -1)
-		info:SetFont(settings.font, 14, "OUTLINE")
+		info:SetFont(settings.font, usettings.height - 4, "OUTLINE")
 		info:SetShadowOffset(0, 0)
 		info:SetJustifyH("RIGHT")
 
@@ -1035,27 +1076,31 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Name text
+	-------------------------------------------------------------------
 
 	if unit == "target" or unit == "focus" then
 		local name = self.overlay:CreateFontString(nil, "OVERLAY")
 		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -2)
+		
 		if self.Info then
-			name:SetPoint("BOTTOMRIGHT", self.Info, "BOTTOMLEFT", 0, -1)
+			name:SetPoint("BOTTOMRIGHT", self.Info, "BOTTOMLEFT", -INSET, -1)
 		else
 			name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -2)
 		end
-		name:SetFont(settings.font, 18, "OUTLINE")
-		name:SetShadowOffset(0, 0)
+
+		name:SetFont("Fonts\\FRIZQT__.ttf", usettings.height / 5 * 4 + 4, "OUTLINE")
+		name:SetShadowOffset(1, -1)
 		name:SetJustifyH("LEFT")
 
 		self.Name = name
 		self:RegisterEvent("UNIT_NAME_UPDATE", UpdateName)
 		table.insert(self.__elements, UpdateName)
+
 	elseif unit == "targettarget" or unit == "focustarget" then
 		local name = hp:CreateFontString(nil, "OVERLAY")
-		name:SetPoint("LEFT", hp, "LEFT", hp:GetHeight() / 2 - 7, 0)
-		name:SetPoint("RIGHT", hp.value, "LEFT", -hp:GetHeight() + 14, 0)
-		name:SetFont(settings.font, 16, "OUTLINE")
+		name:SetPoint("LEFT", self , 3, 1)
+		name:SetPoint("RIGHT", hp.value, "LEFT", -4, 0)
+		name:SetFont(settings.font, 18, "OUTLINE")
 		name:SetShadowOffset(0, 0)
 		name:SetJustifyH("LEFT")
 
@@ -1066,19 +1111,21 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Combo points text
+	-------------------------------------------------------------------
 
 	if unit == "target" then
 		local cp = self.overlay:CreateFontString(nil, "OVERLAY")
 		cp:SetPoint("CENTER")
 		cp:SetFont(settings.font, 34, "OUTLINE")
 		cp:SetShadowOffset(0, 0)
-		cp:SetTextColor(unpack(colors.class[PLAYER_CLASS]))
+		cp:SetTextColor(unpack(colors.class[playerClass]))
 
 		self.CPoints = cp
 	end
 
 	-------------------------------------------------------------------
 	--	AFK/DND text
+	-------------------------------------------------------------------
 
 	if unit == "player" or not unit or not unit:match("target$") then
 		self.AFK = self.overlay:CreateFontString(nil, "OVERLAY")
@@ -1090,6 +1137,7 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Combat feedback text (oUF_CombatFeedback / oUF_HealingFeedback)
+	-------------------------------------------------------------------
 
 	if unit == "player" or unit == "pet" or unit == "target" or unit == "focus" then
 		local cf = self.overlay:CreateFontString(nil, "OVERLAY")
@@ -1106,6 +1154,7 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Resurrection status text (oUF_ResComm / oUF_ResurrectionStatus)
+	-------------------------------------------------------------------
 
 	if not unit or not unit:match("^(.+)target$") then
 		local rs = self.overlay:CreateFontString(nil, "OVERLAY")
@@ -1116,11 +1165,12 @@ local function Spawn(self, unit)
 		rs.ignoreSoulstone = true
 		-- also includes Reincarnation and Twisting Nether, as LibResComm-1.0 does not distinguish between self-res types
 
-		self.ResurrectionFeedback = rs
+		self.ResurrectionFeedbackText = rs
 	end
 
 	-------------------------------------------------------------------
 	--	Combat icon
+	-------------------------------------------------------------------
 
 	if unit == "player" then
 		self.Combat = self.overlay:CreateTexture(nil, "OVERLAY")
@@ -1133,6 +1183,7 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Rest icon
+	-------------------------------------------------------------------
 
 	if unit == "player" then
 		self.Resting = self.overlay:CreateTexture(nil, "OVERLAY")
@@ -1145,6 +1196,7 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Group leader icon
+	-------------------------------------------------------------------
 
 	if unit == "player" or unit == "target" then
 		self.Leader = self.overlay:CreateTexture(nil, "OVERLAY")
@@ -1156,6 +1208,7 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Master looter icon
+	-------------------------------------------------------------------
 --[[
 	if unit == "player" or unit == "target" then
 		self.Looter = self.overlay:CreateTexture(nil, "OVERLAY")
@@ -1167,6 +1220,7 @@ local function Spawn(self, unit)
 ]]
 	-------------------------------------------------------------------
 	--	Raid target icon
+	-------------------------------------------------------------------
 
 	self.RaidIcon = self.overlay:CreateTexture(nil, "OVERLAY")
 	self.RaidIcon:SetPoint("CENTER", self, "TOP")
@@ -1176,19 +1230,23 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	Auras
+	-------------------------------------------------------------------
 
 	if unit == "player" then
 		self.Debuffs = CreateFrame("Frame", nil, self)
-		self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 15)
-		self.Debuffs.size = 36
-		self.Debuffs:SetHeight(self.Debuffs.size)
-		self.Debuffs:SetWidth(self.Debuffs.size * 5)
-		self.Debuffs.initialAnchor = "BOTTOMRIGHT"
+		self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 4, 15)
 		self.Debuffs["growth-y"] = "TOP"
 		self.Debuffs["growth-x"] = "LEFT"
+		self.Debuffs.initialAnchor = "BOTTOMRIGHT"
 		self.Debuffs.num = 10
-		self.Debuffs.spacing = 3
 		self.Debuffs.showDebuffType = true
+		self.Debuffs.spacing = 3
+
+		self.Debuffs.size = (((WIDTH - 6) + self.Debuffs.spacing) / 6) - self.Debuffs.spacing
+		self.Debuffs:SetHeight(self.Debuffs.size)
+
+		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, INSET)
+		self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, INSET)
 
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 
@@ -1209,36 +1267,45 @@ local function Spawn(self, unit)
 
 	elseif unit == "target" then
 		self.Auras = CreateFrame("Frame", nil, self)
-		self.Auras.size = 24
-		self.Auras.spacing = 3
 		self.Auras.gap = true
-		self.Auras:SetHeight(self.Auras.size)
-		self.Auras:SetWidth(self.Auras.size * 10)
-		self.Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", -4, 15)
-		self.Auras.initialAnchor = "TOPLEFT"
 		self.Auras["growth-y"] = "TOP"
+		self.Auras.initialAnchor = "TOPLEFT"
 		self.Auras.numBuffs = 40
 		self.Auras.numDebuffs = 40
 		self.Auras.showDebuffType = true
+		self.Auras.spacing = 3
+
+		local ao = settings.fancyBorder and -2 or 3
+		local aw = WIDTH + self.Auras.spacing - (ao * 2)
+
+		self.Auras.size = aw / 8 - self.Auras.spacing
+		self.Auras:SetHeight(self.Auras.size)
+
+		self.Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", ao, 20)
+		self.Auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -ao, 20)
 
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 	end
 
 	-------------------------------------------------------------------
 	--	Border and highlighting
+	-------------------------------------------------------------------
 
-	AddBorder(self)
-	for i, tex in ipairs(self.borderTextures) do
-		tex:SetParent(self.Health)
+	if settings.fancyBorder then
+		AddBorder(self)
+		for i, tex in ipairs(self.borderTextures) do
+			tex:SetParent(self.Health)
+		end
 	end
 
 	self.DebuffHighlight = UpdateBorder
 
 	self.ThreatHighlight = UpdateBorder
-	self.ThreatHighlightLevels = false
+	self.ThreatHighlightLevels = settings.threatLevels
 
 	-------------------------------------------------------------------
 	--	Cast bar
+	-------------------------------------------------------------------
 
 	if settings.castBars and (unit == "player" or unit == "target" or unit == "focus" or unit == "pet") then
 		local Castbar = CreateFrame("StatusBar", nil, self)
@@ -1281,7 +1348,7 @@ local function Spawn(self, unit)
 		Text:SetShadowOffset(0, 0)
 		Text:SetJustifyH("LEFT")
 		if unit == "player" or unit == "pet" then
-			Text:SetTextColor(unpack(colors.class[PLAYER_CLASS]))
+			Text:SetTextColor(unpack(colors.class[playerClass]))
 		else
 			Text:SetTextColor(1, 0.8, 0)
 		end
@@ -1303,7 +1370,9 @@ local function Spawn(self, unit)
 			Castbar.SafeZone = SafeZone
 		end
 
-		AddBorder(Castbar)
+		if settings.fancyBorder then
+			AddBorder(Castbar)
+		end
 
 		Castbar.bg = bg
 		Castbar.Time = Time
@@ -1314,6 +1383,7 @@ local function Spawn(self, unit)
 
 	-------------------------------------------------------------------
 	--	That's all, folks!
+	-------------------------------------------------------------------
 
 	return self
 end
@@ -1359,3 +1429,6 @@ oUF_Phanx = {
 ------------------------------------------------------------------------
 --	The end.
 ------------------------------------------------------------------------
+
+SLASH_RELOADUI1 = "/rl"
+SlashCmdList.RELOADUI = ReloadUI

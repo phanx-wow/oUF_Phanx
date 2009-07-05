@@ -43,14 +43,6 @@ local threatColors = {
 	
 ------------------------------------------------------------------------
 
-local function debug(str, ...)
-	-- do return end
-	if select(1, ...) then str = str:format(...) end
-	ChatFrame7:AddMessage(str)
-end
-
-------------------------------------------------------------------------
-
 local function applyThreatHighlight(frame, event, unit, bar)
 	if not validUnits[unit] then return end
 
@@ -111,10 +103,10 @@ eventFrame:SetScript("OnEvent", function(self, event, unit)
 	frame.hasThreat = hasThreat
 	
 	if type(frame.ThreatHighlight) == "function" then
-		-- debug("frame.ThreatHighlight", unit)
+		-- print("frame.ThreatHighlight, " .. unit)
 		frame:ThreatHighlight(event, unit)
 	else
-		-- debug("applyThreatHighlight", unit)
+		-- print("applyThreatHighlight, " .. unit)
 		applyThreatHighlight(frame, event, unit, frame.Health)
 	end
 end)
