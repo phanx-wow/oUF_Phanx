@@ -672,7 +672,11 @@ local function UpdatePower(self, event, unit, bar, min, max)
 			else
 				if type == "MANA" then
 					if min < max then
-						bar.value:SetFormattedText("%s|cff%02x%02x%02x.%s|r", AbbreviateValue(min), r * 255, g * 255, b * 255, AbbreviateValue(max))
+						if UnitHealth(unit) == UnitHealthMax(unit) then
+							bar.value:SetFormattedText("%s|cff%02x%02x%02x.%s|r", AbbreviateValue(min), r * 255, g * 255, b * 255, AbbreviateValue(max))
+						else
+							bar.value:SetText(AbbreviateValue(min))
+						end
 					else
 						bar.value:SetText(AbbreviateValue(max))
 					end

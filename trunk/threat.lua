@@ -80,34 +80,43 @@ oUF:RegisterInitCallback(hook)
 ------------------------------------------------------------------------
 
 local eventFrame = CreateFrame("Frame")
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 eventFrame:SetScript("OnEvent", function(self, event, unit)
-	if not validUnits[unit] then return end
-	if not UnitCanAssist("player", unit) then return end
-	
-	local frame = oUF.units[unit]
-	if not frame then return end
-	
-	local hasThreat
-	if frame.ThreatHighlightLevels then
-		hasThreat = UnitThreatSituation(unit, unit.."target")
-	else
-		hasThreat = UnitThreatSituation(unit)
-		if hasThreat and hasThreat > 1 then
-			-- 2 or 3
-			hasThreat = 3
+	if event == "UNIT_THREAT_SITUATION_UPDATE" then
+		if not validUnits[unit] then return end
+		if not UnitCanAssist("player", unit) then return end
+		
+		local frame = oUF.units[unit]
+		if not frame then return end
+		
+		local hasThreat
+		if frame.ThreatHighlightLevels then
+			hasThreat = UnitThreatSituation(unit, unit.."target")
+		else
+			hasThreat = UnitThreatSituation(unit)
+			if hasThreat and hasThreat > 1 then
+				-- 2 or 3
+				hasThreat = 3
+			end
 		end
-	end
-	if frame.hasThreat == hasThreat then return end
-	
-	frame.hasThreat = hasThreat
-	
-	if type(frame.ThreatHighlight) == "function" then
-		-- print("frame.ThreatHighlight, " .. unit)
-		frame:ThreatHighlight(event, unit)
-	else
-		-- print("applyThreatHighlight, " .. unit)
-		applyThreatHighlight(frame, event, unit, frame.Health)
+		if frame.hasThreat == hasThreat then return end
+		
+		frame.hasThreat = hasThreat
+		
+		if type(frame.ThreatHighlight) == "function" then
+			-- print("frame.ThreatHighlight, " .. unit)
+			frame:ThreatHighlight(event, unit)
+		else
+			-- print("applyThreatHighlight, " .. unit)
+			applyThreatHighlight(frame, event, unit, frame.Health)
+		end
+	elseif event == "PLAYER_ENTERING_WORLD" then
+		for unit, frame in pairs(oUF.units) do
+			if frame:IsShown() then
+				self:GetScript("OnEvent")(self, "UNIT_THREAT_SITUATION_UPDATE", unit)
+			end
+		end
 	end
 end)
 
