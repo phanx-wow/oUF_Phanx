@@ -20,7 +20,7 @@
 # lib\LibResComm-1.0.lua
 
 debuffs.lua
-# heals.lua
+heals.lua
 # resurrects.lua
 threat.lua
 
