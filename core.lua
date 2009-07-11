@@ -9,7 +9,7 @@
 	Features:
 		Aggro highlighting
 		Dispellable debuff highlighting
-		Incoming heal display [NYI]
+		Incoming heal display
 		Resurrection display [NYI]
 
 	Supported Units:
@@ -38,7 +38,7 @@
 
 ----------------------------------------------------------------------]]
 
-assert(oUF, "oUF_Phanx requires oUF, newb.")
+assert(oUF, "oUF_Phanx requires oUF.")
 
 ------------------------------------------------------------------------
 --	Configuration starts here
@@ -110,6 +110,9 @@ local settings = {
 
 ------------------------------------------------------------------------
 --	Localization
+--	If there are not yet translations for your locale, rather than only
+--	adding them here for yourself, please contact me and share your
+--	translations so that other users can benefit too!
 ------------------------------------------------------------------------
 
 local L = setmetatable({}, { __index = function(t, k) t[k] = k return k end })
