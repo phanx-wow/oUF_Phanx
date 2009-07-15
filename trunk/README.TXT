@@ -16,17 +16,14 @@ Download:
 Features:
 
 	Debuff highlighting with dispel priority
-	Druid mana display *
-	Incoming heal display *
-	Resurrection status display *
+	Druid mana display
+	Incoming heal display
+	Resurrection status display [NYI]
 	Threat highlighting
-	Combat feedback text **
-	Global cooldown spark **
-	Ready check icons **
-	Smooth bar animation **
-
-*  Asterisk denotes incomplete feature.
-** Double asterisk denotes feature requires plugin installation.
+	Combat feedback text (with plugin)
+	Global cooldown spark (with plugin)
+	Ready check icons (with plugin)
+	Smooth bar animation (with plugin)
 
 ------------------------------------------------------------------------
 Supported Units:
@@ -37,8 +34,10 @@ Supported Units:
 	Target Target
 	Focus
 	Focus Target
-	Party *
-	Party Pet *
+	Party [NYI]
+	Party Pet [NYI]
+
+At this time I have no plans to implement raid, tank, or other units.
 
 ------------------------------------------------------------------------
 Supported Plugins:
