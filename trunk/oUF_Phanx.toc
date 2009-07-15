@@ -26,3 +26,5 @@ threat.lua
 
 core.lua
 # party.lua
+# raid.lua
+# tanks.lua
