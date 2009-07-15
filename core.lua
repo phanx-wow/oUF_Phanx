@@ -603,14 +603,15 @@ do
 		time = time + (elapsed or 1000)
 		if time > 0.5 then
 			--debug("UpdateDruidMana")
-
-			if self.shapeshifted then
+			local frame = self:GetParent()
+			if frame.shapeshifted then
 				local min, max = UnitPower("player", SPELL_POWER_MANA), UnitPowerMax("player", SPELL_POWER_MANA)
 				if min < max then
-					return self.DruidMana:SetFormattedText("%d%%", min, floor(min / max * 100))
+					return frame.DruidMana:SetText(AbbreviateValue(min))
+				--	return frame.DruidMana:SetFormattedText("%d%%", floor(min / max * 100))
 				end
 			end
-			self.DruidMana:SetText()
+			frame.DruidMana:SetText()
 			time = 0
 		end
 	end
@@ -631,6 +632,11 @@ local function UpdatePower(self, event, unit, bar, min, max)
 		if bar.value then
 			bar.value:SetText()
 		end
+		if bar.DruidMana then
+			self.shapeshifted = false
+			self.overlay:SetScript("OnUpdate", nil)
+			UpdateDruidMana(self.overlay)
+		end
 		return
 	end
 
@@ -648,12 +654,14 @@ local function UpdatePower(self, event, unit, bar, min, max)
 			if type == "MANA" then
 				if self.shapeshifted then
 					self.shapeshifted = false
-					UpdateDruidMana(self)
+					self.overlay:SetScript("OnUpdate", nil)
+					UpdateDruidMana(self.overlay)
 				end
 			else
 				if not self.shapeshifted then
 					self.shapeshifted = true
-					UpdateDruidMana(self)
+					self.overlay:SetScript("OnUpdate", UpdateDruidMana)
+					UpdateDruidMana(self.overlay)
 				end
 			end
 		end
@@ -1026,9 +1034,9 @@ local function Spawn(self, unit)
 
 			if playerClass == "DRUID" then
 				local dm = pp:CreateFontString(nil, "OVERLAY")
-				dm:SetPoint("TOP")
-				dm:SetFont(FONT, 12, "OUTLINE")
-				dm:SetShadowOffset(0, 0)
+				dm:SetPoint("CENTER", pp)
+				dm:SetFont(settings.font, 12, "OUTLINE")
+				dm:SetShadowOffset(1, 1)
 				dm:SetTextColor(unpack(colors.power.MANA))
 
 				self.DruidMana = dm
@@ -1249,11 +1257,14 @@ local function Spawn(self, unit)
 		self.Debuffs.showDebuffType = true
 		self.Debuffs.spacing = 3
 
-		self.Debuffs.size = (((WIDTH - 6) + self.Debuffs.spacing) / 6) - self.Debuffs.spacing
+		local ao = settings.fancyBorder and -2 or 3
+		local aw = WIDTH + self.Debuffs.spacing - (ao * 2)
+
+		self.Debuffs.size = aw / 6 - self.Debuffs.spacing
 		self.Debuffs:SetHeight(self.Debuffs.size)
 
-		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, INSET)
-		self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, INSET)
+		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", ao, 6)
+		self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -ao, 6)
 
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 
