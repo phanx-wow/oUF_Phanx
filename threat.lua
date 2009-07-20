@@ -18,10 +18,10 @@
 			-- do stuff here
 		end
 	
-	The current threat level of your frame's unit will be stored in
-	your frame's "hasThreat" key:
+	The current threat level of each frame's unit will be stored in
+	the frame's "threatLevel" key:
 
-		self.hasThreat = 3
+		self.threatLevel = 3
 
 ----------------------------------------------------------------------]]
 
@@ -30,8 +30,6 @@ if not oUF then return end
 ------------------------------------------------------------------------
 
 local unpack = unpack
-
-local validUnits = { }
 
 ------------------------------------------------------------------------
 
@@ -44,10 +42,12 @@ local threatColors = {
 ------------------------------------------------------------------------
 
 local function applyThreatHighlight(frame, event, unit, bar)
-	if not validUnits[unit] then return end
+	local threatLevel = frame.threatLevel
 
-	if frame.hasThreat > 0 then
-		bar:SetStatusBarColor(unpack(DebuffTypeColor(type)))
+	if not threatLevel then return end
+
+	if threatLevel > 0 then
+		bar:SetStatusBarColor(unpack(threatColors(threatLevel)))
 		return
 	end
 end
@@ -55,21 +55,18 @@ end
 ------------------------------------------------------------------------
 
 local function hook(frame)
-	if frame.unit then
-		if string.find(frame.unit, "target") then return end
-		validUnits[frame.unit] = true
-	end
+	if frame.unit and string.find(frame.unit, "target") then return end
 
-	frame.hasThreat = 0
+	frame.threatLevel = 0
 
-	if type(frame.DebuffHighlight) == "function" then
+	if type(frame.ThreatHighlight) == "function" then
 		return
 	end
 
 	local o = frame.PostUpdateHealth
 	frame.PostUpdateHealth = function(...)
 		if o then o(...) end
-		if validUnits[unit] then
+		if frame.threatLevel then
 			applyThreatHighlight(...)
 		end
 	end
@@ -84,7 +81,7 @@ eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 eventFrame:SetScript("OnEvent", function(self, event, unit)
 	if event == "UNIT_THREAT_SITUATION_UPDATE" then
-		if not validUnits[unit] then return end
+		if not frame.threatLevel then return end
 		if not UnitCanAssist("player", unit) then return end
 		
 		local frame = oUF.units[unit]
@@ -100,9 +97,9 @@ eventFrame:SetScript("OnEvent", function(self, event, unit)
 				hasThreat = 3
 			end
 		end
-		if frame.hasThreat == hasThreat then return end
+		if frame.threatLevel == hasThreat then return end
 		
-		frame.hasThreat = hasThreat
+		frame.threatLevel = hasThreat
 		
 		if type(frame.ThreatHighlight) == "function" then
 			-- print("frame.ThreatHighlight, " .. unit)
@@ -112,9 +109,9 @@ eventFrame:SetScript("OnEvent", function(self, event, unit)
 			applyThreatHighlight(frame, event, unit, frame.Health)
 		end
 	elseif event == "PLAYER_ENTERING_WORLD" then
-		for unit, frame in pairs(oUF.units) do
+		for i, frame in pairs(oUF.objects) do
 			if frame:IsShown() then
-				self:GetScript("OnEvent")(self, "UNIT_THREAT_SITUATION_UPDATE", unit)
+				self:GetScript("OnEvent")(self, "UNIT_THREAT_SITUATION_UPDATE", frame.unit)
 			end
 		end
 	end
