@@ -504,13 +504,13 @@ local function UpdateBorder(self)
 		end
 	end
 
-	if self.hasThreat then
+	if self.threatLevel then
 		-- debug("Checking for threat (" .. (IsTanking() and "tanking" or "not tanking") .. ")...")
 		local threatPriority = IsTanking() and 10 or 5
-		if priority < threatPriority and self.hasThreat > 0 then
-			color = colors.threat[self.hasThreat]
+		if priority < threatPriority and self.threatLevel > 0 then
+			color = colors.threat[self.threatLevel]
 			priority = threatPriority
-			debug("hasThreat, %d, %d", self.hasThreat, priority)
+			debug("hasThreat, %d, %d", self.threatLevel, priority)
 		end
 	end
 
