@@ -17,7 +17,7 @@
 		self.ThreatHighlight = function(self, unit)
 			-- do stuff here
 		end
-	
+
 	The current threat level of each frame's unit will be stored in
 	the frame's "threatLevel" key:
 
@@ -38,7 +38,7 @@ local threatColors = {
 	{ 1, 0.6, 0 },		-- tanking, insecure threat
 	{ 1, 0, 0 },		-- tanking, secure threat
 }
-	
+
 ------------------------------------------------------------------------
 
 local function applyThreatHighlight(frame, event, unit, bar)
@@ -66,9 +66,7 @@ local function hook(frame)
 	local o = frame.PostUpdateHealth
 	frame.PostUpdateHealth = function(...)
 		if o then o(...) end
-		if frame.threatLevel then
-			applyThreatHighlight(...)
-		end
+		applyThreatHighlight(...)
 	end
 end
 for i, frame in ipairs(oUF.objects) do hook(frame) end
@@ -81,12 +79,11 @@ eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 eventFrame:SetScript("OnEvent", function(self, event, unit)
 	if event == "UNIT_THREAT_SITUATION_UPDATE" then
-		if not frame.threatLevel then return end
-		if not UnitCanAssist("player", unit) then return end
-		
 		local frame = oUF.units[unit]
 		if not frame then return end
-		
+		if not frame.threatLevel then return end
+		if not UnitCanAssist("player", unit) then return end
+
 		local hasThreat
 		if frame.ThreatHighlightLevels then
 			hasThreat = UnitThreatSituation(unit, unit.."target")
@@ -98,14 +95,14 @@ eventFrame:SetScript("OnEvent", function(self, event, unit)
 			end
 		end
 		if frame.threatLevel == hasThreat then return end
-		
-		frame.threatLevel = hasThreat
-		
+
+		frame.threatLevel = hasThreat or 0
+
 		if type(frame.ThreatHighlight) == "function" then
-			-- print("frame.ThreatHighlight, " .. unit)
+			--print("frame.ThreatHighlight, " .. unit)
 			frame:ThreatHighlight(event, unit)
 		else
-			-- print("applyThreatHighlight, " .. unit)
+			--print("applyThreatHighlight, " .. unit)
 			applyThreatHighlight(frame, event, unit, frame.Health)
 		end
 	elseif event == "PLAYER_ENTERING_WORLD" then
