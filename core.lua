@@ -48,8 +48,8 @@ local settings = {
 	-- Disable this if you use a separate castbar addon
 	castBars = true,
 	
-	-- Disable this if you prefer a plain border on frames
-	fancyBorder = true,
+	-- Choices are "TEXTURE", "GLOW", or "NONE"
+	borderStyle = "GLOW",
 
 	-- Color pets using the color of the class most likely to own them
 	-- e.g. beasts are assumed to be hunter pets
@@ -60,51 +60,51 @@ local settings = {
 	threatLevels = false,
 
 	font = "Fonts\\FRIZQT__.ttf",
-	statusbar = "Interface\\AddOns\\oUF_Phanx\\media\\statusbar",
+	statusbar = "Interface\\AddOns\\oUF_Tukz\\media\\textures\\normTex", -- oUF_Phanx\\media\\statusbar",
 	border = "Interface\\AddOns\\oUF_Phanx\\media\\border",
 	borderColor = { 0.5, 0.5, 0.5 },
+}
 
-	-- Unit configuration
-	-- Required:	width (number), height (number), point (table)
-	-- Optional:	power (boolean), reverse (boolean), vertical (boolean)
-	-- Special:	header (boolean), template (string), attributes (table)
-	-- Points are relative to CENTER of the UIParent
-	units = {
-		player = {
-			width = 200,
-			height = 20,
-			power = true,
-			point = { "TOP", 0, -250 },
-		},
-		pet = {
-			width = 200,
-			height = 20,
-			power = true,
-			point = { "TOP", 0, -282 },
-		},
-		target = {
-			width = 200,
-			height = 20,
-			power = true,
-			reverse = true,
-			point = { "TOPLEFT", 200, -100 },
-		},
-		targettarget = {
-			width = 200,
-			height = 16,
-			reverse = true,
-			point = { "TOPLEFT", 200, -132 },
-		},
-		focus = {
-			width = 200,
-			height = 20,
-			point = { "TOPRIGHT", -200, -100 },
-		},
-		focustarget = {
-			width = 200,
-			height = 16,
-			point = { "TOPRIGHT", -200, -132 },
-		},
+-- Unit configuration
+-- Required:	width (number), height (number), point (table)
+-- Optional:	power (boolean), reverse (boolean), vertical (boolean)
+-- Special:	header (boolean), template (string), attributes (table)
+-- Points are relative to CENTER of UIParent unless otherwise specified
+settings.units = {
+	player = {
+		width = 200,
+		height = 30,
+		power = true,
+		point = { "TOP", 0, -250 },
+	},
+	pet = {
+		width = 200,
+		height = 30,
+		power = true,
+		point = { "TOP", 0, settings.borderStyle == "TEXTURE" and -12 or 0, "player", "BOTTOM" },
+	},
+	target = {
+		width = 200,
+		height = 30,
+		power = true,
+		reverse = true,
+		point = { "TOPLEFT", 200, -100 },
+	},
+	targettarget = {
+		width = 200,
+		height = 25,
+		reverse = true,
+		point = { "TOP", 0, settings.borderStyle == "TEXTURE" and -12 or 0, "target", "BOTTOM" },
+	},
+	focus = {
+		width = 200,
+		height = 30,
+		point = { "TOPRIGHT", -200, -100 },
+	},
+	focustarget = {
+		width = 200,
+		height = 25,
+		point = { "TOP", 0, settings.borderStyle == "TEXTURE" and -12 or 0, "focus", "BOTTOM" },
 	},
 }
 
@@ -155,6 +155,7 @@ local strings = {
 		["Critter"]	= "",
 		["Non-combat Pet"] = "",
 		["Not specified"] = "",
+		["Totem"]		= "",
 		["Unknown"]	= "",
 	},
 }
@@ -514,7 +515,7 @@ local function UpdateBorder(self)
 		end
 	end
 
-	if settings.fancyBorder then
+	if settings.borderStyle == "TEXTURE" then
 		local r, g, b = unpack(color or settings.borderColor)
 		self:SetBorderColor(r, g, b, 1)
 		self:SetBorderSize(BORDER_SIZE * (priority > 4 and 1.25 or 1))
@@ -527,6 +528,15 @@ local function UpdateBorder(self)
 			self:SetBackdropBorderColor(r, g, b, 0.5)
 		else
 			self:SetBackdropBorderColor(0, 0, 0, 0)
+		end
+		if settings.borderStyle == "GLOW" then
+			if priority > 0 then
+				self.BorderGlow:SetPoint("TOPLEFT", -3, 3)
+				self.BorderGlow:SetPoint("BOTTOMRIGHT", 3, -3)
+			else
+				self.BorderGlow:SetPoint("TOPLEFT", 0, 0)
+				self.BorderGlow:SetPoint("BOTTOMRIGHT", 0, 0)
+			end
 		end
 	end
 end
@@ -833,7 +843,7 @@ local function UpdateThreatHighlight(self, event, unit, threatLevel)
 end
 
 ------------------------------------------------------------------------
---	Skin aura icons
+--	Update auras
 ------------------------------------------------------------------------
 
 local function DontReallyHide(self)
@@ -866,6 +876,32 @@ local function PostCreateAuraIcon(self, button, icons, index, isDebuff)
 end
 
 ------------------------------------------------------------------------
+--	Filter auras
+------------------------------------------------------------------------
+
+local auraFilters = {
+	global = {
+		[GetSpellInfo(64805)] = true, -- Bested Darnassus
+		[GetSpellInfo(64809)] = true, -- Bested Gnomeregan
+		[GetSpellInfo(64810)] = true, -- Bested Ironforge
+		[GetSpellInfo(64811)] = true, -- Bested Orgrimmar
+		[GetSpellInfo(64812)] = true, -- Bested Sen'jin
+		[GetSpellInfo(64813)] = true, -- Bested Silvermoon City
+		[GetSpellInfo(64814)] = true, -- Bested Stormwind
+		[GetSpellInfo(64808)] = true, -- Bested the Exodar
+		[GetSpellInfo(64816)] = true, -- Bested the Undercity
+		[GetSpellInfo(64815)] = true, -- Bested Thunder Bluff
+
+		[GetSpellInfo(57723)] = true, -- Exhaustion
+		[GetSpellInfo(57724)] = true, -- Sated
+	}
+}
+
+local function CustomAuraFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster)
+	return not auraFilters.global[name] and not (auraFilters[unit] and auraFilters[unit][name])
+end
+
+------------------------------------------------------------------------
 --	Bla bla boring stuff
 ------------------------------------------------------------------------
 
@@ -890,14 +926,14 @@ local BACKDROP = {
 	edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 3,
 	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
-if settings.fancyBorder then
+if settings.borderStyle == "TEXTURE" then
 	BACKDROP.insets.left = 0
 	BACKDROP.insets.right = 0
 	BACKDROP.insets.top = 0
 	BACKDROP.insets.bottom = 0
 end
 
-local INSET = BACKDROP.edgeSize + (settings.fancyBorder and -1 or 1)
+local INSET = BACKDROP.edgeSize + (settings.borderStyle == "TEXTURE" and -1 or 1)
 
 local function Spawn(self, unit)
 	-- debug("Spawn: %s", unit)
@@ -928,7 +964,7 @@ local function Spawn(self, unit)
 	self:SetHeight(HEIGHT)
 
 	self:SetFrameStrata("BACKGROUND")
-	self:SetFrameLevel(0)
+	self:SetFrameLevel(1)
 	self:SetBackdrop(BACKDROP)
 	self:SetBackdropColor(0, 0, 0, 0.85)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
@@ -962,14 +998,13 @@ local function Spawn(self, unit)
 	hp.bg:SetTexture(settings.statusbar)
 
 	hp.value = hp:CreateFontString(nil, "OVERLAY")
-	hp.value:SetFont(settings.font, HEIGHT + 4, "OUTLINE")
-	hp.value:SetShadowOffset(1, -1)
+	hp.value:SetFont(settings.font, HEIGHT / 5 * 4, "OUTLINE")
 
 	if self.reverse and not (unit and unit:match("%a+target")) then
-		hp.value:SetPoint("LEFT", self, INSET, 1)
+		hp.value:SetPoint("LEFT", hp, INSET - 1, 2)
 		hp.value:SetJustifyH("LEFT")
 	else
-		hp.value:SetPoint("RIGHT", self, -INSET, 1)
+		hp.value:SetPoint("RIGHT", hp, -INSET + 1, 2)
 		hp.value:SetJustifyH("RIGHT")
 	end
 
@@ -1006,46 +1041,15 @@ local function Spawn(self, unit)
 
 		pp.value = pp:CreateFontString(nil, "OVERLAY")
 		pp.value:SetFont(settings.font, 18, "OUTLINE")
-		pp.value:SetShadowOffset(1, -1)
 
 		if self.reverse then
-			pp.value:SetPoint("RIGHT", self, -INSET, 1)
+			pp.value:SetPoint("RIGHT", self.Health, -INSET, 2)
 			pp.value:SetPoint("LEFT", self.Health.value, "RIGHT", INSET * 2, 0)
 			pp.value:SetJustifyH("RIGHT")
 		else
-			pp.value:SetPoint("LEFT", self, INSET, 1)
+			pp.value:SetPoint("LEFT", self.Health, INSET, 2)
 			pp.value:SetPoint("RIGHT", self.Health.value, "LEFT", INSET * 2, 0)
 			pp.value:SetJustifyH("LEFT")
-		end
-
-		if unit == "player" then
-			if playerClass ~= "DEATHKNIGHT" and playerClass ~= "ROGUE" and playerClass ~= "WARRIOR" then
-				local ps = pp:CreateTexture(nil, "OVERLAY")
-				ps:SetHeight(pp:GetHeight() * 2)
-				ps:SetWidth(pp:GetHeight())
-				ps:SetBlendMode("ADD")
-				ps:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-				ps:SetVertexColor(1, 1, 1, 1)
-
-				ps.rtl = self.reverse
-
-				self.Spark = ps
-			end
-
-			if playerClass == "DRUID" then
-				local dm = pp:CreateFontString(nil, "OVERLAY")
-				dm:SetPoint("CENTER", pp)
-				dm:SetFont(settings.font, 12, "OUTLINE")
-				dm:SetShadowOffset(1, 1)
-				dm:SetTextColor(unpack(colors.power.MANA))
-
-				self.DruidMana = dm
-			end
-		end
-
-		if unit == "pet" and playerClass == "HUNTER" then
-			self.UNIT_HAPPINESS = UpdateHappiness
-			self:RegisterEvent("UNIT_HAPPINESS")
 		end
 
 		pp.frequentUpdates = unit == "player"
@@ -1053,6 +1057,20 @@ local function Spawn(self, unit)
 
 		self.Power = pp
 		self.OverrideUpdatePower = UpdatePower
+
+		if unit == "player" and playerClass == "DRUID" then
+			local dm = pp:CreateFontString(nil, "OVERLAY")
+			dm:SetPoint("CENTER", pp)
+			dm:SetFont(settings.font, 12, "OUTLINE")
+			dm:SetTextColor(unpack(colors.power.MANA))
+
+			self.DruidMana = dm
+		end
+
+		if unit == "pet" and playerClass == "HUNTER" then
+			self.UNIT_HAPPINESS = UpdateHappiness
+			self:RegisterEvent("UNIT_HAPPINESS")
+		end
 	end
 
 	-------------------------------------------------------------------
@@ -1079,9 +1097,8 @@ local function Spawn(self, unit)
 
 	if unit == "target" then
 		local info = self.overlay:CreateFontString(nil, "OVERLAY")
-		info:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -1)
-		info:SetFont(settings.font, usettings.height - 4, "OUTLINE")
-		info:SetShadowOffset(0, 0)
+		info:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and -1 or -4)
+		info:SetFont(settings.font, 14, "OUTLINE")
 		info:SetJustifyH("RIGHT")
 
 		self.Info = info
@@ -1095,16 +1112,15 @@ local function Spawn(self, unit)
 
 	if unit == "target" or unit == "focus" then
 		local name = self.overlay:CreateFontString(nil, "OVERLAY")
-		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -2)
+		name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, settings.borderStyle == "TEXTURE" and -2 or -5)
 		
 		if self.Info then
-			name:SetPoint("BOTTOMRIGHT", self.Info, "BOTTOMLEFT", -INSET, -1)
+			name:SetPoint("RIGHT", self.Info, "BOTTOMLEFT", -INSET, settings.borderStyle == "TEXTURE" and -1 or -4)
 		else
-			name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -2)
+			name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and -2 or -5)
 		end
 
-		name:SetFont("Fonts\\FRIZQT__.ttf", usettings.height / 5 * 4 + 4, "OUTLINE")
-		name:SetShadowOffset(1, -1)
+		name:SetFont("Fonts\\FRIZQT__.ttf", 24, "OUTLINE")
 		name:SetJustifyH("LEFT")
 
 		self.Name = name
@@ -1113,10 +1129,9 @@ local function Spawn(self, unit)
 
 	elseif unit == "targettarget" or unit == "focustarget" then
 		local name = hp:CreateFontString(nil, "OVERLAY")
-		name:SetPoint("LEFT", self, INSET, 1)
-		--name:SetPoint("RIGHT", hp.value, "LEFT", -INSET, 0)
+		name:SetPoint("LEFT", self.Health, INSET, 1)
+		name:SetPoint("RIGHT", self.Health.value, "LEFT", -INSET, 0)
 		name:SetFont(settings.font, 18, "OUTLINE")
-		name:SetShadowOffset(1, -1)
 		name:SetJustifyH("LEFT")
 
 		self.Name = name
@@ -1132,7 +1147,6 @@ local function Spawn(self, unit)
 		local cp = self.overlay:CreateFontString(nil, "OVERLAY")
 		cp:SetPoint("CENTER")
 		cp:SetFont(settings.font, 34, "OUTLINE")
-		cp:SetShadowOffset(0, 0)
 		cp:SetTextColor(unpack(colors.class[playerClass]))
 
 		self.CPoints = cp
@@ -1146,7 +1160,6 @@ local function Spawn(self, unit)
 		self.AFK = self.overlay:CreateFontString(nil, "OVERLAY")
 		self.AFK:SetPoint("CENTER", self, "BOTTOM")
 		self.AFK:SetFont(settings.font, 12, "OUTLINE")
-		self.AFK:SetShadowOffset(0, 0)
 		self.AFK.fontFormat = "AFK %s:%s"
 	end
 
@@ -1158,7 +1171,6 @@ local function Spawn(self, unit)
 		local cf = self.overlay:CreateFontString(nil, "OVERLAY")
 		cf:SetPoint("CENTER", self)
 		cf:SetFont(settings.font, 16, "OUTLINE")
-		cf:SetShadowOffset(0, 0)
 
 		cf.maxAlpha = 0.8
 		cf.ignoreImmune = true
@@ -1173,9 +1185,8 @@ local function Spawn(self, unit)
 
 	if not unit or not unit:match("^(.+)target$") then
 		local rs = self.overlay:CreateFontString(nil, "OVERLAY")
-		rs:SetPoint("CENTER")
+		rs:SetPoint("CENTER", self.Health)
 		rs:SetFont(settings.font, 12, "OUTLINE")
-		rs:SetShadowOffset(0, 0)
 
 		rs.ignoreSoulstone = true
 		-- also includes Reincarnation and Twisting Nether, as LibResComm-1.0 does not distinguish between self-res types
@@ -1189,11 +1200,12 @@ local function Spawn(self, unit)
 
 	if unit == "player" then
 		self.Combat = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Combat:SetPoint("CENTER", self, "BOTTOMRIGHT")
-		self.Combat:SetWidth(32)
-		self.Combat:SetHeight(32)
+		self.Combat:SetPoint("CENTER", self, 3, 0)
+		self.Combat:SetWidth(35)
+		self.Combat:SetHeight(35)
 		self.Combat:SetTexture("Interface\\CharacterFrame\\UI-StateIcon")
 		self.Combat:SetTexCoord(0.55, 1, 0, 0.45)
+		self.Combat:SetVertexColor(unpack(colors.class[playerClass]))
 	end
 
 	-------------------------------------------------------------------
@@ -1202,7 +1214,7 @@ local function Spawn(self, unit)
 
 	if unit == "player" then
 		self.Resting = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Resting:SetPoint("CENTER", self, "BOTTOMRIGHT")
+		self.Resting:SetPoint("CENTER", self, "BOTTOMLEFT", settings.borderStyle == "TEXTURE" and 0 or INSET, settings.borderStyle == "TEXTURE" and 0 or INSET)
 		self.Resting:SetWidth(24)
 		self.Resting:SetHeight(24)
 		self.Resting:SetTexture("Interface\\CharacterFrame\\UI-StateIcon")
@@ -1215,7 +1227,7 @@ local function Spawn(self, unit)
 
 	if unit == "player" or unit == "target" then
 		self.Leader = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Leader:SetPoint("CENTER", self, "BOTTOMLEFT")
+		self.Leader:SetPoint("CENTER", self, "TOPLEFT", settings.borderStyle == "TEXTURE" and 0 or INSET, settings.borderStyle == "TEXTURE" and 0 or -INSET)
 		self.Leader:SetWidth(16)
 		self.Leader:SetHeight(16)
 		self.Leader:SetTexture("Interface\\GroupFrame\\UI-Group-LeaderIcon")
@@ -1227,7 +1239,7 @@ local function Spawn(self, unit)
 --[[
 	if unit == "player" or unit == "target" then
 		self.Looter = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Looter:SetPoint("CENTER", self, "BOTTOMLEFT")
+		self.Looter:SetPoint("CENTER", self, "TOPLEFT", settings.borderStyle == "TEXTURE" and 16 or INSET + 16, settings.borderStyle == "TEXTURE" and 0 or -INSET)
 		self.Looter:SetWidth(16)
 		self.Looter:SetHeight(16)
 		self.Looter:SetTexture("Interface\\GroupFrame\\UI-Group-LeaderIcon")
@@ -1249,7 +1261,7 @@ local function Spawn(self, unit)
 
 	if unit == "player" then
 		self.Debuffs = CreateFrame("Frame", nil, self)
-		self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 4, 15)
+
 		self.Debuffs["growth-y"] = "TOP"
 		self.Debuffs["growth-x"] = "LEFT"
 		self.Debuffs.initialAnchor = "BOTTOMRIGHT"
@@ -1257,14 +1269,16 @@ local function Spawn(self, unit)
 		self.Debuffs.showDebuffType = true
 		self.Debuffs.spacing = 3
 
-		local ao = settings.fancyBorder and -2 or 3
+		local ao = settings.borderStyle == "TEXTURE" and -2 or 3
 		local aw = WIDTH + self.Debuffs.spacing - (ao * 2)
 
 		self.Debuffs.size = aw / 6 - self.Debuffs.spacing
 		self.Debuffs:SetHeight(self.Debuffs.size)
 
-		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", ao, 6)
-		self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -ao, 6)
+		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", ao, settings.borderStyle == "TEXTURE" and 6 or 1)
+		self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -ao, settings.borderStyle == "TEXTURE" and 6 or 1)
+
+		self.CustomAuraFilter = CustomAuraFilter
 
 		self.PostCreateAuraIcon = PostCreateAuraIcon
 
@@ -1293,7 +1307,7 @@ local function Spawn(self, unit)
 		self.Auras.showDebuffType = true
 		self.Auras.spacing = 3
 
-		local ao = settings.fancyBorder and -2 or 3
+		local ao = settings.borderStyle == "TEXTURE" and -2 or 3
 		local aw = WIDTH + self.Auras.spacing - (ao * 2)
 
 		self.Auras.size = aw / 8 - self.Auras.spacing
@@ -1309,11 +1323,25 @@ local function Spawn(self, unit)
 	--	Border and highlighting
 	-------------------------------------------------------------------
 
-	if settings.fancyBorder then
+	if settings.borderStyle == "TEXTURE" then
 		AddBorder(self)
 		for i, tex in ipairs(self.borderTextures) do
 			tex:SetParent(self.Health)
 		end
+	elseif settings.borderStyle == "GLOW" then
+		local backdrop = {
+			edgeFile = [[Interface\AddOns\oUF_Tukz\media\textures\glowTex]],
+			edgeSize = 5,
+			insets = { left = 3, right = 3, top = 3, bottom = 3 }
+		}
+		self.BorderGlow = CreateFrame("Frame", nil, self)
+		self.BorderGlow:SetFrameStrata("BACKGROUND")
+		self.BorderGlow:SetFrameLevel(0)
+		self.BorderGlow:SetPoint("TOPLEFT", 0, 0)
+		self.BorderGlow:SetPoint("BOTTOMRIGHT", 0, 0)
+		self.BorderGlow:SetBackdrop(backdrop)
+		self.BorderGlow:SetBackdropColor(0, 0, 0, 0)
+		self.BorderGlow:SetBackdropBorderColor(0, 0, 0)
 	end
 
 	self.DebuffHighlight = UpdateBorder
@@ -1353,7 +1381,6 @@ local function Spawn(self, unit)
 		local Time = Castbar:CreateFontString(nil, "OVERLAY")
 		Time:SetPoint("RIGHT", Castbar, "RIGHT", -4.5, 0.5)
 		Time:SetFont(settings.font, 20, "OUTLINE")
-		Time:SetShadowOffset(0, 0)
 		Time:SetJustifyH("RIGHT")
 
 		local Text = Castbar:CreateFontString(nil, "OVERLAY")
@@ -1363,7 +1390,6 @@ local function Spawn(self, unit)
 			Text:SetPoint("BOTTOMLEFT", Castbar, "TOPLEFT", 0, 0)
 		end
 		Text:SetFont(settings.font, 18, "OUTLINE")
-		Text:SetShadowOffset(0, 0)
 		Text:SetJustifyH("LEFT")
 		if unit == "player" or unit == "pet" then
 			Text:SetTextColor(unpack(colors.class[playerClass]))
@@ -1388,7 +1414,7 @@ local function Spawn(self, unit)
 			Castbar.SafeZone = SafeZone
 		end
 
-		if settings.fancyBorder then
+		if settings.borderStyle == "TEXTURE" then
 			AddBorder(Castbar)
 		end
 
@@ -1412,12 +1438,13 @@ end
 
 oUF:RegisterStyle("Phanx", Spawn)
 oUF:SetActiveStyle("Phanx")
-for unit, data in pairs(settings.units) do
-	local p, x, y = unpack(data.point)
-	local name = "oUF_Phanx" .. unit:gsub("target", "Target"):gsub("pet", "Pet", 1):gsub("%a", string.upper, 1)
 
-	local f = oUF:Spawn(unit, name)
-	f:SetPoint(p, UIParent, "CENTER", x, y)
+for unit, data in pairs(settings.units) do
+	oUF:Spawn(unit, "oUF_" .. unit:gsub("target", "Target"):gsub("pet", "Pet", 1):gsub("%a", string.upper, 1))
+end
+for unit, data in pairs(settings.units) do
+	local p, x, y, a, r = unpack(data.point)
+	oUF.units[unit]:SetPoint(p or "CENTER", a and oUF.units[a] or _G[a] or UIParent, r or "CENTER", x or 0, y or 0)
 end
 
 ------------------------------------------------------------------------
