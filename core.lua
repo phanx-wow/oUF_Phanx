@@ -997,7 +997,7 @@ local function Spawn(self, unit)
 	hp.bg:SetAllPoints(hp)
 	hp.bg:SetTexture(settings.statusbar)
 
-	hp.value = hp:CreateFontString(nil, "OVERLAY")
+	hp.value = self.overlay:CreateFontString(nil, "OVERLAY")
 	hp.value:SetFont(settings.font, HEIGHT / 5 * 4, "OUTLINE")
 
 	if self.reverse and not (unit and unit:match("%a+target")) then
@@ -1039,7 +1039,7 @@ local function Spawn(self, unit)
 		pp.bg:SetAllPoints(pp)
 		pp.bg:SetTexture(settings.statusbar)
 
-		pp.value = pp:CreateFontString(nil, "OVERLAY")
+		pp.value = self.overlay:CreateFontString(nil, "OVERLAY")
 		pp.value:SetFont(settings.font, 18, "OUTLINE")
 
 		if self.reverse then
@@ -1059,7 +1059,7 @@ local function Spawn(self, unit)
 		self.OverrideUpdatePower = UpdatePower
 
 		if unit == "player" and playerClass == "DRUID" then
-			local dm = pp:CreateFontString(nil, "OVERLAY")
+			local dm = self.overlay:CreateFontString(nil, "OVERLAY")
 			dm:SetPoint("CENTER", pp)
 			dm:SetFont(settings.font, 12, "OUTLINE")
 			dm:SetTextColor(unpack(colors.power.MANA))
@@ -1120,7 +1120,7 @@ local function Spawn(self, unit)
 			name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and -2 or -5)
 		end
 
-		name:SetFont("Fonts\\FRIZQT__.ttf", 24, "OUTLINE")
+		name:SetFont(settings.font, 24, "OUTLINE")
 		name:SetJustifyH("LEFT")
 
 		self.Name = name
@@ -1128,7 +1128,7 @@ local function Spawn(self, unit)
 		table.insert(self.__elements, UpdateName)
 
 	elseif unit == "targettarget" or unit == "focustarget" then
-		local name = hp:CreateFontString(nil, "OVERLAY")
+		local name = self.overlay:CreateFontString(nil, "OVERLAY")
 		name:SetPoint("LEFT", self.Health, INSET, 1)
 		name:SetPoint("RIGHT", self.Health.value, "LEFT", -INSET, 0)
 		name:SetFont(settings.font, 18, "OUTLINE")
