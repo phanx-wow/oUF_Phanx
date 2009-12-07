@@ -1,0 +1,22 @@
+## Interface: 30200
+
+## Notes: An oUF layout.
+## X-Copyright: Copyright ©2006–2009 Alyssa "Phanx" Kinley
+## X-License: Do not redistribute. See README for complete license terms.
+## X-Website: http://www.wowinterface.com/downloads/info
+
+## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, koKR, ruRU, zhCN, zhTW
+## X-Localizations: enUS
+
+## Author: Phanx
+## X-Email: addons@phanx.net
+
+## OptionalDependencies: oUF, LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, LibWrapperHealComm-1.0, PhanxConfigWidgets
+## SavedVariables: oUF_Phanx_Settings
+
+Core.lua
+
+Debuffs.lua
+Heals.lua
+Resurrections.lua
+Threat.lua
