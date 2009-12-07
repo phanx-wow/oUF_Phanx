@@ -1,6 +1,7 @@
 --[[--------------------------------------------------------------------
-	oUF_PhanxDebuffHighlight
+	oUF_Phanx_DebuffHighlight
 	Colors oUF health bars according to debuff type.
+	Based on oUF_DebuffHighlight by Rabbit.
 
 	To activate this functionality for your frame:
 

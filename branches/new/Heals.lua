@@ -1,30 +1,32 @@
 --[[--------------------------------------------------------------------
-	oUF_PhanxHealComm
-	Based on oUF_HealComm4 by EvilPaul, oUF_HealComm by Krage
-	Modified by Phanx to support reverse orientations and ignoring HoTs
-	Distributed with oUF_Phanx with permission from EvilPaul
+	oUF_Phanx_HealComm
+	Shows incoming heals with text and a statusbar overlay.
+	Based on oUF_HealComm4 by EvilPaul, oUF_HealComm by Krage.
+	Modified by Phanx to support reverse orientations and ignoring HoTs.
+	Distributed with oUF_Phanx with permission from EvilPaul.
 
 	Elements handled:
 		.HealCommBar  (Texture)
 		.HealCommText (FontString)
 
 	Optional:
+		.HealCommFilter       (string)  - SELF, OTHER, ALL
 		.HealCommIgnoreHoTs   (boolean) - Ignore HoTs and show only direct and channeled heals
-		.HealCommIgnoreOthers (boolean) - Ignore the player's outbound heals
 		.HealCommNoOverflow   (boolean) - Prevent the HealComm bar from extending beyond the end of the Health bar
 
 	Functions that can be overridden from within a layout:
 		:HealCommTextFormat   (value) - Formats the heal amount passed for display on .HealCommText
 ----------------------------------------------------------------------]]
 
+if not oUF then return end
+
+local HealComm = LibStub("LibHealComm-4.0", true)
+if not HealComm then return end
+
 if select(4, GetAddOnInfo("oUF_HealComm")) then return end
 if select(4, GetAddOnInfo("oUF_HealComm4")) then return end
 
-local oUF = oUF or GetAddOnMetadata(debugstack():match[[\AddOns\(.-)\]], "X-oUF")
-assert(oUF, "oUF_PhanxHealComm requires oUF!")
-
-local HealComm = LibStub("LibHealComm-4.0", true)
-assert(HealComm, "oUF_PhanxHealComm requires LibHealComm-4.0!")
+------------------------------------------------------------------------
 
 local unitMap = HealComm:GetGUIDUnitMapTable()
 
@@ -48,7 +50,14 @@ local function Update(self)
 	end
 
 	local guid = UnitGUID(self.unit)
-	local incHeals = self.HealCommIgnoreOthers and HealComm:GetHealAmount(guid, self.HealCommFlag) or HealComm:GetOthersHealAmount(guid, self.HealCommFlag)
+	local incHeals = 0
+	if self.HealCommFilter = "SELF" then
+		incHeals = HealComm:GetHealAmount(guid, self.HealCommFlag) - HealComm:GetOthersHealAmount(guid, self.HealCommFlag)
+	elseif self.HealCommFilter = "OTHER" then
+		incHeals = HealComm:GetOthersHealAmount(guid, self.HealCommFlag)
+	else
+		incHeals = HealComm:GetHealAmount(guid, self.HealCommFlag)
+	end
 	if incHeals == 0 then
 		return Hide(self)
 	end
@@ -113,7 +122,9 @@ local function Disable(self)
 	end
 end
 
-oUF:AddElement("HealComm4", Update, Enable, Disable)
+oUF:AddElement("HealComm", Update, Enable, Disable)
+
+------------------------------------------------------------------------
 
 local function MultiUpdate(...)
 	for i = 1, select("#", ...) do
@@ -133,9 +144,13 @@ local function HealComm_Modified(event, guid)
 	MultiUpdate(guid)
 end
 
+------------------------------------------------------------------------
+
 HealComm.RegisterCallback("oUF_HealComm4", "HealComm_HealStarted", HealComm_Heal_Update)
 HealComm.RegisterCallback("oUF_HealComm4", "HealComm_HealUpdated", HealComm_Heal_Update)
 HealComm.RegisterCallback("oUF_HealComm4", "HealComm_HealDelayed", HealComm_Heal_Update)
 HealComm.RegisterCallback("oUF_HealComm4", "HealComm_HealStopped", HealComm_Heal_Update)
 HealComm.RegisterCallback("oUF_HealComm4", "HealComm_ModifierChanged", HealComm_Modified)
 HealComm.RegisterCallback("oUF_HealComm4", "HealComm_GUIDDisappeared", HealComm_Modified)
+
+------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 --[[--------------------------------------------------------------------
-	oUF_ThreatHighlight
+	oUF_Phanx_ThreatHighlight
 	Colors oUF health bars based on threat.
 
 	To activate this functionality for your frame:

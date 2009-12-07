@@ -3,7 +3,7 @@
 	A fully featured, healer oriented layout for oUF.
 	by Phanx < addons@phanx.net >
 	http://www.wowinterface.com/downloads/info-oUF_Phanx.html
-	Copyright ©2008–2009 Alyssa "Phanx" Kinley.
+	Copyright ©2008–2009 Alyssa "Phanx" Kinley
 	See README for license terms and additional information.
 
 	Features:
@@ -1011,29 +1011,53 @@ local function Spawn(self, unit)
 	self.inRangeAlpha = 1
 	self.outsideRangeAlpha = 0.5
 
+
 	--
 	--	Module support: DebuffHighlight
 	--
 	self.DebuffHighlight = UpdateBorder
+
 
 	--
 	--	Module support: ThreatHighlight
 	--
 	self.ThreatHighlight = UpdateBorder
 	self.ThreatHighlightLevels = settings.threatLevels
-	
+
+
+	--
+	--	Module support: HealComm
+	--
+	if not unit or not unit:match("^(.+)target$") then
+		self.HealCommBar = CreateFrame("StatusBar", nil, self.Health)
+		self.HealCommBar:SetStatusBarTexture(settings.statusbar)
+		self.HealCommBar:SetStatusBarColor(0, 1, 0, 0.25)
+		self.HealCommBar:SetPoint(self.reverse and "RIGHT" or "LEFT", self.Health)
+
+		self.HealCommText = self.overlay:CreateFontString(nil, "OVERLAY")
+		self.HealCommIgnoreHoTs:SetPoint("CENTER", self.Health)
+		self.HealCommIgnoreHoTs:SetFont(settings.font, 12, settings.outline)
+		self.HealCommIgnoreHoTs:SetShadowOffset(0, 0)
+
+		self.HealCommFilter = "ALL"
+		self.HealCommIgnoreHoTs = true
+		self.HealCommNoOverflow = true
+	end
+
+
 	--
 	--	Module support: ResComm
 	--
 	if not unit or not unit:match("^(.+)target$") then
 		self.ResCommText = self.overlay:CreateFontString(nil, "OVERLAY")
 		self.ResCommText:SetPoint("CENTER", self.Health)
-		self.ResCommText:SetFont(settings.font, 12,settings.outline)
+		self.ResCommText:SetFont(settings.font, 12, settings.outline)
 		self.ResCommText:SetShadowOffset(0, 0)
 
-		self.ResCommText.ignoreSoulstone = false
-		-- also includes Reincarnation and Twisting Nether, as LibResComm-1.0 does not distinguish between self-res types
+		self.ResCommIgnoreSoulstone = false
+		-- also ignores Reincarnation and Twisting Nether, as LibResComm-1.0 does not distinguish between self-res types
 	end
+
 
 	--
 	--	Plugin support: oUF_CombatFeedback
@@ -1049,6 +1073,7 @@ local function Spawn(self, unit)
 		self.CombatFeedbackText.ignoreOther = true
 	end
 
+
 	--
 	--	Plugin support: oUF_GCD
 	--
@@ -1063,16 +1088,22 @@ local function Spawn(self, unit)
 		self.GCD.Spark:SetHeight(self.GCD:GetHeight())
 	end
 
+
+	--
+	--	Plugin support: oUF_MoveableFrames
+	--
+	if select(4, GetAddOnInfo("oUF_MoveableFrames") then
+		self.MoveableFrames = true
+	end
+
+
 	return self
 end
 
 ------------------------------------------------------------------------
 
 oUF_Phanx = CreateFrame("Frame")
-oUF_Phanx:SetScript("OnEvent", function(self, event, ...) return self[event] and self[event](self, ...) end)
-oUF_Phanx:RegisterEvent("ADDON_LOADED")
 
-oUF_Phanx.settings = settings
 oUF_Phanx.usettings = usettings
 oUF_Phanx.strings = strings
 
@@ -1086,58 +1117,63 @@ oUF_Phanx.SetBorderColor = SetBorderColor
 oUF_Phanx.SetBorderSize = SetBorderSize
 oUF_Phanx.UpdateBorder = UpdateBorder
 
-function oUF_Phanx:ADDON_LOADED(addon)
+oUF_Phanx:RegisterEvent("ADDON_LOADED")
+oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 	if addon ~= "PhanxTest" then return end
 
-	local t = oUF_Phanx_Settings or { }
-	for k, v in pairs(settings) do
-		if type(t[k]) ~= type(v) then
-			t[k] = v
+	local function copytable(a, b)
+		if not a then return { } end
+		if not b then b = { } end
+		for k, v in pairs(a) do
+			if type(v) == "table" then
+				b[k] = copyTable(v, b[k])
+			elseif type(b[k]) ~= type(v) then
+				b[k] = v
+			end
 		end
+		return b
 	end
-	settings = t
+	if not oUF_Phanx_Settings then
+		oUF_PhanxSettings = { }
+	end
+	copyTable(settings, oUF_Phanx_Settings)
+	settings = oUF_Phanx_Settings
 	self.settings = settings
 
-	self:UnregisterEvent("ADDON_LOADED")
-	self.ADDON_LOADED = nil
 
-	if IsLoggedIn() then
-		self:PLAYER_LOGIN()
-	else
-		self:RegisterEvent("PLAYER_LOGIN")
-	end
-end
-
-function oUF_Phanx:PLAYER_LOGIN()
 	oUF:RegisterStyle("Phanx", Spawn)
 	oUF:SetActiveStyle("Phanx")
-	
+
 	local player = oUF:Spawn("player", "oUF_Player")
 	player:SetPoint("TOP", UIParent, "CENTER", 0, -200)
-	
+
 	local pet = oUF:Spawn("pet", "oUF_Pet")
 	pet:SetPoint("TOP", player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -12 or 0)
-	
+
 	local target = oUF:Spawn("target", "oUF_Target")
 	target:SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
-	
+
 	local targettarget = oUF:Spawn("targettarget", "oUF_TargetTarget")
 	targettarget:SetPoint("BOTTOM", target, "TOP", 0, settings.borderStyle == "TEXTURE" and 12 or 0)
-	
+
 	local focus = oUF:Spawn("focus", "oUF_Focus")
 	if settings.focusMirror then
 		focus:SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
 	else
 		focus:SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + target:GetHeight())
 	end
-	
+
 	local focustarget = oUF:Spawn("focustarget", "oUF_FocusTarget")
 	if settings.focusMirror then
 		focustarget:SetPoint("BOTTOM", focus, "TOP", 0, settings.borderStyle == "TEXTURE" and 12 or 0)
 	else
 		focustarget:SetPoint("TOP", focus, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -12 or 0)
 	end
-end
+
+
+	self:UnregisterEvent("ADDON_LOADED")
+	self.ADDON_LOADED = nil
+end)
 
 ------------------------------------------------------------------------
 

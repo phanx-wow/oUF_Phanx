@@ -1,4 +1,5 @@
-## Interface: 30200
+## Interface: 30300
+## Version: 3.3.0.0
 
 ## Notes: An oUF layout.
 ## X-Copyright: Copyright ©2006–2009 Alyssa "Phanx" Kinley
