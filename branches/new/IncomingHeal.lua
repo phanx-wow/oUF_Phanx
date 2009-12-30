@@ -126,7 +126,7 @@ oUF:AddElement("HealComm", Update, Enable, Disable)
 
 ------------------------------------------------------------------------
 
-local function MultiUpdate(...)
+local function UpdateMultiple(...)
 	for i = 1, select("#", ...) do
 		for _, frame in ipairs(oUF.objects) do
 			if frame.unit and (frame.HealCommBar or frame.HealCommText) and UnitGUID(frame.unit) == select(i, ...) then
@@ -137,11 +137,11 @@ local function MultiUpdate(...)
 end
 
 local function HealComm_Heal_Update(event, casterGUID, spellID, healType, _, ...)
-	MultiUpdate(...)
+	UpdateMultiple(...)
 end
 
 local function HealComm_Modified(event, guid)
-	MultiUpdate(guid)
+	UpdateMultiple(guid)
 end
 
 ------------------------------------------------------------------------

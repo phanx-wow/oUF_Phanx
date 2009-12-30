@@ -1,6 +1,6 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx_DebuffHighlight
-	Colors oUF health bars according to debuff type.
+	Colors oUF health bars according to dispellable debuff type.
 	Based on oUF_DebuffHighlight by Rabbit.
 
 	To activate this functionality for your frame:
@@ -24,6 +24,20 @@
 			Poison = false,
 		}
 
+	Finally, the dispel priority list will be stored in your frame's
+	"DebuffPriority" key:
+
+		self.DebuffPriority = {
+			"Magic",
+			"Curse",
+			"Poison",
+			"Disease",
+			["Curse"] = 2,
+			["Disease"] = 4,
+			["Magic"] = 1,
+			["Poison"] = 3,
+		}
+
 ----------------------------------------------------------------------]]
 
 if not oUF then return end
@@ -31,7 +45,7 @@ if select(4, GetAddOnInfo("oUF_DebuffHighlight")) then return end
 
 ------------------------------------------------------------------------
 
-local DispelPriority = {
+local DebuffPriority = {
 	Curse = 2,
 	Disease = 4,
 	Magic = 1,
@@ -56,12 +70,12 @@ do
 	end
 
 	local t = { }
-	for type, priority in pairs(DispelPriority) do
+	for type, priority in pairs(DebuffPriority) do
 		table.insert(t, type)
 		t[type] = (dispellable[type] and 10 or 5) - priority
 	end
 	table.sort(t, function(a, b) return t[a] > t[b] end)
-	DispelPriority = t
+	DebuffPriority = t
 end
 
 ------------------------------------------------------------------------
@@ -84,7 +98,7 @@ local validUnits = { }
 local function applyDebuffHighlight(frame, event, unit, bar)
 	if not validUnits[unit] then return end
 
-	for i, type in ipairs(DispelPriority) do
+	for i, type in ipairs(DebuffPriority) do
 		if frame.DebuffStatus[type] then
 			bar:SetStatusBarColor(unpack(DebuffTypeColor(type)))
 			return
@@ -100,7 +114,7 @@ local function hook(frame)
 		validUnits[frame.unit] = true
 	end
 
-	frame.DebuffPriority = DispelPriority
+	frame.DebuffPriority = DebuffPriority
 	frame.DebuffStatus = { Curse = false, Disease = false, Magic = false, Poison = false }
 
 	if type(frame.DebuffHighlight) == "function" then

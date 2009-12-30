@@ -1,201 +1,122 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
-	A fully featured, healer oriented layout for oUF.
-	by Phanx < addons@phanx.net >
-	http://www.wowinterface.com/downloads/info-oUF_Phanx.html
-	Copyright ©2008–2009 Alyssa "Phanx" Kinley
-	See README for license terms and additional information.
-
-	Features:
-		Aggro highlighting
-		Dispellable debuff highlighting
-		Incoming heal display
-		Resurrection display [NYI]
-
-	Supported Units:
-		Player
-		Pet
-		Target
-		Target Target
-		Focus
-		Focus Target
-		Party [NYI]
-		Party Pet [NYI]
-
-	Supported Plugins:
-		oUF_AFK
-		oUF_CombatFeedback
-		oUF_GCD
-		oUF_ReadyCheck
-		oUF_Smooth
-
-	Required Dependencies:
-		oUF
-
-	Optional Dependencies:
-		LibHealComm-4.0 (required for incoming heal display)
-		LibResComm-1.0 (required for resurrection display)
 ----------------------------------------------------------------------]]
 
-assert(oUF, "oUF_Phanx requires oUF.")
-
 local settings = {
-------------------------------------------------------------------------
---	CONFIGURATION STARTS HERE
-------------------------------------------------------------------------
 
-	statusbar = "Interface\\AddOns\\SharedMedia\\statusbar\\HalJ",
+	font           = [[Interface\AddOns\SharedMedia\font\Paralucent-Light.ttf]], -- VAGRoundedStd-Bold.ttf]], -- [[Fonts\ARIALN__.ttf]],
+	fontOutline    = "OUTLINE", -- NONE, OUTLINE, THICKOUTLINE
 
-	font = "Fonts\\FRIZQT__.ttf",
+	statusbar      = [[Interface\AddOns\Grid\gradient32x32]], -- [[Interface\TargetingFrame\UI-StatusBar]],
 
-	outline = "OUTLINE",		-- NONE, OUTLINE, THICKOUTLINE
+	borderStyle    = "GLOW", -- GLOW, NONE, TEXTURE
+	borderColor    = { 0.5, 0.5, 0.5 }, -- only applies to TEXTURE border
+	borderSize     = 14, -- only applies to TEXTURE border
 
-	borderStyle = "FLAT",		-- FLAT, GLOW, TEXTURE
+	focusPlacement = "LEFT", -- LEFT, RIGHT
 
-	width = 200,
-	height = 20,				-- This is the height of the health bar only.
+	threatLevels   =  true,
 
-	focusMirror = true,			-- true = opposite target, false = under target
-
-	threatLevels = false,		-- true = threat levels, false = binary aggro
-
-------------------------------------------------------------------------
---	CONFIGURATION ENDS HERE
---	No support will be provided for modifying anything past this line.
-------------------------------------------------------------------------
 }
 
 ------------------------------------------------------------------------
---	Localization
---	If there are not yet translations for your locale, rather than only
---	adding them here for yourself, please contact me and share your
---	translations so that other users can benefit too!
-------------------------------------------------------------------------
 
-local L = setmetatable({}, { __index = function(t, k) t[k] = k return k end })
---[[
-if GetLocale() == "xxXX" then
-	L["B"] = "B"		-- Boss
-	L["E"] = "E"		-- Elite
-	L["R"] = "R"		-- Rare
+local _, namespace = ...
+if not namespace.L then namespace.L = { } end
 
-	L[" Be"] = " Be"	-- Beast
-	L[" De"] = " De"	-- Demon
-	L[" Dr"] = " Dr"	-- Dragonkin
-	L[" El"] = " El"	-- Elemental
-	L[" Gi"] = " Gi"	-- Giant
-	L[" Hu"] = " Hu"	-- Humanoid
-	L[" Me"] = " Me"	-- Mechanical
-	L[" Un"] = " Un"	-- Undead
-end
-]]
+local L = setmetatable(namespace.L, { __index = function(t, k) t[k] = k return k end })
+L["Dead"]    = DEAD
+L["Ghost"]   = GetSpellInfo(8326)
+L["Offline"] = PLAYER_OFFLINE
 
 ------------------------------------------------------------------------
-
-local playerClass = select(2, UnitClass("player"))
-
-local MAX_LEVEL = MAX_PLAYER_LEVEL_TABLE[GetAccountExpansionLevel()]
-
-local strings = {
-	classification = {
-		["elite"]		= "|cffffd700" .. L["E"] .. "|r",
-		["rare"]		= "|cffc7c7cf" .. L["R"] .. "|r",
-		["rareelite"]	= "|cffc7c7cf" .. L["R"] .. "|r|cffffd700" .. L["E"] .. "|r",
-		["worldboss"]	= "|cffeda55f" .. L["B"] .. "|r",
-	},
-	creatureType = {
-		["Beast"]		= L[" Be"],
-		["Demon"]		= L[" De"],
-		["Dragonkin"]	= L[" Dr"],
-		["Elemental"]	= L[" El"],
-		["Giant"]		= L[" Gi"],
-		["Humanoid"]	= L[" Hu"],
-		["Mechanical"]	= L[" Me"],
-		["Undead"]	= L[" Un"],
-	}
-}
-
-local usettings = {
-	power = {
-		player = true,
-		target = true,
-		focus = true,
-	},
-	reverse = {
-		target = true,
-		targettarget = true,
-		focus = not settings.focusMirror,
-		focustarget = not settings.focusMirror,
-		party = true,
-		partypet = true,
-	},
-}
 
 local colors = oUF.colors
-do
-	colors.dead = { 0.6, 0.6, 0.6 }
-	colors.ghost = { 0.6, 0.6, 0.6 }
-	colors.offline = { 0.6, 0.6, 0.6 }
 
-	colors.civilian = { 0.2, 0.4, 1 }
-	colors.friendly = { 0.2, 1, 0.2 }
-	colors.hostile = { 1, 0.1, 0.1 }
-	colors.neutral = { 1, 1, 0.2 }
+colors.dead = { 0.6, 0.6, 0.6 }
+colors.ghost = { 0.6, 0.6, 0.6 }
+colors.offline = { 0.6, 0.6, 0.6 }
 
-	colors.power.AMMOSLOT = { 0.8, 0.6, 0 }
-	colors.power.ENERGY = { 1, 1, 0.2 }
-	colors.power.FOCUS = { 1, 0.5, 0.25 }
-	colors.power.FUEL = { 0, 0.5, 0.5 }
-	colors.power.MANA = { 0, 0.8, 1 }
-	colors.power.RAGE = { 1, 0.2, 0.2 }
-	colors.power.RUNIC_POWER = { 0.4, 0.4, 1 }
+colors.civilian = { 0.2, 0.4, 1 }
+colors.friendly = { 0.2, 1, 0.2 }
+colors.hostile = { 1, 0.1, 0.1 }
+colors.neutral = { 1, 1, 0.2 }
 
-	colors.unknown = { 1, 0.2, 1 }
+colors.power.AMMOSLOT = { 0.8, 0.6, 0 }
+colors.power.ENERGY = { 1, 1, 0.2 }
+colors.power.FOCUS = { 1, 0.5, 0.25 }
+colors.power.FUEL = { 0, 0.5, 0.5 }
+colors.power.MANA = { 0, 0.8, 1 }
+colors.power.RAGE = { 1, 0.2, 0.2 }
+colors.power.RUNIC_POWER = { 0.4, 0.4, 1 }
 
-	colors.threat = {
-		{ 1, 1, 0.47 }, -- not tanking, high threat
-		{ 1, 0.6, 0 },  -- tanking, insecure threat
-		{ 1, 0, 0 },    -- tanking, secure threat
-	}
+colors.unknown = { 1, 0.2, 1 }
 
-	colors.debuff = { }
-	for type, color in pairs(DebuffTypeColor) do
-		if type ~= "none" then
-			colors.debuff[type] = { color.r, color.g, color.b }
-		end
+colors.threat = {
+	{ 1, 1, 0.47 }, -- not tanking, high threat
+	{ 1, 0.6, 0 },  -- tanking, insecure threat
+	{ 1, 0, 0 },    -- tanking, secure threat
+}
+
+colors.debuff = { }
+for type, color in pairs(DebuffTypeColor) do
+	if type ~= "none" then
+		colors.debuff[type] = { color.r, color.g, color.b }
 	end
 end
 
 ------------------------------------------------------------------------
 
+local playerClass = select(2, UnitClass("player"))
+local MAX_LEVEL = MAX_PLAYER_LEVEL_TABLE[GetAccountExpansionLevel()]
+
+------------------------------------------------------------------------
+
 local function debug(str, ...)
-	do return end
-	if select(1, ...) then str = str:format(...) end
-	ChatFrame7:AddMessage("|cffff3333oUF_Phanx:|r " .. str)
+	if ... then
+		if str:match("%%") then
+			str = str:format(...)
+		else
+			str = string.join(", ", str, ...)
+		end
+	end
+	print(("|cffffcc00[DEBUG] oUF_Phanx:|r %s"):format(str))
 end
 
 ------------------------------------------------------------------------
 
-local function si(n)
+local function si(n, plus)
 	if type(n) ~= "number" then return n end
 
-	if n >= 10000000 then
-		return string.format("%.1fm", n / 1000000)
-	elseif n >= 1000000 then
-		return string.format("%.2fm", n / 1000000)
-	elseif n >= 100000 then
-		return string.format("%.0fk", n / 1000)
-	elseif n >= 10000 then
-		return string.format("%.1fk", n / 1000)
+	local sign
+	if n < 0 then
+		sign = "-"
+		n = -n
+	elseif plus then
+		sign = "+"
 	else
-		return n
+		sign = ""
+	end
+
+	if n >= 10000000 then
+		return ("%s%.1fm"):format(sign, n / 1000000)
+	elseif n >= 1000000 then
+		return ("%s%.2fm"):format(sign, n / 1000000)
+	elseif n >= 100000 then
+		return ("%s%.0fk"):format(sign, n / 1000)
+	elseif n >= 10000 then
+		return ("%s%.1fk"):format(sign, n / 1000)
+	else
+		return ("%s%d"):format(sign, n)
 	end
 end
 
 ------------------------------------------------------------------------
 
 local function GetDifficultyColor(level)
-	if level < 1 then level = 100 end
+	if level < 1 then
+		level = 100
+	end
 	local levelDiff = level - UnitLevel("player")
 	if levelDiff >= 5 then
 		return 1.00, 0.10, 0.10
@@ -212,12 +133,10 @@ end
 ------------------------------------------------------------------------
 
 local function GetUnitColor(unit)
-	if UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
-		return colors.tapped
-	elseif UnitIsPlayer(unit) then
+	if UnitIsPlayer(unit) then
 		local _, class = UnitClass(unit)
 		return colors.class[class] or colors.unknown
-	elseif UnitIsPlayer(unit) or UnitPlayerControlled(unit) then
+	elseif UnitPlayerControlled(unit) then
 		if UnitCanAttack(unit, "player") then
 			-- they can attack me
 			if UnitCanAttack("player", unit) then
@@ -257,8 +176,6 @@ end
 
 ------------------------------------------------------------------------
 
-local BORDER_SIZE = 14
-
 local AddBorder
 
 local function SetBorderColor(self, r, g, b)
@@ -282,7 +199,7 @@ local function SetBorderSize(self, size)
 		AddBorder(self, size)
 	end
 	if not size then
-		size = BORDER_SIZE
+		size = settings.borderSize
 	end
 	--debug("SetBorderSize: %s", size)
 
@@ -387,20 +304,20 @@ local function UpdateBorder(self)
 		end
 	end
 
-	if self.threatLevel then
+	if self.threatStatus then
 		-- debug("Checking for threat (" .. (IsTanking() and "tanking" or "not tanking") .. ")...")
 		local threatPriority = IsTanking() and 10 or 5
-		if priority < threatPriority and self.threatLevel > 0 then
-			color = colors.threat[self.threatLevel]
+		if priority < threatPriority and self.threatStatus > 0 then
+			color = colors.threat[self.threatStatus]
 			priority = threatPriority
-			debug("hasThreat, %d, %d", self.threatLevel, priority)
+			-- debug("hasThreat, %d, %d", self.threatStatus, priority)
 		end
 	end
 
 	if settings.borderStyle == "TEXTURE" then
 		local r, g, b = unpack(color or settings.borderColor)
 		self:SetBorderColor(r, g, b, 1)
-		self:SetBorderSize(BORDER_SIZE * (priority > 4 and 1.25 or 1))
+		self:SetBorderSize(settings.borderSize * (priority > 4 and 1.25 or 1))
 	else
 		if priority > 4 then
 			local r, g, b = unpack(color or settings.borderColor)
@@ -421,6 +338,35 @@ local function UpdateBorder(self)
 			end
 		end
 	end
+end
+
+------------------------------------------------------------------------
+
+local function UpdateName(self, event, unit)
+	if self.unit ~= unit then return end
+	--debug("UpdateName: %s, %s", event, unit)
+
+	local r, g, b
+	if UnitIsDead(unit) then
+		r, g, b = unpack(colors.dead)
+	elseif UnitIsGhost(unit) then
+		r, g, b = unpack(colors.ghost)
+	elseif not UnitIsConnected(unit) then
+		r, g, b = unpack(colors.offline)
+	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
+		r, g, b = unpack(colors.tapped)
+	else
+		r, g, b = unpack(GetUnitColor(unit))
+	end
+
+	self.Name:SetText(UnitName(unit))
+	self.Name:SetTextColor(r, g, b)
+
+--	if self.Info then
+--		UpdateInfo(self, event, unit)
+--	end
+
+--	UpdateBorder(self)
 end
 
 ------------------------------------------------------------------------
@@ -449,7 +395,6 @@ local function UpdateHealth(self, event, unit, bar, min, max)
 	else
 		r, g, b = unpack(GetUnitColor(unit))
 		bar:SetValue(self.reverse and max - min or min)
-		local text
 		if min < max then
 			if unit == "player" or unit == "pet" then
 				bar.value:SetFormattedText("-%s", si(max - min))
@@ -465,7 +410,7 @@ local function UpdateHealth(self, event, unit, bar, min, max)
 		else
 			bar.value:SetText()
 		end
-		bar.value:SetTextColor(1, 1, 1)
+		bar.value:SetTextColor(r, g, b)
 	end
 
 	if self.reverse then
@@ -511,7 +456,18 @@ local function UpdatePower(self, event, unit, bar, min, max)
 	if self.unit ~= unit then return end
 	-- debug("UpdatePower: %s, %s", tostring(event), tostring(unit))
 
-	if max == 0 or UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
+	if max == 0 then
+		self.Power.hidden = true
+		bar:Hide()
+		self.Health:SetHeight(25)
+		return
+	elseif self.Power.hidden then
+		self.Health:SetHeight(20)
+		bar:Show()
+		self.Power.hidden = nil
+	end
+
+	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
 		bar:SetValue(0)
 		bar:SetStatusBarColor(0, 0, 0)
 		bar.bg:SetVertexColor(0, 0, 0)
@@ -591,6 +547,7 @@ local function UpdatePower(self, event, unit, bar, min, max)
 					end
 				end
 			end
+			bar.value:SetTextColor(r, g, b)
 		end
 	end
 
@@ -608,164 +565,159 @@ local function UpdatePower(self, event, unit, bar, min, max)
 end
 
 ------------------------------------------------------------------------
---	#UNUSED!
 
-local function UpdateHappiness(self, event, unit)
+local function UpdateDispelHighlight(self, event, unit)
 	if self.unit ~= unit then return end
-	--debug("UpdateHappiness: %s, %s", event, unit)
 
-	local r, g, b
-	if UnitIsDead(unit) then
-		r, g, b = 0, 0, 0
-	elseif GetPetHappiness() then
-		r, g, b = unpack(colors.happiness[GetPetHappiness()])
-	else
-		local _, powertype = UnitPowerType(unit)
-		r, g, b = unpack(colors.power.FOCUS)
-	end
-
-	if self.reverse then
-		self.Power:SetStatusBarColor(r * .2, g * .2, b * .2)
-		self.Power.bg:SetVertexColor(r, g, b)
-	else
-		self.Power:SetStatusBarColor(r, g, b)
-		self.Power.bg:SetVertexColor(r * .2, g * .2, b * .2)
-	end
-
-end
-
-------------------------------------------------------------------------
-
-local function UpdateInfo(self, event, unit)
-	if self.unit ~= unit then return end
-	--debug("UpdateInfo: %s, %s", event, unit)
-
-	local level = UnitLevel(unit)
-
-	local r, g, b
-	if not UnitIsFriend(unit, "player") then
-		r, g, b = GetDifficultyColor(level)
-	else
-		r, g, b = 1, 1, 1
-	end
-
-	if level == -1 then
-		level = "??"
-	elseif level == MAX_LEVEL and UnitIsPlayer(unit) then
-		level = ""
-	end
-
-	local creature
-	if unit ~= "pet" and not UnitIsPlayer(unit) then
-		creature = strings.creatureType[UnitCreatureType(unit)]
-	end
-
-	self.Info:SetFormattedText("|cff%02x%02x%02x%s|r%s%s", r * 255, g * 255, b * 255, level, strings.classification[UnitClassification(unit)] or "", creature or "")
-end
-
-------------------------------------------------------------------------
-
-local function UpdateName(self, event, unit)
-	if self.unit ~= unit then return end
-	--debug("UpdateName: %s, %s", event, unit)
-
-	local r, g, b
-	if UnitIsDead(unit) then
-		r, g, b = unpack(colors.dead)
-	elseif UnitIsGhost(unit) then
-		r, g, b = unpack(colors.ghost)
-	elseif not UnitIsConnected(unit) then
-		r, g, b = unpack(colors.offline)
-	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
-		r, g, b = unpack(colors.tapped)
-	else
-		r, g, b = GetUnitColor(unit)
-	end
-
-	self.Name:SetText(UnitName(unit))
-	self.Name:SetTextColor(r, g, b)
-
-	if self.Info then
-		UpdateInfo(self, event, unit)
-	end
+	-- self.DebuffPriority
+	-- self.dispelStatus
 
 	UpdateBorder(self)
 end
 
 ------------------------------------------------------------------------
---	#UNUSED!
 
-local function UpdateDebuffHighlight(self, unit)
-	if unit and unit ~= self.unit then return end
-	-- debug("UpdateDebuffHighlight: %s", unit)
+local function UpdateThreatHighlight(self, event, unit, status)
+	if self.unit ~= unit then return end
 
-	UpdateBorder(self)
-end
-
-------------------------------------------------------------------------
---	#UNUSED!
-
-local function UpdateThreatHighlight(self, event, unit, threatLevel)
-	if unit and unit ~= self.unit then return end
-	-- debug("UpdateThreatHighlight: %s", unit)
-
-	UpdateBorder(self)
-end
-
-------------------------------------------------------------------------
---	Custom aura filtering for hunter pets
---	#UNUSED!
-
-local petBuffWhitelist = {
-	[GetSpellInfo(48443)] = true, -- Regrowth
-	[GetSpellInfo(48441)] = true, -- Rejuvenation
-	[GetSpellInfo(48068)] = true, -- Renew
-	[GetSpellInfo(48451)] = true, -- Lifebloom
-
-	[GetSpellInfo(49284)] = true, -- Earth Shield
-	[GetSpellInfo(48066)] = true, -- Power Word: Shield
-	[GetSpellInfo(53601)] = true, -- Sacred Shield
-}
-
-local petDebuffBlacklist = {
-	[GetSpellInfo(57723)] = true, -- Exhaustion
-	[GetSpellInfo(57724)] = true, -- Sated
-}
-
-local function PetCustomAuraFilter(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster)
-	if caster == "player" or caster == "pet" then
-		return true
+	if status and status > 1 and not settings.threatLevel then
+		status = 3
 	end
-	for i, v in ipairs(icons) do
-		if v.icon:GetTexture() == texture then
-			if v.debuff then
-				return not petDebuffBlacklist[name]
+
+	if self.threatStatus == status then return end
+
+	self.threatStatus = status or 0
+
+	UpdateBorder(self)
+end
+
+------------------------------------------------------------------------
+
+local usettings = {
+	player = {
+		width = 200,
+		height = 20,
+		func = function(self)
+			self.Health.value:SetPoint("BOTTOMRIGHT", -2, -2)
+			self.Health.value:SetJustifyH("RIGHT")
+
+			self.Power.value:SetPoint("BOTTOMLEFT", self.Health, 2, 0)
+			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, 2)
+			self.Power.value:SetJustifyH("LEFT")
+		end,
+	},
+	pet = {
+		width = 200,
+		height = 16,
+	},
+	target = {
+		width = 200,
+		height = 20,
+		func = function(self)
+			self.Health.value:SetPoint("BOTTOMLEFT", 2, -2)
+			self.Health.value:SetJustifyH("LEFT")
+
+			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health, -2, 0)
+			self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 2)
+			self.Power.value:SetJustifyH("RIGHT")
+
+			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -7)
+			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -7)
+			self.Name:SetJustifyH("RIGHT")
+		end,
+	},
+	targettarget = {
+		width = 160,
+		height = 16,
+		func = function(self)
+			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -11)
+			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -11)
+			self.Name:SetJustifyH("RIGHT")
+
+			self.Health.value:SetPoint("TOPLEFT", 2, 2)
+		end,
+	},
+	focus = {
+		width = 200,
+		height = 20,
+		func = function(self)
+			if self.reverse then
+				self.Health.value:SetPoint("BOTTOMLEFT", 2, -2)
+				self.Health.value:SetJustifyH("LEFT")
+
+				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health, -2, 0)
+				self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 2)
+				self.Power.value:SetJustifyH("RIGHT")
+
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -7)
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -7)
+				self.Name:SetJustifyH("RIGHT")
 			else
-				return petBuffWhitelist[name]
+				self.Health.value:SetPoint("BOTTOMRIGHT", -2, -2)
+				self.Health.value:SetJustifyH("RIGHT")
+
+				self.Power.value:SetPoint("BOTTOMLEFT", self.Health, 2, 0)
+				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, 2)
+				self.Power.value:SetJustifyH("LEFT")
+
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -7)
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -7)
+				self.Name:SetJustifyH("LEFT")
 			end
-			break
-		end
-	end
-	return true
-end
+		end,
+	},
+	focustarget = {
+		width = 160,
+		height = 16,
+		func = function(self)
+			if self.reverse then
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -11)
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -11)
+				self.Name:SetJustifyH("RIGHT")
+
+				self.Health.value:SetPoint("TOPRIGHT", -2, 0)
+			else
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -11)
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -11)
+				self.Name:SetJustifyH("LEFT")
+
+				self.Health.value:SetPoint("TOPLEFT", 2, 0)
+			end
+		end,
+	},
+	party = {
+		width = 160,
+		height = 20,
+	},
+	partypet = {
+		width = 160,
+		height = 16,
+	},
+}
 
 ------------------------------------------------------------------------
 
-local BACKDROP = {
-	bgFile = "Interface\\Buttons\\WHITE8X8", tile = true, tileSize = 16,
-	edgeFile = "Interface\\Buttons\\WHITE8X8", edgeSize = 3,
-	insets = { top = 3, right = 3, bottom = 3, left = 3, },
+local backdrop = {
+	bgFile = "Interface\\AddOns\\Grid\\white16x16", tile = true, tileSize = 16,
+	edgeFile = "Interface\\AddOns\\Grid\\white16x16", edgeSize = 3,
+	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
 
-local GLOW_BACKDROP = {
-	edgeFile = "Interface\\AddOns\\oUF.Phanx\\media\\glow",
+local backdrop_glow = {
+	edgeFile = "Interface\\AddOns\\oUF_Phanx\\media\\glow",
 	edgeSize = 5,
 	insets = { left = 3, right = 3, top = 3, bottom = 3 }
 }
 
-local INSET = BACKDROP.insets.left + (settings.borderStyle == "TEXTURE" and -1 or 1)
+local INSET = backdrop.insets.left + (settings.borderStyle == "TEXTURE" and -1 or 1)
 
-local DIV = 5
+------------------------------------------------------------------------
+
+local fakeThreat
+do
+	local noop = function() return end
+	fakeThreat = { Hide = noop, GetTexture = noop, IsObjectType = noop }
+end
 
 ------------------------------------------------------------------------
 
@@ -783,440 +735,253 @@ end
 
 ------------------------------------------------------------------------
 
+settings.div = 5
+
 local function Spawn(self, unit)
 	if not unit then
-		unit = string.match(self:GetParent():GetName():lower(), "^ouf_phanx(%a+)$")
+		local template = self:GetParent():GetAttribute("template")
+		if template == "SecureUnitButtonTemplate" then
+			unit = "party"
+		else
+			unit = "partypet"
+		end
 	end
 
-	self.reverse = usettings.reverse[unit]
-
 	self.menu = menu
-	self:SetAttribute("*type2", "menu")
-
-	self:RegisterForClicks("anyup")
 
 	self:SetScript("OnEnter", UnitFrame_OnEnter)
 	self:SetScript("OnLeave", UnitFrame_OnLeave)
 
+	self:RegisterForClicks("anyup")
+	self:SetAttribute("*type2", "menu")
 
-	local width = INSET + settings.width + INSET
-	local height = INSET + settings.height + INSET
-	if usettings.power[unit] then
-		height = height + 1 + (settings.height / DIV)
+	self.reverse = not (unit == "player" or unit == "pet" or (settings.focusPlacement == "LEFT" and unit:match("^focus")))
+
+	local c = usettings[unit]
+	local hasPower = unit == "player" or unit == "pet" or unit == "target" or unit == "focus" or unit == "party"
+
+	local width = INSET + c.width + INSET
+	local height = INSET + c.height + INSET
+	if hasPower then
+		height = height + 1 + (c.height / settings.div)
 	end
-
-	self:SetWidth(width)
-	self:SetHeight(height)
 
 	self:SetAttribute("initial-width", width)
 	self:SetAttribute("initial-height", height)
 
-
-	self:SetMovable(true)
-	self:RegisterForDrag("LeftButton")
-	self:SetScript("OnDragStart", function(self) self:StartMoving() end)
-	self:SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
-
-
-	self:SetFrameStrata("BACKGROUND")
-	self:SetFrameLevel(1)
-
-
-	self:SetBackdrop(BACKDROP)
-	self:SetBackdropColor(0, 0, 0, 0.85)
+	self:SetBackdrop(backdrop)
+	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
 
-
 	self.Health = CreateFrame("StatusBar", nil, self)
-	self.Health:SetPoint("TOP", self, 0, -INSET)
-	self.Health:SetWidth(settings.width)
-	self.Health:SetHeight(settings.height)
 	self.Health:SetStatusBarTexture(settings.statusbar)
+	self.Health:SetPoint("BOTTOMLEFT", INSET, INSET)
+	self.Health:SetPoint("BOTTOMRIGHT", -INSET, INSET)
+	self.Health:SetHeight(c.height)
 
 	self.Health.bg = self.Health:CreateTexture(nil, "BACKGROUND")
-	self.Health.bg:SetAllPoints(self.Health)
 	self.Health.bg:SetTexture(settings.statusbar)
+	self.Health.bg:SetAllPoints(self.Health)
 
 	self.Health.value = self.Health:CreateFontString(nil, "OVERLAY")
-	if self.reverse then
-		self.Health.value:SetPoint("LEFT", self.Health, INSET, 0)
-	else
-		self.Health.value:SetPoint("RIGHT", self.Health, -INSET, 0)
-	end
-	self.Health.value:SetFont(settings.font, 24, settings.outline)
-	self.Health.value:SetShadowOffset(0, 0)
-
-	self.Health.frequentUpdates = true
-	self.Health.Smooth = true
+	self.Health.value:SetFont(settings.font, 32, settings.fontOutline)
+	self.Health.value:SetShadowOffset(1, -1)
 
 	self.OverrideUpdateHealth = UpdateHealth
 
-
-	if usettings.power[unit] then
+	if hasPower then
 		self.Power = CreateFrame("StatusBar", nil, self)
-		self.Power:SetPoint("BOTTOM", self, 0, INSET)
-		self.Power:SetWidth(settings.width)
-		self.Power:SetHeight(settings.height / DIV)
 		self.Power:SetStatusBarTexture(settings.statusbar)
+		self.Power:SetPoint("TOPLEFT", INSET, -INSET)
+		self.Power:SetPoint("TOPRIGHT", -INSET, -INSET)
+		self.Power:SetPoint("BOTTOM", self.Health, "TOP", 0, 1)
 
 		self.Power.bg = self.Power:CreateTexture(nil, "BACKGROUND")
-		self.Power.bg:SetAllPoints(self.Power)
 		self.Power.bg:SetTexture(settings.statusbar)
+		self.Power.bg:SetAllPoints(self.Power)
 
 		self.Power.value = self.Power:CreateFontString(nil, "OVERLAY")
-		if self.reverse then
-			self.Power.value:SetPoint("RIGHT", self.Health, -INSET, -2)
-			self.Power.value:SetPoint("LEFT", self.Health.value, "RIGHT", 0, -2)
-			self.Power.value:SetJustifyH("RIGHT")
-		else
-			self.Power.value:SetPoint("LEFT", self.Health, -INSET, -2)
-			self.Power.value:SetPoint("RIGHT", self.Health.value, "LEFT", 0, -2)
-		end
-		self.Power.value:SetFont(settings.font, 20, settings.outline)
-		self.Power.value:SetShadowOffset(0, 0)
+		self.Power.value:SetFont(settings.font, 20, settings.fontOutline)
+		self.Power.value:SetShadowOffset(1, -1)
 
-		self.frequentPower = unit == "player"
+		self.frequentPower = unit == "player" or unit == "pet"
+
 		self.OverrideUpdatePower = UpdatePower
 	end
 
-
-	if unit == "target" or unit == "focus" then
-		local v1, v2 = "TOP", "BOTTOM"
-		if unit == "focus" and not settings.focusMirror then
-			v1, v2 = "BOTTOM", "TOP"
-		end
-
-		self.Name = self:CreateFontString(nil, "OVERLAY")
-		if self.reverse then
-			self.Name:SetPoint(v1 .. "LEFT", self, v2 .. "LEFT", INSET, -INSET - 1)
-		else
-			self.Name:SetPoint(v1 .. "RIGHT", self, v2 .. "LEFT", -INSET, -INSET - 1)
-		end
-		self.Name:SetFont(settings.font, 20, settings.outline)
-		self.Name:SetShadowOffset(0, 0)
+	if unit ~= "player" and unit ~= "pet" then
+		self.Name = self.Health:CreateFontString(nil, "OVERLAY")
+		self.Name:SetFont(settings.font, 24, settings.fontOutline)
+		self.Name:SetShadowOffset(1, -1)
 
 		self:RegisterEvent("UNIT_NAME_UPDATE", UpdateName)
 		table.insert(self.__elements, UpdateName)
-
-
-		self.Info = self:CreateFontString(nil, "OVERLAY")
-		if self.reverse then
-			self.Info:SetPoint(v1 .. "RIGHT", self, v2 .. "RIGHT", -INSET, -INSET)
-		else
-			self.Info:SetPoint(v1 .. "LEFT", self, v2 .. "LEFT", INSET, -INSET)
-		end
-		self.Info:SetFont(settings.font, 12, settings.outline)
-		self.Info:SetShadowOffset(0, 0)
-
-		self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", UpdateInfo)
-		self:RegisterEvent("UNIT_LEVEL", UpdateInfo)
 	end
-
-
-	self.overlay = CreateFrame("Frame", nil, self)
-	self.overlay:SetAllPoints(self)
-	self.overlay:SetFrameStrata("BACKGROUND")
-	self.overlay:SetFrameLevel(self:GetFrameLevel() + 1)
-
-
-	self.RaidIcon = self.overlay:CreateTexture(nil, "OVERLAY")
-	self.RaidIcon:SetPoint("CENTER", self, "TOP")
-	self.RaidIcon:SetWidth(32)
-	self.RaidIcon:SetHeight(32)
-
-
-	if unit == "player" then
-		self.Combat = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Combat:SetPoint("CENTER", self.Health, 3, 0)
-		self.Combat:SetWidth(35)
-		self.Combat:SetHeight(35)
-
-
-		self.DruidMana = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.DruidMana:SetPoint("TOPRIGHT", self.Power.value, "BOTTOMRIGHT")
-		self.DruidMana:SetFont(settings.font, 12, settings.outline)
-		self.DruidMana:SetShadowOffset(0, 0)
-
-
-		self.Resting = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Resting:SetPoint("CENTER", self, "BOTTOMRIGHT", settings.borderStyle == "TEXTURE" and 0 or -INSET, settings.borderStyle == "TEXTURE" and 0 or INSET)
-		self.Resting:SetWidth(24)
-		self.Resting:SetHeight(24)
-	end
-
 
 	if unit == "target" then
-		self.CPoints = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.CPoints:SetPoint("RIGHT", self, "LEFT", settings.borderStyle == "TEXTURE" and 0 or INSET, 0)
-		self.CPoints:SetFont(settings.font, 32, settings.outline)
-		self.CPoints:SetShadowOffset(0, 0)
-		self.CPoints:SetTextColor(unpack(colors.class.ROGUE))
+		self.CPoints = self.Health:CreateFontString(nil, "OVERLAY")
+		self.CPoints:SetFont(settings.font, 32, settings.fontOutline)
+		self.CPoints:SetShadowOffset(1, -1)
+		self.CPoints:SetPoint("RIGHT", self, "LEFT", 0, 0)
 	end
 
+	if unit == "player" or unit == "pet" or unit == "target" then
+		self.Assistant = self.Health:CreateTexture(nil, "OVERLAY")
+		self.Assistant:SetPoint("LEFT", self, "BOTTOMLEFT", INSET, INSET)
+		self.Assistant:SetWidth(20)
+		self.Assistant:SetHeight(20)
 
-	if unit == "pet" then
-		self.Happiness = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Happiness:SetPoint("TOPLEFT", self, INSET * 2, -INSET * 2)
-		self.Happiness:SetPoint("BOTTOMLEFT", self, INSET * 2, INSET * 2)
-		self.Happiness:SetWidth(self.Happiness:GetHeight())
+		self.Leader = self.Health:CreateTexture(nil, "OVERLAY")
+		self.Leader:SetPoint("LEFT", self, "BOTTOMLEFT", INSET, INSET)
+		self.Leader:SetWidth(20)
+		self.Leader:SetHeight(20)
+
+		self.MasterLooter = self.Health:CreateTexture(nil, "OVERLAY")
+		self.MasterLooter:SetPoint("LEFT", self, "BOTTOMLEFT", INSET + 20, INSET)
+		self.MasterLooter:SetWidth(20)
+		self.MasterLooter:SetHeight(20)
 	end
 
+	if unit == "player" then
+		self.Combat = self.Health:CreateTexture(nil, "OVERLAY")
+		self.Combat:SetPoint("RIGHT", self, "BOTTOMRIGHT", -INSET, INSET)
+		self.Combat:SetWidth(24)
+		self.Combat:SetHeight(24)
 
-	if unit and (unit == "target" or not unit:match("target$")) then
-		self.AFK = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, settings.borderStyle ~= "TEXTURE" and INSET or 0)
-		self.AFK:SetFont(settings.font, 12, settings.outline)
-		self.AFK:SetShadowOffset(0, 0)
+		self.Resting = self.Health:CreateTexture(nil, "OVERLAY")
+		self.Resting:SetPoint("RIGHT", self, "TOPRIGHT", -INSET, -INSET)
+		self.Resting:SetWidth(20)
+		self.Resting:SetHeight(20)
+	end
 
+	if unit == "player" or unit == "party" then
+		self.LFDRole = self.Health:CreateTexture(nil, "OVERLAY")
+		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and INSET or -INSET, 0)
+		self.LFDRole:SetWidth(20)
+		self.LFDRole:SetHeight(20)
+	end
+
+	self.RaidIcon = self.Health:CreateTexture(nil, "OVERLAY")
+	self.RaidIcon:SetPoint("CENTER", self, "BOTTOM", -INSET, 0)
+	self.RaidIcon:SetWidth(24)
+	self.RaidIcon:SetHeight(24)
+
+	if unit == "pet" or unit == "party" or unit == "partypet" then
+		self.Range = true
+		self.inRangeAlpha = 1
+		self.outsideRangeAlpha = 0.65
+	end
+
+	if not unit:match("^.+target$") then
+		self.Threat = fakeThreat
+		self.OverrideUpdateThreat = UpdateThreatHighlight
+	end
+
+	-- Module: oUF_DispelHighlight
+	self.DispelHighlight = UpdateDispelHighlight
+
+	-- Module: oUF_HealBars
+	self.HealBars = { }
+	for i = 1, 3 do
+		self.HealBars[i] = self.Health:CreateTexture(nil, "OVERLAY")
+		self.HealBars[i]:SetTexture(settings.statusbar)
+	end
+	self.HealBars.ignoreBombs = true
+	self.HealBars.ignoreHoTs = true
+
+	-- Module: oUF_Resurrection
+	self.ResText = self.Health:CreateFontString(nil, "OVERLAY")
+	self.ResText:SetFont(settings.font, 20, settings.fontOutline)
+	self.ResText:SetPoint("TOP", 0, -3)
+
+	-- Plugin: oUF_AFK
+	if select(4, GetAddOnInfo("oUF_AFK")) and (unit == "player" or unit == "party") then
+		self.AFK = self.Health:CreateFontString(nil, "OVERLAY")
+		self.AFK:SetFont(settings.font, 16, settings.fontOutline)
+		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, INSET)
 		self.AFK.fontFormat = "AFK %s:%s"
-
-
-		self.Leader = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Leader:SetPoint("BOTTOMLEFT", self, -INSET / 2, settings.borderStyle == "TEXTURE" and -INSET * 2 or -INSET / 2)
-		self.Leader:SetWidth(16)
-		self.Leader:SetHeight(16)
-
-
-		self.Assistant = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Assistant:SetPoint("BOTTOMLEFT", self.Leader)
-		self.Assistant:SetWidth(16)
-		self.Assistant:SetHeight(16)
-
-
-		self.MasterLooter = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.MasterLooter:SetPoint("BOTTOM", self.Leader, "TOP", -1, -2)
-		self.MasterLooter:SetWidth(15)
-		self.MasterLooter:SetHeight(15)
 	end
 
-
-	if settings.borderStyle == "TEXTURE" and PhanxMod and PhanxMod.AddBorder then
-		PhanxMod:AddBorder(self)
-		for i, tex in ipairs(self.borderTextures) do
-			tex:SetParent(self.overlay)
-		end
-	elseif settings.borderStyle == "GLOW" then
-		self.BorderGlow = CreateFrame("Frame", nil, self)
-		self.BorderGlow:SetAllPoints(self)
-		self.BorderGlow:SetFrameStrata("BACKGROUND")
-		self.BorderGlow:SetFrameLevel(0)
-
-		self.BorderGlow:SetBackdrop(GLOW_BACKDROP)
-		self.BorderGlow:SetBackdropColor(0, 0, 0, 0)
-		self.BorderGlow:SetBackdropBorderColor(0, 0, 0, 1)
-	end
-
-
-	self.Range = true
-	self.inRangeAlpha = 1
-	self.outsideRangeAlpha = 0.5
-
-
-	--
-	--	Module support: DebuffHighlight
-	--
-	self.DebuffHighlight = UpdateBorder
-
-
-	--
-	--	Module support: ThreatHighlight
-	--
-	self.ThreatHighlight = UpdateBorder
-	self.ThreatHighlightLevels = settings.threatLevels
-
-
-	--
-	--	Module support: HealComm
-	--
-	if not unit or not unit:match("^(.+)target$") then
-		self.HealCommBar = CreateFrame("StatusBar", nil, self.Health)
-		self.HealCommBar:SetStatusBarTexture(settings.statusbar)
-		self.HealCommBar:SetStatusBarColor(0, 1, 0, 0.25)
-		self.HealCommBar:SetPoint(self.reverse and "RIGHT" or "LEFT", self.Health)
-
-		self.HealCommText = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.HealCommIgnoreHoTs:SetPoint("CENTER", self.Health)
-		self.HealCommIgnoreHoTs:SetFont(settings.font, 12, settings.outline)
-		self.HealCommIgnoreHoTs:SetShadowOffset(0, 0)
-
-		self.HealCommFilter = "ALL"
-		self.HealCommIgnoreHoTs = true
-		self.HealCommNoOverflow = true
-	end
-
-
-	--
-	--	Module support: ResComm
-	--
-	if not unit or not unit:match("^(.+)target$") then
-		self.ResCommText = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.ResCommText:SetPoint("CENTER", self.Health)
-		self.ResCommText:SetFont(settings.font, 12, settings.outline)
-		self.ResCommText:SetShadowOffset(0, 0)
-
-		self.ResCommIgnoreSoulstone = false
-		-- also ignores Reincarnation and Twisting Nether, as LibResComm-1.0 does not distinguish between self-res types
-	end
-
-
-	--
-	--	Plugin support: oUF_CombatFeedback
-	--
-	if select(4, GetAddOnInfo("oUF_CombatFeedback")) and (unit == "player" or unit == "pet" or unit == "target" or unit == "focus") then
-		self.CombatFeedbackText = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.CombatFeedbackText:SetPoint("CENTER", self)
-		self.CombatFeedbackText:SetFont(settings.font, 16, settings.outline)
-		self.CombatFeedbackText:SetShadowOffset(0, 0)
-
-		self.CombatFeedbackText.maxAlpha = 0.8
-		self.CombatFeedbackText.ignoreImmune = true
-		self.CombatFeedbackText.ignoreOther = true
-	end
-
-
-	--
-	--	Plugin support: oUF_GCD
-	--
+	-- Plugin: oUF_GCD -- ## TEMPORARY ##
 	if select(4, GetAddOnInfo("oUF_GCD")) and unit == "player" then
-		self.GCD = CreateFrame("Frame", nil, self)
-		self.GCD:SetAllPoints(self.Power or self)
+		self.GCD = CreateFrame("Frame", nil, self.Power)
+		self.GCD:SetAllPoints(self.Power)
 
 		self.GCD.Spark = self.GCD:CreateTexture(nil, "OVERLAY")
 		self.GCD.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 		self.GCD.Spark:SetBlendMode("ADD")
+		self.GCD.Spark:SetPoint("LEFT", -5, 0)
 		self.GCD.Spark:SetWidth(10)
-		self.GCD.Spark:SetHeight(self.GCD:GetHeight())
+		self.GCD.Spark:SetHeight(self.Power:GetHeight() * 1.5)
+    end
+
+	-- Plugin: oUF_HealComm4 -- ## TEMPORARY ##
+	if select(4, GetAddOnInfo("oUF_HealComm4")) then
+		self.HealCommBar = CreateFrame("StatusBar", nil, self.Health)
+		self.HealCommBar:SetStatusBarTexture(settings.statusbar)
+		self.HealCommBar:SetStatusBarColor(0, 1, 0, 0.25)
+
+		self.HealCommOthersOnly = true
+		self.allowHealCommOverflow = true
 	end
 
+	-- Plugin: oUF_ReadyCheck
+	if select(4, GetAddOnInfo("oUF_ReadyCheck")) and (unit == "player" or unit == "party") then
+		self.ReadyCheck = self.Health:CreateTexture(nil, "OVERLAY")
+		self.ReadyCheck:SetPoint("CENTER")
+		self.ReadyCheck:SetWidth(32)
+		self.ReadyCheck:SetHeight(32)
 
-	--
-	--	Plugin support: oUF_MoveableFrames
-	--
-	if select(4, GetAddOnInfo("oUF_MoveableFrames") then
-		self.MoveableFrames = true
+		self.ReadyCheck.delayTime = 5
+		self.ReadyCheck.fadeTime = 1
 	end
 
+	-- Plugin: oUF_Smooth
+	if select(4, GetAddOnInfo("oUF_Smooth")) then
+		self.Health.Smooth = true
+		if self.Power then
+			self.Power.Smooth = true
+		end
+	end
+
+	if settings.borderStyle == "TEXTURE" then
+		AddBorder(self)
+		for i, tex in ipairs(self.borderTextures) do
+			tex:SetParent(self.Health)
+		end
+	elseif settings.borderStyle == "GLOW" then
+		self.BorderGlow = CreateFrame("Frame", nil, self)
+		self.BorderGlow:SetFrameStrata("BACKGROUND")
+		self.BorderGlow:SetFrameLevel(self:GetFrameLevel() - 1)
+		self.BorderGlow:SetAllPoints(self)
+		self.BorderGlow:SetBackdrop(backdrop_glow)
+		self.BorderGlow:SetBackdropColor(0, 0, 0, 0)
+		self.BorderGlow:SetBackdropBorderColor(0, 0, 0, 1)
+	end
+
+	if c.func then
+		c.func(self)
+	end
 
 	return self
 end
 
-------------------------------------------------------------------------
+oUF:RegisterStyle("Phanx", Spawn)
+oUF:SetActiveStyle("Phanx")
 
-oUF_Phanx = CreateFrame("Frame")
+oUF:Spawn("player"):SetPoint("TOP", UIParent, "CENTER", 0, -200)
+oUF:Spawn("pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, -16) -- settings.borderStyle == "TEXTURE" and -16 or 0)
 
-oUF_Phanx.usettings = usettings
-oUF_Phanx.strings = strings
+oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
+oUF:Spawn("targettarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, 16) -- settings.borderStyle == "TEXTURE" and 16 or 0)
 
-oUF_Phanx.debug = debug
-oUF_Phanx.si = si
-
-oUF_Phanx.GetDifficultyColor = GetDifficultyColor
-oUF_Phanx.GetUnitColor = GetUnitColor
-oUF_Phanx.AddBorder = AddBorder
-oUF_Phanx.SetBorderColor = SetBorderColor
-oUF_Phanx.SetBorderSize = SetBorderSize
-oUF_Phanx.UpdateBorder = UpdateBorder
-
-oUF_Phanx:RegisterEvent("ADDON_LOADED")
-oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
-	if addon ~= "PhanxTest" then return end
-
-	local function copytable(a, b)
-		if not a then return { } end
-		if not b then b = { } end
-		for k, v in pairs(a) do
-			if type(v) == "table" then
-				b[k] = copyTable(v, b[k])
-			elseif type(b[k]) ~= type(v) then
-				b[k] = v
-			end
-		end
-		return b
-	end
-	if not oUF_Phanx_Settings then
-		oUF_PhanxSettings = { }
-	end
-	copyTable(settings, oUF_Phanx_Settings)
-	settings = oUF_Phanx_Settings
-	self.settings = settings
-
-
-	oUF:RegisterStyle("Phanx", Spawn)
-	oUF:SetActiveStyle("Phanx")
-
-	local player = oUF:Spawn("player", "oUF_Player")
-	player:SetPoint("TOP", UIParent, "CENTER", 0, -200)
-
-	local pet = oUF:Spawn("pet", "oUF_Pet")
-	pet:SetPoint("TOP", player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -12 or 0)
-
-	local target = oUF:Spawn("target", "oUF_Target")
-	target:SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
-
-	local targettarget = oUF:Spawn("targettarget", "oUF_TargetTarget")
-	targettarget:SetPoint("BOTTOM", target, "TOP", 0, settings.borderStyle == "TEXTURE" and 12 or 0)
-
-	local focus = oUF:Spawn("focus", "oUF_Focus")
-	if settings.focusMirror then
-		focus:SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
-	else
-		focus:SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + target:GetHeight())
-	end
-
-	local focustarget = oUF:Spawn("focustarget", "oUF_FocusTarget")
-	if settings.focusMirror then
-		focustarget:SetPoint("BOTTOM", focus, "TOP", 0, settings.borderStyle == "TEXTURE" and 12 or 0)
-	else
-		focustarget:SetPoint("TOP", focus, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -12 or 0)
-	end
-
-
-	self:UnregisterEvent("ADDON_LOADED")
-	self.ADDON_LOADED = nil
-end)
-
-------------------------------------------------------------------------
-
-local function setFonts(t, file)
-	for k, v in pairs(t) do
-		if type(v) == "table" then
-			if v.GetObjectType then
-				if v.SetFont then
-					v:SetFont(file)
-				end
-			else
-				setFonts(v, file)
-			end
-		end
-	end
+if settings.focusPlacement == "LEFT" then
+	oUF:Spawn("focus"):SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
+	oUF:Spawn("focustarget"):SetPoint("BOTTOMLEFT", oUF.units.focus, "TOPLEFT", 0, 16) -- settings.borderStyle == "TEXTURE" and 16 or 0)
+else
+	oUF:Spawn("focus"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + target:GetHeight())
+	oUF:Spawn("focustarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, -16) -- settings.borderStyle == "TEXTURE" and -16 or 0)
 end
 
-function oUF_Phanx:SetAllFonts(file)
-	for u, f in pairs(oUF.units) do
-		setFonts(f, file)
-	end
-end
-
-------------------------------------------------------------------------
-
-local function setTextures(t, file)
-	for k, v in pairs(t) do
-		if type(v) == "table" then
-			if v.GetObjectType then
-				if v.SetStatusBarTexture then
-					v:SetStatusBarTexture(file)
-				end
-			else
-				setTextures(v, file)
-			end
-		end
-	end
-end
-
-function oUF_Phanx:SetAllTextures(file)
-	for u, f in pairs(oUF.units) do
-		setTextures(f, file)
-	end
-end
-
-------------------------------------------------------------------------
+SLASH_RELOADUI1 = "/rl"
+SlashCmdList.RELOADUI = ReloadUI
