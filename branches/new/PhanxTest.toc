@@ -1,7 +1,7 @@
 ## Interface: 30300
-## Version: 3.3.0.0
+## Version: 3.3.0.wowi:revision
 
-## Title: oUF: PhanxLayout #2
+## Title: oUF_Phanx
 ## Notes: An oUF layout.
 ## Author: Phanx
 ## X-Copyright: Copyright ©2006–2009 Alyssa "Phanx" Kinley
@@ -16,10 +16,12 @@
 ## OptionalDependencies: LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, LibWrapperHealComm-1.0, PhanxConfigWidgets
 ## SavedVariables: oUF_Phanx_Settings
 
+elements\DispellableDebuffs.lua
+elements\GlobalCooldown.lua
+elements\IncomingHeals.lua
+elements\Resurrections.lua
+
+Localization.lua
 Core.lua
 
-# Debuff.lua
-# GlobalCooldown.lua
-# IncomingHeal.lua
-# Resurrection.lua
-# Threat.lua
+plugins\oUF_Smooth.lua

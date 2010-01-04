@@ -1,21 +1,21 @@
 --[[--------------------------------------------------------------------
-	oUF_Phanx_HealComm
+	oUF_IncomingHeals
 	Shows incoming heals with text and a statusbar overlay.
 	Based on oUF_HealComm4 by EvilPaul, oUF_HealComm by Krage.
-	Modified by Phanx to support reverse orientations and ignoring HoTs.
-	Distributed with oUF_Phanx with permission from EvilPaul.
+	Modified by Phanx to support reverse orientations, support ignoring
+		HoTs, and use a texture instead of a frame.
 
 	Elements handled:
-		.HealCommBar  (Texture)
-		.HealCommText (FontString)
+		.IncomingHealsBar  (Texture)
+		.IncomingHealsText (FontString)
 
 	Optional:
-		.HealCommFilter       (string)  - SELF, OTHER, ALL
-		.HealCommIgnoreHoTs   (boolean) - Ignore HoTs and show only direct and channeled heals
-		.HealCommNoOverflow   (boolean) - Prevent the HealComm bar from extending beyond the end of the Health bar
+		.IncomingHealsFilter       (string)  - one of: SELF, OTHER, ALL
+		.IncomingHealsIgnoreHoTs   (boolean) - ignore HoTs and show only direct and channeled heals
+		.IncomingHealsNoOverflow   (boolean) - prevent the HealComm bar from extending beyond the end of the Health bar
 
 	Functions that can be overridden from within a layout:
-		:HealCommTextFormat   (value) - Formats the heal amount passed for display on .HealCommText
+		:HealCommTextFormat        (value)  - formats the heal amount passed for display on .IncomingHealsText
 ----------------------------------------------------------------------]]
 
 if not oUF then return end
@@ -31,11 +31,11 @@ if select(4, GetAddOnInfo("oUF_HealComm4")) then return end
 local unitMap = HealComm:GetGUIDUnitMapTable()
 
 local function Hide(self)
-	if self.HealCommBar then
-		self.HealCommBar:Hide()
+	if self.IncomingHealsBar then
+		self.IncomingHealsBar:Hide()
 	end
-	if self.HealCommText then
-		self.HealCommText:SetText(nil)
+	if self.IncomingHealsText then
+		self.IncomingHealsText:SetText(nil)
 	end
 end
 
@@ -50,86 +50,87 @@ local function Update(self)
 	end
 
 	local guid = UnitGUID(self.unit)
-	local incHeals = 0
-	if self.HealCommFilter = "SELF" then
-		incHeals = HealComm:GetHealAmount(guid, self.HealCommFlag) - HealComm:GetOthersHealAmount(guid, self.HealCommFlag)
-	elseif self.HealCommFilter = "OTHER" then
-		incHeals = HealComm:GetOthersHealAmount(guid, self.HealCommFlag)
+	local incHeals
+	if self.IncomingHealsFilter == "SELF" then
+		incHeals = HealComm:GetHealAmount(guid, self.IncomingHealsFlag) - HealComm:GetOthersHealAmount(guid, self.IncomingHealsFlag)
+	elseif self.IncomingHealsFilter == "OTHER" then
+		incHeals = HealComm:GetOthersHealAmount(guid, self.IncomingHealsFlag)
 	else
-		incHeals = HealComm:GetHealAmount(guid, self.HealCommFlag)
+		incHeals = HealComm:GetHealAmount(guid, self.IncomingHealsFlag)
 	end
-	if incHeals == 0 then
+
+	if not incHeals then
 		return Hide(self)
 	end
 
 	incHeals = incHeals * HealComm:GetHealModifier(guid)
 
-	if self.HealCommBar then
+	if self.IncomingHealsBar then
 		local curHP = UnitHealth(self.unit)
 		local percHP = curHP / maxHP
-		local percInc = (self.HealCommNoOverflow and math.min(incHeals, maxHP - curHP) or incHeals) / maxHP
+		local percInc = (self.IncomingHealsNoOverflow and math.min(incHeals, maxHP - curHP) or incHeals) / maxHP
 
-		self.HealCommBar:ClearAllPoints()
+		self.IncomingHealsBar:ClearAllPoints()
 
 		if self.Health:GetOrientation() == "VERTICAL" then
-			self.HealCommBar:SetHeight(percInc * self.Health:GetHeight())
-			self.HealCommBar:SetWidth(self.Health:GetWidth())
+			self.IncomingHealsBar:SetHeight(percInc * self.Health:GetHeight())
+			self.IncomingHealsBar:SetWidth(self.Health:GetWidth())
 			if self.reverse then
-				self.HealCommBar:SetPoint("TOP", self.Health, "TOP", 0, -self.Health:GetHeight() * percHP)
+				self.IncomingHealsBar:SetPoint("TOP", self.Health, "TOP", 0, -self.Health:GetHeight() * percHP)
 			else
-				self.HealCommBar:SetPoint("BOTTOM", self.Health, "BOTTOM", 0, self.Health:GetHeight() * percHP)
+				self.IncomingHealsBar:SetPoint("BOTTOM", self.Health, "BOTTOM", 0, self.Health:GetHeight() * percHP)
 			end
 		else
-			self.HealCommBar:SetHeight(self.Health:GetHeight())
-			self.HealCommBar:SetWidth(percInc * self.Health:GetWidth())
+			self.IncomingHealsBar:SetHeight(self.Health:GetHeight())
+			self.IncomingHealsBar:SetWidth(percInc * self.Health:GetWidth())
 			if self.reverse then
-				self.HealCommBar:SetPoint("RIGHT", self.Health, "RIGHT", -self.Health:GetWidth() * percHP, 0)
+				self.IncomingHealsBar:SetPoint("RIGHT", self.Health, "RIGHT", -self.Health:GetWidth() * percHP, 0)
 			else
-				self.HealCommBar:SetPoint("LEFT", self.Health, "LEFT", self.Health:GetWidth() * percHP, 0)
+				self.IncomingHealsBar:SetPoint("LEFT", self.Health, "LEFT", self.Health:GetWidth() * percHP, 0)
 			end
 		end
 
-		self.HealCommBar:Show()
+		self.IncomingHealsBar:Show()
 	end
 
-	if self.HealCommText then
-		self.HealCommText:SetText(self.HealCommTextFormat and self.HealCommTextFormat(incHeals) or format("%d", incHeals))
+	if self.IncomingHealsText then
+		self.IncomingHealsText:SetText(self.IncomingHealsTextFormat and self.IncomingHealsTextFormat(incHeals) or format("%d", incHeals))
 	end
 end
 
 local function Enable(self)
-	local bar, text = self.HealCommBar, self.HealCommText
+	local bar, text = self.IncomingHealsBar, self.IncomingHealsText
 	if not bar and not text or not self.unit then return end
 
 	if bar then
 		self:RegisterEvent("UNIT_HEALTH", Update)
 		self:RegisterEvent("UNIT_MAXHEALTH", Update)
 
-		if not bar:GetStatusBarTexture() then
-			bar:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
+		if not bar:GetTexture() then
+			bar:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
 		end
 
-		self.HealCommFlag = self.HealCommIgnoreHoTs and HealComm.CASTED_HEALS or HealComm.ALL_HEALS
+		self.IncomingHealsFlag = self.IncomingHealsIgnoreHoTs and HealComm.CASTED_HEALS or HealComm.ALL_HEALS
 	end
 
 	return true
 end
 
 local function Disable(self)
-	if self.unit and (self.HealCommBar or self.HealCommText) then
+	if self.unit and (self.IncomingHealsBar or self.IncomingHealsText) then
 		self:UnregisterEvent("UNIT_HEALTH", Update)
 		self:UnregisterEvent("UNIT_MAXHEALTH", Update)
 	end
 end
 
-oUF:AddElement("HealComm", Update, Enable, Disable)
+oUF:AddElement("IncomingHeals", Update, Enable, Disable)
 
 ------------------------------------------------------------------------
 
 local function UpdateMultiple(...)
 	for i = 1, select("#", ...) do
 		for _, frame in ipairs(oUF.objects) do
-			if frame.unit and (frame.HealCommBar or frame.HealCommText) and UnitGUID(frame.unit) == select(i, ...) then
+			if frame.unit and (frame.IncomingHealsBar or frame.IncomingHealsText) and UnitGUID(frame.unit) == select(i, ...) then
 				Update(frame)
 			end
 		end

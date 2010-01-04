@@ -9,7 +9,7 @@ local settings = {
 
 	statusbar      = [[Interface\AddOns\Grid\gradient32x32]], -- [[Interface\TargetingFrame\UI-StatusBar]],
 
-	borderStyle    = "GLOW", -- GLOW, NONE, TEXTURE
+	borderStyle    = "TEXTURE", -- GLOW, NONE, TEXTURE
 	borderColor    = { 0.5, 0.5, 0.5 }, -- only applies to TEXTURE border
 	borderSize     = 14, -- only applies to TEXTURE border
 
@@ -186,7 +186,7 @@ local function SetBorderColor(self, r, g, b)
 	if not r then
 		r, g, b = unpack(settings.borderColor)
 	end
-	--debug("SetBorderColor: %s, %s, %s", r, g, b)
+	-- debug("SetBorderColor: %s, %s, %s", r, g, b)
 
 	for i, tex in ipairs(self.borderTextures) do
 		tex:SetVertexColor(r, g, b)
@@ -201,7 +201,7 @@ local function SetBorderSize(self, size)
 	if not size then
 		size = settings.borderSize
 	end
-	--debug("SetBorderSize: %s", size)
+	-- debug("SetBorderSize: %s", size)
 
 	local x = size / 2 - 6
 	local t = self.borderTextures
@@ -232,14 +232,14 @@ end
 
 function AddBorder(frame, size)
 	if not frame or type(frame) ~= "table" or frame.borderTextures then return end
-	--debug("AddBorder: %s", frame.unit or "")
+	-- debug("AddBorder: %s", frame.unit or "")
 
 	frame.borderTextures = { }
 
 	local t = frame.borderTextures
 	for i = 1, 8 do
-		t[i] = frame:CreateTexture(nil, "OVERLAY")
-		t[i]:SetTexture(settings.border)
+		t[i] = frame:CreateTexture(nil, "BORDER")
+		t[i]:SetTexture([[Interface\AddOns\oUF_Phanx\media\border]])
 	end
 
 	t[1].id = "TOPLEFT"
@@ -291,45 +291,46 @@ end
 
 local function UpdateBorder(self)
 	-- if not self.unit:match("target$") then debug("UpdateBorder: %s", self.unit) end
-	local priority, color = 0
 
-	if self.DebuffPriority then
-		-- debug("Checking for debuffs...")
-		for i, type in ipairs(self.DebuffPriority) do
-			if self.DebuffStatus[type] then
-				color = colors.debuff[type]
-				priority = self.DebuffPriority[type]
-				debug("hasDebuff, %s, %d", type, priority)
-			end
-		end
-	end
+	local color, important
 
-	if self.threatStatus then
-		-- debug("Checking for threat (" .. (IsTanking() and "tanking" or "not tanking") .. ")...")
-		local threatPriority = IsTanking() and 10 or 5
-		if priority < threatPriority and self.threatStatus > 0 then
+	if IsTanking() then
+		if self.threatStatus and self.threatStatus > 0 then
 			color = colors.threat[self.threatStatus]
-			priority = threatPriority
-			-- debug("hasThreat, %d, %d", self.threatStatus, priority)
+			important = true
+		elseif self.debuffStatus then
+			color = colors.debuff[self.debuffType]
+			important = self.debuffDispellable
+		end
+	else
+		if self.debuffDispellable then
+			color = colors.debuff[self.debuffType]
+			important = true
+		elseif self.threatStatus and self.threatStatus > 0 then
+			color = colors.threat[self.threatStatus]
+			important = true
+		elseif self.debuffStatus then
+			color = colors.debuff[self.debuffType]
+			important = false
 		end
 	end
 
 	if settings.borderStyle == "TEXTURE" then
 		local r, g, b = unpack(color or settings.borderColor)
 		self:SetBorderColor(r, g, b, 1)
-		self:SetBorderSize(settings.borderSize * (priority > 4 and 1.25 or 1))
+		self:SetBorderSize(settings.borderSize * (important and 1.25 or 1))
 	else
-		if priority > 4 then
-			local r, g, b = unpack(color or settings.borderColor)
+		if important then
+			local r, g, b = unpack(color)
 			self:SetBackdropBorderColor(r, g, b, 1)
-		elseif priority > 0 then
-			local r, g, b = unpack(color or settings.borderColor)
+		elseif color then
+			local r, g, b = unpack(color)
 			self:SetBackdropBorderColor(r, g, b, 0.5)
 		else
 			self:SetBackdropBorderColor(0, 0, 0, 0)
 		end
 		if settings.borderStyle == "GLOW" then
-			if priority > 0 then
+			if color then
 				self.BorderGlow:SetPoint("TOPLEFT", -3, 3)
 				self.BorderGlow:SetPoint("BOTTOMRIGHT", 3, -3)
 			else
@@ -344,7 +345,7 @@ end
 
 local function UpdateName(self, event, unit)
 	if self.unit ~= unit then return end
-	--debug("UpdateName: %s, %s", event, unit)
+	-- debug("UpdateName: %s, %s", event, unit)
 
 	local r, g, b
 	if UnitIsDead(unit) then
@@ -373,7 +374,7 @@ end
 
 local function UpdateHealth(self, event, unit, bar, min, max)
 	if self.unit ~= unit then return end
-	--debug("UpdateHealth: %s, %s", event, unit)
+	-- debug("UpdateHealth: %s, %s", event, unit)
 
 	local r, g, b
 
@@ -435,7 +436,7 @@ do
 	function UpdateDruidMana(self, elapsed)
 		time = time + (elapsed or 1000)
 		if time > 0.5 then
-			--debug("UpdateDruidMana")
+			-- debug("UpdateDruidMana")
 			local frame = self:GetParent()
 			if frame.shapeshifted then
 				local min, max = UnitPower("player", SPELL_POWER_MANA), UnitPowerMax("player", SPELL_POWER_MANA)
@@ -566,11 +567,12 @@ end
 
 ------------------------------------------------------------------------
 
-local function UpdateDispelHighlight(self, event, unit)
+local function UpdateDispelHighlight(self, event, unit, debuffType, canDispel)
 	if self.unit ~= unit then return end
+	-- debug("UpdateDispelHighlight", tostring(debuffType), tostring(canDispel))
 
-	-- self.DebuffPriority
-	-- self.dispelStatus
+	self.debuffType = debuffType
+	self.debuffDispellable = canDispel
 
 	UpdateBorder(self)
 end
@@ -579,14 +581,17 @@ end
 
 local function UpdateThreatHighlight(self, event, unit, status)
 	if self.unit ~= unit then return end
+	-- debug("UpdateThreatHighlight", tostring(status))
 
-	if status and status > 1 and not settings.threatLevel then
+	if not status then
+		status = 0
+	elseif status > 1 and not settings.threatLevel then
 		status = 3
 	end
 
 	if self.threatStatus == status then return end
 
-	self.threatStatus = status or 0
+	self.threatStatus = status
 
 	UpdateBorder(self)
 end
@@ -621,8 +626,8 @@ local usettings = {
 			self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 2)
 			self.Power.value:SetJustifyH("RIGHT")
 
-			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -7)
-			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -7)
+			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, settings.borderStyle == "TEXTURE" and -5 or -7)
+			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, settings.borderStyle == "TEXTURE" and -5 or -7)
 			self.Name:SetJustifyH("RIGHT")
 		end,
 	},
@@ -645,23 +650,23 @@ local usettings = {
 				self.Health.value:SetPoint("BOTTOMLEFT", 2, -2)
 				self.Health.value:SetJustifyH("LEFT")
 
-				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health, -2, 0)
+				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health, -2, 1)
 				self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 2)
 				self.Power.value:SetJustifyH("RIGHT")
 
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -7)
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, settings.borderStyle == "TEXTURE" and -5 or -7)
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, settings.borderStyle == "TEXTURE" and -5 or -7)
 				self.Name:SetJustifyH("RIGHT")
 			else
 				self.Health.value:SetPoint("BOTTOMRIGHT", -2, -2)
 				self.Health.value:SetJustifyH("RIGHT")
 
-				self.Power.value:SetPoint("BOTTOMLEFT", self.Health, 2, 0)
+				self.Power.value:SetPoint("BOTTOMLEFT", self.Health, 2, 1)
 				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, 2)
 				self.Power.value:SetJustifyH("LEFT")
 
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -7)
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -7)
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, settings.borderStyle == "TEXTURE" and -5 or -7)
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, settings.borderStyle == "TEXTURE" and -5 or -7)
 				self.Name:SetJustifyH("LEFT")
 			end
 		end,
@@ -709,7 +714,14 @@ local backdrop_glow = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 }
 }
 
-local INSET = backdrop.insets.left + (settings.borderStyle == "TEXTURE" and -1 or 1)
+local INSET = backdrop.insets.left + 1
+
+if settings.borderStyle == "TEXTURE" then
+	INSET = INSET - 2
+	for point in pairs(backdrop.insets) do
+		backdrop.insets[point] = 0
+	end
+end
 
 ------------------------------------------------------------------------
 
@@ -769,6 +781,8 @@ local function Spawn(self, unit)
 	self:SetAttribute("initial-width", width)
 	self:SetAttribute("initial-height", height)
 
+	self:SetFrameStrata("BACKGROUND")
+
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
@@ -801,7 +815,7 @@ local function Spawn(self, unit)
 		self.Power.bg:SetAllPoints(self.Power)
 
 		self.Power.value = self.Power:CreateFontString(nil, "OVERLAY")
-		self.Power.value:SetFont(settings.font, 20, settings.fontOutline)
+		self.Power.value:SetFont(settings.font, 24, settings.fontOutline)
 		self.Power.value:SetShadowOffset(1, -1)
 
 		self.frequentPower = unit == "player" or unit == "pet"
@@ -827,31 +841,33 @@ local function Spawn(self, unit)
 
 	if unit == "player" or unit == "pet" or unit == "target" then
 		self.Assistant = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Assistant:SetPoint("LEFT", self, "BOTTOMLEFT", INSET, INSET)
-		self.Assistant:SetWidth(20)
-		self.Assistant:SetHeight(20)
+		self.Assistant:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 1, settings.borderStyle == "TEXTURE" and -1 or 1)
+		self.Assistant:SetWidth(16)
+		self.Assistant:SetHeight(16)
 
 		self.Leader = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Leader:SetPoint("LEFT", self, "BOTTOMLEFT", INSET, INSET)
-		self.Leader:SetWidth(20)
-		self.Leader:SetHeight(20)
+		self.Leader:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 1, settings.borderStyle == "TEXTURE" and -1 or 1)
+		self.Leader:SetWidth(16)
+		self.Leader:SetHeight(16)
 
 		self.MasterLooter = self.Health:CreateTexture(nil, "OVERLAY")
-		self.MasterLooter:SetPoint("LEFT", self, "BOTTOMLEFT", INSET + 20, INSET)
-		self.MasterLooter:SetWidth(20)
-		self.MasterLooter:SetHeight(20)
+		self.MasterLooter:SetPoint("BOTTOMLEFT", self.Leader, "BOTTOMRIGHT", 0, 2)
+		self.MasterLooter:SetWidth(14)
+		self.MasterLooter:SetHeight(14)
 	end
 
 	if unit == "player" then
 		self.Combat = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Combat:SetPoint("RIGHT", self, "BOTTOMRIGHT", -INSET, INSET)
-		self.Combat:SetWidth(24)
-		self.Combat:SetHeight(24)
+		self.Combat:SetPoint("CENTER", self.Health, "TOP", 2, 4)
+		self.Combat:SetWidth(32)
+		self.Combat:SetHeight(32)
 
 		self.Resting = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Resting:SetPoint("RIGHT", self, "TOPRIGHT", -INSET, -INSET)
-		self.Resting:SetWidth(20)
-		self.Resting:SetHeight(20)
+		self.Resting:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", 2, settings.borderStyle == "TEXTURE" and -1 or 1)
+		self.Resting:SetWidth(24)
+		self.Resting:SetHeight(24)
+		self.Resting:SetTexture([[Interface\CharacterFrame\UI-StateIcon]])
+		self.Resting:SetTexCoord(.5, 0, 0, .421875)
 	end
 
 	if unit == "player" or unit == "party" then
@@ -877,73 +893,6 @@ local function Spawn(self, unit)
 		self.OverrideUpdateThreat = UpdateThreatHighlight
 	end
 
-	-- Module: oUF_DispelHighlight
-	self.DispelHighlight = UpdateDispelHighlight
-
-	-- Module: oUF_HealBars
-	self.HealBars = { }
-	for i = 1, 3 do
-		self.HealBars[i] = self.Health:CreateTexture(nil, "OVERLAY")
-		self.HealBars[i]:SetTexture(settings.statusbar)
-	end
-	self.HealBars.ignoreBombs = true
-	self.HealBars.ignoreHoTs = true
-
-	-- Module: oUF_Resurrection
-	self.ResText = self.Health:CreateFontString(nil, "OVERLAY")
-	self.ResText:SetFont(settings.font, 20, settings.fontOutline)
-	self.ResText:SetPoint("TOP", 0, -3)
-
-	-- Plugin: oUF_AFK
-	if select(4, GetAddOnInfo("oUF_AFK")) and (unit == "player" or unit == "party") then
-		self.AFK = self.Health:CreateFontString(nil, "OVERLAY")
-		self.AFK:SetFont(settings.font, 16, settings.fontOutline)
-		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, INSET)
-		self.AFK.fontFormat = "AFK %s:%s"
-	end
-
-	-- Plugin: oUF_GCD -- ## TEMPORARY ##
-	if select(4, GetAddOnInfo("oUF_GCD")) and unit == "player" then
-		self.GCD = CreateFrame("Frame", nil, self.Power)
-		self.GCD:SetAllPoints(self.Power)
-
-		self.GCD.Spark = self.GCD:CreateTexture(nil, "OVERLAY")
-		self.GCD.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-		self.GCD.Spark:SetBlendMode("ADD")
-		self.GCD.Spark:SetPoint("LEFT", -5, 0)
-		self.GCD.Spark:SetWidth(10)
-		self.GCD.Spark:SetHeight(self.Power:GetHeight() * 1.5)
-    end
-
-	-- Plugin: oUF_HealComm4 -- ## TEMPORARY ##
-	if select(4, GetAddOnInfo("oUF_HealComm4")) then
-		self.HealCommBar = CreateFrame("StatusBar", nil, self.Health)
-		self.HealCommBar:SetStatusBarTexture(settings.statusbar)
-		self.HealCommBar:SetStatusBarColor(0, 1, 0, 0.25)
-
-		self.HealCommOthersOnly = true
-		self.allowHealCommOverflow = true
-	end
-
-	-- Plugin: oUF_ReadyCheck
-	if select(4, GetAddOnInfo("oUF_ReadyCheck")) and (unit == "player" or unit == "party") then
-		self.ReadyCheck = self.Health:CreateTexture(nil, "OVERLAY")
-		self.ReadyCheck:SetPoint("CENTER")
-		self.ReadyCheck:SetWidth(32)
-		self.ReadyCheck:SetHeight(32)
-
-		self.ReadyCheck.delayTime = 5
-		self.ReadyCheck.fadeTime = 1
-	end
-
-	-- Plugin: oUF_Smooth
-	if select(4, GetAddOnInfo("oUF_Smooth")) then
-		self.Health.Smooth = true
-		if self.Power then
-			self.Power.Smooth = true
-		end
-	end
-
 	if settings.borderStyle == "TEXTURE" then
 		AddBorder(self)
 		for i, tex in ipairs(self.borderTextures) do
@@ -963,25 +912,118 @@ local function Spawn(self, unit)
 		c.func(self)
 	end
 
+	--
+	-- Module: DispelHighlight
+	--
+	self.DispelHighlight = UpdateDispelHighlight
+
+	--
+	-- Module: GlobalCooldown
+	--
+	self.GlobalCooldown = CreateFrame("Frame", nil, self.Power)
+	self.GlobalCooldown:SetAllPoints(self.Power)
+
+	self.GlobalCooldown.spark = self.GlobalCooldown:CreateTexture(nil, "OVERLAY")
+	self.GlobalCooldown.spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
+	self.GlobalCooldown.spark:SetBlendMode("ADD")
+	self.GlobalCooldown.spark:SetHeight(self.GlobalCooldown:GetHeight() * 5)
+	self.GlobalCooldown.spark:SetWidth(10)
+
+	--
+	-- Module: IncomingHeals
+	--
+	self.HealCommBar = self.Health:CreateTexture(nil, "OVERLAY")
+	self.HealCommBar:SetTexture(settings.statusbar)
+	self.HealCommBar:SetVertexColor(0, 1, 0)
+	self.HealCommBar:SetAlpha(0.35)
+	self.HealCommBar:SetHeight(self.Health:GetHeight())
+
+	self.HealCommIgnoreHoTs = true
+	self.HealCommNoOverflow = true
+
+	--[[
+	self.IncomingHeals = { }
+	for i = 1, 3 do
+		self.IncomingHeals[i] = self.Health:CreateTexture(nil, "OVERLAY")
+		self.IncomingHeals[i]:SetTexture(settings.statusbar)
+		self.IncomingHeals[i]:SetHeight(self.Health:GetHeight())
+	end
+	self.IncomingHeals.hideOverflow = true
+	self.IncomingHeals.ignoreBombs = true
+	self.IncomingHeals.ignoreHoTs = true
+	]]
+
+	--
+	-- Module: Resurrection
+	--
+	self.ResurrectionText = self.Health:CreateFontString(nil, "OVERLAY")
+	self.ResurrectionText:SetFont(settings.font, 20, settings.fontOutline)
+	self.ResurrectionText:SetPoint("BOTTOM", 0, 1)
+
+	--
+	-- Plugin: oUF_AFK
+	--
+	if select(4, GetAddOnInfo("oUF_AFK")) and (unit == "player" or unit == "party") then
+		self.AFK = self.Health:CreateFontString(nil, "OVERLAY")
+		self.AFK:SetFont(settings.font, 16, settings.fontOutline)
+		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, INSET)
+		self.AFK.fontFormat = "AFK %s:%s"
+	end
+
+	--
+	-- Plugin: oUF_ReadyCheck
+	--
+	if select(4, GetAddOnInfo("oUF_ReadyCheck")) and (unit == "player" or unit == "party") then
+		self.ReadyCheck = self.Health:CreateTexture(nil, "OVERLAY")
+		self.ReadyCheck:SetPoint("CENTER")
+		self.ReadyCheck:SetWidth(32)
+		self.ReadyCheck:SetHeight(32)
+
+		self.ReadyCheck.delayTime = 5
+		self.ReadyCheck.fadeTime = 1
+	end
+
+	--
+	-- Plugin: oUF_Smooth
+	--
+	if select(4, GetAddOnInfo("oUF_Smooth")) then
+		self.Health.Smooth = true
+		if self.Power then
+			self.Power.Smooth = true
+		end
+	end
+
+	--
+	-- Disable plugin: oUF_QuickHealth2
+	-- Worthless waste of resources used by idiots for placebo effect.
+	--
+	if select(4, GetAddOnInfo("oUF_QuickHealth2")) then
+		self.ignoreQuickHealth = true
+	end
+
 	return self
 end
+
+------------------------------------------------------------------------
 
 oUF:RegisterStyle("Phanx", Spawn)
 oUF:SetActiveStyle("Phanx")
 
 oUF:Spawn("player"):SetPoint("TOP", UIParent, "CENTER", 0, -200)
-oUF:Spawn("pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, -16) -- settings.borderStyle == "TEXTURE" and -16 or 0)
+oUF:Spawn("pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
 
 oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
-oUF:Spawn("targettarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, 16) -- settings.borderStyle == "TEXTURE" and 16 or 0)
+oUF:Spawn("targettarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
 
 if settings.focusPlacement == "LEFT" then
 	oUF:Spawn("focus"):SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
-	oUF:Spawn("focustarget"):SetPoint("BOTTOMLEFT", oUF.units.focus, "TOPLEFT", 0, 16) -- settings.borderStyle == "TEXTURE" and 16 or 0)
+	oUF:Spawn("focustarget"):SetPoint("BOTTOMLEFT", oUF.units.focus, "TOPLEFT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
 else
 	oUF:Spawn("focus"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + target:GetHeight())
-	oUF:Spawn("focustarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, -16) -- settings.borderStyle == "TEXTURE" and -16 or 0)
+	oUF:Spawn("focustarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
 end
+
+------------------------------------------------------------------------
 
 SLASH_RELOADUI1 = "/rl"
 SlashCmdList.RELOADUI = ReloadUI
