@@ -1,7 +1,7 @@
 ## Interface: 30300
 ## Version: 3.3.0.wowi:revision
 
-## Title: oUF_Phanx
+## Title: oUF: Phanx Layout
 ## Notes: An oUF layout.
 ## Author: Phanx
 ## X-Copyright: Copyright ©2006–2009 Alyssa "Phanx" Kinley
@@ -23,5 +23,6 @@ elements\Resurrections.lua
 
 Localization.lua
 Core.lua
+Options.lua
 
 plugins\oUF_Smooth.lua

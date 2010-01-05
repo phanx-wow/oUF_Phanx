@@ -4,10 +4,10 @@
 
 local settings = {
 
-	font           = [[Interface\AddOns\SharedMedia\font\Paralucent-Light.ttf]], -- VAGRoundedStd-Bold.ttf]], -- [[Fonts\ARIALN__.ttf]],
-	fontOutline    = "OUTLINE", -- NONE, OUTLINE, THICKOUTLINE
+	font           = "Expressway",
+	outline        = "OUTLINE", -- NONE, OUTLINE, THICKOUTLINE
 
-	statusbar      = [[Interface\AddOns\Grid\gradient32x32]], -- [[Interface\TargetingFrame\UI-StatusBar]],
+	statusbar      = "Gradient",
 
 	borderStyle    = "TEXTURE", -- GLOW, NONE, TEXTURE
 	borderColor    = { 0.5, 0.5, 0.5 }, -- only applies to TEXTURE border
@@ -19,9 +19,22 @@ local settings = {
 
 }
 
+local defaultFonts = {
+	["Expressway"] = [[Interface\AddOns\SharedMedia\font\Expressway.ttf]], -- oUF_Phanx\media\Expressway.ttf]],
+	["Arial Narrow"] = [[Fonts\ARIALN.TTF]],
+	["Friz Quadrata TT"] = [[Fonts\FRIZQT__.TTF]],
+	["Morpheus"] = [[Fonts\MORPHEUS.ttf]],
+	["Skurri"] = [[Fonts\skurri.ttf]],
+}
+
+local defaultStatusbars = {
+	["Gradient"] = [[Interface\AddOns\oUF_Phanx\media\gradient]],
+	["Blizzard"] = [[Interface\TargetingFrame\UI-StatusBar]],
+}
+
 ------------------------------------------------------------------------
 
-local _, namespace = ...
+local ADDON_NAME, namespace = ...
 if not namespace.L then namespace.L = { } end
 
 local L = setmetatable(namespace.L, { __index = function(t, k) t[k] = k return k end })
@@ -67,6 +80,8 @@ end
 
 ------------------------------------------------------------------------
 
+local SharedMedia
+local oUF_Phanx = CreateFrame("Frame")
 local playerClass = select(2, UnitClass("player"))
 local MAX_LEVEL = MAX_PLAYER_LEVEL_TABLE[GetAccountExpansionLevel()]
 
@@ -574,7 +589,7 @@ local function UpdateDispelHighlight(self, event, unit, debuffType, canDispel)
 	self.debuffType = debuffType
 	self.debuffDispellable = canDispel
 
-	UpdateBorder(self)
+	self:UpdateBorder()
 end
 
 ------------------------------------------------------------------------
@@ -593,7 +608,7 @@ local function UpdateThreatHighlight(self, event, unit, status)
 
 	self.threatStatus = status
 
-	UpdateBorder(self)
+	self:UpdateBorder()
 end
 
 ------------------------------------------------------------------------
@@ -601,7 +616,7 @@ end
 local usettings = {
 	player = {
 		width = 200,
-		height = 20,
+		height = 24,
 		func = function(self)
 			self.Health.value:SetPoint("BOTTOMRIGHT", -2, -2)
 			self.Health.value:SetJustifyH("RIGHT")
@@ -617,7 +632,7 @@ local usettings = {
 	},
 	target = {
 		width = 200,
-		height = 20,
+		height = 24,
 		func = function(self)
 			self.Health.value:SetPoint("BOTTOMLEFT", 2, -2)
 			self.Health.value:SetJustifyH("LEFT")
@@ -644,7 +659,7 @@ local usettings = {
 	},
 	focus = {
 		width = 200,
-		height = 20,
+		height = 24,
 		func = function(self)
 			if self.reverse then
 				self.Health.value:SetPoint("BOTTOMLEFT", 2, -2)
@@ -692,7 +707,7 @@ local usettings = {
 	},
 	party = {
 		width = 160,
-		height = 20,
+		height = 24,
 	},
 	partypet = {
 		width = 160,
@@ -703,25 +718,21 @@ local usettings = {
 ------------------------------------------------------------------------
 
 local backdrop = {
-	bgFile = "Interface\\AddOns\\Grid\\white16x16", tile = true, tileSize = 16,
-	edgeFile = "Interface\\AddOns\\Grid\\white16x16", edgeSize = 3,
+	bgFile = [[Interface\AddOns\oUF_Phanx\media\solid]], tile = true, tileSize = 16,
+	edgeFile = [[Interface\AddOns\oUF_Phanx\media\solid]], edgeSize = 3,
 	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
 
 local backdrop_glow = {
-	edgeFile = "Interface\\AddOns\\oUF_Phanx\\media\\glow",
+	edgeFile = [[Interface\AddOns\oUF_Phanx\media\glow]],
 	edgeSize = 5,
 	insets = { left = 3, right = 3, top = 3, bottom = 3 }
 }
 
 local INSET = backdrop.insets.left + 1
 
-if settings.borderStyle == "TEXTURE" then
-	INSET = INSET - 2
-	for point in pairs(backdrop.insets) do
-		backdrop.insets[point] = 0
-	end
-end
+local H_DIV = 5
+	-- for units with a power bar, power bar height = (settings.height / H_DIV) and health bar becomes correspondingly smaller
 
 ------------------------------------------------------------------------
 
@@ -747,8 +758,6 @@ end
 
 ------------------------------------------------------------------------
 
-settings.div = 5
-
 local function Spawn(self, unit)
 	if not unit then
 		local template = self:GetParent():GetAttribute("template")
@@ -758,6 +767,7 @@ local function Spawn(self, unit)
 			unit = "partypet"
 		end
 	end
+	-- debug("Spawn", unit)
 
 	self.menu = menu
 
@@ -772,10 +782,13 @@ local function Spawn(self, unit)
 	local c = usettings[unit]
 	local hasPower = unit == "player" or unit == "pet" or unit == "target" or unit == "focus" or unit == "party"
 
+	local FONT = oUF_Phanx:GetFont(settings.font)
+	local STATUSBAR = oUF_Phanx:GetStatusBarTexture(settings.statusbar)
+
 	local width = INSET + c.width + INSET
 	local height = INSET + c.height + INSET
 	if hasPower then
-		height = height + 1 + (c.height / settings.div)
+		height = height + 1
 	end
 
 	self:SetAttribute("initial-width", width)
@@ -788,44 +801,45 @@ local function Spawn(self, unit)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
 
 	self.Health = CreateFrame("StatusBar", nil, self)
-	self.Health:SetStatusBarTexture(settings.statusbar)
+	self.Health:SetStatusBarTexture(STATUSBAR)
 	self.Health:SetPoint("BOTTOMLEFT", INSET, INSET)
 	self.Health:SetPoint("BOTTOMRIGHT", -INSET, INSET)
-	self.Health:SetHeight(c.height)
+	self.Health:SetHeight(c.height - (hasPower and ((c.height / H_DIV) + 1) or 0))
 
 	self.Health.bg = self.Health:CreateTexture(nil, "BACKGROUND")
-	self.Health.bg:SetTexture(settings.statusbar)
+	self.Health.bg:SetTexture(STATUSBAR)
 	self.Health.bg:SetAllPoints(self.Health)
 
 	self.Health.value = self.Health:CreateFontString(nil, "OVERLAY")
-	self.Health.value:SetFont(settings.font, 32, settings.fontOutline)
+	self.Health.value:SetFont(FONT, 32, settings.outline)
 	self.Health.value:SetShadowOffset(1, -1)
 
+	self.Health.smoothUpdate = true
 	self.OverrideUpdateHealth = UpdateHealth
 
 	if hasPower then
 		self.Power = CreateFrame("StatusBar", nil, self)
-		self.Power:SetStatusBarTexture(settings.statusbar)
+		self.Power:SetStatusBarTexture(STATUSBAR)
 		self.Power:SetPoint("TOPLEFT", INSET, -INSET)
 		self.Power:SetPoint("TOPRIGHT", -INSET, -INSET)
 		self.Power:SetPoint("BOTTOM", self.Health, "TOP", 0, 1)
 
 		self.Power.bg = self.Power:CreateTexture(nil, "BACKGROUND")
-		self.Power.bg:SetTexture(settings.statusbar)
+		self.Power.bg:SetTexture(STATUSBAR)
 		self.Power.bg:SetAllPoints(self.Power)
 
 		self.Power.value = self.Power:CreateFontString(nil, "OVERLAY")
-		self.Power.value:SetFont(settings.font, 24, settings.fontOutline)
+		self.Power.value:SetFont(FONT, 20, settings.outline)
 		self.Power.value:SetShadowOffset(1, -1)
 
 		self.frequentPower = unit == "player" or unit == "pet"
-
+		self.Power.smoothUpdate = true
 		self.OverrideUpdatePower = UpdatePower
 	end
 
 	if unit ~= "player" and unit ~= "pet" then
 		self.Name = self.Health:CreateFontString(nil, "OVERLAY")
-		self.Name:SetFont(settings.font, 24, settings.fontOutline)
+		self.Name:SetFont(FONT, 20, settings.outline)
 		self.Name:SetShadowOffset(1, -1)
 
 		self:RegisterEvent("UNIT_NAME_UPDATE", UpdateName)
@@ -834,7 +848,7 @@ local function Spawn(self, unit)
 
 	if unit == "target" then
 		self.CPoints = self.Health:CreateFontString(nil, "OVERLAY")
-		self.CPoints:SetFont(settings.font, 32, settings.fontOutline)
+		self.CPoints:SetFont(FONT, 32, settings.outline)
 		self.CPoints:SetShadowOffset(1, -1)
 		self.CPoints:SetPoint("RIGHT", self, "LEFT", 0, 0)
 	end
@@ -907,6 +921,7 @@ local function Spawn(self, unit)
 		self.BorderGlow:SetBackdropColor(0, 0, 0, 0)
 		self.BorderGlow:SetBackdropBorderColor(0, 0, 0, 1)
 	end
+	self.UpdateBorder = UpdateBorder
 
 	if c.func then
 		c.func(self)
@@ -933,7 +948,7 @@ local function Spawn(self, unit)
 	-- Module: IncomingHeals
 	--
 	self.HealCommBar = self.Health:CreateTexture(nil, "OVERLAY")
-	self.HealCommBar:SetTexture(settings.statusbar)
+	self.HealCommBar:SetTexture(STATUSBAR)
 	self.HealCommBar:SetVertexColor(0, 1, 0)
 	self.HealCommBar:SetAlpha(0.35)
 	self.HealCommBar:SetHeight(self.Health:GetHeight())
@@ -945,7 +960,7 @@ local function Spawn(self, unit)
 	self.IncomingHeals = { }
 	for i = 1, 3 do
 		self.IncomingHeals[i] = self.Health:CreateTexture(nil, "OVERLAY")
-		self.IncomingHeals[i]:SetTexture(settings.statusbar)
+		self.IncomingHeals[i]:SetTexture(STATUSBAR)
 		self.IncomingHeals[i]:SetHeight(self.Health:GetHeight())
 	end
 	self.IncomingHeals.hideOverflow = true
@@ -957,7 +972,7 @@ local function Spawn(self, unit)
 	-- Module: Resurrection
 	--
 	self.ResurrectionText = self.Health:CreateFontString(nil, "OVERLAY")
-	self.ResurrectionText:SetFont(settings.font, 20, settings.fontOutline)
+	self.ResurrectionText:SetFont(FONT, 20, settings.outline)
 	self.ResurrectionText:SetPoint("BOTTOM", 0, 1)
 
 	--
@@ -965,7 +980,7 @@ local function Spawn(self, unit)
 	--
 	if select(4, GetAddOnInfo("oUF_AFK")) and (unit == "player" or unit == "party") then
 		self.AFK = self.Health:CreateFontString(nil, "OVERLAY")
-		self.AFK:SetFont(settings.font, 16, settings.fontOutline)
+		self.AFK:SetFont(FONT, 16, settings.outline)
 		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, INSET)
 		self.AFK.fontFormat = "AFK %s:%s"
 	end
@@ -984,18 +999,8 @@ local function Spawn(self, unit)
 	end
 
 	--
-	-- Plugin: oUF_Smooth
-	--
-	if select(4, GetAddOnInfo("oUF_Smooth")) then
-		self.Health.Smooth = true
-		if self.Power then
-			self.Power.Smooth = true
-		end
-	end
-
-	--
 	-- Disable plugin: oUF_QuickHealth2
-	-- Worthless waste of resources used by idiots for placebo effect.
+	-- Worthless waste of resources, used by idiots for placebo effect.
 	--
 	if select(4, GetAddOnInfo("oUF_QuickHealth2")) then
 		self.ignoreQuickHealth = true
@@ -1006,22 +1011,108 @@ end
 
 ------------------------------------------------------------------------
 
-oUF:RegisterStyle("Phanx", Spawn)
-oUF:SetActiveStyle("Phanx")
+oUF_Phanx:RegisterEvent("ADDON_LOADED")
+oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
+	if addon ~= ADDON_NAME then return end
 
-oUF:Spawn("player"):SetPoint("TOP", UIParent, "CENTER", 0, -200)
-oUF:Spawn("pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
+	if not oUF_Phanx_Settings then
+		oUF_Phanx_Settings = { }
+	end
+	for k, v in pairs(settings) do
+		if type(v) ~= type(oUF_Phanx_Settings[k]) then
+			oUF_Phanx_Settings[k] = v
+		end
+	end
+	settings = oUF_Phanx_Settings
+	self.settings = settings
 
-oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
-oUF:Spawn("targettarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
+	----------------------------------------------------------------
 
-if settings.focusPlacement == "LEFT" then
-	oUF:Spawn("focus"):SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
-	oUF:Spawn("focustarget"):SetPoint("BOTTOMLEFT", oUF.units.focus, "TOPLEFT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
-else
-	oUF:Spawn("focus"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + target:GetHeight())
-	oUF:Spawn("focustarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
-end
+	if settings.borderStyle == "TEXTURE" then
+		INSET = INSET - 2
+		for point in pairs(backdrop.insets) do
+			backdrop.insets[point] = 0
+		end
+	end
+
+	----------------------------------------------------------------
+
+	SharedMedia = LibStub("LibSharedMedia-3.0", true)
+	if SharedMedia then
+		SharedMedia:Register("font", "Expressway", defaultFonts["Expressway"])
+		SharedMedia:Register("statusbar", "Gradient", defaultStatusbars["Gradient"])
+
+		self.fontList = { }
+		for i, v in pairs(SharedMedia:List("font")) do
+			tinsert(self.fontList, v)
+		end
+		table.sort(self.fontList)
+
+		self.statusbarList = { }
+		for i, v in pairs(SharedMedia:List("statusbar")) do
+			tinsert(self.statusbarList, v)
+		end
+		table.sort(self.statusbarList)
+
+		self.SharedMedia_Registered = function(mediaType)
+			if mediaType == "font" then
+				wipe(self.fontList)
+				for i, v in pairs(SharedMedia:List("font")) do
+					tinsert(self.fontList, v)
+				end
+				table.sort(self.fonts)
+			elseif mediaType == "statusbar" then
+				wipe(self.statusbarList)
+				for i, v in pairs(SharedMedia:List("statusbar")) do
+					tinsert(self.statusbarList, v)
+				end
+				table.sort(self.statusbarList)
+			end
+		end
+
+		self.SharedMedia_SetGlobal = function(_, mediaType)
+			if mediaType == "font" then
+				self:SetFont(settings.font)
+			elseif mediaType == "statusbar" then
+				self:SetStatusBarTexture(settings.statusbar)
+			end
+		end
+
+		SharedMedia.RegisterCallback(self, "LibSharedMedia_Registered", "SharedMedia_Registered")
+		SharedMedia.RegisterCallback(self, "LibSharedMedia_SetGlobal",  "SharedMedia_SetGlobal")
+	end
+
+	----------------------------------------------------------------
+
+	oUF:RegisterStyle("Phanx", Spawn)
+	oUF:SetActiveStyle("Phanx")
+
+	oUF:Spawn("player"):SetPoint("TOP", UIParent, "CENTER", 0, -200)
+	oUF:Spawn("pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
+
+	oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
+	oUF:Spawn("targettarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
+
+	if settings.focusPlacement == "LEFT" then
+		oUF:Spawn("focus"):SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
+		oUF:Spawn("focustarget"):SetPoint("BOTTOMLEFT", oUF.units.focus, "TOPLEFT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
+	else
+		oUF:Spawn("focus"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + target:GetHeight())
+		oUF:Spawn("focustarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
+	end
+
+	----------------------------------------------------------------
+
+	self:UnregisterEvent("ADDON_LOADED")
+end)
+
+oUF_Phanx.debug = debug
+
+oUF_Phanx.defaultFonts = defaultFonts
+oUF_Phanx.defaultStatusbars = defaultStatusbars
+
+namespace.oUF_Phanx = oUF_Phanx
+_G.oUF_Phanx = oUF_Phanx
 
 ------------------------------------------------------------------------
 

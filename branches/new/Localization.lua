@@ -43,23 +43,23 @@ do
 		L.CreatureType["Mechanisch"]  = "Me"
 		L.CreatureType["Untoter"]     = "Un"
 	elseif locale == "esES" then
-		L.CreatureType["Bestia"]      = "Be",
-		L.CreatureType["Demonio"]     = "De",
-		L.CreatureType["Dragón"]      = "Dr",
-		L.CreatureType["Elemental"]   = "El",
-		L.CreatureType["Gigante"]     = "Gi",
-		L.CreatureType["Humanoide"]   = "Hu",
-		L.CreatureType["Mecánico"]    = "Me",
-		L.CreatureType["No-muerto"]   = "No",
+		L.CreatureType["Bestia"]      = "Be"
+		L.CreatureType["Demonio"]     = "De"
+		L.CreatureType["Dragón"]      = "Dr"
+		L.CreatureType["Elemental"]   = "El"
+		L.CreatureType["Gigante"]     = "Gi"
+		L.CreatureType["Humanoide"]   = "Hu"
+		L.CreatureType["Mecánico"]    = "Me"
+		L.CreatureType["No-muerto"]   = "No"
 	elseif locale == "esMX" then
-		L.CreatureType["Bestia"]      = "Be",
-		L.CreatureType["Demonio"]     = "De",
-		L.CreatureType["Dragon"]      = "Dr",
-		L.CreatureType["Elemental"]   = "El",
-		L.CreatureType["Gigante"]     = "Gi",
-		L.CreatureType["Humanoide"]   = "Hu",
-		L.CreatureType["Mecánico"]    = "Me",
-		L.CreatureType["No-muerto"]   = "No",
+		L.CreatureType["Bestia"]      = "Be"
+		L.CreatureType["Demonio"]     = "De"
+		L.CreatureType["Dragon"]      = "Dr"
+		L.CreatureType["Elemental"]   = "El"
+		L.CreatureType["Gigante"]     = "Gi"
+		L.CreatureType["Humanoide"]   = "Hu"
+		L.CreatureType["Mecánico"]    = "Me"
+		L.CreatureType["No-muerto"]   = "No"
 	elseif locale == "frFR" then
 		L.CreatureType["Bête"]        = "Bê"
 		L.CreatureType["Démon"]       = "Dé"
@@ -70,14 +70,14 @@ do
 		L.CreatureType["Machine"]     = "Ma"
 		L.CreatureType["Mort-vivant"] = "Mo"
 	elseif locale == "ruRU" then
-		L.CreatureType["Животное"]    = "Жи",
-		L.CreatureType["Демон"]       = "Де",
-		L.CreatureType["Дракон"]      = "Др",
-		L.CreatureType["Элементаль"]  = "Эл",
-		L.CreatureType["Великан"]     = "Ве",
-		L.CreatureType["Гуманоид"]    = "Гу",
-		L.CreatureType["Механизм"]    = "Ме",
-		L.CreatureType["Нежить"]      = "Не",
+		L.CreatureType["Животное"]    = "Жи"
+		L.CreatureType["Демон"]       = "Де"
+		L.CreatureType["Дракон"]      = "Др"
+		L.CreatureType["Элементаль"]  = "Эл"
+		L.CreatureType["Великан"]     = "Ве"
+		L.CreatureType["Гуманоид"]    = "Гу"
+		L.CreatureType["Механизм"]    = "Ме"
+		L.CreatureType["Нежить"]      = "Не"
 	elseif locale == "koKR" then
 		L.Classification["elite"]     = "|cffcc9900+|r"
 		L.Classification["rare"]      = "|cff999999희|r"
@@ -124,7 +124,7 @@ do
 				t[k] = k
 				return k
 			end
-		end)
+		end })
 	else
 		setmetatable(L.CreatureType, { __index = useBlank })
 	end
