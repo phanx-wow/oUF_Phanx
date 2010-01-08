@@ -3,7 +3,7 @@
 	A fully featured, healer oriented layout for oUF.
 	by Phanx < addons@phanx.net >
 	http://www.wowinterface.com/downloads/info-oUF_Phanx.html
-	Copyright ©2008–2009 Alyssa "Phanx" Kinley
+	Copyright ©2009–2010 Alyssa "Phanx" Kinley
 	See README for license terms and additional information.
 ----------------------------------------------------------------------]]
 
@@ -15,8 +15,6 @@ local SharedMedia = LibStub("LibSharedMedia-3.0", true)
 
 ------------------------------------------------------------------------
 
-local defaultFonts = oUF_Phanx.defaultFonts
-
 local function setFonts(object, font, outline)
 	for k, v in pairs(object) do
 		if type(v) == "table" then
@@ -24,14 +22,14 @@ local function setFonts(object, font, outline)
 				local _, size = v:GetFont()
 				v:SetFont(font, size, outline)
 			else
-				setTextures(v, font, outline)
+				setFonts(v, font, outline)
 			end
 		end
 	end
 end
 
 function oUF_Phanx:GetFont(fontName)
-	return SharedMedia and SharedMedia:Fetch("font", fontName) or defaultFonts[fontName]
+	return SharedMedia and SharedMedia:Fetch("font", fontName) or oUF_Phanx.defaultFonts[fontName]
 end
 
 function oUF_Phanx:SetFont(font, outline)
@@ -65,11 +63,11 @@ local function setStatusBarTextures(frame, statusbar)
 end
 
 function oUF_Phanx:GetStatusBarTexture(statusbarName)
-	return SharedMedia and SharedMedia:Fetch("statusbar", statusbarName) or defaultFonts[statusbarName]
+	return SharedMedia and SharedMedia:Fetch("statusbar", statusbarName) or oUF_Phanx.defaultStatusbars[statusbarName]
 end
 
 function oUF_Phanx:SetStatusBarTexture(statusbar)
-	if not statusbar then statusbar = settings.statusbar end
+	if not statusbar then statusbar = self.settings.statusbar end
 
 	statusbar = self:GetStatusBarTexture(statusbar)
 
@@ -100,7 +98,7 @@ optionsFrame:SetScript("OnShow", function(self)
 	title:SetJustifyH("LEFT")
 	title:SetText(self.name)
 
-	local notes = self:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	local notes = self:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	notes:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
 	notes:SetPoint("TOPRIGHT", title, 0, -8)
 	notes:SetHeight(32)
@@ -110,132 +108,13 @@ optionsFrame:SetScript("OnShow", function(self)
 	notes:SetText(L["Use this panel to configure some basic options for the layout."])
 
 	----------------------------------------------------------------
-	--	font
-	--
-
-	if not SharedMedia then
-		oUF_Phanx.fontList = { }
-		for font in pairs(defaultFonts) do
-			table.insert(oUF_Phanx.fontList, font)
-		end
-		table.sort(oUF_Phanx.fontList)
-	end
-
-	local font = self:CreateScrollingDropdown(L["Text Font"], oUF_Phanx.fontList)
-	font.container.desc = L["Change the font for text on the frames."]
-	font.container:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -8)
-	font.container:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -8)
-	font.valueText:SetText(settings.font)
-	do
-		local _, height, flags = font.valueText:GetFont()
-		font.valueText:SetFont(oUF_Phanx:GetFont(settings.font), height, flags)
-
-		function font:OnValueChanged(value)
-			local _, height, flags = self.valueText:GetFont()
-			self.valueText:SetFont(oUF_Phanx:GetFont(value), height, flags)
-			settings.font = value
-			oUF_Phanx:SetFont(settings.font)
-		end
-
-		local button_OnClick = font.button:GetScript("OnClick")
-		font.button:SetScript("OnClick", function(self)
-			button_OnClick(self)
-			font.list:Hide()
-
-			local function SetButtonFonts(self)
-				local buttons = font.list.buttons
-				for i = 1, #buttons do
-					local button = buttons[i]
-					if button.value and button:IsShown() then
-						button.label:SetFont(oUF_Phanx:GetFont(button.value), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
-					end
-				end
-			end
-
-			local OnShow = font.list:GetScript("OnShow")
-			font.list:SetScript("OnShow", function(self)
-				OnShow(self)
-				SetButtonFonts(self)
-			end)
-
-			local OnVerticalScroll = font.list.scrollFrame:GetScript("OnVerticalScroll")
-			font.list.scrollFrame:SetScript("OnVerticalScroll", function(self, delta)
-				OnVerticalScroll(self, delta)
-				SetButtonFonts(self)
-			end)
-
-			local SetText = font.list.text.SetText
-			font.list.text.SetText = function(self, text)
-				self:SetFont(oUF_Phanx:GetFont(text), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT + 1)
-				SetText(self, text)
-			end
-
-			button_OnClick(self)
-			self:SetScript("OnClick", button_OnClick)
-		end)
-	end
-
-	----------------------------------------------------------------
-	--	outline
-	--
-
-	local outline = self:CreateDropdown(L["Text Outline"])
-	outline.container.desc = L["Select an outline width for the display text."]
-	outline.container:SetPoint("TOPLEFT", font.container, "BOTTOMLEFT", 0, -8)
-	outline.container:SetPoint("TOPRIGHT", font.container, "BOTTOMRIGHT", 0, -8)
-	do
-		local outlines = { ["NONE"] = L["None"], ["OUTLINE"] = L["Thin"], ["THICKOUTLINE"] = L["Thick"] }
-
-		local function OnClick(self)
-			settings.outline = self.value
-			ShieldsUp:ApplySettings()
-			outline.valueText:SetText(self.text)
-			UIDropDownMenu_SetSelectedValue(outline, self.value)
-		end
-
-		local info = { } -- UIDropDownMenu_CreateInfo()
-		UIDropDownMenu_Initialize(outline, function(self)
-			local selected = outlines[UIDropDownMenu_GetSelectedValue(outline)] or self.valueText:GetText()
-
-			info.text = L["None"]
-			info.value = "NONE"
-			info.func = OnClick
-			info.checked = L["None"] == selected
-			UIDropDownMenu_AddButton(info)
-
-			info.text = L["Thin"]
-			info.value = "OUTLINE"
-			info.func = OnClick
-			info.checked = L["Thin"] == selected
-			UIDropDownMenu_AddButton(info)
-
-			info.text = L["Thick"]
-			info.value = "THICKOUTLINE"
-			info.func = OnClick
-			info.checked = L["Thick"] == selected
-			UIDropDownMenu_AddButton(info)
-		end)
-
-		outline.valueText:SetText(outlines[settings.outline] or L["None"])
-		UIDropDownMenu_SetSelectedValue(outline, settings.outline or L["None"])
-	end
-
-	----------------------------------------------------------------
 	--	statusbar
 	--
 
-	if not SharedMedia then
-		oUF_Phanx.statusbarList = { }
-		for texture in pairs(defaultStatusbars) do
-			table.insert(oUF_Phanx.statusbarList, texture)
-		end
-		table.sort(oUF_Phanx.statusbarList)
-	end
-
 	local statusbar = self:CreateScrollingDropdown(L["Bar Texture"], oUF_Phanx.statusbarList)
 	statusbar.container.desc = L["Change the texture for bars on the frames."]
-	statusbar.container:SetPoint("TOPLEFT", outline.container, "BOTTOMLEFT", 0, -8)
-	statusbar.container:SetPoint("TOPRIGHT", outline.container, "BOTTOMRIGHT", 0, -8)
+	statusbar.container:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -8)
+	statusbar.container:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -8)
 	statusbar.valueText:SetText(settings.statusbar)
 	do
 		statusbar.valueText.bg = statusbar:CreateTexture(nil, "ARTWORK")
@@ -301,11 +180,114 @@ optionsFrame:SetScript("OnShow", function(self)
 	end
 
 	----------------------------------------------------------------
+	--	font
+	--
+
+	local font = self:CreateScrollingDropdown(L["Font Face"], oUF_Phanx.fontList)
+	font.container.desc = L["Choose the font face for text on the frames."]
+	font.container:SetPoint("TOPLEFT", notes, "BOTTOM", 8, -8)
+	font.container:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -8)
+	font.valueText:SetText(settings.font)
+	do
+		local _, height, flags = font.valueText:GetFont()
+		font.valueText:SetFont(oUF_Phanx:GetFont(settings.font), height, flags)
+
+		function font:OnValueChanged(value)
+			local _, height, flags = self.valueText:GetFont()
+			self.valueText:SetFont(oUF_Phanx:GetFont(value), height, flags)
+			settings.font = value
+			oUF_Phanx:SetFont()
+		end
+
+		local button_OnClick = font.button:GetScript("OnClick")
+		font.button:SetScript("OnClick", function(self)
+			button_OnClick(self)
+			font.list:Hide()
+
+			local function SetButtonFonts(self)
+				local buttons = font.list.buttons
+				for i = 1, #buttons do
+					local button = buttons[i]
+					if button.value and button:IsShown() then
+						button.label:SetFont(oUF_Phanx:GetFont(button.value), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
+					end
+				end
+			end
+
+			local OnShow = font.list:GetScript("OnShow")
+			font.list:SetScript("OnShow", function(self)
+				OnShow(self)
+				SetButtonFonts(self)
+			end)
+
+			local OnVerticalScroll = font.list.scrollFrame:GetScript("OnVerticalScroll")
+			font.list.scrollFrame:SetScript("OnVerticalScroll", function(self, delta)
+				OnVerticalScroll(self, delta)
+				SetButtonFonts(self)
+			end)
+
+			local SetText = font.list.text.SetText
+			font.list.text.SetText = function(self, text)
+				self:SetFont(oUF_Phanx:GetFont(text), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT + 1)
+				SetText(self, text)
+			end
+
+			button_OnClick(self)
+			self:SetScript("OnClick", button_OnClick)
+		end)
+	end
+
+	----------------------------------------------------------------
+	--	outline
+	--
+
+	local outline = self:CreateDropdown(L["Font Outline"])
+	outline.container.desc = L["Choose the outline weight for text on the frames."]
+	outline.container:SetPoint("TOPLEFT", font.container, "BOTTOMLEFT", 0, -8)
+	outline.container:SetPoint("TOPRIGHT", font.container, "BOTTOMRIGHT", 0, -8)
+	do
+		local outlines = { ["NONE"] = L["None"], ["OUTLINE"] = L["Thin"], ["THICKOUTLINE"] = L["Thick"] }
+
+		local function OnClick(self)
+			settings.outline = self.value
+			oUF_Phanx:SetFont()
+			outline.valueText:SetText(self.text)
+			UIDropDownMenu_SetSelectedValue(outline, self.value)
+		end
+
+		local info = { } -- UIDropDownMenu_CreateInfo()
+		UIDropDownMenu_Initialize(outline, function(self)
+			local selected = outlines[UIDropDownMenu_GetSelectedValue(outline)] or self.valueText:GetText()
+
+			info.text = L["None"]
+			info.value = "NONE"
+			info.func = OnClick
+			info.checked = L["None"] == selected
+			UIDropDownMenu_AddButton(info)
+
+			info.text = L["Thin"]
+			info.value = "OUTLINE"
+			info.func = OnClick
+			info.checked = L["Thin"] == selected
+			UIDropDownMenu_AddButton(info)
+
+			info.text = L["Thick"]
+			info.value = "THICKOUTLINE"
+			info.func = OnClick
+			info.checked = L["Thick"] == selected
+			UIDropDownMenu_AddButton(info)
+		end)
+
+		outline.valueText:SetText(outlines[settings.outline] or L["None"])
+		UIDropDownMenu_SetSelectedValue(outline, settings.outline or L["None"])
+	end
+
+	----------------------------------------------------------------
 	--	borderStyle
 	--
 
 	local borderStyle = self:CreateDropdown(L["Border Style"])
-	borderStyle.container.desc = L["Select a border style for the frames."]
+	borderStyle.container.desc = L["Select a border style for the frames."] .. L["Requires a UI reload to apply."]
 	borderStyle.container:SetPoint("TOPLEFT", statusbar.container, "BOTTOMLEFT", 0, -8)
 	borderStyle.container:SetPoint("TOPRIGHT", statusbar.container, "BOTTOMRIGHT", 0, -8)
 	do
@@ -350,31 +332,12 @@ optionsFrame:SetScript("OnShow", function(self)
 	end
 
 	----------------------------------------------------------------
-	--	borderColor
-
-	local borderColor = self:CreateColorPicker(L["Border Color"])
-	borderColor.desc = L["Set the default color for frame borders. Only applies to Texture style borders."]
-	borderColor:SetPoint("TOPLEFT", borderStyle.container, "BOTTOMLEFT", 0, -8)
-	borderColor:SetColor(unpack(settings.borderColor))
-	borderColor.GetColor = function() return unpack(settings.borderColor) end
-	borderColor.OnColorChanged = function(self, r, g, b)
-		settings.borderColor[1] = r
-		settings.borderColor[2] = g
-		settings.borderColor[3] = b
-		for _, frame in pairs(oUF.units) do
-			if frame.UpdateBorder then
-				frame:UpdateBorder()
-			end
-		end
-	end
-
-	----------------------------------------------------------------
 	--	borderSize
 
 	local borderSize = self:CreateSlider(L["Border Size"], 6, 16, 1)
 	borderSize.desc = L["Set the default thickness for frame borders. Only applies to Texture style borders."]
-	borderSize.container:SetPoint("TOPLEFT", borderStyle.container, "BOTTOMLEFT", 0, -16 - borderColor:GetHeight())
-	borderSize.container:SetPoint("TOPRIGHT", borderStyle.container, "BOTTOMRIGHT", 0, -16 - borderColor:GetHeight())
+	borderSize.container:SetPoint("TOPLEFT", borderStyle.container, "BOTTOMLEFT", -1, -12)
+	borderSize.container:SetPoint("TOPRIGHT", borderStyle.container, "BOTTOMRIGHT", 1, -12)
 	borderSize:SetValue(settings.borderSize)
 	borderSize.valueText:SetText(settings.borderSize)
 	borderSize.OnValueChanged = function(self, value)
@@ -389,13 +352,32 @@ optionsFrame:SetScript("OnShow", function(self)
 	end
 
 	----------------------------------------------------------------
+	--	borderColor
+
+	local borderColor = self:CreateColorPicker(L["Border Color"])
+	borderColor.desc = L["Set the default color for frame borders. Only applies to Texture style borders."]
+	borderColor:SetPoint("TOPLEFT", borderSize.container, "BOTTOMLEFT", 5, -8)
+	borderColor:SetColor(unpack(settings.borderColor))
+	borderColor.GetColor = function() return unpack(settings.borderColor) end
+	borderColor.OnColorChanged = function(self, r, g, b)
+		settings.borderColor[1] = r
+		settings.borderColor[2] = g
+		settings.borderColor[3] = b
+		for _, frame in pairs(oUF.units) do
+			if frame.UpdateBorder then
+				frame:UpdateBorder()
+			end
+		end
+	end
+
+	----------------------------------------------------------------
 	--	focusPlacement
 	--
 
 	local focusPlacement = self:CreateDropdown(L["Focus Placement"])
-	focusPlacement.container.desc = L["Choose where to show the focus frame. Requires a UI reload to update."]
-	focusPlacement.container:SetPoint("TOPLEFT", borderSize.container, "BOTTOMLEFT", 0, -8)
-	focusPlacement.container:SetPoint("TOPRIGHT", borderSize.container, "BOTTOMRIGHT", 0, -8)
+	focusPlacement.container.desc = L["Choose where to show the focus frame."] .. L["Requires a UI reload to apply."]
+	focusPlacement.container:SetPoint("TOPLEFT", outline.container, "BOTTOMLEFT", 0, -8)
+	focusPlacement.container:SetPoint("TOPRIGHT", outline.container, "BOTTOMRIGHT", 0, -8)
 	do
 		local focusPlacements = { ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"] }
 
@@ -450,3 +432,6 @@ local AboutPanel = LibStub("LibAboutPanel", true)
 if AboutPanel then
 	AboutPanel.new(optionsFrame.name, ADDON_NAME)
 end
+
+SLASH_OUFPHANX1 = "/op"
+SlashCmdList.OUFPHANX = function() InterfaceOptionsFrame_OpenToCategory(optionsFrame) end

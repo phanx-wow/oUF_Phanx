@@ -1,9 +1,13 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
+	A fully featured, healer oriented layout for oUF.
+	by Phanx < addons@phanx.net >
+	http://www.wowinterface.com/downloads/info-oUF_Phanx.html
+	Copyright ©2009–2010 Alyssa "Phanx" Kinley
+	See README for license terms and additional information.
 ----------------------------------------------------------------------]]
 
 local settings = {
-
 	font           = "Expressway",
 	outline        = "OUTLINE", -- NONE, OUTLINE, THICKOUTLINE
 
@@ -16,8 +20,9 @@ local settings = {
 	focusPlacement = "LEFT", -- LEFT, RIGHT
 
 	threatLevels   =  true,
-
 }
+
+------------------------------------------------------------------------
 
 local defaultFonts = {
 	["Expressway"] = [[Interface\AddOns\SharedMedia\font\Expressway.ttf]], -- oUF_Phanx\media\Expressway.ttf]],
@@ -473,14 +478,14 @@ local function UpdatePower(self, event, unit, bar, min, max)
 	-- debug("UpdatePower: %s, %s", tostring(event), tostring(unit))
 
 	if max == 0 then
-		self.Power.hidden = true
+		self.Health:SetPoint("TOP", self.Power, "TOP")
 		bar:Hide()
-		self.Health:SetHeight(25)
+		bar.hidden = true
 		return
 	elseif self.Power.hidden then
-		self.Health:SetHeight(20)
+		self.Health:SetPoint("TOP", self.Power, "BOTTOM", 0, -1)
 		bar:Show()
-		self.Power.hidden = nil
+		bar.hidden = nil
 	end
 
 	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
@@ -618,11 +623,11 @@ local usettings = {
 		width = 200,
 		height = 24,
 		func = function(self)
-			self.Health.value:SetPoint("BOTTOMRIGHT", -2, -2)
+			self.Health.value:SetPoint("BOTTOMRIGHT", -2, -4)
 			self.Health.value:SetJustifyH("RIGHT")
 
 			self.Power.value:SetPoint("BOTTOMLEFT", self.Health, 2, 0)
-			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, 2)
+			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, 4)
 			self.Power.value:SetJustifyH("LEFT")
 		end,
 	},
@@ -634,11 +639,11 @@ local usettings = {
 		width = 200,
 		height = 24,
 		func = function(self)
-			self.Health.value:SetPoint("BOTTOMLEFT", 2, -2)
+			self.Health.value:SetPoint("BOTTOMLEFT", 2, -4)
 			self.Health.value:SetJustifyH("LEFT")
 
 			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health, -2, 0)
-			self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 2)
+			self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 4)
 			self.Power.value:SetJustifyH("RIGHT")
 
 			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, settings.borderStyle == "TEXTURE" and -5 or -7)
@@ -662,11 +667,11 @@ local usettings = {
 		height = 24,
 		func = function(self)
 			if self.reverse then
-				self.Health.value:SetPoint("BOTTOMLEFT", 2, -2)
+				self.Health.value:SetPoint("BOTTOMLEFT", 2, -4)
 				self.Health.value:SetJustifyH("LEFT")
 
 				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health, -2, 1)
-				self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 2)
+				self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 4)
 				self.Power.value:SetJustifyH("RIGHT")
 
 				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, settings.borderStyle == "TEXTURE" and -5 or -7)
@@ -804,7 +809,7 @@ local function Spawn(self, unit)
 	self.Health:SetStatusBarTexture(STATUSBAR)
 	self.Health:SetPoint("BOTTOMLEFT", INSET, INSET)
 	self.Health:SetPoint("BOTTOMRIGHT", -INSET, INSET)
-	self.Health:SetHeight(c.height - (hasPower and ((c.height / H_DIV) + 1) or 0))
+	self.Health:SetHeight(c.height - (hasPower and (c.height / H_DIV) or 0))
 
 	self.Health.bg = self.Health:CreateTexture(nil, "BACKGROUND")
 	self.Health.bg:SetTexture(STATUSBAR)
@@ -822,7 +827,7 @@ local function Spawn(self, unit)
 		self.Power:SetStatusBarTexture(STATUSBAR)
 		self.Power:SetPoint("TOPLEFT", INSET, -INSET)
 		self.Power:SetPoint("TOPRIGHT", -INSET, -INSET)
-		self.Power:SetPoint("BOTTOM", self.Health, "TOP", 0, 1)
+		self.Power:SetHeight(c.height / H_DIV)
 
 		self.Power.bg = self.Power:CreateTexture(nil, "BACKGROUND")
 		self.Power.bg:SetTexture(STATUSBAR)
@@ -980,7 +985,7 @@ local function Spawn(self, unit)
 	--
 	if select(4, GetAddOnInfo("oUF_AFK")) and (unit == "player" or unit == "party") then
 		self.AFK = self.Health:CreateFontString(nil, "OVERLAY")
-		self.AFK:SetFont(FONT, 16, settings.outline)
+		self.AFK:SetFont(FONT, 12, settings.outline)
 		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, INSET)
 		self.AFK.fontFormat = "AFK %s:%s"
 	end
@@ -1037,49 +1042,56 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 
 	----------------------------------------------------------------
 
+	self.fontList = { }
+	self.statusbarList = { }
+
 	SharedMedia = LibStub("LibSharedMedia-3.0", true)
 	if SharedMedia then
 		SharedMedia:Register("font", "Expressway", defaultFonts["Expressway"])
 		SharedMedia:Register("statusbar", "Gradient", defaultStatusbars["Gradient"])
 
-		self.fontList = { }
 		for i, v in pairs(SharedMedia:List("font")) do
-			tinsert(self.fontList, v)
+			table.insert(self.fontList, v)
 		end
 		table.sort(self.fontList)
 
-		self.statusbarList = { }
 		for i, v in pairs(SharedMedia:List("statusbar")) do
-			tinsert(self.statusbarList, v)
+			table.insert(self.statusbarList, v)
 		end
 		table.sort(self.statusbarList)
 
-		self.SharedMedia_Registered = function(mediaType)
+		function oUF_Phanx:SharedMedia_Registered(_, mediaType, mediaName)
 			if mediaType == "font" then
-				wipe(self.fontList)
-				for i, v in pairs(SharedMedia:List("font")) do
-					tinsert(self.fontList, v)
-				end
-				table.sort(self.fonts)
+				table.insert(self.fontList, mediaName)
+				table.sort(self.fontList)
+				self:SetFont()
 			elseif mediaType == "statusbar" then
-				wipe(self.statusbarList)
-				for i, v in pairs(SharedMedia:List("statusbar")) do
-					tinsert(self.statusbarList, v)
-				end
+				table.insert(self.statusbarList, mediaName)
 				table.sort(self.statusbarList)
+				self:SetStatusBarTexture()
 			end
 		end
 
-		self.SharedMedia_SetGlobal = function(_, mediaType)
+		function oUF_Phanx:SharedMedia_SetGlobal(_, mediaType)
 			if mediaType == "font" then
-				self:SetFont(settings.font)
+				self:SetFont()
 			elseif mediaType == "statusbar" then
-				self:SetStatusBarTexture(settings.statusbar)
+				self:SetStatusBarTexture()
 			end
 		end
 
 		SharedMedia.RegisterCallback(self, "LibSharedMedia_Registered", "SharedMedia_Registered")
 		SharedMedia.RegisterCallback(self, "LibSharedMedia_SetGlobal",  "SharedMedia_SetGlobal")
+	else
+		for i, v in pairs(defaultFonts) do
+			table.insert(self.fontList, v)
+		end
+		table.sort(self.fontList)
+
+		for i, v in pairs(defaultStatusbars) do
+			table.insert(self.statusbarList, v)
+		end
+		table.sort(self.statusbarList)
 	end
 
 	----------------------------------------------------------------
