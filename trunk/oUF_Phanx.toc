@@ -13,8 +13,19 @@
 ## X-Localizations: enUS
 
 ## Dependencies: oUF
-## OptionalDependencies: LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, LibWrapperHealComm-1.0, PhanxConfigWidgets
+## OptionalDependencies: LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-4.0, LibWrapperHealComm-1.0, PhanxConfigWidgets
 ## SavedVariables: oUF_Phanx_Settings
+
+Libs/LibStub/LibStub.lua
+Libs/CallbackHandler-1.0/CallbackHandler-1.0.lua
+Libs/LibSharedMedia-3.0/LibSharedMedia-3.0.lua
+Libs/LibResComm-1.0/LibResComm-1.0.lua
+Libs/PhanxConfig-Checkbox/PhanxConfig-Checkbox.lua
+Libs/PhanxConfig-ColorPicker/PhanxConfig-ColorPicker.lua
+Libs/PhanxConfig-Dropdown/PhanxConfig-Dropdown.lua
+Libs/PhanxConfig-ScrollingDropdown/PhanxConfig-ScrollingDropdown.lua
+Libs/PhanxConfig-Slider/PhanxConfig-Slider.lua
+Libs/LibAboutPanel/LibAboutPanel.lua
 
 elements\DispellableDebuffs.lua
 elements\GlobalCooldown.lua
