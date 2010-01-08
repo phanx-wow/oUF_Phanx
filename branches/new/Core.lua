@@ -1083,13 +1083,13 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 		SharedMedia.RegisterCallback(self, "LibSharedMedia_Registered", "SharedMedia_Registered")
 		SharedMedia.RegisterCallback(self, "LibSharedMedia_SetGlobal",  "SharedMedia_SetGlobal")
 	else
-		for i, v in pairs(defaultFonts) do
-			table.insert(self.fontList, v)
+		for k, v in pairs(defaultFonts) do
+			table.insert(self.fontList, k)
 		end
 		table.sort(self.fontList)
 
-		for i, v in pairs(defaultStatusbars) do
-			table.insert(self.statusbarList, v)
+		for k, v in pairs(defaultStatusbars) do
+			table.insert(self.statusbarList, k)
 		end
 		table.sort(self.statusbarList)
 	end
