@@ -335,7 +335,7 @@ local function UpdateBorder(self)
 		end
 	end
 
-	if settings.borderStyle == "TEXTURE" then
+	if self.SetBorderColor then -- settings.borderStyle == "TEXTURE" then -- check for .SetBorderColor instead of setting, since setting might be changed
 		local r, g, b = unpack(color or settings.borderColor)
 		self:SetBorderColor(r, g, b, 1)
 		self:SetBorderSize(settings.borderSize * (important and 1.25 or 1))
@@ -349,7 +349,7 @@ local function UpdateBorder(self)
 		else
 			self:SetBackdropBorderColor(0, 0, 0, 0)
 		end
-		if settings.borderStyle == "GLOW" then
+		if self.BorderGlow then -- settings.borderStyle == "GLOW" then -- check for .BorderGlow instead of setting, since setting might be changed
 			if color then
 				self.BorderGlow:SetPoint("TOPLEFT", -3, 3)
 				self.BorderGlow:SetPoint("BOTTOMRIGHT", 3, -3)
