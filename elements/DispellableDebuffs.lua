@@ -85,7 +85,7 @@ local function Update(self, event, unit)
 		unitDebuffType[unit] = debuffType
 
 		if type(self.DispelHighlight) == "function" then
-			self:DispelHighlight(event, unit, debuffType, canDispel[debuffType])
+			self:DispelHighlight(event, unit, debuffType, canDispel and canDispel[debuffType])
 		else
 			if debuffType and self.DispelHighlightFilter and not (canDispel and canDispel[debuffType]) then return end
 			applyDispelHighlight(self, event, unit, self.Health)

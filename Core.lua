@@ -25,7 +25,7 @@ local settings = {
 ------------------------------------------------------------------------
 
 local defaultFonts = {
-	["Expressway"] = [[Interface\AddOns\SharedMedia\font\Expressway.ttf]], -- oUF_Phanx\media\Expressway.ttf]],
+	["Expressway"] = [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]],
 	["Arial Narrow"] = [[Fonts\ARIALN.TTF]],
 	["Friz Quadrata TT"] = [[Fonts\FRIZQT__.TTF]],
 	["Morpheus"] = [[Fonts\MORPHEUS.ttf]],
@@ -1109,7 +1109,7 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 		oUF:Spawn("focus"):SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
 		oUF:Spawn("focustarget"):SetPoint("BOTTOMLEFT", oUF.units.focus, "TOPLEFT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
 	else
-		oUF:Spawn("focus"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + target:GetHeight())
+		oUF:Spawn("focus"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + oUF.units.target:GetHeight())
 		oUF:Spawn("focustarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
 	end
 
