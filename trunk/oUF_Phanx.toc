@@ -1,13 +1,13 @@
 ## Interface: 30300
 ## Version: 3.3.0.wowi:revision
 
-## Title: oUF: Phanx Layout
+## Title: oUF: Phanx
 ## Notes: An oUF layout.
 ## Author: Phanx
-## X-Copyright: Copyright ©2006–2009 Alyssa "Phanx" Kinley
+## X-Copyright: Copyright © 2009–2010 Alyssa "Phanx" Kinley
 ## X-Email: addons@phanx.net
-## X-License: Do not redistribute. See README for complete license terms.
-## X-Website: http://www.wowinterface.com/downloads/info
+## X-License: All rights reserved. See README for details.
+## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 
 ## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, koKR, ruRU, zhCN, zhTW
 ## X-Localizations: enUS

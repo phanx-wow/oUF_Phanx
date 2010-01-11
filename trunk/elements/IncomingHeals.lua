@@ -5,6 +5,9 @@
 	Modified by Phanx to support reverse orientations, support ignoring
 		HoTs, and use a texture instead of a frame.
 
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone plugin.
+
 	Elements handled:
 		.IncomingHealsBar  (Texture)
 		.IncomingHealsText (FontString)

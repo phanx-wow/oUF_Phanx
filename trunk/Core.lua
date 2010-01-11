@@ -1,9 +1,9 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
-	A fully featured, healer oriented layout for oUF.
+	A layout for oUF.
 	by Phanx < addons@phanx.net >
-	http://www.wowinterface.com/downloads/info-oUF_Phanx.html
-	Copyright ©2009–2010 Alyssa "Phanx" Kinley
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	Copyright ©2009–2010 Alyssa "Phanx" Kinley. All rights reserved.
 	See README for license terms and additional information.
 ----------------------------------------------------------------------]]
 
@@ -297,20 +297,43 @@ end
 
 local IsTanking
 if playerClass == "DEATHKNIGHT" then
-	function IsTanking() return GetShapeshiftForm() == 2 end
+	local FROST_PRESENCE = GetSpellInfo(48263)
+	function IsTanking()
+		local _, presence = GetShapeshiftFormInfo(GetShapeshiftForm())
+		if presence == FROST_PRESENCE then
+			return true
+		end
+	end
 elseif playerClass == "DRUID" then
-	function IsTanking() return GetShapeshiftForm() == 1 end
+	local BEAR_FORM = GetSpellInfo(5487)
+	local DIRE_BEAR_FORM = GetSpellInfo(9634)
+	function IsTanking()
+		local _, form = GetShapeshiftFormInfo(GetShapeshiftForm())
+		if form == DIRE_BEAR_FORM or form == BEAR_FORM then
+			return true
+		end
+	end
 elseif playerClass == "PALADIN" then
 	local RIGHTEOUS_FURY = GetSpellInfo(25780)
-	function IsTanking() return UnitBuff("player", RIGHTEOUS_FURY) and true end
+	function IsTanking()
+		return UnitBuff("player", RIGHTEOUS_FURY) and true
+	end
 elseif playerClass == "WARRIOR" then
-	function IsTanking() return GetShapeshiftForm() == 1 end
+	local DEFENSIVE_STANCE = GetSpellInfo(71)
+	function IsTanking()
+		local _, stance = GetShapeshiftFormInfo(GetShapeshiftForm())
+		if stance == DEFENSIVE_STANCE then
+			return true
+		end
+	end
 else
-	function IsTanking() return false end
+	function IsTanking() end
 end
 
 local function UpdateBorder(self)
-	-- if not self.unit:match("target$") then debug("UpdateBorder: %s", self.unit) end
+--	if not self.unit:match("target$") then
+--		debug("UpdateBorder: %s, IsTanking: %s, threatStatus %d, debuffType %s, dispellable %s", self.unit, IsTanking() and "true" or "false", self.threatStatus or -1, self.debuffType or "none", self.dispellable and "true" or "false")
+--	end
 
 	local color, important
 
@@ -318,7 +341,7 @@ local function UpdateBorder(self)
 		if self.threatStatus and self.threatStatus > 0 then
 			color = colors.threat[self.threatStatus]
 			important = true
-		elseif self.debuffStatus then
+		elseif self.debuffType then
 			color = colors.debuff[self.debuffType]
 			important = self.debuffDispellable
 		end
@@ -329,7 +352,7 @@ local function UpdateBorder(self)
 		elseif self.threatStatus and self.threatStatus > 0 then
 			color = colors.threat[self.threatStatus]
 			important = true
-		elseif self.debuffStatus then
+		elseif self.debuffType then
 			color = colors.debuff[self.debuffType]
 			important = false
 		end
@@ -589,7 +612,9 @@ end
 
 local function UpdateDispelHighlight(self, event, unit, debuffType, canDispel)
 	if self.unit ~= unit then return end
-	-- debug("UpdateDispelHighlight", tostring(debuffType), tostring(canDispel))
+	-- debug("UpdateDispelHighlight", unit, tostring(debuffType), tostring(canDispel))
+
+	if self.debuffType == debuffType then return end -- no change
 
 	self.debuffType = debuffType
 	self.debuffDispellable = canDispel
@@ -601,7 +626,7 @@ end
 
 local function UpdateThreatHighlight(self, event, unit, status)
 	if self.unit ~= unit then return end
-	-- debug("UpdateThreatHighlight", tostring(status))
+	-- debug("UpdateThreatHighlight", unit, tostring(status))
 
 	if not status then
 		status = 0
@@ -609,7 +634,7 @@ local function UpdateThreatHighlight(self, event, unit, status)
 		status = 3
 	end
 
-	if self.threatStatus == status then return end
+	if self.threatStatus == status then return end -- no change
 
 	self.threatStatus = status
 
@@ -623,11 +648,11 @@ local usettings = {
 		width = 200,
 		height = 24,
 		func = function(self)
-			self.Health.value:SetPoint("BOTTOMRIGHT", -2, -4)
+			self.Health.value:SetPoint("BOTTOMRIGHT", self, -3, 0)
 			self.Health.value:SetJustifyH("RIGHT")
 
-			self.Power.value:SetPoint("BOTTOMLEFT", self.Health, 2, 0)
-			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, 4)
+			self.Power.value:SetPoint("BOTTOMLEFT", self, 3, 1)
+			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, -1)
 			self.Power.value:SetJustifyH("LEFT")
 		end,
 	},
@@ -639,15 +664,15 @@ local usettings = {
 		width = 200,
 		height = 24,
 		func = function(self)
-			self.Health.value:SetPoint("BOTTOMLEFT", 2, -4)
+			self.Health.value:SetPoint("BOTTOMLEFT", self, 3, 0)
 			self.Health.value:SetJustifyH("LEFT")
 
-			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health, -2, 0)
-			self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 4)
+			self.Power.value:SetPoint("BOTTOMRIGHT", self, -3, 1)
+			self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 1)
 			self.Power.value:SetJustifyH("RIGHT")
 
-			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, settings.borderStyle == "TEXTURE" and -5 or -7)
-			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, settings.borderStyle == "TEXTURE" and -5 or -7)
+			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
+			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
 			self.Name:SetJustifyH("RIGHT")
 		end,
 	},
@@ -655,11 +680,11 @@ local usettings = {
 		width = 160,
 		height = 16,
 		func = function(self)
-			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -11)
-			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -11)
+			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
+			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
 			self.Name:SetJustifyH("RIGHT")
 
-			self.Health.value:SetPoint("TOPLEFT", 2, 2)
+			self.Health.value:SetPoint("TOPLEFT", self, 2, 2)
 		end,
 	},
 	focus = {
@@ -667,26 +692,26 @@ local usettings = {
 		height = 24,
 		func = function(self)
 			if self.reverse then
-				self.Health.value:SetPoint("BOTTOMLEFT", 2, -4)
+				self.Health.value:SetPoint("BOTTOMLEFT", self, 3, 0)
 				self.Health.value:SetJustifyH("LEFT")
 
-				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health, -2, 1)
-				self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 4)
+				self.Power.value:SetPoint("BOTTOMRIGHT", self, -3, 1)
+				self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 1)
 				self.Power.value:SetJustifyH("RIGHT")
 
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, settings.borderStyle == "TEXTURE" and -5 or -7)
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
 				self.Name:SetJustifyH("RIGHT")
 			else
-				self.Health.value:SetPoint("BOTTOMRIGHT", -2, -2)
+				self.Health.value:SetPoint("BOTTOMRIGHT", self, -3, 0)
 				self.Health.value:SetJustifyH("RIGHT")
 
-				self.Power.value:SetPoint("BOTTOMLEFT", self.Health, 2, 1)
-				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, 2)
+				self.Power.value:SetPoint("BOTTOMLEFT", self, 3, 1)
+				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, 1)
 				self.Power.value:SetJustifyH("LEFT")
 
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, settings.borderStyle == "TEXTURE" and -5 or -7)
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
 				self.Name:SetJustifyH("LEFT")
 			end
 		end,
@@ -696,17 +721,17 @@ local usettings = {
 		height = 16,
 		func = function(self)
 			if self.reverse then
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -11)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -11)
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
 				self.Name:SetJustifyH("RIGHT")
 
-				self.Health.value:SetPoint("TOPRIGHT", -2, 0)
+				self.Health.value:SetPoint("TOPLEFT", self, 3, 0)
 			else
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, -11)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, -11)
+				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
+				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
 				self.Name:SetJustifyH("LEFT")
 
-				self.Health.value:SetPoint("TOPLEFT", 2, 0)
+				self.Health.value:SetPoint("TOPRIGHT", self, -3, 0)
 			end
 		end,
 	},
@@ -816,10 +841,10 @@ local function Spawn(self, unit)
 	self.Health.bg:SetAllPoints(self.Health)
 
 	self.Health.value = self.Health:CreateFontString(nil, "OVERLAY")
-	self.Health.value:SetFont(FONT, 32, settings.outline)
+	self.Health.value:SetFont(FONT, 26, settings.outline)
 	self.Health.value:SetShadowOffset(1, -1)
 
-	self.Health.smoothUpdate = true
+	self.Health.smoothUpdates = true
 	self.OverrideUpdateHealth = UpdateHealth
 
 	if hasPower then
@@ -838,7 +863,7 @@ local function Spawn(self, unit)
 		self.Power.value:SetShadowOffset(1, -1)
 
 		self.frequentPower = unit == "player" or unit == "pet"
-		self.Power.smoothUpdate = true
+		self.Power.smoothUpdates = true
 		self.OverrideUpdatePower = UpdatePower
 	end
 
@@ -1047,14 +1072,21 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 
 	SharedMedia = LibStub("LibSharedMedia-3.0", true)
 	if SharedMedia then
-		SharedMedia:Register("font", "Expressway", defaultFonts["Expressway"])
-		SharedMedia:Register("statusbar", "Gradient", defaultStatusbars["Gradient"])
-
+		for name, file in pairs(defaultFonts) do
+			if file:match("^Interface\\AddOns") then
+				SharedMedia:Register("font", name, file)
+			end
+		end
 		for i, v in pairs(SharedMedia:List("font")) do
 			table.insert(self.fontList, v)
 		end
 		table.sort(self.fontList)
 
+		for name, file in pairs(defaultStatusbars) do
+			if file:match("^Interface\\AddOns") then
+				SharedMedia:Register("statusbar", name, file)
+			end
+		end
 		for i, v in pairs(SharedMedia:List("statusbar")) do
 			table.insert(self.statusbarList, v)
 		end
@@ -1071,6 +1103,7 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 				self:SetStatusBarTexture()
 			end
 		end
+		SharedMedia.RegisterCallback(self, "LibSharedMedia_Registered", "SharedMedia_Registered")
 
 		function oUF_Phanx:SharedMedia_SetGlobal(_, mediaType)
 			if mediaType == "font" then
@@ -1079,8 +1112,6 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 				self:SetStatusBarTexture()
 			end
 		end
-
-		SharedMedia.RegisterCallback(self, "LibSharedMedia_Registered", "SharedMedia_Registered")
 		SharedMedia.RegisterCallback(self, "LibSharedMedia_SetGlobal",  "SharedMedia_SetGlobal")
 	else
 		for k, v in pairs(defaultFonts) do
@@ -1099,18 +1130,18 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 	oUF:RegisterStyle("Phanx", Spawn)
 	oUF:SetActiveStyle("Phanx")
 
-	oUF:Spawn("player"):SetPoint("TOP", UIParent, "CENTER", 0, -200)
-	oUF:Spawn("pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
+	oUF:Spawn("player", "oUF_Phanx_Player"):SetPoint("TOP", UIParent, "CENTER", 0, -200)
+	oUF:Spawn("pet", "oUF_Phanx_Pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
 
-	oUF:Spawn("target"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
-	oUF:Spawn("targettarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
+	oUF:Spawn("target", "oUF_Phanx_Target"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
+	oUF:Spawn("targettarget", "oUF_Phanx_TargetTarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
 
 	if settings.focusPlacement == "LEFT" then
-		oUF:Spawn("focus"):SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
-		oUF:Spawn("focustarget"):SetPoint("BOTTOMLEFT", oUF.units.focus, "TOPLEFT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
+		oUF:Spawn("focus", "oUF_Phanx_Focus"):SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
+		oUF:Spawn("focustarget", "oUF_Phanx_FocusTarget"):SetPoint("BOTTOMLEFT", oUF.units.focus, "TOPLEFT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
 	else
-		oUF:Spawn("focus"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + oUF.units.target:GetHeight())
-		oUF:Spawn("focustarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
+		oUF:Spawn("focus", "oUF_Phanx_Focus"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + oUF.units.target:GetHeight())
+		oUF:Spawn("focustarget", "oUF_Phanx_FocusTarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
 	end
 
 	----------------------------------------------------------------

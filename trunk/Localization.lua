@@ -1,3 +1,11 @@
+--[[--------------------------------------------------------------------
+	oUF_Phanx
+	A layout for oUF.
+	by Phanx < addons@phanx.net >
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	Copyright ©2009–2010 Alyssa "Phanx" Kinley. All rights reserved.
+	See README for license terms and additional information.
+----------------------------------------------------------------------]]
 
 local L = { }
 local _, namespace = ...
