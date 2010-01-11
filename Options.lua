@@ -1,9 +1,9 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
-	A fully featured, healer oriented layout for oUF.
+	A layout for oUF.
 	by Phanx < addons@phanx.net >
-	http://www.wowinterface.com/downloads/info-oUF_Phanx.html
-	Copyright ©2009–2010 Alyssa "Phanx" Kinley
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	Copyright ©2009–2010 Alyssa "Phanx" Kinley. All rights reserved.
 	See README for license terms and additional information.
 ----------------------------------------------------------------------]]
 

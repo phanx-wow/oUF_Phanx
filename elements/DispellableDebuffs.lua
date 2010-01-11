@@ -3,6 +3,9 @@
 	Highlights oUF frames by dispellable debuff type.
 	Originally based on Ammo's oUF_DebuffHighlight.
 
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone plugin.
+
 	To have your frame's health bar highlighted:
 		frame.DispelHighlight = true
 
@@ -14,7 +17,6 @@
 
 	To highlight only debuffs you can dispel:
 		frame.DispelHighlightFilter = true
-
 ----------------------------------------------------------------------]]
 
 if not oUF then return end

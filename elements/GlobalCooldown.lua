@@ -2,6 +2,9 @@
 	oUF_Phanx_GlobalCooldown
 	Based on oUF_GCD by Exactly of Turalyon US
 
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone plugin.
+
 	Elements handled:
 		.GlobalCooldown         (table)
 		.GlobalCooldown.spark   (texture)
@@ -20,7 +23,6 @@
 		gcd.spark:SetWidth(10)
 
 		self.GlobalCooldown = gcd
-
 ----------------------------------------------------------------------]]
 
 local start, duration, referenceSpell = 0, 0

@@ -1,5 +1,13 @@
---	Fix by Gotan on WoWInterface
---	http://pastey.net/111986
+--[[--------------------------------------------------------------------
+	oUF Smooth Update
+	by Xuerian
+	http://www.wowinterface.com/downloads/info11503-oUFSmoothUpdate.html
+
+	Fixed by Gotan on WoWInterface
+	http://pastey.net/111986
+
+	Modified by Phanx to avoid conflicts with official version.
+----------------------------------------------------------------------]]
 
 if not oUF then return end
 
@@ -12,37 +20,31 @@ local function Smooth(self, value)
 	end
 end
 
-local function SmoothBar(self, bar)
-	bar.SetValue_ = bar.SetValue
-	bar.SetValue = Smooth
-end
-
 local function hook(frame)
-	frame.SmoothBar = SmoothBar
-	if frame.Health and frame.Health.smoothUpdate then
-		frame:SmoothBar(frame.Health)
-	end
-	if frame.Power and frame.Power.smoothUpdate then
-		frame:SmoothBar(frame.Power)
+	for k, obj in pairs(frame) do
+		if type(obj) == "table" and obj.smoothUpdates then
+			obj.realSetValue = obj.SetValue
+			obj.SetValue = Smooth
+		end
 	end
 end
 
 for i, frame in ipairs(oUF.objects) do hook(frame) end
 oUF:RegisterInitCallback(hook)
 
-local f, min, max = CreateFrame('Frame'), math.min, math.max
-f:SetScript('OnUpdate', function()
-	local limit = 30/GetFramerate()
+local min, max = math.min, math.max
+CreateFrame("Frame"):SetScript("OnUpdate", function()
+	local limit = 30 / GetFramerate()
 	for bar, value in pairs(smoothing) do
 		local cur = bar:GetValue()
-		local new = cur + min((value-cur)/3, max(value-cur, limit))
+		local new = cur + min((value - cur) / 3, max(value - cur, limit))
 		if new ~= new then
 			-- Mad hax to prevent QNAN.
 			new = value
 		end
-		bar:SetValue_(new)
+		bar:realSetValue(new)
 		if cur == value or abs(new - value) < 2 then
-			bar:SetValue_(value)
+			bar:realSetValue(value)
 			smoothing[bar] = nil
 		end
 	end

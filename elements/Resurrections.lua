@@ -3,6 +3,9 @@
 	Shows incoming resurrections using LibResComm-1.0.
 	Based on GridStatusRes.
 
+	Copyright ©2009–2010 Alyssa "Phanx" Kinley. All rights reserved.
+	See README for license terms and additional information.
+
 	Elements handled:
 		.ResurrectionText (FontString)
 
