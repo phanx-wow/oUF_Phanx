@@ -140,26 +140,29 @@ optionsFrame:SetScript("OnShow", function(self)
 					self.bg = self:CreateTexture(nil, "BACKGROUND")
 					self.bg:SetPoint("TOPLEFT", -3, 0)
 					self.bg:SetPoint("BOTTOMRIGHT", 3, 0)
-					self.bg:SetVertexColor(0.4, 0.4, 0.4)
+					self.bg:SetVertexColor(0.35, 0.35, 0.35)
 				end
 				return self.bg
 			end
 
 			local function SetButtonBackgroundTextures(self)
+				local numButtons = 0
 				local buttons = statusbar.list.buttons
 				for i = 1, #buttons do
 					local button = buttons[i]
 					if i > 1 then
-						button:SetPoint("TOPLEFT", buttons[i-1], "BOTTOMLEFT", 0, -2)
+						button:SetPoint("TOPLEFT", buttons[i - 1], "BOTTOMLEFT", 0, -1)
 					end
 					if button.value and button:IsShown() then
 						local bg = getButtonBackground(button)
 						bg:SetTexture(oUF_Phanx:GetStatusBarTexture(button.value))
+						local ff, fs = button.label:GetFont()
+						button.label:SetFont(ff, fs, "OUTLINE")
+						numButtons = numButtons + 1
 					end
 				end
 
-				local numButtons = (statusbar.list:GetHeight() - (UIDROPDOWNMENU_BORDER_HEIGHT * 2)) / UIDROPDOWNMENU_BUTTON_HEIGHT
-				statusbar.list:SetHeight((numButtons * UIDROPDOWNMENU_BUTTON_HEIGHT) + (numButtons - 1) + (UIDROPDOWNMENU_BORDER_HEIGHT * 2))
+				statusbar.list:SetHeight(statusbar.list:GetHeight() + (numButtons * 1))
 			end
 
 			local OnShow = statusbar.list:GetScript("OnShow")

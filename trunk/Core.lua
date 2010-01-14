@@ -299,31 +299,40 @@ local IsTanking
 if playerClass == "DEATHKNIGHT" then
 	local FROST_PRESENCE = GetSpellInfo(48263)
 	function IsTanking()
-		local _, presence = GetShapeshiftFormInfo(GetShapeshiftForm())
-		if presence == FROST_PRESENCE then
-			return true
+		local form = GetShapeshiftForm() or 0
+		if form > 0 then
+			local _, name = GetShapeshiftFormInfo(form)
+			if name == FROST_PRESENCE then
+				return true
+			end
 		end
 	end
 elseif playerClass == "DRUID" then
 	local BEAR_FORM = GetSpellInfo(5487)
 	local DIRE_BEAR_FORM = GetSpellInfo(9634)
 	function IsTanking()
-		local _, form = GetShapeshiftFormInfo(GetShapeshiftForm())
-		if form == DIRE_BEAR_FORM or form == BEAR_FORM then
-			return true
+		local form = GetShapeshiftForm() or 0
+		if form > 0 then
+			local _, name = GetShapeshiftFormInfo(form)
+			if name == DIRE_BEAR_FORM or name == BEAR_FORM then
+				return true
+			end
 		end
 	end
 elseif playerClass == "PALADIN" then
 	local RIGHTEOUS_FURY = GetSpellInfo(25780)
 	function IsTanking()
-		return UnitBuff("player", RIGHTEOUS_FURY) and true
+		return UnitAura("player", RIGHTEOUS_FURY, "HELPFUL") and true
 	end
 elseif playerClass == "WARRIOR" then
 	local DEFENSIVE_STANCE = GetSpellInfo(71)
 	function IsTanking()
-		local _, stance = GetShapeshiftFormInfo(GetShapeshiftForm())
-		if stance == DEFENSIVE_STANCE then
-			return true
+		local form = GetShapeshiftForm() or 0
+		if form > 0 then
+			local _, name = GetShapeshiftFormInfo(form)
+			if name == DEFENSIVE_STANCE then
+				return true
+			end
 		end
 	end
 else
