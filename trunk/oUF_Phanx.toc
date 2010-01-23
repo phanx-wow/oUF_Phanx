@@ -34,6 +34,7 @@ elements\DispellableDebuffs.lua
 elements\GlobalCooldown.lua
 elements\IncomingHeals.lua
 elements\Resurrections.lua
+elements\RuneFrame.lua
 
 Localization.lua
 Core.lua
