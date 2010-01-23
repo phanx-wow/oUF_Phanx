@@ -874,6 +874,12 @@ local function Spawn(self, unit)
 		self.frequentPower = unit == "player" or unit == "pet"
 		self.Power.smoothUpdates = true
 		self.OverrideUpdatePower = UpdatePower
+
+		if unit == "player" and playerClass == "DRUID" then
+			self.DruidMana = self:CreateFontString(nil, "OVERLAY")
+			self.DruidMana:SetFont(FONT, 20, settings.outline)
+			self.DruidMana:SetShadowOffset(1, -1)
+		end
 	end
 
 	if unit ~= "player" and unit ~= "pet" then
@@ -1015,6 +1021,13 @@ local function Spawn(self, unit)
 	self.ResurrectionText:SetPoint("BOTTOM", 0, 1)
 
 	--
+	-- Module: RuneFrame
+	--
+	if playerClass == "DEATHKNIGHT" then
+		self.RuneFrame = true
+	end
+
+	--
 	-- Plugin: oUF_AFK
 	--
 	if select(4, GetAddOnInfo("oUF_AFK")) and (unit == "player" or unit == "party") then
@@ -1039,7 +1052,7 @@ local function Spawn(self, unit)
 
 	--
 	-- Disable plugin: oUF_QuickHealth2
-	-- Worthless waste of resources, used by idiots for placebo effect.
+	-- Worthless waste of resources.
 	--
 	if select(4, GetAddOnInfo("oUF_QuickHealth2")) then
 		self.ignoreQuickHealth = true

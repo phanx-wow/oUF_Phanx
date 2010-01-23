@@ -29,7 +29,7 @@ local function setFonts(object, font, outline)
 end
 
 function oUF_Phanx:GetFont(fontName)
-	return SharedMedia and SharedMedia:Fetch("font", fontName) or oUF_Phanx.defaultFonts[fontName]
+	return SharedMedia and SharedMedia:Fetch("font", fontName) or oUF_Phanx.defaultFonts[fontName] or [[Fonts\FRIZQT__.TTF]]
 end
 
 function oUF_Phanx:SetFont(font, outline)
@@ -63,7 +63,7 @@ local function setStatusBarTextures(frame, statusbar)
 end
 
 function oUF_Phanx:GetStatusBarTexture(statusbarName)
-	return SharedMedia and SharedMedia:Fetch("statusbar", statusbarName) or oUF_Phanx.defaultStatusbars[statusbarName]
+	return SharedMedia and SharedMedia:Fetch("statusbar", statusbarName) or oUF_Phanx.defaultStatusbars[statusbarName] or [[Interface\TargetingFrame\UI-StatusBar]]
 end
 
 function oUF_Phanx:SetStatusBarTexture(statusbar)
