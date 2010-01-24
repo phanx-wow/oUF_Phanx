@@ -90,19 +90,17 @@ local function Enable(self, unit)
 
 	local runeBackdrop = { bgFile = self.Health.bg:GetTexture() }
 	for i = 1, 6 do
-		local r = CreateFrame("Frame", nil, runes)
-		r:SetBackdrop(runeBackdrop)
-		r:SetWidth((self.Health:GetWidth() - 5) / 6)
-		r:SetHeight(self.Health:GetHeight())
+		runes[i] = CreateFrame("Frame", nil, runes)
+		runes[i]:SetBackdrop(runeBackdrop)
+		runes[i]:SetWidth((self.Health:GetWidth() - 5) / 6)
+		runes[i]:SetHeight(self.Health:GetHeight())
 
-		r.timer = r:CreateFontString(nil, "OVERLAY")
-		r.timer:SetFont(self.Health.value:GetFont())
-		r.timer:SetPoint("CENTER")
+		runes[i].timer = r:CreateFontString(nil, "OVERLAY")
+		runes[i].timer:SetFont(self.Health.value:GetFont())
+		runes[i].timer:SetPoint("CENTER")
 
-		r:SetID(i)
+		runes[i]:SetID(i)
 		UpdateType(self, nil, i, math.floor((i + 1) / 2))
-
-		runes[i] = r
 	end
 
 	runes[3], runes[5] = runes[5], runes[3]
@@ -129,6 +127,14 @@ local function Enable(self, unit)
 	RuneFrame.Show = RuneFrame.Hide
 	RuneFrame:UnregisterAllEvents()
 	RuneFrame:Hide()
+
+	hooksecurefunc(self.Health.SetStatusBarTexture, function(_, texture)
+		for i = 1, 6 do
+			local backdrop = runes[i]:GetBackdrop()
+			backdrop.bgFile = texture
+			runes[i]:SetBackdrop(backdrop)
+		end
+	end)
 
 	return true
 end
