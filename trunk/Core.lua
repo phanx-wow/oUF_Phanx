@@ -991,16 +991,18 @@ local function Spawn(self, unit)
 
 	--
 	-- Module: IncomingHeals
+	-- Only on player frame for non-healing classes.
 	--
-	self.HealCommBar = self.Health:CreateTexture(nil, "OVERLAY")
-	self.HealCommBar:SetTexture(STATUSBAR)
-	self.HealCommBar:SetVertexColor(0, 1, 0)
-	self.HealCommBar:SetAlpha(0.35)
-	self.HealCommBar:SetHeight(self.Health:GetHeight())
+	if unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN") then
+		self.HealCommBar = self.Health:CreateTexture(nil, "OVERLAY")
+		self.HealCommBar:SetTexture(STATUSBAR)
+		self.HealCommBar:SetVertexColor(0, 1, 0)
+		self.HealCommBar:SetAlpha(0.35)
+		self.HealCommBar:SetHeight(self.Health:GetHeight())
 
-	self.HealCommIgnoreHoTs = true
-	self.HealCommNoOverflow = true
-
+		self.HealCommIgnoreHoTs = true
+		self.HealCommNoOverflow = true
+	end
 	--[[
 	self.IncomingHeals = { }
 	for i = 1, 3 do
