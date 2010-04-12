@@ -840,10 +840,12 @@ local function Spawn(self, unit)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
 
 	self.Health = CreateFrame("StatusBar", nil, self)
-	self.Health:SetStatusBarTexture(STATUSBAR)
 	self.Health:SetPoint("BOTTOMLEFT", INSET, INSET)
 	self.Health:SetPoint("BOTTOMRIGHT", -INSET, INSET)
 	self.Health:SetHeight(c.height - (hasPower and (c.height / H_DIV) or 0))
+	self.Health:SetStatusBarTexture(STATUSBAR)
+	self.Health:SetHorizTile(false)
+	self.Health:SetVertTile(false)
 
 	self.Health.bg = self.Health:CreateTexture(nil, "BACKGROUND")
 	self.Health.bg:SetTexture(STATUSBAR)
@@ -858,10 +860,12 @@ local function Spawn(self, unit)
 
 	if hasPower then
 		self.Power = CreateFrame("StatusBar", nil, self)
-		self.Power:SetStatusBarTexture(STATUSBAR)
 		self.Power:SetPoint("TOPLEFT", INSET, -INSET)
 		self.Power:SetPoint("TOPRIGHT", -INSET, -INSET)
 		self.Power:SetHeight(c.height / H_DIV)
+		self.Power:SetStatusBarTexture(STATUSBAR)
+		self.Power:SetHorizTile(false)
+		self.Power:SetVertTile(false)
 
 		self.Power.bg = self.Power:CreateTexture(nil, "BACKGROUND")
 		self.Power.bg:SetTexture(STATUSBAR)
