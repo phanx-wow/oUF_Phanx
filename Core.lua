@@ -489,15 +489,11 @@ do
 		time = time + (elapsed or 1000)
 		if time > 0.5 then
 			-- debug("UpdateDruidMana")
-			local frame = self:GetParent()
-			if frame.shapeshifted then
-				local min, max = UnitPower("player", SPELL_POWER_MANA), UnitPowerMax("player", SPELL_POWER_MANA)
-				if min < max then
-					return frame.DruidMana:SetText(si(min))
-				--	return frame.DruidMana:SetFormattedText("%d%%", floor(min / max * 100))
-				end
+			local min, max = UnitPower("player", SPELL_POWER_MANA), UnitPowerMax("player", SPELL_POWER_MANA)
+			if min < max then
+				self.value:SetText(si(min))
+			--	self.value:SetFormattedText("%d%%", floor(min / max * 100))
 			end
-			frame.DruidMana:SetText()
 			time = 0
 		end
 	end
@@ -527,10 +523,8 @@ local function UpdatePower(self, event, unit, bar, min, max)
 		if bar.value then
 			bar.value:SetText()
 		end
-		if bar.DruidMana then
-			self.shapeshifted = false
-			self.overlay:SetScript("OnUpdate", nil)
-			UpdateDruidMana(self.overlay)
+		if self.DruidMana then
+			self.DruidMana:Hide()
 		end
 		return
 	end
@@ -546,18 +540,12 @@ local function UpdatePower(self, event, unit, bar, min, max)
 		local _, type = UnitPowerType(unit)
 		r, g, b = unpack(colors.power[type] or colors.unknown)
 		if self.DruidMana then
-			if type == "MANA" then
-				if self.shapeshifted then
-					self.shapeshifted = false
-					self.overlay:SetScript("OnUpdate", nil)
-					UpdateDruidMana(self.overlay)
-				end
+			if type == "MANA" and self.isShapeshifted then
+				self.isShapeshifted = false
+				self.DruidMana:Hide()
 			else
-				if not self.shapeshifted then
-					self.shapeshifted = true
-					self.overlay:SetScript("OnUpdate", UpdateDruidMana)
-					UpdateDruidMana(self.overlay)
-				end
+				self.isShapeshifted = true
+				self.DruidMana:Show()
 			end
 		end
 		if bar.value then
@@ -744,14 +732,6 @@ local usettings = {
 			end
 		end,
 	},
-	party = {
-		width = 160,
-		height = 24,
-	},
-	partypet = {
-		width = 160,
-		height = 16,
-	},
 }
 
 ------------------------------------------------------------------------
@@ -798,15 +778,8 @@ end
 ------------------------------------------------------------------------
 
 local function Spawn(self, unit)
-	if not unit then
-		local template = self:GetParent():GetAttribute("template")
-		if template == "SecureUnitButtonTemplate" then
-			unit = "party"
-		else
-			unit = "partypet"
-		end
-	end
-	-- debug("Spawn", unit)
+	debug("Spawn", unit or "NO UNIT OMG", self:GetName() or "NO NAME WTF")
+	if not unit then return end
 
 	self.menu = menu
 
@@ -816,10 +789,10 @@ local function Spawn(self, unit)
 	self:RegisterForClicks("anyup")
 	self:SetAttribute("*type2", "menu")
 
-	self.reverse = not (unit == "player" or unit == "pet" or (settings.focusPlacement == "LEFT" and unit:match("^focus")))
+	self.reverse = unit ~= "player" and unit ~= "pet" and not (settings.focusPlacement == "LEFT" and unit:match("^focus"))
 
 	local c = usettings[unit]
-	local hasPower = unit == "player" or unit == "pet" or unit == "target" or unit == "focus" or unit == "party"
+	local hasPower = unit == "player" or unit == "pet" or unit == "target" or unit == "focus"
 
 	local FONT = oUF_Phanx:GetFont(settings.font)
 	local STATUSBAR = oUF_Phanx:GetStatusBarTexture(settings.statusbar)
@@ -844,8 +817,8 @@ local function Spawn(self, unit)
 	self.Health:SetPoint("BOTTOMRIGHT", -INSET, INSET)
 	self.Health:SetHeight(c.height - (hasPower and (c.height / H_DIV) or 0))
 	self.Health:SetStatusBarTexture(STATUSBAR)
-	self.Health:SetHorizTile(false)
-	self.Health:SetVertTile(false)
+	self.Health:GetStatusBarTexture():SetHorizTile(false)
+	self.Health:GetStatusBarTexture():SetVertTile(false)
 
 	self.Health.bg = self.Health:CreateTexture(nil, "BACKGROUND")
 	self.Health.bg:SetTexture(STATUSBAR)
@@ -864,8 +837,8 @@ local function Spawn(self, unit)
 		self.Power:SetPoint("TOPRIGHT", -INSET, -INSET)
 		self.Power:SetHeight(c.height / H_DIV)
 		self.Power:SetStatusBarTexture(STATUSBAR)
-		self.Power:SetHorizTile(false)
-		self.Power:SetVertTile(false)
+		self.Power:GetStatusBarTexture():SetHorizTile(false)
+		self.Power:GetStatusBarTexture():SetVertTile(false)
 
 		self.Power.bg = self.Power:CreateTexture(nil, "BACKGROUND")
 		self.Power.bg:SetTexture(STATUSBAR)
@@ -880,9 +853,14 @@ local function Spawn(self, unit)
 		self.OverrideUpdatePower = UpdatePower
 
 		if unit == "player" and playerClass == "DRUID" then
-			self.DruidMana = self:CreateFontString(nil, "OVERLAY")
-			self.DruidMana:SetFont(FONT, 20, settings.outline)
-			self.DruidMana:SetShadowOffset(1, -1)
+			self.DruidMana = CreateFrame("Frame", nil, self.Power)
+			self.DruidMana:SetAllPoints(self)
+			self.DruidMana:Hide()
+			self.DruidMana:SetScript("OnUpdate", UpdateDruidMana)
+
+			self.DruidMana.value = self.DruidMana:CreateFontString(nil, "OVERLAY")
+			self.DruidMana.value:SetFont(FONT, 20, settings.outline)
+			self.DruidMana.value:SetShadowOffset(1, -1)
 		end
 	end
 
@@ -899,7 +877,7 @@ local function Spawn(self, unit)
 		self.CPoints = self.Health:CreateFontString(nil, "OVERLAY")
 		self.CPoints:SetFont(FONT, 32, settings.outline)
 		self.CPoints:SetShadowOffset(1, -1)
-		self.CPoints:SetPoint("RIGHT", self, "LEFT", 0, 0)
+		self.CPoints:SetPoint("RIGHT", self, "LEFT", -5, 0)
 	end
 
 	if unit == "player" or unit == "pet" or unit == "target" then
@@ -931,9 +909,7 @@ local function Spawn(self, unit)
 		self.Resting:SetHeight(24)
 		self.Resting:SetTexture([[Interface\CharacterFrame\UI-StateIcon]])
 		self.Resting:SetTexCoord(.5, 0, 0, .421875)
-	end
 
-	if unit == "player" or unit == "party" then
 		self.LFDRole = self.Health:CreateTexture(nil, "OVERLAY")
 		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and INSET or -INSET, 0)
 		self.LFDRole:SetWidth(20)
@@ -945,7 +921,7 @@ local function Spawn(self, unit)
 	self.RaidIcon:SetWidth(24)
 	self.RaidIcon:SetHeight(24)
 
-	if unit == "pet" or unit == "party" or unit == "partypet" then
+	if unit == "pet" then
 		self.Range = true
 		self.inRangeAlpha = 1
 		self.outsideRangeAlpha = 0.65
@@ -980,6 +956,7 @@ local function Spawn(self, unit)
 	-- Module: DispelHighlight
 	--
 	self.DispelHighlight = UpdateDispelHighlight
+	self.DispelHighlightFilter = true
 
 	--
 	-- Module: GlobalCooldown
@@ -1022,9 +999,11 @@ local function Spawn(self, unit)
 	--
 	-- Module: Resurrection
 	--
-	self.ResurrectionText = self.Health:CreateFontString(nil, "OVERLAY")
-	self.ResurrectionText:SetFont(FONT, 20, settings.outline)
-	self.ResurrectionText:SetPoint("BOTTOM", 0, 1)
+	if unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN") then
+		self.ResurrectionText = self.Health:CreateFontString(nil, "OVERLAY")
+		self.ResurrectionText:SetFont(FONT, 20, settings.outline)
+		self.ResurrectionText:SetPoint("BOTTOM", 0, 1)
+	end
 
 	--
 	-- Module: RuneFrame
@@ -1069,8 +1048,7 @@ end
 
 ------------------------------------------------------------------------
 
-oUF_Phanx:RegisterEvent("ADDON_LOADED")
-oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
+function oUF_Phanx:ADDON_LOADED(addon)
 	if addon ~= ADDON_NAME then return end
 
 	if not oUF_Phanx_Settings then
@@ -1084,16 +1062,12 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 	settings = oUF_Phanx_Settings
 	self.settings = settings
 
-	----------------------------------------------------------------
-
 	if settings.borderStyle == "TEXTURE" then
 		INSET = INSET - 2
 		for point in pairs(backdrop.insets) do
 			backdrop.insets[point] = 0
 		end
 	end
-
-	----------------------------------------------------------------
 
 	self.fontList = { }
 	self.statusbarList = { }
@@ -1153,13 +1127,11 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 		table.sort(self.statusbarList)
 	end
 
-	----------------------------------------------------------------
-
 	oUF:RegisterStyle("Phanx", Spawn)
 	oUF:SetActiveStyle("Phanx")
 
 	oUF:Spawn("player", "oUF_Phanx_Player"):SetPoint("TOP", UIParent, "CENTER", 0, -200)
-	oUF:Spawn("pet", "oUF_Phanx_Pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
+	oUF:Spawn("pet", "oUF_Phanx_Pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -6 or -1)
 
 	oUF:Spawn("target", "oUF_Phanx_Target"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
 	oUF:Spawn("targettarget", "oUF_Phanx_TargetTarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
@@ -1172,15 +1144,40 @@ oUF_Phanx:SetScript("OnEvent", function(self, event, addon)
 		oUF:Spawn("focustarget", "oUF_Phanx_FocusTarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
 	end
 
-	----------------------------------------------------------------
-
 	self:UnregisterEvent("ADDON_LOADED")
-end)
 
-oUF_Phanx.debug = debug
+	self:RegisterEvent("UNIT_AURA")
 
+	if namespace.party then
+		self:SpawnPartyFrames()
+	end
+end
+
+------------------------------------------------------------------------
+
+oUF_Phanx:SetScript("OnEvent", function(self, event, ...) return self[event] and self[event](self, ...) end)
+oUF_Phanx:RegisterEvent("ADDON_LOADED")
+
+------------------------------------------------------------------------
+
+oUF_Phanx.INSET = INSET
+oUF_Phanx.H_DIV = H_DIV
+
+oUF_Phanx.backdrop = backdrop
+oUF_Phanx.backdrop_glow = backdrop_glow
 oUF_Phanx.defaultFonts = defaultFonts
 oUF_Phanx.defaultStatusbars = defaultStatusbars
+oUF_Phanx.fakeThreat = fakeThreat
+
+oUF_Phanx.debug = debug
+oUF_Phanx.menu = menu
+oUF_Phanx.si = si
+oUF_Phanx.AddBorder = AddBorder
+oUF_Phanx.SetBorderColor = SetBorderColor
+oUF_Phanx.SetBorderSize = SetBorderSize
+oUF_Phanx.UpdateBorder = UpdateBorder
+oUF_Phanx.UpdateDispelHighlight = UpdateDispelHighlight
+oUF_Phanx.UpdateThreatHighlight = UpdateThreatHighlight
 
 namespace.oUF_Phanx = oUF_Phanx
 _G.oUF_Phanx = oUF_Phanx

@@ -15,8 +15,9 @@ local SharedMedia = LibStub("LibSharedMedia-3.0", true)
 
 ------------------------------------------------------------------------
 
-local function setFonts(object, font, outline)
-	for k, v in pairs(object) do
+local function setFonts(frame, font, outline)
+	if type(frame) ~= "table" then return end
+	for k, v in pairs(frame) do
 		if type(v) == "table" then
 			if v.SetFont then
 				local _, size = v:GetFont()
@@ -38,7 +39,7 @@ function oUF_Phanx:SetFont(font, outline)
 
 	font = self:GetFont(font)
 
-	for unit, frame in pairs(oUF.units) do
+	for _, frame in ipairs(oUF.objects) do
 		setFonts(frame, font, outline)
 	end
 end
@@ -48,6 +49,8 @@ end
 local defaultStatusbars = oUF_Phanx.defaultStatusbars
 
 local function setStatusBarTextures(frame, statusbar)
+	if type(frame) ~= "table" then return end
+--	print("setStatusBarTextures", frame.GetName and (frame:GetName() or "nil name") or ("no GetName"))
 	for k, v in pairs(frame) do
 		if type(v) == "table" then
 			if v.SetStatusBarTexture then
@@ -71,7 +74,7 @@ function oUF_Phanx:SetStatusBarTexture(statusbar)
 
 	statusbar = self:GetStatusBarTexture(statusbar)
 
-	for unit, frame in pairs(oUF.units) do
+	for _, frame in ipairs(oUF.objects) do
 		setStatusBarTextures(frame, statusbar)
 	end
 end

@@ -1,5 +1,5 @@
 ## Interface: 30300
-## Version: 3.3.0.wowi:revision
+## Version: 3.3.5.wowi:revision
 
 ## Title: oUF: Phanx
 ## Notes: An oUF layout.
@@ -13,7 +13,7 @@
 ## X-Localizations: enUS
 
 ## Dependencies: oUF
-## OptionalDependencies: LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, LibWrapperHealComm-1.0, PhanxConfigWidgets
+## OptionalDependencies: LibAboutPanel, LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
 ## SavedVariables: oUF_Phanx_Settings
 
 Libs\LibStub\LibStub.lua
@@ -22,7 +22,6 @@ Libs\ChatThrottleLib\ChatThrottleLib.lua
 Libs\LibHealComm-4.0\LibHealComm-4.0.lua
 Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 Libs\LibResComm-1.0\LibResComm-1.0.lua
-Libs\LibWrapperHealComm-1.0\LibWrapperHealComm-1.0.lua
 Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
 Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
 Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
@@ -38,6 +37,7 @@ elements\RuneFrame.lua
 
 Localization.lua
 Core.lua
+# Party.lua
 Options.lua
 
 plugins\oUF_Smooth.lua
