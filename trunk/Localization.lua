@@ -7,9 +7,12 @@
 	See README for license terms and additional information.
 ----------------------------------------------------------------------]]
 
-local L = { }
-local _, namespace = ...
-namespace.L = L
+local L, _, oUF_Phanx = { }, ...
+oUF_Phanx.L = L
+
+L["Dead"]    = DEAD
+L["Ghost"]   = GetSpellInfo(8326)
+L["Offline"] = PLAYER_OFFLINE
 
 L.CreatureType = {
 	["elite"]     = "|cffcc9900E|r",
@@ -20,16 +23,6 @@ L.CreatureType = {
 
 L.Classification = { }
 do
-	local useBlank = function(t, k)
-		t[k] = ""
-		return ""
-	end
-
-	local useEnglish = function(t, k)
-		t[k] = k
-		return k
-	end
-
 	local ignore
 	local locale = GetLocale()
 	if locale:match("^en") then
@@ -91,6 +84,7 @@ do
 		L.Classification["rare"]      = "|cff999999희|r"
 		L.Classification["rareelite"] = "|cff999999희|r|cffcc9900+|r"
 		L.Classification["worldboss"] = "|cffcc0000보|r"
+
 		ignore = {
 			["작은 동물"] = true, -- Critter
 			["가스 구름"] = true, -- Gas Cloud
@@ -103,6 +97,7 @@ do
 		L.Classification["rare"]      = "|cff999999稀|r"
 		L.Classification["rareelite"] = "|cff999999稀|r|cffcc9900+|r"
 		L.Classification["worldboss"] = "|cffcc0000首|r"
+
 		ignore = {
 			["小动物"] = true,
 			["气体云雾"] = true,
@@ -115,6 +110,7 @@ do
 		L.Classification["rare"]      = "|cff999999稀|r"
 		L.Classification["rareelite"] = "|cff999999稀|r|cffcc9900+|r"
 		L.Classification["worldboss"] = "|cffcc0000首|r"
+
 		ignore = {
 			["小動物"] = true,
 			["氣體雲"] = true,
@@ -123,6 +119,21 @@ do
 			["圖騰"] = true,
 		}
 	end
+
+	local useBlank = function(t, k)
+		local v = ""
+		t[k] = v
+		return v
+	end
+
+	local useEnglish = function(t, k)
+		local v = tostring(k)
+		t[k] = v
+		return v
+	end
+
+	setmetatable(L.Classification, { __index = useBlank })
+
 	if ignore then
 		setmetatable(L.CreatureType, { __index = function(t, k)
 			if ignore[k] then
@@ -136,5 +147,4 @@ do
 	else
 		setmetatable(L.CreatureType, { __index = useBlank })
 	end
-	setmetatable(L.Classification, { __index = useBlank })
 end

@@ -1,5 +1,6 @@
 --[[--------------------------------------------------------------------
 	oUF_RuneFrame
+	by Phanx < addons@phanx.net >
 	Adds a rune frame to oUF frames for the player unit.
 	Based on oUF/Runes.lua by Haste and RecRunes by Recluse.
 ----------------------------------------------------------------------]]
@@ -129,7 +130,7 @@ local function Enable(self, unit)
 	RuneFrame.Show = RuneFrame.Hide
 	RuneFrame:UnregisterAllEvents()
 	RuneFrame:Hide()
-
+--[[
 	hooksecurefunc(self.Health, "SetStatusBarTexture", function(_, texture)
 		for i = 1, 6 do
 			local backdrop = runes[i]:GetBackdrop()
@@ -137,7 +138,7 @@ local function Enable(self, unit)
 			runes[i]:SetBackdrop(backdrop)
 		end
 	end)
-
+]]
 	return true
 end
 
@@ -145,18 +146,19 @@ local Disable = function(self)
 	self.RuneFrame:Hide()
 	self:SetHeight(self:GetHeight() - 1 - self.RuneFrame:GetHeight())
 
-	RuneFrame:RegisterEvent("RUNE_POWER_UPDATE")
-	RuneFrame:RegisterEvent("RUNE_TYPE_UPDATE")
-	RuneFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	RuneFrame.Show = RuneFrame.oShow
-	RuneFrame:Show()
-	RuneFrame_OnEvent(RuneFrame, "PLAYER_ENTERING_WORLD")
-
 	self:UnregisterEvent("RUNE_POWER_UPDATE", Update)
 	self:UnregisterEvent("RUNE_TYPE_UPDATE", UpdateType)
 
 	self:UnregisterEvent("PLAYER_REGEN_DISABLED", EnterCombat)
 	self:UnregisterEvent("PLAYER_REGEN_ENABLED", LeaveCombat)
+
+	RuneFrame.Show = RuneFrame.oShow
+	RuneFrame:Show()
+
+	RuneFrame:RegisterEvent("RUNE_POWER_UPDATE")
+	RuneFrame:RegisterEvent("RUNE_TYPE_UPDATE")
+	RuneFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	RuneFrame_OnEvent(RuneFrame, "PLAYER_ENTERING_WORLD")
 end
 
 oUF:AddElement("RuneFrame", Update, Enable, Disable)

@@ -32,6 +32,7 @@ local checkSpells = {
 	2383,  -- Find Herbs
 	2580,  -- Find Minerals
 	2481,  -- Find Treasure
+
 	49892, -- Death Coil
 	66215, -- Blood Strike
 	5176,  -- Wrath
@@ -78,7 +79,7 @@ local function Update(self)
 		if not startTime then return end
 		if not duration then duration = 0 end
 
-		if duration == 0 and self.GlobalCooldown:IsShown() then
+		if (duration <= 0 or duration > 1.5) and self.GlobalCooldown:IsShown() then
 			self.GlobalCooldown:Hide()
 		else
 			self.GlobalCooldown:Show()
@@ -111,10 +112,10 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	if self.unit == "player" and self.GlobalCooldown then
-		GlobalCooldown:Hide()
-		self:UnregisterEvent("ACTIONBAR_UPDATE_COOLDOWN")
-	end
+	if self.unit ~= "player" or not self.GlobalCooldown then return end
+
+	self.GlobalCooldown:Hide()
+	self:UnregisterEvent("ACTIONBAR_UPDATE_COOLDOWN", Update)
 end
 
 oUF:AddElement("GlobalCooldown", Update, Enable, Disable)

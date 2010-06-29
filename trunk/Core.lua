@@ -3,23 +3,34 @@
 	A layout for oUF.
 	by Phanx < addons@phanx.net >
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-	Copyright ©2009–2010 Alyssa "Phanx" Kinley. All rights reserved.
-	See README for license terms and additional information.
+	http://wow.curse.com/downloads/wow-addons/details/ouf-phanx.aspx
+	Copyright © 2009–2010 Phanx. See README for license terms.
 ----------------------------------------------------------------------]]
 
+local OUF_PHANX, oUF_Phanx = ...
+oUF_Phanx.frame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
+
+local SharedMedia
+
+local myClass = select(2, UnitClass("player"))
+local myTalents = { 0, 0, 0 }
+
+------------------------------------------------------------------------
+
 local settings = {
-	font           = "Expressway",
-	outline        = "OUTLINE", -- NONE, OUTLINE, THICKOUTLINE
+	font = "Fonts\\FRIZQT__.TTF",
+	statusbar = "Interface\\AddOns\\SharedMedia\\statusbar\\Flat",
 
-	statusbar      = "Gradient",
+	borderStyle = "FLAT", -- FLAT or TEXTURE
+	borderColor = { 0.6, 0.6, 0.6 } -- Only applies to TEXTURE style border
+	borderSize = 3, -- Only applies to FLAT style border
 
-	borderStyle    = "TEXTURE", -- GLOW, NONE, TEXTURE
-	borderColor    = { 0.5, 0.5, 0.5 }, -- only applies to TEXTURE border
-	borderSize     = 14, -- only applies to TEXTURE border
+	width = 230,
+	height = 30,
 
-	focusPlacement = "LEFT", -- LEFT, RIGHT
+	focusPlacement = "RIGHT", -- LEFT or RIGHT
 
-	threatLevels   =  true,
+	threatLevels = false,
 }
 
 ------------------------------------------------------------------------
@@ -36,16 +47,6 @@ local defaultStatusbars = {
 	["Gradient"] = [[Interface\AddOns\oUF_Phanx\media\gradient]],
 	["Blizzard"] = [[Interface\TargetingFrame\UI-StatusBar]],
 }
-
-------------------------------------------------------------------------
-
-local ADDON_NAME, namespace = ...
-if not namespace.L then namespace.L = { } end
-
-local L = setmetatable(namespace.L, { __index = function(t, k) t[k] = k return k end })
-L["Dead"]    = DEAD
-L["Ghost"]   = GetSpellInfo(8326)
-L["Offline"] = PLAYER_OFFLINE
 
 ------------------------------------------------------------------------
 
@@ -85,10 +86,18 @@ end
 
 ------------------------------------------------------------------------
 
-local SharedMedia
-local oUF_Phanx = CreateFrame("Frame")
-local playerClass = select(2, UnitClass("player"))
-local MAX_LEVEL = MAX_PLAYER_LEVEL_TABLE[GetAccountExpansionLevel()]
+if not oUF_Phanx.L then oUF_Phanx.L = { } end
+
+local L = setmetatable(oUF_Phanx.L, { __index = function(t, k)
+	local v = tostring(k)
+	t[k] = v
+	return v
+end })
+
+------------------------------------------------------------------------
+
+local function DoNothing()
+end
 
 ------------------------------------------------------------------------
 
@@ -133,923 +142,169 @@ end
 
 ------------------------------------------------------------------------
 
-local function GetDifficultyColor(level)
-	if level < 1 then
-		level = 100
+local IsHealing
+
+if myClass == "DRUID" then
+	IsHealing = function()
+		return (myTalents[3] > myTalents[1]) and (myTalents[3] > myTalents[2])
 	end
-	local levelDiff = level - UnitLevel("player")
-	if levelDiff >= 5 then
-		return 1.00, 0.10, 0.10
-	elseif levelDiff >= 3 then
-		return 1.00, 0.50, 0.25
-	elseif levelDiff >= -2 then
-		return 1.00, 1.00, 0.00
-	elseif -levelDiff <= GetQuestGreenRange() then
-		return 0.25, 0.75, 0.25
+elseif myClass == "PALADIN" then
+	IsHealing = function()
+		return (myTalents[1] > myTalents[2]) and (myTalents[1] > myTalents[3])
 	end
-	return 0.70, 0.70, 0.70
+elseif myClass == "PRIEST" then
+	IsHealing = function()
+		return (myTalents[1] > myTalents[3]) or (myTalents[2] > myTalents[3])
+	end
+elseif myClass == "SHAMAN" then
+	IsHealing = function()
+		return (myTalents[3] > myTalents[1]) and (myTalents[3] > myTalents[2])
+	end
+else
+	IsHealing = DoNothing
 end
 
-------------------------------------------------------------------------
-
-local function GetUnitColor(unit)
-	if UnitIsPlayer(unit) then
-		local _, class = UnitClass(unit)
-		return colors.class[class] or colors.unknown
-	elseif UnitPlayerControlled(unit) then
-		if UnitCanAttack(unit, "player") then
-			-- they can attack me
-			if UnitCanAttack("player", unit) then
-				-- and I can attack them
-				return colors.hostile
-			else
-				-- but I can't attack them
-				return colors.civilian
-			end
-		elseif UnitCanAttack("player", unit) then
-			-- they can't attack me, but I can attack them
-			return colors.neutral
-		elseif UnitIsPVP(unit) and not UnitIsPVPSanctuary(unit) and not UnitIsPVPSanctuary("player") then
-			-- on my team
-			return colors.friendly
-		else
-			-- either enemy or friend, no violence
-			return colors.civilian
-		end
-	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
-		return colors.tapped
-	else
-		local reaction = UnitReaction(unit, "player")
-		if reaction then
-			if reaction >= 5 then
-				return colors.friendly
-			elseif reaction == 4 then
-				return colors.neutral
-			else
-				return colors.hostile
-			end
-		else
-			return colors.unknown
-		end
-	end
-end
-
-------------------------------------------------------------------------
-
-local AddBorder
-
-local function SetBorderColor(self, r, g, b)
-	if not self or type(self) ~= "table" then return end
-	if not self.borderTextures then
-		AddBorder(self)
-	end
-	if not r then
-		r, g, b = unpack(settings.borderColor)
-	end
-	-- debug("SetBorderColor: %s, %s, %s", r, g, b)
-
-	for i, tex in ipairs(self.borderTextures) do
-		tex:SetVertexColor(r, g, b)
-	end
-end
-
-local function SetBorderSize(self, size)
-	if not self or type(self) ~= "table" then return end
-	if not self.borderTextures then
-		AddBorder(self, size)
-	end
-	if not size then
-		size = settings.borderSize
-	end
-	-- debug("SetBorderSize: %s", size)
-
-	local x = size / 2 - 6
-	local t = self.borderTextures
-
-	for i, tex in ipairs(t) do
-		tex:SetWidth(size)
-		tex:SetHeight(size)
-	end
-
-	t[1]:SetPoint("TOPLEFT", self, -4 - x, 4 + x)
-	t[2]:SetPoint("TOPRIGHT", self, 4 + x, 4 + x)
-
-	t[3]:SetPoint("TOPLEFT", t[1], "TOPRIGHT")
-	t[3]:SetPoint("TOPRIGHT", t[2], "TOPLEFT")
-
-	t[4]:SetPoint("BOTTOMLEFT", self, -4 - x, -4 - x)
-	t[5]:SetPoint("BOTTOMRIGHT", self, 4 + x, -4 - x)
-
-	t[6]:SetPoint("BOTTOMLEFT", t[4], "BOTTOMRIGHT")
-	t[6]:SetPoint("BOTTOMRIGHT", t[5], "BOTTOMLEFT")
-
-	t[7]:SetPoint("TOPLEFT", t[1], "BOTTOMLEFT")
-	t[7]:SetPoint("BOTTOMLEFT", t[4], "TOPLEFT")
-
-	t[8]:SetPoint("TOPRIGHT", t[2], "BOTTOMRIGHT")
-	t[8]:SetPoint("BOTTOMRIGHT", t[5], "TOPRIGHT")
-end
-
-function AddBorder(frame, size)
-	if not frame or type(frame) ~= "table" or frame.borderTextures then return end
-	-- debug("AddBorder: %s", frame.unit or "")
-
-	frame.borderTextures = { }
-
-	local t = frame.borderTextures
-	for i = 1, 8 do
-		t[i] = frame:CreateTexture(nil, "BORDER")
-		t[i]:SetTexture([[Interface\AddOns\oUF_Phanx\media\border]])
-	end
-
-	t[1].id = "TOPLEFT"
-	t[1]:SetTexCoord(0, 1/3, 0, 1/3)
-
-	t[2].id = "TOPRIGHT"
-	t[2]:SetTexCoord(2/3, 1, 0, 1/3)
-
-	t[3].id = "TOP"
-	t[3]:SetTexCoord(1/3, 2/3, 0, 1/3)
-
-	t[4].id = "BOTTOMLEFT"
-	t[4]:SetTexCoord(0, 1/3, 2/3, 1)
-
-	t[5].id = "BOTTOMRIGHT"
-	t[5]:SetTexCoord(2/3, 1, 2/3, 1)
-
-	t[6].id = "BOTTOM"
-	t[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
-
-	t[7].id = "LEFT"
-	t[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
-
-	t[8].id = "RIGHT"
-	t[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
-
-	SetBorderColor(frame, unpack(settings.borderColor))
-	SetBorderSize(frame, size)
-
-	frame.SetBorderColor = SetBorderColor
-	frame.SetBorderSize = SetBorderSize
-end
+oUF_Phanx.IsHealing = IsHealing
 
 ------------------------------------------------------------------------
 
 local IsTanking
-if playerClass == "DEATHKNIGHT" then
+
+if myClass == "DEATHKNIGHT" then
 	local FROST_PRESENCE = GetSpellInfo(48263)
-	function IsTanking()
+	IsTanking = function()
 		local form = GetShapeshiftForm() or 0
 		if form > 0 then
 			local _, name = GetShapeshiftFormInfo(form)
-			if name == FROST_PRESENCE then
-				return true
-			end
+			return name == FROST_PRESENCE
 		end
 	end
-elseif playerClass == "DRUID" then
+elseif myClass == "DRUID" then
 	local BEAR_FORM = GetSpellInfo(5487)
 	local DIRE_BEAR_FORM = GetSpellInfo(9634)
 	function IsTanking()
-		local form = GetShapeshiftForm() or 0
-		if form > 0 then
-			local _, name = GetShapeshiftFormInfo(form)
-			if name == DIRE_BEAR_FORM or name == BEAR_FORM then
-				return true
+		if (myTalents[2] > myTalents[1]) and (myTalents[2] > myTalents[3]) then
+			local form = GetShapeshiftForm() or 0
+			if form > 0 then
+				local _, name = GetShapeshiftFormInfo(form)
+				return name == DIRE_BEAR_FORM or name == BEAR_FORM
 			end
 		end
 	end
-elseif playerClass == "PALADIN" then
+elseif myClass == "PALADIN" then
 	local RIGHTEOUS_FURY = GetSpellInfo(25780)
-	function IsTanking()
-		return UnitAura("player", RIGHTEOUS_FURY, "HELPFUL") and true
+	IsTanking = function()
+		if (myTalents[2] > myTalents[1]) and (myTalents[2] > myTalents[3]) then
+			return UnitAura("player", RIGHTEOUS_FURY, "HELPFUL")
+		end
 	end
-elseif playerClass == "WARRIOR" then
+elseif myClass == "WARRIOR" then
 	local DEFENSIVE_STANCE = GetSpellInfo(71)
 	function IsTanking()
-		local form = GetShapeshiftForm() or 0
-		if form > 0 then
-			local _, name = GetShapeshiftFormInfo(form)
-			if name == DEFENSIVE_STANCE then
-				return true
+		if (myTalents[3] > myTalents[1]) and (myTalents[3] > myTalents[2]) then
+			local form = GetShapeshiftForm() or 0
+			if form > 0 then
+				local _, name = GetShapeshiftFormInfo(form)
+				return name == DEFENSIVE_STANCE
 			end
 		end
 	end
 else
-	function IsTanking() end
+	IsTanking = DoNothing
 end
 
-local function UpdateBorder(self)
---	if not self.unit:match("target$") then
---		debug("UpdateBorder: %s, IsTanking: %s, threatStatus %d, debuffType %s, dispellable %s", self.unit, IsTanking() and "true" or "false", self.threatStatus or -1, self.debuffType or "none", self.dispellable and "true" or "false")
---	end
+oUF_Phanx.IsTanking = IsTanking
 
-	local color, important
+------------------------------------------------------------------------
 
-	if IsTanking() then
-		if self.threatStatus and self.threatStatus > 0 then
-			color = colors.threat[self.threatStatus]
-			important = true
-		elseif self.debuffType then
-			color = colors.debuff[self.debuffType]
-			important = self.debuffDispellable
-		end
-	else
-		if self.debuffDispellable then
-			color = colors.debuff[self.debuffType]
-			important = true
-		elseif self.threatStatus and self.threatStatus > 0 then
-			color = colors.threat[self.threatStatus]
-			important = true
-		elseif self.debuffType then
-			color = colors.debuff[self.debuffType]
-			important = false
-		end
-	end
-
-	if self.SetBorderColor then -- settings.borderStyle == "TEXTURE" then -- check for .SetBorderColor instead of setting, since setting might be changed
-		local r, g, b = unpack(color or settings.borderColor)
-		self:SetBorderColor(r, g, b, 1)
-		self:SetBorderSize(settings.borderSize * (important and 1.25 or 1))
-	else
-		if important then
-			local r, g, b = unpack(color)
-			self:SetBackdropBorderColor(r, g, b, 1)
-		elseif color then
-			local r, g, b = unpack(color)
-			self:SetBackdropBorderColor(r, g, b, 0.5)
-		else
-			self:SetBackdropBorderColor(0, 0, 0, 0)
-		end
-		if self.BorderGlow then -- settings.borderStyle == "GLOW" then -- check for .BorderGlow instead of setting, since setting might be changed
-			if color then
-				self.BorderGlow:SetPoint("TOPLEFT", -3, 3)
-				self.BorderGlow:SetPoint("BOTTOMRIGHT", 3, -3)
+local function setFonts(frame, font, outline)
+	if type(frame) ~= "table" then return end
+	for k, v in pairs(frame) do
+		if type(v) == "table" then
+			if v.SetFont then
+				local _, size = v:GetFont()
+				v:SetFont(font, size, outline)
 			else
-				self.BorderGlow:SetPoint("TOPLEFT", 0, 0)
-				self.BorderGlow:SetPoint("BOTTOMRIGHT", 0, 0)
+				setFonts(v, font, outline)
 			end
 		end
 	end
 end
 
-------------------------------------------------------------------------
-
-local function UpdateName(self, event, unit)
-	if self.unit ~= unit then return end
-	-- debug("UpdateName: %s, %s", event, unit)
-
-	local r, g, b
-	if UnitIsDead(unit) then
-		r, g, b = unpack(colors.dead)
-	elseif UnitIsGhost(unit) then
-		r, g, b = unpack(colors.ghost)
-	elseif not UnitIsConnected(unit) then
-		r, g, b = unpack(colors.offline)
-	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
-		r, g, b = unpack(colors.tapped)
-	else
-		r, g, b = unpack(GetUnitColor(unit))
-	end
-
-	self.Name:SetText(UnitName(unit))
-	self.Name:SetTextColor(r, g, b)
-
---	if self.Info then
---		UpdateInfo(self, event, unit)
---	end
-
---	UpdateBorder(self)
+function oUF_Phanx:GetFont(fontName)
+	return SharedMedia and SharedMedia:Fetch("font", fontName) or defaultFonts[fontName] or [[Fonts\FRIZQT__.TTF]]
 end
 
-------------------------------------------------------------------------
+function oUF_Phanx:SetFont(font, outline)
+	if not font then font = self.settings.font end
+	if not outline then outline = self.settings.outline end
 
-local function UpdateHealth(self, event, unit, bar, min, max)
-	if self.unit ~= unit then return end
-	-- debug("UpdateHealth: %s, %s", event, unit)
+	font = self:GetFont(font)
 
-	local r, g, b
-
-	if not UnitIsConnected(unit) then
-		r, g, b = unpack(colors.offline)
-		bar:SetValue(self.reverse and 0 or max)
-		bar.value:SetText("Offline")
-		bar.value:SetTextColor(r, g, b)
-	elseif UnitIsGhost(unit) then
-		r, g, b = unpack(colors.ghost)
-		bar:SetValue(self.reverse and 0 or max)
-		bar.value:SetText("Ghost")
-		bar.value:SetTextColor(r, g, b)
-	elseif UnitIsDead(unit) then
-		r, g, b = unpack(colors.dead)
-		bar:SetValue(self.reverse and 0 or max)
-		bar.value:SetText("Dead")
-		bar.value:SetTextColor(r, g, b)
-	else
-		r, g, b = unpack(GetUnitColor(unit))
-		bar:SetValue(self.reverse and max - min or min)
-		if min < max then
-			if unit == "player" or unit == "pet" then
-				bar.value:SetFormattedText("-%s", si(max - min))
-			elseif unit == "targettarget" or unit == "focustarget" then
-				bar.value:SetFormattedText("%s%%", ceil(min / max * 100))
-			elseif (UnitIsPlayer(unit) or UnitPlayerControlled(unit)) and UnitIsFriend(unit, "player") then
-				bar.value:SetFormattedText("%s|cffff6666-%s|r", si(max), si(max - min))
-			else
-				bar.value:SetFormattedText("%s (%d%%)", si(min), ceil(min / max * 100))
-			end
-		elseif unit == "target" or unit == "focus" then
-			bar.value:SetText(si(max))
-		else
-			bar.value:SetText()
-		end
-		bar.value:SetTextColor(r, g, b)
-	end
-
-	if self.reverse then
-		bar:SetStatusBarColor(r, g, b)
-		bar.bg:SetVertexColor(r * .2, g * .2, b * .2)
-	else
-		bar:SetStatusBarColor(r * .2, g * .2, b * .2)
-		bar.bg:SetVertexColor(r, g, b)
-	end
-
-	if self.Name then
-		self.Name:SetTextColor(r, g, b)
+	for _, frame in ipairs(oUF.objects) do
+		setFonts(frame, font, outline)
 	end
 end
 
 ------------------------------------------------------------------------
 
-local UpdateDruidMana
-do
-	local time = 0
-	local SPELL_POWER_MANA = SPELL_POWER_MANA
-	function UpdateDruidMana(self, elapsed)
-		time = time + (elapsed or 1000)
-		if time > 0.5 then
-			-- debug("UpdateDruidMana")
-			local min, max = UnitPower("player", SPELL_POWER_MANA), UnitPowerMax("player", SPELL_POWER_MANA)
-			if min < max then
-				self.value:SetText(si(min))
-			--	self.value:SetFormattedText("%d%%", floor(min / max * 100))
-			end
-			time = 0
-		end
-	end
-end
+local defaultStatusbars = oUF_Phanx.defaultStatusbars
 
-------------------------------------------------------------------------
-
-local function UpdatePower(self, event, unit, bar, min, max)
-	if self.unit ~= unit then return end
-	-- debug("UpdatePower: %s, %s", tostring(event), tostring(unit))
-
-	if max == 0 then
-		self.Health:SetPoint("TOP", self.Power, "TOP")
-		bar:Hide()
-		bar.hidden = true
-		return
-	elseif self.Power.hidden then
-		self.Health:SetPoint("TOP", self.Power, "BOTTOM", 0, -1)
-		bar:Show()
-		bar.hidden = nil
-	end
-
-	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
-		bar:SetValue(0)
-		bar:SetStatusBarColor(0, 0, 0)
-		bar.bg:SetVertexColor(0, 0, 0)
-		if bar.value then
-			bar.value:SetText()
-		end
-		if self.DruidMana then
-			self.DruidMana:Hide()
-		end
-		return
-	end
-
-	local r, g, b
-
-	if unit == "pet" and playerClass == "HUNTER" and self.power then
-		r, g, b = unpack(colors.happiness[GetPetHappiness()] or colors.power.FOCUS)
-		if min < max and bar.value then
-			bar.value:SetText(min)
-		end
-	else
-		local _, type = UnitPowerType(unit)
-		r, g, b = unpack(colors.power[type] or colors.unknown)
-		if self.DruidMana then
-			if type == "MANA" and self.isShapeshifted then
-				self.isShapeshifted = false
-				self.DruidMana:Hide()
-			else
-				self.isShapeshifted = true
-				self.DruidMana:Show()
-			end
-		end
-		if bar.value then
-			if unit == "player" or unit == "pet" then
-				if type == "RAGE" or type == "RUNIC_POWER" then
-					if min > 0 then
-						bar.value:SetText(min)
-					else
-						bar.value:SetText()
-					end
-				else
-					if min < max then
-						bar.value:SetText(si(min))
-					else
-						bar.value:SetText()
-					end
+local function setStatusBarTextures(frame, statusbar)
+	if type(frame) ~= "table" then return end
+--	print("setStatusBarTextures", frame.GetName and (frame:GetName() or "nil name") or ("no GetName"))
+	for k, v in pairs(frame) do
+		if type(v) == "table" then
+			if v.SetStatusBarTexture then
+				v:SetStatusBarTexture(statusbar)
+				if v.bg and v.bg.SetTexture then
+					v.bg:SetTexture(statusbar)
 				end
 			else
-				if type == "MANA" then
-					if min < max then
-						if UnitHealth(unit) == UnitHealthMax(unit) then
-							bar.value:SetFormattedText("%s|cff%02x%02x%02x.%s|r", si(min), r * 255, g * 255, b * 255, si(max))
-						else
-							bar.value:SetText(si(min))
-						end
-					else
-						bar.value:SetText(si(max))
-					end
-				elseif type == "ENERGY" then
-					if min < max then
-						bar.value:SetText(min)
-					else
-						bar.value:SetText()
-					end
-				else -- FOCUS, RAGE, or RUNIC_POWER
-					if min > 0 then
-						bar.value:SetText(min)
-					else
-						bar.value:SetText()
-					end
-				end
+				setStatusBarTextures(v, statusbar)
 			end
-			bar.value:SetTextColor(r, g, b)
-		end
-	end
-
-	if self.reverse then
-		bar:SetValue(max - min)
-
-		bar:SetStatusBarColor(r * .2, g * .2, b * .2)
-		bar.bg:SetVertexColor(r, g, b)
-	else
-		bar:SetValue(min)
-
-		bar:SetStatusBarColor(r, g, b)
-		bar.bg:SetVertexColor(r * .2, g * .2, b * .2)
-	end
-end
-
-------------------------------------------------------------------------
-
-local function UpdateDispelHighlight(self, event, unit, debuffType, canDispel)
-	if self.unit ~= unit then return end
-	-- debug("UpdateDispelHighlight", unit, tostring(debuffType), tostring(canDispel))
-
-	if self.debuffType == debuffType then return end -- no change
-
-	self.debuffType = debuffType
-	self.debuffDispellable = canDispel
-
-	self:UpdateBorder()
-end
-
-------------------------------------------------------------------------
-
-local function UpdateThreatHighlight(self, event, unit, status)
-	if self.unit ~= unit then return end
-	-- debug("UpdateThreatHighlight", unit, tostring(status))
-
-	if not status then
-		status = 0
-	elseif status > 1 and not settings.threatLevel then
-		status = 3
-	end
-
-	if self.threatStatus == status then return end -- no change
-
-	self.threatStatus = status
-
-	self:UpdateBorder()
-end
-
-------------------------------------------------------------------------
-
-local usettings = {
-	player = {
-		width = 200,
-		height = 24,
-		func = function(self)
-			self.Health.value:SetPoint("BOTTOMRIGHT", self, -3, 0)
-			self.Health.value:SetJustifyH("RIGHT")
-
-			self.Power.value:SetPoint("BOTTOMLEFT", self, 3, 1)
-			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, -1)
-			self.Power.value:SetJustifyH("LEFT")
-		end,
-	},
-	pet = {
-		width = 200,
-		height = 16,
-	},
-	target = {
-		width = 200,
-		height = 24,
-		func = function(self)
-			self.Health.value:SetPoint("BOTTOMLEFT", self, 3, 0)
-			self.Health.value:SetJustifyH("LEFT")
-
-			self.Power.value:SetPoint("BOTTOMRIGHT", self, -3, 1)
-			self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 1)
-			self.Power.value:SetJustifyH("RIGHT")
-
-			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-			self.Name:SetJustifyH("RIGHT")
-		end,
-	},
-	targettarget = {
-		width = 160,
-		height = 16,
-		func = function(self)
-			self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-			self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-			self.Name:SetJustifyH("RIGHT")
-
-			self.Health.value:SetPoint("TOPLEFT", self, 2, 2)
-		end,
-	},
-	focus = {
-		width = 200,
-		height = 24,
-		func = function(self)
-			if self.reverse then
-				self.Health.value:SetPoint("BOTTOMLEFT", self, 3, 0)
-				self.Health.value:SetJustifyH("LEFT")
-
-				self.Power.value:SetPoint("BOTTOMRIGHT", self, -3, 1)
-				self.Power.value:SetPoint("BOTTOMLEFT", self.Health.value, "BOTTOMRIGHT", 2, 1)
-				self.Power.value:SetJustifyH("RIGHT")
-
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetJustifyH("RIGHT")
-			else
-				self.Health.value:SetPoint("BOTTOMRIGHT", self, -3, 0)
-				self.Health.value:SetJustifyH("RIGHT")
-
-				self.Power.value:SetPoint("BOTTOMLEFT", self, 3, 1)
-				self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -2, 1)
-				self.Power.value:SetJustifyH("LEFT")
-
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetJustifyH("LEFT")
-			end
-		end,
-	},
-	focustarget = {
-		width = 160,
-		height = 16,
-		func = function(self)
-			if self.reverse then
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetJustifyH("RIGHT")
-
-				self.Health.value:SetPoint("TOPLEFT", self, 3, 0)
-			else
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetJustifyH("LEFT")
-
-				self.Health.value:SetPoint("TOPRIGHT", self, -3, 0)
-			end
-		end,
-	},
-}
-
-------------------------------------------------------------------------
-
-local backdrop = {
-	bgFile = [[Interface\AddOns\oUF_Phanx\media\solid]], tile = true, tileSize = 16,
-	edgeFile = [[Interface\AddOns\oUF_Phanx\media\solid]], edgeSize = 3,
-	insets = { left = 3, right = 3, top = 3, bottom = 3 },
-}
-
-local backdrop_glow = {
-	edgeFile = [[Interface\AddOns\oUF_Phanx\media\glow]],
-	edgeSize = 5,
-	insets = { left = 3, right = 3, top = 3, bottom = 3 }
-}
-
-local INSET = backdrop.insets.left + 1
-
-local H_DIV = 5
-	-- for units with a power bar, power bar height = (settings.height / H_DIV) and health bar becomes correspondingly smaller
-
-------------------------------------------------------------------------
-
-local fakeThreat
-do
-	local noop = function() return end
-	fakeThreat = { Hide = noop, GetTexture = noop, IsObjectType = noop }
-end
-
-------------------------------------------------------------------------
-
-local function menu(self)
-	local unit = self.unit:sub(1, -2)
-	if unit == "party" or unit == "partypet" then
-		ToggleDropDownMenu(1, nil, _G["PartyMemberFrame"..self.id.."DropDown"], "cursor", 0, 0)
-	else
-		local cunit = self.unit:gsub("(.)", string.upper, 1)
-		if _G[cunit.."FrameDropDown"] then
-			ToggleDropDownMenu(1, nil, _G[cunit.."FrameDropDown"], "cursor", 0, 0)
 		end
 	end
 end
 
-------------------------------------------------------------------------
+function oUF_Phanx:GetStatusBarTexture(statusbarName)
+	return SharedMedia and SharedMedia:Fetch("statusbar", statusbarName) or defaultStatusbars[statusbarName] or [[Interface\TargetingFrame\UI-StatusBar]]
+end
 
-local function Spawn(self, unit)
-	debug("Spawn", unit or "NO UNIT OMG", self:GetName() or "NO NAME WTF")
-	if not unit then return end
+function oUF_Phanx:SetStatusBarTexture(statusbar)
+	if not statusbar then statusbar = self.settings.statusbar end
 
-	self.menu = menu
+	statusbar = self:GetStatusBarTexture(statusbar)
 
-	self:SetScript("OnEnter", UnitFrame_OnEnter)
-	self:SetScript("OnLeave", UnitFrame_OnLeave)
-
-	self:RegisterForClicks("anyup")
-	self:SetAttribute("*type2", "menu")
-
-	self.reverse = unit ~= "player" and unit ~= "pet" and not (settings.focusPlacement == "LEFT" and unit:match("^focus"))
-
-	local c = usettings[unit]
-	local hasPower = unit == "player" or unit == "pet" or unit == "target" or unit == "focus"
-
-	local FONT = oUF_Phanx:GetFont(settings.font)
-	local STATUSBAR = oUF_Phanx:GetStatusBarTexture(settings.statusbar)
-
-	local width = INSET + c.width + INSET
-	local height = INSET + c.height + INSET
-	if hasPower then
-		height = height + 1
+	for _, frame in ipairs(oUF.objects) do
+		setStatusBarTextures(frame, statusbar)
 	end
-
-	self:SetAttribute("initial-width", width)
-	self:SetAttribute("initial-height", height)
-
-	self:SetFrameStrata("BACKGROUND")
-
-	self:SetBackdrop(backdrop)
-	self:SetBackdropColor(0, 0, 0, 1)
-	self:SetBackdropBorderColor(0, 0, 0, 0)
-
-	self.Health = CreateFrame("StatusBar", nil, self)
-	self.Health:SetPoint("BOTTOMLEFT", INSET, INSET)
-	self.Health:SetPoint("BOTTOMRIGHT", -INSET, INSET)
-	self.Health:SetHeight(c.height - (hasPower and (c.height / H_DIV) or 0))
-	self.Health:SetStatusBarTexture(STATUSBAR)
-	self.Health:GetStatusBarTexture():SetHorizTile(false)
-	self.Health:GetStatusBarTexture():SetVertTile(false)
-
-	self.Health.bg = self.Health:CreateTexture(nil, "BACKGROUND")
-	self.Health.bg:SetTexture(STATUSBAR)
-	self.Health.bg:SetAllPoints(self.Health)
-
-	self.Health.value = self.Health:CreateFontString(nil, "OVERLAY")
-	self.Health.value:SetFont(FONT, 26, settings.outline)
-	self.Health.value:SetShadowOffset(1, -1)
-
-	self.Health.smoothUpdates = true
-	self.OverrideUpdateHealth = UpdateHealth
-
-	if hasPower then
-		self.Power = CreateFrame("StatusBar", nil, self)
-		self.Power:SetPoint("TOPLEFT", INSET, -INSET)
-		self.Power:SetPoint("TOPRIGHT", -INSET, -INSET)
-		self.Power:SetHeight(c.height / H_DIV)
-		self.Power:SetStatusBarTexture(STATUSBAR)
-		self.Power:GetStatusBarTexture():SetHorizTile(false)
-		self.Power:GetStatusBarTexture():SetVertTile(false)
-
-		self.Power.bg = self.Power:CreateTexture(nil, "BACKGROUND")
-		self.Power.bg:SetTexture(STATUSBAR)
-		self.Power.bg:SetAllPoints(self.Power)
-
-		self.Power.value = self.Power:CreateFontString(nil, "OVERLAY")
-		self.Power.value:SetFont(FONT, 20, settings.outline)
-		self.Power.value:SetShadowOffset(1, -1)
-
-		self.frequentPower = unit == "player" or unit == "pet"
-		self.Power.smoothUpdates = true
-		self.OverrideUpdatePower = UpdatePower
-
-		if unit == "player" and playerClass == "DRUID" then
-			self.DruidMana = CreateFrame("Frame", nil, self.Power)
-			self.DruidMana:SetAllPoints(self)
-			self.DruidMana:Hide()
-			self.DruidMana:SetScript("OnUpdate", UpdateDruidMana)
-
-			self.DruidMana.value = self.DruidMana:CreateFontString(nil, "OVERLAY")
-			self.DruidMana.value:SetFont(FONT, 20, settings.outline)
-			self.DruidMana.value:SetShadowOffset(1, -1)
-		end
-	end
-
-	if unit ~= "player" and unit ~= "pet" then
-		self.Name = self.Health:CreateFontString(nil, "OVERLAY")
-		self.Name:SetFont(FONT, 20, settings.outline)
-		self.Name:SetShadowOffset(1, -1)
-
-		self:RegisterEvent("UNIT_NAME_UPDATE", UpdateName)
-		table.insert(self.__elements, UpdateName)
-	end
-
-	if unit == "target" then
-		self.CPoints = self.Health:CreateFontString(nil, "OVERLAY")
-		self.CPoints:SetFont(FONT, 32, settings.outline)
-		self.CPoints:SetShadowOffset(1, -1)
-		self.CPoints:SetPoint("RIGHT", self, "LEFT", -5, 0)
-	end
-
-	if unit == "player" or unit == "pet" or unit == "target" then
-		self.Assistant = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Assistant:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 1, settings.borderStyle == "TEXTURE" and -1 or 1)
-		self.Assistant:SetWidth(16)
-		self.Assistant:SetHeight(16)
-
-		self.Leader = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Leader:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 1, settings.borderStyle == "TEXTURE" and -1 or 1)
-		self.Leader:SetWidth(16)
-		self.Leader:SetHeight(16)
-
-		self.MasterLooter = self.Health:CreateTexture(nil, "OVERLAY")
-		self.MasterLooter:SetPoint("BOTTOMLEFT", self.Leader, "BOTTOMRIGHT", 0, 2)
-		self.MasterLooter:SetWidth(14)
-		self.MasterLooter:SetHeight(14)
-	end
-
-	if unit == "player" then
-		self.Combat = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Combat:SetPoint("CENTER", self.Health, "TOP", 2, 4)
-		self.Combat:SetWidth(32)
-		self.Combat:SetHeight(32)
-
-		self.Resting = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Resting:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", 2, settings.borderStyle == "TEXTURE" and -1 or 1)
-		self.Resting:SetWidth(24)
-		self.Resting:SetHeight(24)
-		self.Resting:SetTexture([[Interface\CharacterFrame\UI-StateIcon]])
-		self.Resting:SetTexCoord(.5, 0, 0, .421875)
-
-		self.LFDRole = self.Health:CreateTexture(nil, "OVERLAY")
-		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and INSET or -INSET, 0)
-		self.LFDRole:SetWidth(20)
-		self.LFDRole:SetHeight(20)
-	end
-
-	self.RaidIcon = self.Health:CreateTexture(nil, "OVERLAY")
-	self.RaidIcon:SetPoint("CENTER", self, "BOTTOM", -INSET, 0)
-	self.RaidIcon:SetWidth(24)
-	self.RaidIcon:SetHeight(24)
-
-	if unit == "pet" then
-		self.Range = true
-		self.inRangeAlpha = 1
-		self.outsideRangeAlpha = 0.65
-	end
-
-	if not unit:match("^.+target$") then
-		self.Threat = fakeThreat
-		self.OverrideUpdateThreat = UpdateThreatHighlight
-	end
-
-	if settings.borderStyle == "TEXTURE" then
-		AddBorder(self)
-		for i, tex in ipairs(self.borderTextures) do
-			tex:SetParent(self.Health)
-		end
-	elseif settings.borderStyle == "GLOW" then
-		self.BorderGlow = CreateFrame("Frame", nil, self)
-		self.BorderGlow:SetFrameStrata("BACKGROUND")
-		self.BorderGlow:SetFrameLevel(self:GetFrameLevel() - 1)
-		self.BorderGlow:SetAllPoints(self)
-		self.BorderGlow:SetBackdrop(backdrop_glow)
-		self.BorderGlow:SetBackdropColor(0, 0, 0, 0)
-		self.BorderGlow:SetBackdropBorderColor(0, 0, 0, 1)
-	end
-	self.UpdateBorder = UpdateBorder
-
-	if c.func then
-		c.func(self)
-	end
-
-	--
-	-- Module: DispelHighlight
-	--
-	self.DispelHighlight = UpdateDispelHighlight
-	self.DispelHighlightFilter = true
-
-	--
-	-- Module: GlobalCooldown
-	--
-	self.GlobalCooldown = CreateFrame("Frame", nil, self.Power)
-	self.GlobalCooldown:SetAllPoints(self.Power)
-
-	self.GlobalCooldown.spark = self.GlobalCooldown:CreateTexture(nil, "OVERLAY")
-	self.GlobalCooldown.spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
-	self.GlobalCooldown.spark:SetBlendMode("ADD")
-	self.GlobalCooldown.spark:SetHeight(self.GlobalCooldown:GetHeight() * 5)
-	self.GlobalCooldown.spark:SetWidth(10)
-
-	--
-	-- Module: IncomingHeals
-	-- Only on player frame for non-healing classes.
-	--
-	if unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN") then
-		self.HealCommBar = self.Health:CreateTexture(nil, "OVERLAY")
-		self.HealCommBar:SetTexture(STATUSBAR)
-		self.HealCommBar:SetVertexColor(0, 1, 0)
-		self.HealCommBar:SetAlpha(0.35)
-		self.HealCommBar:SetHeight(self.Health:GetHeight())
-
-		self.HealCommIgnoreHoTs = true
-		self.HealCommNoOverflow = true
-	end
-	--[[
-	self.IncomingHeals = { }
-	for i = 1, 3 do
-		self.IncomingHeals[i] = self.Health:CreateTexture(nil, "OVERLAY")
-		self.IncomingHeals[i]:SetTexture(STATUSBAR)
-		self.IncomingHeals[i]:SetHeight(self.Health:GetHeight())
-	end
-	self.IncomingHeals.hideOverflow = true
-	self.IncomingHeals.ignoreBombs = true
-	self.IncomingHeals.ignoreHoTs = true
-	]]
-
-	--
-	-- Module: Resurrection
-	--
-	if unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN") then
-		self.ResurrectionText = self.Health:CreateFontString(nil, "OVERLAY")
-		self.ResurrectionText:SetFont(FONT, 20, settings.outline)
-		self.ResurrectionText:SetPoint("BOTTOM", 0, 1)
-	end
-
-	--
-	-- Module: RuneFrame
-	--
-	if playerClass == "DEATHKNIGHT" then
-		self.RuneFrame = true
-	end
-
-	--
-	-- Plugin: oUF_AFK
-	--
-	if select(4, GetAddOnInfo("oUF_AFK")) and (unit == "player" or unit == "party") then
-		self.AFK = self.Health:CreateFontString(nil, "OVERLAY")
-		self.AFK:SetFont(FONT, 12, settings.outline)
-		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, INSET)
-		self.AFK.fontFormat = "AFK %s:%s"
-	end
-
-	--
-	-- Plugin: oUF_ReadyCheck
-	--
-	if select(4, GetAddOnInfo("oUF_ReadyCheck")) and (unit == "player" or unit == "party") then
-		self.ReadyCheck = self.Health:CreateTexture(nil, "OVERLAY")
-		self.ReadyCheck:SetPoint("CENTER")
-		self.ReadyCheck:SetWidth(32)
-		self.ReadyCheck:SetHeight(32)
-
-		self.ReadyCheck.delayTime = 5
-		self.ReadyCheck.fadeTime = 1
-	end
-
-	--
-	-- Disable plugin: oUF_QuickHealth2
-	-- Worthless waste of resources.
-	--
-	if select(4, GetAddOnInfo("oUF_QuickHealth2")) then
-		self.ignoreQuickHealth = true
-	end
-
-	return self
 end
 
 ------------------------------------------------------------------------
+
+oUF_Phanx.fonts = { }
+oUF_Phanx.statusbars = { }
+
+oUF_Phanx.defaultFonts = defaultFonts
+oUF_Phanx.defaultStatusbars = defaultStatusbars
+
+oUF_Phanx.settings = settings
+
+oUF_Phanx.DoNothing = DoNothing
+oUF_Phanx.debug = debug
+oUF_Phanx.si = si
+
+------------------------------------------------------------------------
+
+function oUF_Phanx:PLAYER_TALENT_UPDATE()
+	myTalents[1] = GetNumTalents(1) or 0
+	myTalents[2] = GetNumTalents(2) or 0
+	myTalents[3] = GetNumTalents(3) or 0
+end
 
 function oUF_Phanx:ADDON_LOADED(addon)
-	if addon ~= ADDON_NAME then return end
+	if addon ~= OUF_PHANX then return end
 
 	if not oUF_Phanx_Settings then
 		oUF_Phanx_Settings = { }
@@ -1060,129 +315,448 @@ function oUF_Phanx:ADDON_LOADED(addon)
 		end
 	end
 	settings = oUF_Phanx_Settings
-	self.settings = settings
 
-	if settings.borderStyle == "TEXTURE" then
-		INSET = INSET - 2
-		for point in pairs(backdrop.insets) do
-			backdrop.insets[point] = 0
-		end
-	end
-
-	self.fontList = { }
-	self.statusbarList = { }
+	local fonts = oUF_Phanx.fonts
+	local statusbars = oUF_Phanx.statusbars
 
 	SharedMedia = LibStub("LibSharedMedia-3.0", true)
+
 	if SharedMedia then
 		for name, file in pairs(defaultFonts) do
 			if file:match("^Interface\\AddOns") then
 				SharedMedia:Register("font", name, file)
 			end
 		end
+
 		for i, v in pairs(SharedMedia:List("font")) do
-			table.insert(self.fontList, v)
+			table.insert(fonts, v)
 		end
-		table.sort(self.fontList)
+
+		table.sort(fonts)
 
 		for name, file in pairs(defaultStatusbars) do
 			if file:match("^Interface\\AddOns") then
 				SharedMedia:Register("statusbar", name, file)
 			end
 		end
+
 		for i, v in pairs(SharedMedia:List("statusbar")) do
-			table.insert(self.statusbarList, v)
+			table.insert(statusbars, v)
 		end
-		table.sort(self.statusbarList)
 
-		function oUF_Phanx:SharedMedia_Registered(_, mediaType, mediaName)
+		table.sort(statusbars)
+
+		oUF_Phanx.SharedMedia_Registered = function(self, _, mediaType, mediaName)
 			if mediaType == "font" then
-				table.insert(self.fontList, mediaName)
-				table.sort(self.fontList)
+				table.insert(fonts, mediaName)
+				table.sort(fonts)
 				self:SetFont()
 			elseif mediaType == "statusbar" then
-				table.insert(self.statusbarList, mediaName)
-				table.sort(self.statusbarList)
+				table.insert(statusbars, mediaName)
+				table.sort(statusbars)
 				self:SetStatusBarTexture()
 			end
 		end
-		SharedMedia.RegisterCallback(self, "LibSharedMedia_Registered", "SharedMedia_Registered")
 
-		function oUF_Phanx:SharedMedia_SetGlobal(_, mediaType)
+		SharedMedia.RegisterCallback(oUF_Phanx, "LibSharedMedia_Registered", "SharedMedia_Registered")
+
+		oUF_Phanx.SharedMedia_SetGlobal = function(self, _, mediaType)
 			if mediaType == "font" then
 				self:SetFont()
 			elseif mediaType == "statusbar" then
 				self:SetStatusBarTexture()
 			end
 		end
-		SharedMedia.RegisterCallback(self, "LibSharedMedia_SetGlobal",  "SharedMedia_SetGlobal")
+
+		SharedMedia.RegisterCallback(oUF_Phanx, "LibSharedMedia_SetGlobal",  "SharedMedia_SetGlobal")
 	else
 		for k, v in pairs(defaultFonts) do
-			table.insert(self.fontList, k)
+			table.insert(fonts, k)
 		end
-		table.sort(self.fontList)
+
+		table.sort(fonts)
 
 		for k, v in pairs(defaultStatusbars) do
-			table.insert(self.statusbarList, k)
+			table.insert(statusbars, k)
 		end
-		table.sort(self.statusbarList)
-	end
 
-	oUF:RegisterStyle("Phanx", Spawn)
-	oUF:SetActiveStyle("Phanx")
-
-	oUF:Spawn("player", "oUF_Phanx_Player"):SetPoint("TOP", UIParent, "CENTER", 0, -200)
-	oUF:Spawn("pet", "oUF_Phanx_Pet"):SetPoint("TOP", oUF.units.player, "BOTTOM", 0, settings.borderStyle == "TEXTURE" and -6 or -1)
-
-	oUF:Spawn("target", "oUF_Phanx_Target"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -100)
-	oUF:Spawn("targettarget", "oUF_Phanx_TargetTarget"):SetPoint("BOTTOMRIGHT", oUF.units.target, "TOPRIGHT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
-
-	if settings.focusPlacement == "LEFT" then
-		oUF:Spawn("focus", "oUF_Phanx_Focus"):SetPoint("TOPRIGHT", UIParent, "CENTER", -200, -100)
-		oUF:Spawn("focustarget", "oUF_Phanx_FocusTarget"):SetPoint("BOTTOMLEFT", oUF.units.focus, "TOPLEFT", 0, settings.borderStyle == "TEXTURE" and 24 or 16)
-	else
-		oUF:Spawn("focus", "oUF_Phanx_Focus"):SetPoint("TOPLEFT", UIParent, "CENTER", 200, -300 + oUF.units.target:GetHeight())
-		oUF:Spawn("focustarget", "oUF_Phanx_FocusTarget"):SetPoint("TOPRIGHT", oUF.units.focus, "BOTTOMRIGHT", 0, settings.borderStyle == "TEXTURE" and -24 or -16)
+		table.sort(statusbars)
 	end
 
 	self:UnregisterEvent("ADDON_LOADED")
 
-	self:RegisterEvent("UNIT_AURA")
-
-	if namespace.party then
-		self:SpawnPartyFrames()
+	if myClass == "DEATHKNIGHT" or myClass == "DRUID" or myClass == "PRIEST" or myClass == "SHAMAN" or myClass == "PALADIN" or myClass == "WARRIOR" then
+		self:RegisterEvent("PLAYER_TALENT_UPDATE")
 	end
 end
 
-------------------------------------------------------------------------
-
-oUF_Phanx:SetScript("OnEvent", function(self, event, ...) return self[event] and self[event](self, ...) end)
-oUF_Phanx:RegisterEvent("ADDON_LOADED")
+oUF_Phanx.frame:SetScript("OnEvent", function(self, event, ...) return self[event] and self[event](self, ...) end)
+oUF_Phanx.frame:RegisterEvent("ADDON_LOADED")
 
 ------------------------------------------------------------------------
 
-oUF_Phanx.INSET = INSET
-oUF_Phanx.H_DIV = H_DIV
+oUF_Phanx.frame:Hide()
+oUF_Phanx.frame.name = OUF_PHANX
+oUF_Phanx.frame:SetScript("OnShow", function(self)
+	-------------------------
+	-- Widget constructors --
+	-------------------------
 
-oUF_Phanx.backdrop = backdrop
-oUF_Phanx.backdrop_glow = backdrop_glow
-oUF_Phanx.defaultFonts = defaultFonts
-oUF_Phanx.defaultStatusbars = defaultStatusbars
-oUF_Phanx.fakeThreat = fakeThreat
+	self.CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+	self.CreateColorPicker = LibStub("PhanxConfig-ColorPicker").CreateColorPicker
+	self.CreateDropdown = LibStub("PhanxConfig-Dropdown").CreateDropdown
+	self.CreateScrollingDropdown = LibStub("PhanxConfig-ScrollingDropdown").CreateScrollingDropdown
+	self.CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
 
-oUF_Phanx.debug = debug
-oUF_Phanx.menu = menu
-oUF_Phanx.si = si
-oUF_Phanx.AddBorder = AddBorder
-oUF_Phanx.SetBorderColor = SetBorderColor
-oUF_Phanx.SetBorderSize = SetBorderSize
-oUF_Phanx.UpdateBorder = UpdateBorder
-oUF_Phanx.UpdateDispelHighlight = UpdateDispelHighlight
-oUF_Phanx.UpdateThreatHighlight = UpdateThreatHighlight
+	-----------------------------
+	-- Heading and description --
+	-----------------------------
 
-namespace.oUF_Phanx = oUF_Phanx
-_G.oUF_Phanx = oUF_Phanx
+	local title = self:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+	title:SetPoint("TOPLEFT", 16, -16)
+	title:SetPoint("TOPRIGHT", -16, -16)
+	title:SetJustifyH("LEFT")
+	title:SetText(self.name)
 
-------------------------------------------------------------------------
+	local notes = self:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	notes:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
+	notes:SetPoint("TOPRIGHT", title, 0, -8)
+	notes:SetHeight(32)
+	notes:SetJustifyH("LEFT")
+	notes:SetJustifyV("TOP")
+	notes:SetNonSpaceWrap(true)
+	notes:SetText(L["Use this panel to configure some basic options for the layout."])
 
-SLASH_RELOADUI1 = "/rl"
-SlashCmdList.RELOADUI = ReloadUI
+	-------------------------------
+	-- Select: Statusbar Texture --
+	-------------------------------
+
+	local statusbar = self:CreateScrollingDropdown(L["Bar Texture"], oUF_Phanx.statusbarList)
+	statusbar.container.desc = L["Change the texture for bars on the frames."]
+	statusbar.container:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -8)
+	statusbar.container:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -8)
+	statusbar.valueText:SetText(settings.statusbar)
+	do
+		statusbar.valueText.bg = statusbar:CreateTexture(nil, "ARTWORK")
+		statusbar.valueText.bg:SetPoint("RIGHT", statusbar.valueText, 4, -1)
+		statusbar.valueText.bg:SetPoint("LEFT", statusbar.valueText, -4, -1)
+		statusbar.valueText.bg:SetHeight(16)
+		statusbar.valueText.bg:SetTexture(oUF_Phanx:GetStatusBarTexture(settings.statusbar))
+		statusbar.valueText.bg:SetVertexColor(0.4, 0.4, 0.4)
+
+		function statusbar:OnValueChanged(value)
+			settings.statusbar = value
+			oUF_Phanx:SetStatusBarTexture(value)
+			statusbar.valueText.bg:SetTexture(oUF_Phanx:GetStatusBarTexture(settings.statusbar))
+		end
+
+		local button_OnClick = statusbar.button:GetScript("OnClick")
+		statusbar.button:SetScript("OnClick", function(self)
+			button_OnClick(self)
+			statusbar.list:Hide()
+
+			local function getButtonBackground(self)
+				if not self.bg then
+					self.bg = self:CreateTexture(nil, "BACKGROUND")
+					self.bg:SetPoint("TOPLEFT", -3, 0)
+					self.bg:SetPoint("BOTTOMRIGHT", 3, 0)
+					self.bg:SetVertexColor(0.35, 0.35, 0.35)
+				end
+				return self.bg
+			end
+
+			local function SetButtonBackgroundTextures(self)
+				local numButtons = 0
+				local buttons = statusbar.list.buttons
+				for i = 1, #buttons do
+					local button = buttons[i]
+					if i > 1 then
+						button:SetPoint("TOPLEFT", buttons[i - 1], "BOTTOMLEFT", 0, -1)
+					end
+					if button.value and button:IsShown() then
+						local bg = getButtonBackground(button)
+						bg:SetTexture(oUF_Phanx:GetStatusBarTexture(button.value))
+						local ff, fs = button.label:GetFont()
+						button.label:SetFont(ff, fs, "OUTLINE")
+						numButtons = numButtons + 1
+					end
+				end
+
+				statusbar.list:SetHeight(statusbar.list:GetHeight() + (numButtons * 1))
+			end
+
+			local OnShow = statusbar.list:GetScript("OnShow")
+			statusbar.list:SetScript("OnShow", function(self)
+				OnShow(self)
+				SetButtonBackgroundTextures(self)
+			end)
+
+			local OnVerticalScroll = statusbar.list.scrollFrame:GetScript("OnVerticalScroll")
+			statusbar.list.scrollFrame:SetScript("OnVerticalScroll", function(self, delta)
+				OnVerticalScroll(self, delta)
+				SetButtonBackgroundTextures(self)
+			end)
+
+			button_OnClick(self)
+			self:SetScript("OnClick", button_OnClick)
+		end)
+	end
+
+	-----------------------
+	-- Select: Font Face --
+	-----------------------
+
+	local font = self:CreateScrollingDropdown(L["Font Face"], oUF_Phanx.fontList)
+	font.container.desc = L["Choose the font face for text on the frames."]
+	font.container:SetPoint("TOPLEFT", notes, "BOTTOM", 8, -8)
+	font.container:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -8)
+	font.valueText:SetText(settings.font)
+	do
+		local _, height, flags = font.valueText:GetFont()
+		font.valueText:SetFont(oUF_Phanx:GetFont(settings.font), height, flags)
+
+		function font:OnValueChanged(value)
+			local _, height, flags = self.valueText:GetFont()
+			self.valueText:SetFont(oUF_Phanx:GetFont(value), height, flags)
+			settings.font = value
+			oUF_Phanx:SetFont()
+		end
+
+		local button_OnClick = font.button:GetScript("OnClick")
+		font.button:SetScript("OnClick", function(self)
+			button_OnClick(self)
+			font.list:Hide()
+
+			local function SetButtonFonts(self)
+				local buttons = font.list.buttons
+				for i = 1, #buttons do
+					local button = buttons[i]
+					if button.value and button:IsShown() then
+						button.label:SetFont(oUF_Phanx:GetFont(button.value), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
+					end
+				end
+			end
+
+			local OnShow = font.list:GetScript("OnShow")
+			font.list:SetScript("OnShow", function(self)
+				OnShow(self)
+				SetButtonFonts(self)
+			end)
+
+			local OnVerticalScroll = font.list.scrollFrame:GetScript("OnVerticalScroll")
+			font.list.scrollFrame:SetScript("OnVerticalScroll", function(self, delta)
+				OnVerticalScroll(self, delta)
+				SetButtonFonts(self)
+			end)
+
+			local SetText = font.list.text.SetText
+			font.list.text.SetText = function(self, text)
+				self:SetFont(oUF_Phanx:GetFont(text), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT + 1)
+				SetText(self, text)
+			end
+
+			button_OnClick(self)
+			self:SetScript("OnClick", button_OnClick)
+		end)
+	end
+
+	--------------------------
+	-- Select: Font Outline --
+	--------------------------
+
+	local outline = self:CreateDropdown(L["Font Outline"])
+	outline.container.desc = L["Choose the outline weight for text on the frames."]
+	outline.container:SetPoint("TOPLEFT", font.container, "BOTTOMLEFT", 0, -8)
+	outline.container:SetPoint("TOPRIGHT", font.container, "BOTTOMRIGHT", 0, -8)
+	do
+		local outlines = { ["NONE"] = L["None"], ["OUTLINE"] = L["Thin"], ["THICKOUTLINE"] = L["Thick"] }
+
+		local function OnClick(self)
+			settings.outline = self.value
+			oUF_Phanx:SetFont()
+			outline.valueText:SetText(self.text)
+			UIDropDownMenu_SetSelectedValue(outline, self.value)
+		end
+
+		local info = UIDropDownMenu_CreateInfo()
+		UIDropDownMenu_Initialize(outline, function(self)
+			local selected = outlines[UIDropDownMenu_GetSelectedValue(outline)] or self.valueText:GetText()
+
+			info.text = L["None"]
+			info.value = "NONE"
+			info.func = OnClick
+			info.checked = L["None"] == selected
+			UIDropDownMenu_AddButton(info)
+
+			info.text = L["Thin"]
+			info.value = "OUTLINE"
+			info.func = OnClick
+			info.checked = L["Thin"] == selected
+			UIDropDownMenu_AddButton(info)
+
+			info.text = L["Thick"]
+			info.value = "THICKOUTLINE"
+			info.func = OnClick
+			info.checked = L["Thick"] == selected
+			UIDropDownMenu_AddButton(info)
+		end)
+
+		outline.valueText:SetText(outlines[settings.outline] or L["None"])
+		UIDropDownMenu_SetSelectedValue(outline, settings.outline or L["None"])
+	end
+
+	--------------------------
+	-- Select: Border Style -- [NYI]
+	--------------------------
+
+	local borderStyle = self:CreateDropdown(L["Border Style"])
+	borderStyle.container.desc = L["Select a border style for the frames."] .. "\n\n" .. L["Requires a UI reload to apply."]
+	borderStyle.container:SetPoint("TOPLEFT", statusbar.container, "BOTTOMLEFT", 0, -8)
+	borderStyle.container:SetPoint("TOPRIGHT", statusbar.container, "BOTTOMRIGHT", 0, -8)
+	do
+		local borderStyles = { ["NONE"] = L["None"], ["GLOW"] = L["Glow"], ["TEXTURE"] = L["Texture"] }
+
+		local function OnClick(self)
+		--	settings.borderStyle = self.value
+		--	for _, frame in pairs(oUF.units) do
+		--		if frame.UpdateBorder then
+		--			frame:UpdateBorder()
+		--		end
+		--	end
+			borderStyle.valueText:SetText(self.text)
+			UIDropDownMenu_SetSelectedValue(borderStyle, self.value)
+		end
+
+		local info = UIDropDownMenu_CreateInfo()
+		UIDropDownMenu_Initialize(borderStyle, function(self)
+			local selected = borderStyles[UIDropDownMenu_GetSelectedValue(borderStyle)]
+
+			info.text = L["None"]
+			info.value = "NONE"
+			info.func = OnClick
+			info.checked = L["None"] == selected
+			UIDropDownMenu_AddButton(info)
+
+			info.text = L["Glow"]
+			info.value = "GLOW"
+			info.func = OnClick
+			info.checked = L["Glow"] == selected
+			UIDropDownMenu_AddButton(info)
+
+			info.text = L["Textured"]
+			info.value = "TEXTURE"
+			info.func = OnClick
+			info.checked = L["Texture"] == selected
+			UIDropDownMenu_AddButton(info)
+		end)
+
+		borderStyle.valueText:SetText(borderStyles[settings.borderStyle])
+		UIDropDownMenu_SetSelectedValue(borderStyle, settings.borderStyle)
+	end
+
+	------------------------
+	-- Range: Border Size -- [NYI]
+	------------------------
+
+	local borderSize = self:CreateSlider(L["Border Size"], 6, 16, 1)
+	borderSize.desc = L["Set the default thickness for frame borders. Only applies to Texture style borders."]
+	borderSize.container:SetPoint("TOPLEFT", borderStyle.container, "BOTTOMLEFT", -1, -12)
+	borderSize.container:SetPoint("TOPRIGHT", borderStyle.container, "BOTTOMRIGHT", 1, -12)
+	borderSize:SetValue(settings.borderSize)
+	borderSize.valueText:SetText(settings.borderSize)
+	borderSize.OnValueChanged = function(self, value)
+		value = math.floor(value)
+	--	settings.borderSize = value
+	--	for _, frame in pairs(oUF.units) do
+	--		if frame.UpdateBorder then
+	--			frame:UpdateBorder()
+	--		end
+	--	end
+		return value
+	end
+
+	-------------------------
+	-- Color: Border Color -- [NYI]
+	-------------------------
+
+	local borderColor = self:CreateColorPicker(L["Border Color"])
+	borderColor.desc = L["Set the default color for frame borders. Only applies to Texture style borders."]
+	borderColor:SetPoint("TOPLEFT", borderSize.container, "BOTTOMLEFT", 5, -8)
+	borderColor:SetColor(unpack(settings.borderColor))
+	borderColor.GetColor = function() return unpack(settings.borderColor) end
+	borderColor.OnColorChanged = function(self, r, g, b)
+	--	settings.borderColor[1] = r
+	--	settings.borderColor[2] = g
+	--	settings.borderColor[3] = b
+	--	for _, frame in pairs(oUF.units) do
+	--		if frame.UpdateBorder then
+	--			frame:UpdateBorder()
+	--		end
+	--	end
+	end
+
+	-----------------------------
+	-- Select: Focus Placement -- [NYI]
+	-----------------------------
+
+	local focusPlacement = self:CreateDropdown(L["Focus Placement"])
+	focusPlacement.container.desc = L["Choose where to show the focus frame."] .. "\n\n" .. L["Requires a UI reload to apply."]
+	focusPlacement.container:SetPoint("TOPLEFT", outline.container, "BOTTOMLEFT", 0, -8)
+	focusPlacement.container:SetPoint("TOPRIGHT", outline.container, "BOTTOMRIGHT", 0, -8)
+	do
+		local focusPlacements = { ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"] }
+
+		local function OnClick(self)
+		--	settings.focusPlacement = self.value
+			focusPlacement.valueText:SetText(self.text)
+			UIDropDownMenu_SetSelectedValue(focusPlacement, self.value)
+		end
+
+		local info = UIDropDownMenu_CreateInfo()
+		UIDropDownMenu_Initialize(focusPlacement, function(self)
+			local selected = focusPlacements[UIDropDownMenu_GetSelectedValue(focusPlacement)]
+
+			info.text = L["Left"]
+			info.value = "LEFT"
+			info.func = OnClick
+			info.checked = L["Left"] == selected
+			UIDropDownMenu_AddButton(info)
+
+			info.text = L["Right"]
+			info.value = "RIGHT"
+			info.func = OnClick
+			info.checked = L["Right"] == selected
+			UIDropDownMenu_AddButton(info)
+		end)
+
+		focusPlacement.valueText:SetText(focusPlacements[settings.focusPlacement])
+		UIDropDownMenu_SetSelectedValue(focusPlacement, settings.focusPlacement)
+	end
+
+	---------------------------
+	-- Toggle: Threat Levels --
+	---------------------------
+
+	local threatLevels = self:CreateCheckbox(L["Show threat levels"])
+	threatLevels.desc = L["Show threat levels instead of binary aggro status."]
+	threatLevels:SetPoint("TOPLEFT", focusPlacement.container, "BOTTOMLEFT", 0, -8)
+	threatLevels:SetChecked(settings.threatLevels)
+	threatLevels.OnClick = function(self, checked)
+		settings.threatLevels = checked
+	end
+
+	-------------
+	-- The End --
+	-------------
+
+	self:SetScript("OnShow", nil)
+end)
+
+InterfaceOptions_AddCategory(oUF_Phanx.frame)
+oUF_Phanx.frame.aboutPanel = LibStub("LibAboutPanel").new(OUF_PHANX, OUF_PHANX)
+
+SLASH_OUFPHANX1 = "/op"
+SlashCmdList.OUFPHANX = function()
+	InterfaceOptionsFrame_OpenToCategory(oUF_Phanx.frame.aboutPanel) -- so it gets expanded
+	InterfaceOptionsFrame_OpenToCategory(oUF_Phanx.frame)
+end
