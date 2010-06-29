@@ -1,17 +1,13 @@
 ## Interface: 30300
 ## Version: 3.3.5.wowi:revision
-
 ## Title: oUF: Phanx
 ## Notes: An oUF layout.
 ## Author: Phanx
-## X-Copyright: Copyright © 2009–2010 Alyssa "Phanx" Kinley
 ## X-Email: addons@phanx.net
+## X-Copyright: Copyright © 2009–2010 Phanx
 ## X-License: All rights reserved. See README for details.
 ## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-
-## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, koKR, ruRU, zhCN, zhTW
-## X-Localizations: enUS
-
+## X-WoWI-ID: 13993
 ## Dependencies: oUF
 ## OptionalDependencies: LibAboutPanel, LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
 ## SavedVariables: oUF_Phanx_Settings
@@ -19,25 +15,23 @@
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\ChatThrottleLib\ChatThrottleLib.lua
+Libs\LibAboutPanel\LibAboutPanel.lua
 Libs\LibHealComm-4.0\LibHealComm-4.0.lua
-Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 Libs\LibResComm-1.0\LibResComm-1.0.lua
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
 Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
 Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
 Libs\PhanxConfig-ScrollingDropdown\PhanxConfig-ScrollingDropdown.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
-Libs\LibAboutPanel\LibAboutPanel.lua
 
-elements\DispellableDebuffs.lua
-elements\GlobalCooldown.lua
-elements\IncomingHeals.lua
-elements\Resurrections.lua
-elements\RuneFrame.lua
+# elements\ComboPoints.lua
+# elements\DispellableDebuffs.lua
+# elements\IncomingHeals.lua
+# elements\Resurrections.lua
 
 Localization.lua
 Core.lua
+Auras.lua
+Frames.lua
 # Party.lua
-Options.lua
-
-plugins\oUF_Smooth.lua

@@ -1,18 +1,19 @@
 --[[--------------------------------------------------------------------
 	oUF_DispelHighlight
+	by Phanx < addons@phanx.net >
 	Highlights oUF frames by dispellable debuff type.
 	Originally based on Ammo's oUF_DebuffHighlight.
 
 	You may embed this module in your own layout, but please do not
 	distribute it as a standalone plugin.
 
-	To have your frame's health bar highlighted:
+	To enable :
 		frame.DispelHighlight = true
 
-	To use your own highlighting function:
+	Advanced usage:
 		frame.DispelHighlight = function(frame, event, unit, debuffType, canDispel)
-			-- debuffType : string or nil : type of the highest priority debuff, nil if no debuffs
-			-- canDispel : boolean : indicates whether the player can dispel the debuff
+			-- debuffType (string or nil) - type of highest priority debuff, nil if no debuffs
+			-- canDispel  (boolean) - whether the player can dispel the debuff
 		end
 
 	To highlight only debuffs you can dispel:
@@ -20,22 +21,15 @@
 ----------------------------------------------------------------------]]
 
 if not oUF then return end
-if select(4, GetAddOnInfo("oUF_DispelHighlight")) then return end
+if select(4, GetAddOnInfo("oUF_DebuffHighlight")) then return end
 
-local _, playerClass = UnitClass("player")
-
-local canDispel
-if playerClass == "DRUID" then
-	canDispel = { Curse = true, Poison = true }
-elseif playerClass == "MAGE" then
-	canDispel = { Curse = true }
-elseif playerClass == "PALADIN" then
-	canDispel = { Disease = true, Magic = true, Poison = true }
-elseif playerClass == "PRIEST" then
-	canDispel = { Disease = true, Magic = true }
-elseif playerClass == "SHAMAN" then
-	canDispel = { Curse = true, Disease = true, Poison = true }
-end
+local class = select(2, UnitClass("player"))
+local canDispel = {
+	Curse = class == "DRUID" or class == "MAGE" or class == "SHAMAN",
+	Disease = class == "PALADIN" or class == "PRIEST" or class == "SHAMAN",
+	Magic = class == "PALADIN" or class == "PRIEST",
+	Poison = class == "DRUID" or class == "PALADIN" or class == "SHAMAN",
+}
 
 local DebuffPriority = { }
 for type, priority in pairs({ Curse = 2, Disease = 4, Magic = 1, Poison = 3 }) do
@@ -48,8 +42,6 @@ local DebuffTypeColor = { }
 for type, color in pairs(_G.DebuffTypeColor) do
 	DebuffTypeColor[type] = { color.r, color.g, color.b }
 end
-
-------------------------------------------------------------------------
 
 local unitDebuffType = { }
 
@@ -101,8 +93,8 @@ local function Enable(self)
 	self:RegisterEvent("UNIT_AURA", Update)
 
 	if type(self.DispelHighlight) ~= "function" then
-		local o = self.PostUpdateHealth
-		self.PostUpdateHealth = function(...)
+		local o = self.Health.PostUpdate
+		self.Health.PostUpdate = function(...)
 			if o then o(...) end
 			applyDispelHighlight(...)
 		end
@@ -110,7 +102,7 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	if not self.DispelHighlight or not canDispel then return end
+	if not self.DispelHighlight or (self.DispelHighlightFilter and not canDispel) then return end
 
 	self:UnregisterEvent("UNIT_AURA", Update)
 end

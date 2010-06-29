@@ -6,7 +6,7 @@
 		HoTs, and use a texture instead of a frame.
 
 	You may embed this module in your own layout, but please do not
-	distribute it as a standalone plugin.
+		distribute it as a standalone plugin.
 
 	Elements handled:
 		.IncomingHealsBar  (Texture)
@@ -43,16 +43,18 @@ local function Hide(self)
 end
 
 local function Update(self)
-	if not self.unit or UnitIsDeadOrGhost(self.unit) or not UnitIsConnected(self.unit) then
+	local unit = self.unit
+
+	if not unit or UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
 		return Hide(self)
 	end
 
-	local maxHP = UnitHealthMax(self.unit) or 0
+	local maxHP = UnitHealthMax(unit) or 0
 	if maxHP == 0 or maxHP == 100 then
 		return Hide(self)
 	end
 
-	local guid = UnitGUID(self.unit)
+	local guid = UnitGUID(unit)
 	local incHeals
 	if self.IncomingHealsFilter == "SELF" then
 		incHeals = HealComm:GetHealAmount(guid, self.IncomingHealsFlag) - HealComm:GetOthersHealAmount(guid, self.IncomingHealsFlag)
@@ -69,7 +71,7 @@ local function Update(self)
 	incHeals = incHeals * HealComm:GetHealModifier(guid)
 
 	if self.IncomingHealsBar then
-		local curHP = UnitHealth(self.unit)
+		local curHP = UnitHealth(unit)
 		local percHP = curHP / maxHP
 		local percInc = (self.IncomingHealsNoOverflow and math.min(incHeals, maxHP - curHP) or incHeals) / maxHP
 
@@ -105,25 +107,33 @@ local function Enable(self)
 	local bar, text = self.IncomingHealsBar, self.IncomingHealsText
 	if not bar and not text or not self.unit then return end
 
-	if bar then
-		self:RegisterEvent("UNIT_HEALTH", Update)
-		self:RegisterEvent("UNIT_MAXHEALTH", Update)
-
-		if not bar:GetTexture() then
-			bar:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
-		end
-
-		self.IncomingHealsFlag = self.IncomingHealsIgnoreHoTs and HealComm.CASTED_HEALS or HealComm.ALL_HEALS
+	if bar and not bar:GetTexture() then
+		bar:SetTexture([[Interface\TargetingFrame\UI-StatusBar]])
 	end
+
+	self:RegisterEvent("UNIT_HEALTH", Update)
+	self:RegisterEvent("UNIT_MAXHEALTH", Update)
+
+	self.IncomingHealsFlag = self.IncomingHealsIgnoreHoTs and HealComm.CASTED_HEALS or HealComm.ALL_HEALS
 
 	return true
 end
 
 local function Disable(self)
-	if self.unit and (self.IncomingHealsBar or self.IncomingHealsText) then
-		self:UnregisterEvent("UNIT_HEALTH", Update)
-		self:UnregisterEvent("UNIT_MAXHEALTH", Update)
+	local bar, text = self.IncomingHealsBar, self.IncomingHealsText
+	if not bar and not text or not self.unit then return end
+
+	if bar then
+		bar:SetTexture("")
+		bar:Hide()
 	end
+	if text then
+		text:SetText(nil)
+		text:Hide()
+	end
+
+	self:UnregisterEvent("UNIT_HEALTH", Update)
+	self:UnregisterEvent("UNIT_MAXHEALTH", Update)
 end
 
 oUF:AddElement("IncomingHeals", Update, Enable, Disable)
@@ -144,17 +154,17 @@ local function HealComm_Heal_Update(event, casterGUID, spellID, healType, _, ...
 	UpdateMultiple(...)
 end
 
-local function HealComm_Modified(event, guid)
-	UpdateMultiple(guid)
+local function HealComm_Modified(event, casterGUID)
+	UpdateMultiple(casterGUID)
 end
 
 ------------------------------------------------------------------------
 
-HealComm.RegisterCallback("oUF_HealComm4", "HealComm_HealStarted", HealComm_Heal_Update)
-HealComm.RegisterCallback("oUF_HealComm4", "HealComm_HealUpdated", HealComm_Heal_Update)
-HealComm.RegisterCallback("oUF_HealComm4", "HealComm_HealDelayed", HealComm_Heal_Update)
-HealComm.RegisterCallback("oUF_HealComm4", "HealComm_HealStopped", HealComm_Heal_Update)
-HealComm.RegisterCallback("oUF_HealComm4", "HealComm_ModifierChanged", HealComm_Modified)
-HealComm.RegisterCallback("oUF_HealComm4", "HealComm_GUIDDisappeared", HealComm_Modified)
+HealComm.RegisterCallback("oUF_IncomingHeals", "HealComm_HealStarted", HealComm_Heal_Update)
+HealComm.RegisterCallback("oUF_IncomingHeals", "HealComm_HealUpdated", HealComm_Heal_Update)
+HealComm.RegisterCallback("oUF_IncomingHeals", "HealComm_HealDelayed", HealComm_Heal_Update)
+HealComm.RegisterCallback("oUF_IncomingHeals", "HealComm_HealStopped", HealComm_Heal_Update)
+HealComm.RegisterCallback("oUF_IncomingHeals", "HealComm_ModifierChanged", HealComm_Modified)
+HealComm.RegisterCallback("oUF_IncomingHeals", "HealComm_GUIDDisappeared", HealComm_Modified)
 
 ------------------------------------------------------------------------

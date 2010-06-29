@@ -3,340 +3,248 @@
 	A layout for oUF.
 	by Phanx < addons@phanx.net >
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-	Copyright ©2009–2010 Alyssa "Phanx" Kinley. All rights reserved.
-	See README for license terms and additional information.
+	Copyright © 2009–2010 Phanx. See README for license terms.
 ----------------------------------------------------------------------]]
 
-local OUF_PHANX, namespace = ...
-local oUF_Phanx = namespace.oUF_Phanx
-if not oUF_Phanx then return end
+local OUF_PHANX, oUF_Phanx = ...
 
-local L = namespace.L
+local colors = oUF.colors
+local settings = oUF_Phanx.settings
 
 local debug = oUF_Phanx.debug
 local si = oUF_Phanx.si
-local AddBorder = oUF_Phanx.AddBorder
-local SetBorderColor = oUF_Phanx.SetBorderColor
-local SetBorderSize = oUF_Phanx.SetBorderSize
-local UpdateBorder = oUF_Phanx.UpdateBorder
-local UpdateDispelHighlight = oUF_Phanx.UpdateDispelHighlight
-local UpdateThreatHighlight = oUF_Phanx.UpdateThreatHighlight
 
-local playerClass = select(2, UnitClass("player"))
+local IsHealing = oUF_Phanx.IsHealing
+local IsTanking = oUF_Phanx.IsTanking
 
-local settings
-local SharedMedia
+local myClass = select(2, UnitClass("player"))
+local myRealm = GetRealmName()
 
 ------------------------------------------------------------------------
 
-local function UpdateName(self, event, unit)
+local UpdateHealth = function(self, event, unit)
 	if self.unit ~= unit then return end
-	-- debug("UpdateName: %s, %s", event, unit)
+	local health = self.Health
 
-	local r, g, b
-	if UnitIsDead(unit) then
-		r, g, b = unpack(colors.dead)
-	elseif UnitIsGhost(unit) then
-		r, g, b = unpack(colors.ghost)
-	elseif not UnitIsConnected(unit) then
-		r, g, b = unpack(colors.offline)
+	local cur, max = UnitHealth(unit), UnitHealthMax(unit)
+
+	health:SetMinMaxValues(0, max)
+
+	local disconnected = not UnitIsConnected(unit)
+	if disconnected then
+		health:SetValue(max)
 	else
-		local _, class = UnitClass(unit)
-		r, g, b = unpack(colors.class[class] or colors.unknown)
+		health:SetValue(cur)
 	end
 
-	self.Name:SetText(UnitName(unit))
-	self.Name:SetTextColor(r, g, b)
-end
+	local color
+	if disconnected then
+		color = oUF.colors.disconnected
+	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
+		color = oUF.colors.tapped
+	elseif UnitIsDeadOrGhost(unit) then
+		color = oUF.colors.dead
+	elseif UnitIsUnit(unit, "pet") and GetPetHappiness() then
+		color = oUF.colors.happiness[GetPetHappiness()]
+	elseif UnitIsPlayer(unit) then
+		local _, class = UnitClass(unit)
+		color = oUF.colors.class[class]
+	elseif UnitReaction(unit, "player") then
+		color = oUF.colors.reaction[UnitReaction(unit, "player")]
+	else
+		color = oUF.colors.health
+	end
 
-------------------------------------------------------------------------
+	local r, g, b = color[1], color[2], color[3]
 
-local function UpdateHealth(self, event, unit, bar, min, max)
-	if self.unit ~= unit then return end
-	-- debug("UpdateHealth: %s, %s", event, unit)
+	health:SetStatusBarColor(r * 0.2, g * 0.2, b * 0.2)
+	health.bg:SetVertexColor(r, g, b)
+	health.value:SetTextColor(r, g, b)
 
-	local r, g, b
-
-	if not UnitIsConnected(unit) then
-		r, g, b = unpack(colors.offline)
-		bar:SetValue(self.reverse and 0 or max)
-		bar.value:SetText("Offline")
-		bar.value:SetTextColor(r, g, b)
+	if disconnected then
+		health.value:SetText(L["Offline"])
 	elseif UnitIsGhost(unit) then
-		r, g, b = unpack(colors.ghost)
-		bar:SetValue(self.reverse and 0 or max)
-		bar.value:SetText("Ghost")
-		bar.value:SetTextColor(r, g, b)
+		health.value:SetText(L["Dead"])
 	elseif UnitIsDead(unit) then
-		r, g, b = unpack(colors.dead)
-		bar:SetValue(self.reverse and 0 or max)
-		bar.value:SetText("Dead")
-		bar.value:SetTextColor(r, g, b)
-	else
-		local _, class = UnitClass(unit)
-		r, g, b = unpack(colors.class[class] or colors.unknown)
-		bar:SetValue(self.reverse and max - min or min)
-		if min < max then
-			bar.value:SetFormattedText("%s|cffff6666-%s|r", si(max), si(max - min))
+		health.value:SetText(L["Ghost"])
+	elseif cur == max then
+		local name, realm = UnitName(unit)
+		if realm and realm ~= "" and realm ~= myRealm then
+			health.value:SetFormattedText("%s (*)", name)
 		else
-			bar.value:SetText()
+			health.value:SetText(name)
 		end
-		bar.value:SetTextColor(r, g, b)
-	end
-
-	if self.reverse then
-		bar:SetStatusBarColor(r, g, b)
-		bar.bg:SetVertexColor(r * .2, g * .2, b * .2)
 	else
-		bar:SetStatusBarColor(r * .2, g * .2, b * .2)
-		bar.bg:SetVertexColor(r, g, b)
-	end
-
-	if self.Name then
-		self.Name:SetTextColor(r, g, b)
+		if IsHealing() then
+			health.value:SetFormattedText(si(cur - max))
+		else
+			health.value:SetFormattedText(si(cur))
+		end
 	end
 end
 
 ------------------------------------------------------------------------
 
-local function UpdatePower(self, event, unit, bar, min, max)
+local UpdatePower = function(self, event, unit)
 	if self.unit ~= unit then return end
-	-- debug("UpdatePower: %s, %s", tostring(event), tostring(unit))
+	local power = self.Power
 
-	if max == 0 then
-		self.Health:SetPoint("TOP", self.Power, "TOP")
-		bar:Hide()
-		bar.hidden = true
-		return
-	elseif self.Power.hidden then
-		self.Health:SetPoint("TOP", self.Power, "BOTTOM", 0, -1)
-		bar:Show()
-		bar.hidden = nil
-	end
+	local cur, max = UnitPower(unit), UnitPowerMax(unit)
+	power:SetMinMaxValues(0, max)
 
-	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
-		bar:SetValue(0)
-		bar:SetStatusBarColor(0, 0, 0)
-		bar.bg:SetVertexColor(0, 0, 0)
-		return
-	end
-
-	local r, g, b
-
-	local _, type = UnitPowerType(unit)
-	r, g, b = unpack(colors.power[type] or colors.unknown)
-
-	if self.reverse then
-		bar:SetValue(max - min)
-		bar:SetStatusBarColor(r * .2, g * .2, b * .2)
-		bar.bg:SetVertexColor(r, g, b)
+	local disconnected = not UnitIsConnected(unit)
+	if disconnected then
+		power:SetValue(0)
 	else
-		bar:SetValue(min)
-		bar:SetStatusBarColor(r, g, b)
-		bar.bg:SetVertexColor(r * .2, g * .2, b * .2)
+		power:SetValue(cur)
 	end
+
+	local color
+	if disconnected then
+		color = oUF.colors.disconnected
+	elseif UnitIsDeadOrGhost(unit) then
+		color = oUF.colors.dead
+	else
+		local _, powerType = UnitPowerType(unit)
+		color = oUF.colors.power[powerType] or oUF.colors.power.MANA
+	end
+
+	r, g, b = color[1], color[2], color[3]
+
+	power:SetStatusBarColor(r, g, b)
+	power.bg:SetVertexColor(r * 0.2, g * 0.2, b * 0.2)
 end
 
 ------------------------------------------------------------------------
 
-local usettings = {
-	party = {
-		width = 160,
-		height = 24,
-		power = true,
-		func = function(self)
-			if self.reverse then
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetJustifyH("RIGHT")
+local Spawn = function(self, unit)
+	local BORDER_SIZE = PhanxBorder and 2 or settings.borderSize
+	local FONT = oUF_Phanx:GetFont(settings.font)
+	local STATUSBAR = oUF_Phanx:GetStatusBarTexture(settings.statusbar)
+	local WIDTH = settings.width * (powerUnits[unit] and 1 or 0.8) + (BORDER_SIZE + 1) * 2
+	local HEIGHT = settings.height + (BORDER_SIZE + 1) * 2
 
-				self.Health.value:SetPoint("TOPLEFT", self, 3, 0)
-			else
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetJustifyH("LEFT")
-
-				self.Health.value:SetPoint("TOPRIGHT", self, -3, 0)
-			end
-		end,
-	},
-	partypet = {
-		width = 160,
-		height = 16,
-		func = function(self)
-			if self.reverse then
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetJustifyH("RIGHT")
-
-				self.Health.value:SetPoint("TOPLEFT", self, 3, 0)
-			else
-				self.Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, settings.borderStyle == "TEXTURE" and -5 or -7)
-				self.Name:SetJustifyH("LEFT")
-
-				self.Health.value:SetPoint("TOPRIGHT", self, -3, 0)
-			end
-		end,
-	},
-}
-
-------------------------------------------------------------------------
-
-local INSET = oUF_Phanx.INSET
-local H_DIV = oUF_Phanx.H_DIV
-
-------------------------------------------------------------------------
-
-local function Spawn(self, unit)
-	if not unit then
-		local template = self:GetParent():GetAttribute("template")
-		if template == "SecureUnitButtonTemplate" then
-			unit = "party"
-		else
-			unit = "partypet"
-		end
-	end
-	-- debug("Spawn", unit)
+	self.showOnMouseOver = { }
 
 	self.menu = oUF_Phanx.menu
 
-	self:SetScript("OnEnter", UnitFrame_OnEnter)
-	self:SetScript("OnLeave", UnitFrame_OnLeave)
+	self:SetScript("OnEnter", oUF_Phanx.OnEnter)
+	self:SetScript("OnLeave", oUF_Phanx.OnLeave)
 
 	self:RegisterForClicks("anyup")
 	self:SetAttribute("*type2", "menu")
 
-	self.reverse = true
+	self:SetAttribute("initial-width", WIDTH)
+	self:SetAttribute("initial-height", HEIGHT)
 
-	local c = usettings[unit]
-	local hasPower = c.power
-
-	local FONT = oUF_Phanx:GetFont(settings.font)
-	local STATUSBAR = oUF_Phanx:GetStatusBarTexture(settings.statusbar)
-
-	local width = INSET + c.width + INSET
-	local height = INSET + c.height + INSET
-	if hasPower then
-		height = height + 1
-	end
-
-	self:SetAttribute("initial-width", width)
-	self:SetAttribute("initial-height", height)
-
-	self:SetFrameStrata("BACKGROUND")
-
-	self:SetBackdrop(oUF_Phanx.backdrop)
+	self:SetBackdrop(oUF_Phanx.BACKDROP)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0, 0, 0, 0)
 
-	self.Health = CreateFrame("StatusBar", nil, self)
-	self.Health:SetPoint("BOTTOMLEFT", INSET, INSET)
-	self.Health:SetPoint("BOTTOMRIGHT", -INSET, INSET)
-	self.Health:SetHeight(c.height - (hasPower and (c.height / H_DIV) or 0))
-	self.Health:SetStatusBarTexture(STATUSBAR)
-	self.Health:GetStatusBarTexture():SetHorizTile(false)
-	self.Health:GetStatusBarTexture():SetVertTile(false)
+	local Health = CreateFrame("StatusBar", nil, self)
+	Health:SetPoint("BOTTOMLEFT", BORDER_SIZE + 1, BORDER_SIZE + 1)
+	Health:SetPoint("BOTTOMRIGHT", -BORDER_SIZE - 1, BORDER_SIZE + 1)
+	Health:SetPoint("TOP", Power, "BOTTOM", 0, -1)
+	Health:SetStatusBarTexture(STATUSBAR)
+	Health:GetStatusBarTexture():SetHorizTile(false)
 
-	self.Health.bg = self.Health:CreateTexture(nil, "BACKGROUND")
-	self.Health.bg:SetTexture(STATUSBAR)
-	self.Health.bg:SetAllPoints(self.Health)
+	Health.bg = Health:CreateTexture(nil, "BACKGROUND")
+	Health.bg:SetAllPoints(Health)
+	Health.bg:SetTexture(STATUSBAR)
 
-	self.Health.value = self.Health:CreateFontString(nil, "OVERLAY")
-	self.Health.value:SetFont(FONT, 26, settings.outline)
-	self.Health.value:SetShadowOffset(1, -1)
+	Health.value = Health:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	Health.value:SetPoint("LEFT", 4, 0)
 
-	self.Health.smoothUpdates = true
-	self.OverrideUpdateHealth = UpdateHealth
+	Health.Update = UpdateHealth
 
-	if hasPower then
-		self.Power = CreateFrame("StatusBar", nil, self)
-		self.Power:SetPoint("TOPLEFT", INSET, -INSET)
-		self.Power:SetPoint("TOPRIGHT", -INSET, -INSET)
-		self.Power:SetHeight(c.height / H_DIV)
-		self.Power:SetStatusBarTexture(STATUSBAR)
-		self.Power:GetStatusBarTexture():SetHorizTile(false)
-		self.Power:GetStatusBarTexture():SetVertTile(false)
+	self.Health = Health
 
-		self.Power.bg = self.Power:CreateTexture(nil, "BACKGROUND")
-		self.Power.bg:SetTexture(STATUSBAR)
-		self.Power.bg:SetAllPoints(self.Power)
+	self:RegisterEvent("UNIT_NAME_UPDATE", UpdateHealth)
 
-		self.Power.smoothUpdates = true
-		self.OverrideUpdatePower = UpdatePower
-	end
+	local Leader = Health:CreateTexture(nil, "OVERLAY")
+	Leader:SetPoint("LEFT", Health, "TOPLEFT", 0, -5)
+	Leader:SetWidth(16)
+	Leader:SetHeight(16)
 
-	if unit == "party" then
-		self.Name = self.Health:CreateFontString(nil, "OVERLAY")
-		self.Name:SetFont(FONT, 20, settings.outline)
-		self.Name:SetShadowOffset(1, -1)
+	self.Leader = Leader
 
-		self:RegisterEvent("UNIT_NAME_UPDATE", UpdateName)
-		table.insert(self.__elements, UpdateName)
+	local Assistant = Health:CreateTexture(nil, "OVERLAY")
+	Assistant:SetPoint("LEFT", Health, "TOPLEFT", 0, -5)
+	Assistant:SetWidth(16)
+	Assistant:SetHeight(16)
 
-		self.Assistant = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Assistant:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 1, settings.borderStyle == "TEXTURE" and -1 or 1)
-		self.Assistant:SetWidth(16)
-		self.Assistant:SetHeight(16)
+	self.Assistant = Assistant
 
-		self.Leader = self.Health:CreateTexture(nil, "OVERLAY")
-		self.Leader:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 1, settings.borderStyle == "TEXTURE" and -1 or 1)
-		self.Leader:SetWidth(16)
-		self.Leader:SetHeight(16)
+	local MasterLooter = Health:CreateTexture(nil, "OVERLAY")
+	MasterLooter:SetWidth(16)
+	MasterLooter:SetHeight(16)
+	MasterLooter:SetPoint("LEFT", Leader, "RIGHT")
 
-		self.MasterLooter = self.Health:CreateTexture(nil, "OVERLAY")
-		self.MasterLooter:SetPoint("BOTTOMLEFT", self.Leader, "BOTTOMRIGHT", 0, 2)
-		self.MasterLooter:SetWidth(14)
-		self.MasterLooter:SetHeight(14)
+	self.MasterLooter = MasterLooter
 
-		self.LFDRole = self.Health:CreateTexture(nil, "OVERLAY")
-		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and INSET or -INSET, 0)
-		self.LFDRole:SetWidth(20)
-		self.LFDRole:SetHeight(20)
-	end
+	local LFDRole = Health:CreateTexture(nil, "OVERLAY")
+	LFDRole:SetPoint("CENTER", Health, "LEFT")
+	LFDRole:SetWidth(24)
+	LFDRole:SetHeight(24)
 
-	self.RaidIcon = self.Health:CreateTexture(nil, "OVERLAY")
-	self.RaidIcon:SetPoint("CENTER", self, "BOTTOM", -INSET, 0)
-	self.RaidIcon:SetWidth(24)
-	self.RaidIcon:SetHeight(24)
+	self.LFDRole = LFDRole
 
-	self.Range = true
-	self.inRangeAlpha = 1
-	self.outsideRangeAlpha = 0.65
+	local RaidIcon = Health:CreateTexture(nil, "OVERLAY")
+	RaidIcon:SetPoint("CENTER", Health, "TOP")
+	RaidIcon:SetWidth(16)
+	RaidIcon:SetHeight(16)
 
-	self.Threat = oUF_Phanx.fakeThreat
-	self.OverrideUpdateThreat = oUF_Phanx.UpdateThreatHighlight
+	self.RIcon = RaidIcon
 
-	if settings.borderStyle == "TEXTURE" then
-		oUF_Phanx.AddBorder(self)
-		for i, tex in ipairs(self.borderTextures) do
-			tex:SetParent(self.Health)
+	local Auras = CreateFrame("Frame", nil, self)
+	Auras:SetPoint("TOPRIGHT", self, "TOPLEFT", 0, 0)
+	Auras:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 0, 0)
+	Auras:SetWidth(HEIGHT * 7 + 5)
+
+	Auras["spacing-x"] = 1
+	Auras["growth-x"] = "LEFT"
+	Auras.initialAnchor = "TOPRIGHT"
+	Auras.size = HEIGHT
+	Auras.gap = true
+	Auras.numBuffs = 5
+	Auras.numDebuffs = 1
+	Auras.showDebuffType = true
+	Auras.disableCooldown = true
+
+	Auras.CustomAuraFilter = oUF_Phanx.CustomAuraFilter
+	Auras.PostCreateIcon = oUF_Phanx.PostCreateAuraIcon
+	Auras.PostUpdateIcon = oUF_Phanx.PostUpdateAuraIcon
+
+	self.Auras = Auras
+
+	if PhanxBorder then
+		PhanxBorder.AddBorder(self)
+		for i, t in ipairs(self.BorderTextures) do
+			t:SetParent(self.Health)
 		end
-	elseif settings.borderStyle == "GLOW" then
-		self.BorderGlow = CreateFrame("Frame", nil, self)
-		self.BorderGlow:SetFrameStrata("BACKGROUND")
-		self.BorderGlow:SetFrameLevel(self:GetFrameLevel() - 1)
-		self.BorderGlow:SetAllPoints(self)
-		self.BorderGlow:SetBackdrop(oUF_Phanx.backdrop_glow)
-		self.BorderGlow:SetBackdropColor(0, 0, 0, 0)
-		self.BorderGlow:SetBackdropBorderColor(0, 0, 0, 1)
-	end
-	self.UpdateBorder = oUF_Phanx.UpdateBorder
-
-	if c.func then
-		c.func(self)
 	end
 
-	--
-	-- Module: DispelHighlight
-	--
+	----------------------------
+	-- Hack: Threat Highlight --
+	----------------------------
+
+	if not unit:match("^.+target$") then
+		self.Threat = oUF_Phanx.fakeThreat
+		self.OverrideUpdateThreat = oUF_Phanx.UpdateThreatHighlight
+	end
+
+	------------------------------
+	-- Module: Dispel Highlight --
+	------------------------------
+
 	self.DispelHighlight = oUF_Phanx.UpdateDispelHighlight
+	self.DispelHighlightFilter = true
 
-	--
-	-- Module: IncomingHeals
-	-- Only on player frame for non-healing classes.
-	--
-	if playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN" then
+	----------------------------
+	-- Module: Incoming Heals --
+	----------------------------
+
+	if unit == "player" or (myClass == "DRUID" or myClass == "PALADIN" or myClass == "PRIEST" or myClass == "SHAMAN") then
 		self.HealCommBar = self.Health:CreateTexture(nil, "OVERLAY")
 		self.HealCommBar:SetTexture(STATUSBAR)
 		self.HealCommBar:SetVertexColor(0, 1, 0)
@@ -346,7 +254,7 @@ local function Spawn(self, unit)
 		self.HealCommIgnoreHoTs = true
 		self.HealCommNoOverflow = true
 	end
-	--[[
+--[[
 	self.IncomingHeals = { }
 	for i = 1, 3 do
 		self.IncomingHeals[i] = self.Health:CreateTexture(nil, "OVERLAY")
@@ -356,31 +264,34 @@ local function Spawn(self, unit)
 	self.IncomingHeals.hideOverflow = true
 	self.IncomingHeals.ignoreBombs = true
 	self.IncomingHeals.ignoreHoTs = true
-	]]
+]]
 
-	--
-	-- Module: Resurrection
-	--
-	if playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN" then
+	---------------------------
+	-- Module: Resurrections --
+	---------------------------
+
+	if unit == "player" or (myClass == "DRUID" or myClass == "PALADIN" or myClass == "PRIEST" or myClass == "SHAMAN") then
 		self.ResurrectionText = self.Health:CreateFontString(nil, "OVERLAY")
 		self.ResurrectionText:SetFont(FONT, 20, settings.outline)
 		self.ResurrectionText:SetPoint("BOTTOM", 0, 1)
 	end
 
-	--
-	-- Plugin: oUF_AFK
-	--
-	if select(4, GetAddOnInfo("oUF_AFK")) and (unit == "player" or unit == "party") then
+	---------------------
+	-- Plugin: oUF_AFK --
+	---------------------
+
+	if select(4, GetAddOnInfo("oUF_AFK")) then
 		self.AFK = self.Health:CreateFontString(nil, "OVERLAY")
 		self.AFK:SetFont(FONT, 12, settings.outline)
 		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, INSET)
 		self.AFK.fontFormat = "AFK %s:%s"
 	end
 
-	--
-	-- Plugin: oUF_ReadyCheck
-	--
-	if select(4, GetAddOnInfo("oUF_ReadyCheck")) and (unit == "player" or unit == "party") then
+	----------------------------
+	-- Plugin: oUF_ReadyCheck --
+	----------------------------
+
+	if select(4, GetAddOnInfo("oUF_ReadyCheck")) then
 		self.ReadyCheck = self.Health:CreateTexture(nil, "OVERLAY")
 		self.ReadyCheck:SetPoint("CENTER")
 		self.ReadyCheck:SetWidth(32)
@@ -390,73 +301,24 @@ local function Spawn(self, unit)
 		self.ReadyCheck.fadeTime = 1
 	end
 
-	--
-	-- Disable plugin: oUF_QuickHealth2
-	-- Worthless waste of resources.
-	--
+	------------------------------
+	-- Disable oUF_QuickHealth2 --
+	------------------------------
+
 	if select(4, GetAddOnInfo("oUF_QuickHealth2")) then
 		self.ignoreQuickHealth = true
 	end
 
-	return self
 end
 
-------------------------------------------------------------------------
+oUF:RegisterStyle("PhanxParty", Spawn)
 
-function oUF_Phanx:SpawnPartyFrames()
-	settings = self.settings
-	SharedMedia = LibStub("LibSharedMedia-3.0", true)
+oUF:Factory(function(self)
+	settings = oUF_Phanx.settings -- update upvalue to catch saved vars which are loaded by now
 
-	oUF:RegisterStyle("PhanxParty", Spawn)
-	oUF:SetActiveStyle("PhanxParty")
+	self:SetActiveStyle("PhanxParty")
 
-	local party = oUF:Spawn("header", "oUF_Phanx_Party")
-	party:SetPoint("BOTTOMLEFT", oUF.units.target, "BOTTOMRIGHT", 60, 0)
-	party:SetManyAttributes(
-		"showParty", true,
-		"showPlayer", true,
-		"sortDir", "DESC",
-		"point", "BOTTOM",
-		"yOffset", 40
-	)
+	local GAP = PhanxBorder and 7 or settings.borderSize
 
-	local partypet = oUF:Spawn("header", "oUF_Phanx_PartyPet", true)
-	party:SetPoint("BOTTOMLEFT", oUF.units.target, "BOTTOMRIGHT", 60, -24)
-	partypet:SetManyAttributes(
-		"showParty", true,
-		"showPlayer", true,
-		"sortDir", "DESC",
-		"point", "BOTTOM",
-		"yOffset", 48
-	)
-
-	self:SetScript("OnEvent", function(self, event)
-		if GetCVarBool("hidePartyInRaid") and GetNumRaidMembers() > 0 then
-			if InCombatLockdown() then
-				self:RegisterEvent("PLAYER_REGEN_ENABLED")
-			else
-				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-				party:Hide()
-				partypet:Hide()
-			end
-		else
-			if InCombatLockdown() then
-				self:RegisterEvent("PLAYER_REGEN_ENABLED")
-			else
-				self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-				party:Show()
-				partypet:Show()
-			end
-		end
-	end)
-	self:RegisterEvent("RAID_ROSTER_UPDATE")
-	self:RegisterEvent("PARTY_LEADER_CHANGED")
-	self:RegisterEvent("PARTY_MEMBER_CHANGED")
-	if IsLoggedIn() then
-		self:GetScript("OnEvent")(self, "PLAYER_LOGIN")
-	else
-		self:RegisterEvent("PLAYER_LOGIN")
-	end
-end
-
-namespace.party = true
+--	local party = self:SpawnHeader(nil, nil, "raid,party,solo", "showParty", true, "yOffset", -GAP)
+end)
