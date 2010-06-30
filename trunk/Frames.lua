@@ -192,6 +192,22 @@ oUF_Phanx.PostUpdateAuraIcon = PostUpdateAuraIcon
 ------------------------------------------------------------------------
 
 local function UpdateBorder(self)
+	local color
+	if self.debuffDispellable then
+		color = colors.debuff[self.debuffType]
+	elseif self.threatLevel > 1 then
+		color = colors.threat[self.threatLevel]
+	elseif self.debuffType then
+		color = colors.debuff[self.debuffType]
+	elseif self.threatLevel > 0 then
+		color = colors.threat[self.threatLevel]
+	end
+
+	if color then
+		self:SetBackdropBorderColor(color[1], color[2], color[3], 1)
+	else
+		self:SetBackdropBorderColor(0, 0, 0, 0)
+	end
 end
 
 oUF_Phanx.UpdateBorder = UpdateBorder
@@ -282,6 +298,8 @@ local menu = function(self)
 	end
 end
 
+oUF_Phanx.menu = menu
+
 ------------------------------------------------------------------------
 
 local OnEnter = function(self)
@@ -329,8 +347,8 @@ local powerUnits = {
 
 local Spawn = function(self, unit)
 	local BORDER_SIZE = PhanxBorder and 2 or settings.borderSize
-	local FONT = settings.font
-	local STATUSBAR = settings.statusbar
+	local FONT = oUF_Phanx:GetFont(settings.font)
+	local STATUSBAR = oUF_Phanx:GetStatusBarTexture(settings.statusbar)
 	local WIDTH = settings.width * (powerUnits[unit] and 1 or 0.8) + (BORDER_SIZE + 1) * 2
 	local HEIGHT = settings.height + (BORDER_SIZE + 1) * 2 - (powerUnits[unit] and 0 or 5)
 
@@ -379,7 +397,7 @@ local Spawn = function(self, unit)
 	Health.bg:SetAllPoints(Health)
 	Health.bg:SetTexture(STATUSBAR)
 
-	Health.value = Health:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	Health.value = oUF_Phanx:CreateFontString(Health, GameFontNormal)
 	Health.value:SetPoint("LEFT", 4, 0)
 
 	Health.Update = UpdateHealth
@@ -387,7 +405,7 @@ local Spawn = function(self, unit)
 	self.Health = Health
 
 	if self.Power then
-		self.Power.value = Health:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		self.Power.value = oUF_Phanx:CreateFontString(Health, GameFontNormal)
 		self.Power.value:SetPoint("RIGHT", -3, 0)
 		self.Power.value:SetPoint("LEFT", Health.value, "RIGHT", 3, 0)
 		self.Power.value:SetJustifyH("RIGHT")
@@ -454,7 +472,7 @@ local Spawn = function(self, unit)
 	self.RIcon = RaidIcon
 
 	if unit == "target" or unit == "focus" then
-		local Name = Health:CreateFontString(nil, "OVERLAY", "GameFontHighlightMedium")
+		local Name = oUF_Phanx:CreateFontString(Health, GameFontHighlightMedium)
 		Name:SetPoint("BOTTOMLEFT", Health, "TOPLEFT", 0, -5)
 		Name:SetPoint("BOTTOMRIGHT", Health, "TOPRIGHT", 0, -5)
 		Name:SetJustifyH("LEFT")
@@ -469,7 +487,7 @@ local Spawn = function(self, unit)
 	end
 
 	if unit == "target" then
-		local ComboPoints = Health:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+		local ComboPoints = oUF_Phanx:CreateFontString(Health, GameFontNormalHuge)
 		ComboPoints:SetPoint("RIGHT", Health, "LEFT", -5, 1)
 
 		self.ComboPoints = ComboPoints
@@ -528,14 +546,16 @@ local Spawn = function(self, unit)
 	-----------------------------
 --[[
 	if unit == "player" then
-		self.GlobalCooldown = CreateFrame("Frame", nil, self.Power)
-		self.GlobalCooldown:SetAllPoints(self.Power)
+		local GCD = CreateFrame("Frame", nil, self.Power)
+		GCD:SetAllPoints(self.Power)
 
-		self.GlobalCooldown.spark = self.GlobalCooldown:CreateTexture(nil, "OVERLAY")
-		self.GlobalCooldown.spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
-		self.GlobalCooldown.spark:SetBlendMode("ADD")
-		self.GlobalCooldown.spark:SetHeight(self.GlobalCooldown:GetHeight() * 5)
-		self.GlobalCooldown.spark:SetWidth(10)
+		GCD.spark = self.GlobalCooldown:CreateTexture(nil, "OVERLAY")
+		GCD.spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
+		GCD.spark:SetBlendMode("ADD")
+		GCD.spark:SetHeight(self.GlobalCooldown:GetHeight() * 5)
+		GCD.spark:SetWidth(10)
+
+		self.GlobalCooldown = GCD
 	end
 ]]
 	----------------------------
@@ -543,35 +563,35 @@ local Spawn = function(self, unit)
 	----------------------------
 
 	if unit == "player" or (myClass == "DRUID" or myClass == "PALADIN" or myClass == "PRIEST" or myClass == "SHAMAN") then
-		self.HealCommBar = self.Health:CreateTexture(nil, "OVERLAY")
+		self.HealCommBar = Health:CreateTexture(nil, "OVERLAY")
 		self.HealCommBar:SetTexture(STATUSBAR)
 		self.HealCommBar:SetVertexColor(0, 1, 0)
 		self.HealCommBar:SetAlpha(0.35)
-		self.HealCommBar:SetHeight(self.Health:GetHeight())
+		self.HealCommBar:SetHeight(Health:GetHeight())
 
 		self.HealCommIgnoreHoTs = true
 		self.HealCommNoOverflow = true
 	end
-	--[[
+--[[
 	self.IncomingHeals = { }
 	for i = 1, 3 do
 		self.IncomingHeals[i] = self.Health:CreateTexture(nil, "OVERLAY")
 		self.IncomingHeals[i]:SetTexture(STATUSBAR)
-		self.IncomingHeals[i]:SetHeight(self.Health:GetHeight())
+		self.IncomingHeals[i]:SetHeight(Health:GetHeight())
 	end
 	self.IncomingHeals.hideOverflow = true
 	self.IncomingHeals.ignoreBombs = true
 	self.IncomingHeals.ignoreHoTs = true
-	]]
-
+]]
 	---------------------------
 	-- Module: Resurrections --
 	---------------------------
 
 	if unit == "player" or (myClass == "DRUID" or myClass == "PALADIN" or myClass == "PRIEST" or myClass == "SHAMAN") then
-		self.ResurrectionText = self.Health:CreateFontString(nil, "OVERLAY")
-		self.ResurrectionText:SetFont(FONT, 20, settings.outline)
-		self.ResurrectionText:SetPoint("BOTTOM", 0, 1)
+		local Resurrection = oUF_Phanx:CreateFontString(Health, GameFontHighlightMedium)
+		Resurrection:SetPoint("CENTER", 0, 0)
+
+		self.Resurrection = Resurrection
 	end
 
 	-------------------
@@ -587,10 +607,11 @@ local Spawn = function(self, unit)
 	---------------------
 
 	if select(4, GetAddOnInfo("oUF_AFK")) and unit == "player" then
-		self.AFK = self.Health:CreateFontString(nil, "OVERLAY")
-		self.AFK:SetFont(FONT, 12, settings.outline)
-		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, INSET)
-		self.AFK.fontFormat = "AFK %s:%s"
+		local AFK = oUF_Phanx:CreateFontString(Health, GameFontNormalSmall)
+		AFK:SetPoint("CENTER", self, "BOTTOM", 0, 1)
+		AFK.fontFormat = "AFK %s:%s"
+
+		self.AFK = AFK
 	end
 
 	----------------------------
@@ -598,13 +619,15 @@ local Spawn = function(self, unit)
 	----------------------------
 
 	if select(4, GetAddOnInfo("oUF_ReadyCheck")) and unit == "player" then
-		self.ReadyCheck = self.Health:CreateTexture(nil, "OVERLAY")
-		self.ReadyCheck:SetPoint("CENTER")
-		self.ReadyCheck:SetWidth(32)
-		self.ReadyCheck:SetHeight(32)
+		local ReadyCheck = Health:CreateTexture(nil, "OVERLAY")
+		ReadyCheck:SetPoint("CENTER")
+		ReadyCheck:SetWidth(32)
+		ReadyCheck:SetHeight(32)
 
-		self.ReadyCheck.delayTime = 5
-		self.ReadyCheck.fadeTime = 1
+		ReadyCheck.delayTime = 5
+		ReadyCheck.fadeTime = 1
+
+		self.ReadyCheck = ReadyCheck
 	end
 
 	------------------------------

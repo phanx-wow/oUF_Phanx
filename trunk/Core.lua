@@ -19,6 +19,9 @@ local myTalents = { 0, 0, 0 }
 
 local settings = {
 	font = "Fonts\\FRIZQT__.TTF",
+	outline = "NONE",
+	shadow = true,
+
 	statusbar = "Interface\\AddOns\\SharedMedia\\statusbar\\Flat",
 
 	borderStyle = "FLAT", -- FLAT or TEXTURE
@@ -36,6 +39,7 @@ local settings = {
 ------------------------------------------------------------------------
 
 local defaultFonts = {
+	["Andika Basic Compact"] = [[Interface\AddOns\oUF_Phanx\media\AndikaBasicCompact.ttf]],
 	["Expressway"] = [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]],
 	["Arial Narrow"] = [[Fonts\ARIALN.TTF]],
 	["Friz Quadrata TT"] = [[Fonts\FRIZQT__.TTF]],
@@ -194,9 +198,7 @@ elseif myClass == "DRUID" then
 elseif myClass == "PALADIN" then
 	local RIGHTEOUS_FURY = GetSpellInfo(25780)
 	IsTanking = function()
-		if (myTalents[2] > myTalents[1]) and (myTalents[2] > myTalents[3]) then
-			return UnitAura("player", RIGHTEOUS_FURY, "HELPFUL")
-		end
+		return (myTalents[2] > myTalents[1]) and (myTalents[2] > myTalents[3]) and UnitAura("player", RIGHTEOUS_FURY, "HELPFUL")
 	end
 elseif myClass == "WARRIOR" then
 	local DEFENSIVE_STANCE = GetSpellInfo(71)
@@ -236,8 +238,8 @@ function oUF_Phanx:GetFont(fontName)
 end
 
 function oUF_Phanx:SetFont(font, outline)
-	if not font then font = self.settings.font end
-	if not outline then outline = self.settings.outline end
+	if not font then font = settings.font end
+	if not outline then outline = settings.outline end
 
 	font = self:GetFont(font)
 
@@ -272,13 +274,33 @@ function oUF_Phanx:GetStatusBarTexture(statusbarName)
 end
 
 function oUF_Phanx:SetStatusBarTexture(statusbar)
-	if not statusbar then statusbar = self.settings.statusbar end
+	if not statusbar then statusbar = settings.statusbar end
 
 	statusbar = self:GetStatusBarTexture(statusbar)
 
 	for _, frame in ipairs(oUF.objects) do
 		setStatusBarTextures(frame, statusbar)
 	end
+end
+
+------------------------------------------------------------------------
+
+function oUF_Phanx:CreateFontString(parent, size)
+	if not parent then return end
+
+	if type(size) == "table" then
+		size = select(2, size:GetFont())
+	end
+
+	local fs = parent:CreateFontString(nil, "OVERLAY")
+	fs:SetFont(self:GetFont(settings.font), size or 18, settings.outline)
+	fs:SetShadowOffset(0, 0)
+
+	if settings.shadow then
+		fs:SetShadowOffset(1, -1)
+	end
+
+	return fs
 end
 
 ------------------------------------------------------------------------
