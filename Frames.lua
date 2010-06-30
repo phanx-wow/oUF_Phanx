@@ -5,12 +5,13 @@
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	Copyright © 2009–2010 Phanx. See README for license terms.
 ------------------------------------------------------------------------
-	This file provides the base layout functionality, and handles the
-	specific frames for player, pet, target, targettarget, and focus.
+	This file provides base layout functionality, and generates
+	layouts for player, pet, target, targettarget, and focus.
 ----------------------------------------------------------------------]]
 
 local OUF_PHANX, oUF_Phanx = ...
 
+local L = oUF_Phanx.L
 local colors = oUF.colors
 local settings = oUF_Phanx.settings
 
@@ -86,11 +87,19 @@ local UpdateHealth = function(self, event, unit)
 	end
 
 	if disconnected then
-		health.value:SetText("Offline")
+		health.value:SetText(L["Offline"])
 	elseif UnitIsDeadOrGhost(unit) then
-		health.value:SetText("Dead")
+		health.value:SetText(L["Dead"])
+	elseif cur < max then
+		if self.isMouseOver then
+			health.value:SetFormattedText("%d%%", cur / max * 100 + 0.5)
+		elseif IsHealing() then
+			health.value:SetText(si(cur - max))
+		else
+			health.value:SetText(si(cur))
+		end
 	else
-		health.value:SetText(cur)
+		health.value:SetText(self.isMouseOver and si(max))
 	end
 end
 
@@ -102,9 +111,11 @@ local UpdatePower = function(self, event, unit)
 
 	local cur, max = UnitPower(unit), UnitPowerMax(unit)
 	if max > 0 then
-		self.Health:SetPoint("TOP", power, "BOTTOM", 0, -1)
+		power:Show()
 		power:SetMinMaxValues(0, max)
+		self.Health:SetPoint("TOP", power, "BOTTOM", 0, -1)
 	else
+		power:Hide()
 		self.Health:SetPoint("TOP", self, "TOP", 0, PhanxBorder and -2 or (-settings.borderSize - 1))
 		return
 	end
@@ -116,13 +127,14 @@ local UpdatePower = function(self, event, unit)
 		power:SetValue(cur)
 	end
 
+	local _, powerType = UnitPowerType(unit)
+
 	local color
 	if disconnected then
 		color = oUF.colors.disconnected
 	elseif UnitIsDeadOrGhost(unit) then
 		color = oUF.colors.dead
 	else
-		local _, powerType = UnitPowerType(unit)
 		color = oUF.colors.power[powerType] or oUF.colors.power.MANA
 	end
 
@@ -133,12 +145,19 @@ local UpdatePower = function(self, event, unit)
 
 	power.value:SetTextColor(r, g, b)
 
-	if disconnected then
-		power.value:SetText("Offline")
-	elseif UnitIsDeadOrGhost(unit) then
-		power.value:SetText("Dead")
+	if disconnected or UnitIsDeadOrGhost(unit) then
+		power.value:SetText()
+	elseif powerType == "MANA" or powerType == "ENERGY" or powerType == "FOCUS" then
+		if cur < max then
+			power.value:SetText(si(cur))
+		else
+			power.value:SetText(self.isMouseOver and si(max))
+		end
+	elseif powerType == "RAGE" or powerType == "RUNIC_POWER" then
+		power.value:SetText(cur > 0 and cur)
 	else
-		power.value:SetText(cur)
+		-- vehicle of some kind
+		power.value:SetText(si(cur))
 	end
 end
 
@@ -154,6 +173,9 @@ local PostCreateAuraIcon = function(icons, button)
 	if PhanxBorder then
 		PhanxBorder.AddBorder(button)
 	end
+
+	button.icon:SetTexCoord(0.03, 0.97, 0.03, 0.97)
+
 	button.overlay.Show = DoNothing
 	button.overlay.Hide = SetBorderColorFromOverlay
 	button.overlay.SetVertexColor = SetBorderColorFromOverlay
@@ -172,11 +194,11 @@ local playerUnits = {
 }
 
 local PostUpdateAuraIcon = function(icons, unit, button, index, offset, filter, isDebuff)
-	if auraIconMap then
-		local name = UnitAura(unit, filter)
+	if auraIconMap and settings.remapAuraIcons then
+		local name = UnitAura(unit, index, filter)
 		local icon = name and auraIconMap[name]
 		if icon then
-			button.icon:SetTexture(icon)
+			button.icon:SetTexture("Interface\\Icons\\" .. icon)
 		end
 	end
 
@@ -218,11 +240,10 @@ local function UpdateDispelHighlight(self, event, unit, debuffType, canDispel)
 	if self.unit ~= unit then return end
 	-- debug("UpdateDispelHighlight", unit, tostring(debuffType), tostring(canDispel))
 
-	if self.debuffType == debuffType then return end -- no change
+	if self.debuffType == debuffType then return end
 
 	self.debuffType = debuffType
 	self.debuffDispellable = canDispel
-
 	self:UpdateBorder()
 end
 
@@ -230,20 +251,21 @@ oUF_Phanx.UpdateDispelHighlight = UpdateDispelHighlight
 
 ------------------------------------------------------------------------
 
-local function UpdateThreatHighlight(self, event, unit, status)
+local function UpdateThreatHighlight(self, event, unit)
 	if self.unit ~= unit then return end
+	local status = UnitThreatSituation(unit)
+
 	-- debug("UpdateThreatHighlight", unit, tostring(status))
 
-	if not status then
-		status = 0
-	elseif status > 1 and not settings.threatLevel then
-		status = 3
+	if settings.threatLevels then
+		status = status or 0
+	else
+		status = (status and status > 1) and 3 or 0
 	end
 
-	if self.threatStatus == status then return end -- no change
+	if self.threatStatus ~= status then return end
 
 	self.threatStatus = status
-
 	self:UpdateBorder()
 end
 
@@ -276,7 +298,7 @@ oUF_Phanx.BACKDROP = BACKDROP
 local fakeThreat
 do
 	local DoNothing = function() return end
-	fakeThreat = { GetTexture = DoNothing, Hide = DoNothing, IsObjectType = DoNothing }
+	fakeThreat = { GetTexture = DoNothing, Hide = DoNothing, IsObjectType = DoNothing, SetVertexColor = DoNothing, }
 end
 
 oUF_Phanx.fakeThreat = fakeThreat
@@ -314,7 +336,9 @@ local OnEnter = function(self)
 	end
 
 	self.Health.Update(self, "UNIT_HEALTH", self.unit)
-	self.Power.Update(self, "UNIT_MANA", self.unit)
+	if self.Power then
+		self.Power.Update(self, "UNIT_MANA", self.unit)
+	end
 end
 
 oUF_Phanx.OnEnter = OnEnter
@@ -331,7 +355,9 @@ local OnLeave = function(self)
 	end
 
 	self.Health.Update(self, "UNIT_HEALTH", self.unit)
-	self.Power.Update(self, "UNIT_MANA", self.unit)
+	if self.Power then
+		self.Power.Update(self, "UNIT_MANA", self.unit)
+	end
 end
 
 oUF_Phanx.OnLeave = OnLeave
@@ -346,7 +372,7 @@ local powerUnits = {
 }
 
 local Spawn = function(self, unit)
-	local BORDER_SIZE = PhanxBorder and 2 or settings.borderSize
+	local BORDER_SIZE = PhanxBorder and 1 or settings.borderSize
 	local FONT = oUF_Phanx:GetFont(settings.font)
 	local STATUSBAR = oUF_Phanx:GetStatusBarTexture(settings.statusbar)
 	local WIDTH = settings.width * (powerUnits[unit] and 1 or 0.8) + (BORDER_SIZE + 1) * 2
@@ -373,7 +399,7 @@ local Spawn = function(self, unit)
 		local Power = CreateFrame("StatusBar", nil, self)
 		Power:SetPoint("TOPLEFT", BORDER_SIZE + 1, -BORDER_SIZE - 1)
 		Power:SetPoint("TOPRIGHT", -BORDER_SIZE - 1, -BORDER_SIZE - 1)
-		Power:SetHeight(5)
+		Power:SetHeight(4)
 		Power:SetStatusBarTexture(STATUSBAR)
 		Power:GetStatusBarTexture():SetHorizTile(false)
 
@@ -397,7 +423,7 @@ local Spawn = function(self, unit)
 	Health.bg:SetAllPoints(Health)
 	Health.bg:SetTexture(STATUSBAR)
 
-	Health.value = oUF_Phanx:CreateFontString(Health, GameFontNormal)
+	Health.value = oUF_Phanx:CreateFontString(Health, 18)
 	Health.value:SetPoint("LEFT", 4, 0)
 
 	Health.Update = UpdateHealth
@@ -405,7 +431,7 @@ local Spawn = function(self, unit)
 	self.Health = Health
 
 	if self.Power then
-		self.Power.value = oUF_Phanx:CreateFontString(Health, GameFontNormal)
+		self.Power.value = oUF_Phanx:CreateFontString(Health, 18)
 		self.Power.value:SetPoint("RIGHT", -3, 0)
 		self.Power.value:SetPoint("LEFT", Health.value, "RIGHT", 3, 0)
 		self.Power.value:SetJustifyH("RIGHT")
@@ -472,9 +498,9 @@ local Spawn = function(self, unit)
 	self.RIcon = RaidIcon
 
 	if unit == "target" or unit == "focus" then
-		local Name = oUF_Phanx:CreateFontString(Health, GameFontHighlightMedium)
-		Name:SetPoint("BOTTOMLEFT", Health, "TOPLEFT", 0, -5)
-		Name:SetPoint("BOTTOMRIGHT", Health, "TOPRIGHT", 0, -5)
+		local Name = oUF_Phanx:CreateFontString(Health, 24)
+		Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -3)
+		Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -3)
 		Name:SetJustifyH("LEFT")
 
 --		self:RegisterEvent("UNIT_FACTION", UpdateName)
@@ -487,31 +513,33 @@ local Spawn = function(self, unit)
 	end
 
 	if unit == "target" then
-		local ComboPoints = oUF_Phanx:CreateFontString(Health, GameFontNormalHuge)
+		local ComboPoints = oUF_Phanx:CreateFontString(Health, 30)
 		ComboPoints:SetPoint("RIGHT", Health, "LEFT", -5, 1)
 
 		self.ComboPoints = ComboPoints
 	end
 
 	if unit == "target" then
+		local GAP = PhanxBorder and 5 or 1
+
 		local Auras = CreateFrame("Frame", nil, self)
 		Auras:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -5)
 		Auras:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -5)
-		Auras:SetHeight((WIDTH - 9) / 10 * 4 + 3)
+		Auras:SetHeight((WIDTH - (GAP * 7)) / 8 * 4 + (GAP * 3))
 
-		Auras["spacing-x"] = 1
-		Auras["spacing-y"] = 1
+		Auras["spacing-x"] = GAP
+		Auras["spacing-y"] = GAP
 		Auras["growth-x"] = "LEFT"
 		Auras["growth-y"] = "DOWN"
 		Auras.initialAnchor = "TOPRIGHT"
-		Auras.size = (WIDTH - 9) / 10
+		Auras.size = (WIDTH - (GAP * 7)) / 8
 		Auras.gap = true
-		Auras.numBuffs = 20
-		Auras.numDebuffs = 20
+		Auras.numBuffs = 16
+		Auras.numDebuffs = 16
 		Auras.showDebuffType = true
 		Auras.disableCooldown = true
 
-		Auras.CustomAuraFilter = oUF_Phanx.CustomAuraFilter
+		Auras.CustomFilter = settings.filterAuras and oUF_Phanx.CustomAuraFilter
 		Auras.PostCreateIcon = PostCreateAuraIcon
 		Auras.PostUpdateIcon = PostUpdateAuraIcon
 
@@ -530,8 +558,10 @@ local Spawn = function(self, unit)
 	----------------------------
 
 	if not unit:match("^.+target$") then
-		self.Threat = fakeThreat
-		self.OverrideUpdateThreat = UpdateThreatHighlight
+		local Threat = fakeThreat
+		Threat.Update = UpdateThreatHighlight
+
+		self.Threat = Threat
 	end
 
 	------------------------------
@@ -550,7 +580,7 @@ local Spawn = function(self, unit)
 		GCD:SetAllPoints(self.Power)
 
 		GCD.spark = self.GlobalCooldown:CreateTexture(nil, "OVERLAY")
-		GCD.spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
+		GCD.spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 		GCD.spark:SetBlendMode("ADD")
 		GCD.spark:SetHeight(self.GlobalCooldown:GetHeight() * 5)
 		GCD.spark:SetWidth(10)
@@ -588,7 +618,7 @@ local Spawn = function(self, unit)
 	---------------------------
 
 	if unit == "player" or (myClass == "DRUID" or myClass == "PALADIN" or myClass == "PRIEST" or myClass == "SHAMAN") then
-		local Resurrection = oUF_Phanx:CreateFontString(Health, GameFontHighlightMedium)
+		local Resurrection = oUF_Phanx:CreateFontString(Health, 24)
 		Resurrection:SetPoint("CENTER", 0, 0)
 
 		self.Resurrection = Resurrection
@@ -607,7 +637,7 @@ local Spawn = function(self, unit)
 	---------------------
 
 	if select(4, GetAddOnInfo("oUF_AFK")) and unit == "player" then
-		local AFK = oUF_Phanx:CreateFontString(Health, GameFontNormalSmall)
+		local AFK = oUF_Phanx:CreateFontString(Health, 12)
 		AFK:SetPoint("CENTER", self, "BOTTOM", 0, 1)
 		AFK.fontFormat = "AFK %s:%s"
 
@@ -653,10 +683,11 @@ oUF:Factory(function(self)
 	local pet = self:Spawn("pet")
 	pet:SetPoint("TOP", player, "BOTTOM", 0, -GAP)
 
---	local target = self:Spawn("target")
+	local target = self:Spawn("target")
+	target:SetPoint("TOPLEFT", UIParent, "CENTER", 118 + target:GetAttribute("initial-height") + 2, -184)
 
---	local targettarget = self:Spawn("targettarget")
---	targettarget:SetPoint("TOPRIGHT", target, "BOTTOMRIGHT", 0, -GAP)
+	local targettarget = self:Spawn("targettarget")
+	targettarget:SetPoint("TOPRIGHT", target, "BOTTOMRIGHT", 0, -GAP)
 
 --	local focus = self:Spawn("focus")
 end)
