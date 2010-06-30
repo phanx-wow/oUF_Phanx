@@ -7,6 +7,32 @@
 	Copyright © 2009–2010 Phanx. See README for license terms.
 ----------------------------------------------------------------------]]
 
+local settings = {
+
+	font = "Andika Basic Compact",
+	outline = "OUTLINE",
+	shadow = false,
+
+	statusbar = "Gradient",
+
+	borderStyle = "FLAT", -- FLAT or TEXTURE
+	borderSize = 3, -- only applies to FLAT border
+	borderColor = { 0.6, 0.6, 0.6 }, -- only applies to TEXTURE border
+
+	width = 230,
+	height = 28,
+
+	focusPlacement = "RIGHT", -- LEFT or RIGHT
+
+	threatLevels = false,
+
+	filterAuras = true,
+	remapAuraIcons = true,
+
+}
+
+------------------------------------------------------------------------
+
 local OUF_PHANX, oUF_Phanx = ...
 oUF_Phanx.frame = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
 
@@ -14,27 +40,6 @@ local SharedMedia
 
 local myClass = select(2, UnitClass("player"))
 local myTalents = { 0, 0, 0 }
-
-------------------------------------------------------------------------
-
-local settings = {
-	font = "Fonts\\FRIZQT__.TTF",
-	outline = "NONE",
-	shadow = true,
-
-	statusbar = "Interface\\AddOns\\SharedMedia\\statusbar\\Flat",
-
-	borderStyle = "FLAT", -- FLAT or TEXTURE
-	borderColor = { 0.6, 0.6, 0.6 } -- Only applies to TEXTURE style border
-	borderSize = 3, -- Only applies to FLAT style border
-
-	width = 230,
-	height = 30,
-
-	focusPlacement = "RIGHT", -- LEFT or RIGHT
-
-	threatLevels = false,
-}
 
 ------------------------------------------------------------------------
 
@@ -50,6 +55,7 @@ local defaultFonts = {
 local defaultStatusbars = {
 	["Gradient"] = [[Interface\AddOns\oUF_Phanx\media\gradient]],
 	["Blizzard"] = [[Interface\TargetingFrame\UI-StatusBar]],
+	["Flat"] = [[Interface\BUTTONS\WHITE8X8]],
 }
 
 ------------------------------------------------------------------------
@@ -103,18 +109,21 @@ end })
 local function DoNothing()
 end
 
+oUF_Phanx.DoNothing = DoNothing
+
 ------------------------------------------------------------------------
 
 local function debug(str, ...)
-	if ... then
-		if str:match("%%") then
-			str = str:format(...)
-		else
-			str = string.join(", ", str, ...)
-		end
+	if str:match("%%") then
+		print("|cffffcc00[DEBUG] oUF_Phanx:|r", str:format(...))
+	elseif ... then
+		print("|cffffcc00[DEBUG] oUF_Phanx:|r", str, ...)
+	else
+		print("|cffffcc00[DEBUG] oUF_Phanx:|r", str)
 	end
-	print(("|cffffcc00[DEBUG] oUF_Phanx:|r %s"):format(str))
 end
+
+oUF_Phanx.debug = debug
 
 ------------------------------------------------------------------------
 
@@ -143,6 +152,8 @@ local function si(n, plus)
 		return ("%s%d"):format(sign, n)
 	end
 end
+
+oUF_Phanx.si = si
 
 ------------------------------------------------------------------------
 
@@ -250,8 +261,6 @@ end
 
 ------------------------------------------------------------------------
 
-local defaultStatusbars = oUF_Phanx.defaultStatusbars
-
 local function setStatusBarTextures(frame, statusbar)
 	if type(frame) ~= "table" then return end
 --	print("setStatusBarTextures", frame.GetName and (frame:GetName() or "nil name") or ("no GetName"))
@@ -288,10 +297,6 @@ end
 function oUF_Phanx:CreateFontString(parent, size)
 	if not parent then return end
 
-	if type(size) == "table" then
-		size = select(2, size:GetFont())
-	end
-
 	local fs = parent:CreateFontString(nil, "OVERLAY")
 	fs:SetFont(self:GetFont(settings.font), size or 18, settings.outline)
 	fs:SetShadowOffset(0, 0)
@@ -313,10 +318,6 @@ oUF_Phanx.defaultStatusbars = defaultStatusbars
 
 oUF_Phanx.settings = settings
 
-oUF_Phanx.DoNothing = DoNothing
-oUF_Phanx.debug = debug
-oUF_Phanx.si = si
-
 ------------------------------------------------------------------------
 
 function oUF_Phanx:PLAYER_TALENT_UPDATE()
@@ -327,7 +328,8 @@ end
 
 function oUF_Phanx:ADDON_LOADED(addon)
 	if addon ~= OUF_PHANX then return end
-
+	debug("ADDON_LOADED", addon)
+--[[
 	if not oUF_Phanx_Settings then
 		oUF_Phanx_Settings = { }
 	end
@@ -337,9 +339,10 @@ function oUF_Phanx:ADDON_LOADED(addon)
 		end
 	end
 	settings = oUF_Phanx_Settings
-
-	local fonts = oUF_Phanx.fonts
-	local statusbars = oUF_Phanx.statusbars
+	self.settings = settings
+]]
+	local fonts = self.fonts
+	local statusbars = self.statusbars
 
 	SharedMedia = LibStub("LibSharedMedia-3.0", true)
 
@@ -405,14 +408,14 @@ function oUF_Phanx:ADDON_LOADED(addon)
 		table.sort(statusbars)
 	end
 
-	self:UnregisterEvent("ADDON_LOADED")
+	self.frame:UnregisterEvent("ADDON_LOADED")
 
 	if myClass == "DEATHKNIGHT" or myClass == "DRUID" or myClass == "PRIEST" or myClass == "SHAMAN" or myClass == "PALADIN" or myClass == "WARRIOR" then
-		self:RegisterEvent("PLAYER_TALENT_UPDATE")
+		self.frame:RegisterEvent("PLAYER_TALENT_UPDATE")
 	end
 end
 
-oUF_Phanx.frame:SetScript("OnEvent", function(self, event, ...) return self[event] and self[event](self, ...) end)
+oUF_Phanx.frame:SetScript("OnEvent", function(self, event, ...) return oUF_Phanx[event] and oUF_Phanx[event](oUF_Phanx, ...) end)
 oUF_Phanx.frame:RegisterEvent("ADDON_LOADED")
 
 ------------------------------------------------------------------------
@@ -782,3 +785,5 @@ SlashCmdList.OUFPHANX = function()
 	InterfaceOptionsFrame_OpenToCategory(oUF_Phanx.frame.aboutPanel) -- so it gets expanded
 	InterfaceOptionsFrame_OpenToCategory(oUF_Phanx.frame)
 end
+
+_G.oUF_Phanx = oUF_Phanx
