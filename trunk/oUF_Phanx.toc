@@ -1,5 +1,6 @@
 ## Interface: 30300
 ## Version: 3.3.5.wowi:revision
+
 ## Title: oUF: Phanx
 ## Notes: An oUF layout.
 ## Author: Phanx
@@ -8,6 +9,7 @@
 ## X-License: All rights reserved. See README for details.
 ## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 ## X-WoWI-ID: 13993
+
 ## Dependencies: oUF
 ## OptionalDependencies: LibAboutPanel, LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
 ## SavedVariables: oUF_Phanx_Settings
@@ -25,7 +27,7 @@ Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
 Libs\PhanxConfig-ScrollingDropdown\PhanxConfig-ScrollingDropdown.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 
-# elements\ComboPoints.lua
+elements\ComboPoints.lua
 # elements\DispellableDebuffs.lua
 # elements\IncomingHeals.lua
 # elements\Resurrections.lua

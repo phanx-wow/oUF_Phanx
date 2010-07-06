@@ -16,8 +16,15 @@ local UnitExists = UnitExists
 
 local Update = function(self, event, unit)
 	if unit == "pet" then return end
+
+	local ComboPoints = self.ComboPoints
 	local cp = GetComboPoints(UnitExists("vehicle") and "vehicle" or "player", "target")
-	self.ComboPoints:SetText((cp > 0) and cp)
+
+	ComboPoints:SetText(cp > 0 and cp)
+
+	if ComboPoints.variableAlpha then
+		ComboPoints:SetAlpha(cp * 0.2)
+	end
 end
 
 local Enable = function(self)
