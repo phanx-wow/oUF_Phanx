@@ -51,9 +51,9 @@ local UpdateHealth = function(self, event, unit)
 
 	local disconnected, dead = not UnitIsConnected(unit)
 	if disconnected then
-		health:SetValue(max)
+		health:SetValue(self.reverse and cur or max)
 	else
-		health:SetValue(cur)
+		health:SetValue(self.reverse and (max - cur) or cur)
 		dead = UnitIsDeadOrGhost(unit)
 	end
 
@@ -77,8 +77,13 @@ local UpdateHealth = function(self, event, unit)
 
 	local r, g, b = color[1], color[2], color[3]
 
-	health:SetStatusBarColor(r * 0.2, g * 0.2, b * 0.2)
-	health.bg:SetVertexColor(r, g, b)
+	if self.reverse then
+		health:SetStatusBarColor(r, g, b)
+		health.bg:SetVertexColor(r * 0.2, g * 0.2, b * 0.2)
+	else
+		health:SetStatusBarColor(r * 0.2, g * 0.2, b * 0.2)
+		health.bg:SetVertexColor(r, g, b)
+	end
 
 	health.value:SetTextColor(r, g, b)
 
@@ -88,7 +93,7 @@ local UpdateHealth = function(self, event, unit)
 
 	if disconnected then
 		health.value:SetText(L["Offline"])
-	elseif UnitIsDeadOrGhost(unit) then
+	elseif dead then
 		health.value:SetText(L["Dead"])
 	elseif cur < max then
 		if self.isMouseOver then
@@ -122,9 +127,9 @@ local UpdatePower = function(self, event, unit)
 
 	local disconnected = not UnitIsConnected(unit)
 	if disconnected then
-		power:SetValue(0)
+		power:SetValue(self.reverse and max or 0)
 	else
-		power:SetValue(cur)
+		power:SetValue(self.reverse and (max - cur) or cur)
 	end
 
 	local _, powerType = UnitPowerType(unit)
@@ -140,8 +145,13 @@ local UpdatePower = function(self, event, unit)
 
 	r, g, b = color[1], color[2], color[3]
 
-	power:SetStatusBarColor(r, g, b)
-	power.bg:SetVertexColor(r * 0.2, g * 0.2, b * 0.2)
+	if self.reverse then
+		power:SetStatusBarColor(r * 0.2, g * 0.2, b * 0.2)
+		power.bg:SetVertexColor(r, g, b)
+	else
+		power:SetStatusBarColor(r, g, b)
+		power.bg:SetVertexColor(r * 0.2, g * 0.2, b * 0.2)
+	end
 
 	power.value:SetTextColor(r, g, b)
 
@@ -165,8 +175,12 @@ end
 
 local DoNothing = function() end
 
-local SetBorderColorFromOverlay = function(overlay, r, g, b)
+local SetAuraBorderColor = function(overlay, r, g, b)
 	overlay:GetParent():SetBorderColor(r, g, b)
+end
+
+local ResetAuraBorderColor = function(overlay)
+	overlay:GetParent():SetBorderColor()
 end
 
 local PostCreateAuraIcon = function(icons, button)
@@ -176,9 +190,12 @@ local PostCreateAuraIcon = function(icons, button)
 
 	button.icon:SetTexCoord(0.03, 0.97, 0.03, 0.97)
 
+	button.overlay:SetTexture(nil)
+	button.overlay:Hide()
+
+	button.overlay.Hide = ResetAuraBorderColor
+	button.overlay.SetVertexColor = ResetAuraBorderColor
 	button.overlay.Show = DoNothing
-	button.overlay.Hide = SetBorderColorFromOverlay
-	button.overlay.SetVertexColor = SetBorderColorFromOverlay
 end
 
 oUF_Phanx.PostCreateAuraIcon = PostCreateAuraIcon
@@ -193,16 +210,17 @@ local playerUnits = {
 	vehicle = true,
 }
 
-local PostUpdateAuraIcon = function(icons, unit, button, index, offset, filter, isDebuff)
+local PostUpdateAuraIcon = function(icons, unit, button, index, offset)
+	local name, _, texture, count, type, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID = UnitAura(unit, index, button.filter)
+
 	if auraIconMap and settings.remapAuraIcons then
-		local name = UnitAura(unit, index, filter)
 		local icon = name and auraIconMap[name]
 		if icon then
 			button.icon:SetTexture("Interface\\Icons\\" .. icon)
 		end
 	end
 
-	if playerUnits[button.owner] then
+	if playerUnits[caster] then
 		button.icon:SetDesaturated(false)
 	else
 		button.icon:SetDesaturated(true)
@@ -378,6 +396,7 @@ local Spawn = function(self, unit)
 	local WIDTH = settings.width * (powerUnits[unit] and 1 or 0.8) + (BORDER_SIZE + 1) * 2
 	local HEIGHT = settings.height + (BORDER_SIZE + 1) * 2 - (powerUnits[unit] and 0 or 5)
 
+	self.reverse = unit == "target" or unit == "targettarget" or (unit == "focus" and settings.focusPlacement == "RIGHT")
 	self.showOnMouseOver = { }
 
 	self.menu = menu
@@ -415,7 +434,7 @@ local Spawn = function(self, unit)
 	local Health = CreateFrame("StatusBar", nil, self)
 	Health:SetPoint("BOTTOMLEFT", BORDER_SIZE + 1, BORDER_SIZE + 1)
 	Health:SetPoint("BOTTOMRIGHT", -BORDER_SIZE - 1, BORDER_SIZE + 1)
-	Health:SetPoint("TOP", Power, "BOTTOM", 0, -1)
+	Health:SetPoint("TOP", Power or self, Power and "BOTTOM" or "TOP", 0, Power and -1 or (PhanxBorder and -2 or (-BORDER_SIZE - 1)))
 	Health:SetStatusBarTexture(STATUSBAR)
 	Health:GetStatusBarTexture():SetHorizTile(false)
 
@@ -497,11 +516,20 @@ local Spawn = function(self, unit)
 
 	self.RIcon = RaidIcon
 
-	if unit == "target" or unit == "focus" then
-		local Name = oUF_Phanx:CreateFontString(Health, 24)
-		Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -3)
-		Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -3)
-		Name:SetJustifyH("LEFT")
+	if unit == "target" or unit == "targettarget" or unit == "focus" then
+		local Name
+
+		if unit == "targettarget" then
+			Name = oUF_Phanx:CreateFontString(Health, 18)
+			Name:SetPoint("RIGHT", -3, 0)
+			Name:SetPoint("LEFT", Health.value, "RIGHT", 3, 0)
+			Name:SetJustifyH("RIGHT")
+		else
+			Name = oUF_Phanx:CreateFontString(Health, 20)
+			Name:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -3)
+			Name:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -3)
+			Name:SetJustifyH("LEFT")
+		end
 
 --		self:RegisterEvent("UNIT_FACTION", UpdateName)
 --		self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", UpdateName)
@@ -516,22 +544,26 @@ local Spawn = function(self, unit)
 		local ComboPoints = oUF_Phanx:CreateFontString(Health, 30)
 		ComboPoints:SetPoint("RIGHT", Health, "LEFT", -5, 1)
 
+		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[myClass]
+		ComboPoints:SetTextColor(color.r, color.g, color.b)
+
 		self.ComboPoints = ComboPoints
+		self.ComboPoints.variableAlpha = true
 	end
 
 	if unit == "target" then
-		local GAP = PhanxBorder and 5 or 1
+		local GAP = PhanxBorder and 4 or 1
 
 		local Auras = CreateFrame("Frame", nil, self)
-		Auras:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -5)
-		Auras:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -5)
+		Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
+		Auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
 		Auras:SetHeight((WIDTH - (GAP * 7)) / 8 * 4 + (GAP * 3))
 
 		Auras["spacing-x"] = GAP
 		Auras["spacing-y"] = GAP
 		Auras["growth-x"] = "LEFT"
-		Auras["growth-y"] = "DOWN"
-		Auras.initialAnchor = "TOPRIGHT"
+		Auras["growth-y"] = "UP"
+		Auras.initialAnchor = "BOTTOMRIGHT"
 		Auras.size = (WIDTH - (GAP * 7)) / 8
 		Auras.gap = true
 		Auras.numBuffs = 16
@@ -618,7 +650,7 @@ local Spawn = function(self, unit)
 	---------------------------
 
 	if unit == "player" or (myClass == "DRUID" or myClass == "PALADIN" or myClass == "PRIEST" or myClass == "SHAMAN") then
-		local Resurrection = oUF_Phanx:CreateFontString(Health, 24)
+		local Resurrection = oUF_Phanx:CreateFontString(Health, 20)
 		Resurrection:SetPoint("CENTER", 0, 0)
 
 		self.Resurrection = Resurrection
