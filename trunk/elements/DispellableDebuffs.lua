@@ -56,21 +56,20 @@ local function Update(self, event, unit)
 	if self.unit ~= unit then return end
 	-- print("Update", unit)
 
-	if not UnitCanAssist("player", unit) then return end
-	-- print("not UnitCanAssist")
-
 	local debuffType
 
-	local i = 1
-	while true do
-		local name, _, _, _, type = UnitAura(unit, i, "HARMFUL")
-		if not name then break end
-		-- print("UnitAura", unit, i, name or "NONE", type or "NONE")
-		if type and (not debuffType or DebuffPriority[type] > DebuffPriority[debuffType]) then
-			-- print("debuffType", type)
-			debuffType = type
+	if UnitCanAssist("player", unit) then
+		local i = 1
+		while true do
+			local name, _, _, _, type = UnitAura(unit, i, "HARMFUL")
+			if not name then break end
+			-- print("UnitAura", unit, i, name or "NONE", type or "NONE")
+			if type and (not debuffType or DebuffPriority[type] > DebuffPriority[debuffType]) then
+				-- print("debuffType", type)
+				debuffType = type
+			end
+			i = i + 1
 		end
-		i = i + 1
 	end
 
 	if unitDebuffType[unit] ~= debuffType then
