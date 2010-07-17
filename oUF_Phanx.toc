@@ -28,7 +28,7 @@ Libs\PhanxConfig-ScrollingDropdown\PhanxConfig-ScrollingDropdown.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 
 elements\ComboPoints.lua
-# elements\DispellableDebuffs.lua
+elements\DispellableDebuffs.lua
 # elements\IncomingHeals.lua
 # elements\Resurrections.lua
 

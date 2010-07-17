@@ -241,6 +241,8 @@ local function UpdateBorder(self)
 		color = colors.debuff[self.debuffType]
 	elseif self.threatLevel > 0 then
 		color = colors.threat[self.threatLevel]
+	elseif PhanxBorder then
+		color = settings.borderColor
 	end
 
 	if color then
@@ -398,6 +400,7 @@ local Spawn = function(self, unit)
 
 	self.reverse = unit == "target" or unit == "targettarget" or (unit == "focus" and settings.focusPlacement == "RIGHT")
 	self.showOnMouseOver = { }
+	self.UpdateBorder = UpdateBorder
 
 	self.menu = menu
 
@@ -594,6 +597,7 @@ local Spawn = function(self, unit)
 		Threat.Update = UpdateThreatHighlight
 
 		self.Threat = Threat
+		self.threatLevel = 0
 	end
 
 	------------------------------
