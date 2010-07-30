@@ -13,7 +13,7 @@ local OUF_PHANX, oUF_Phanx = ...
 
 local L = oUF_Phanx.L
 local colors = oUF.colors
-local settings = oUF_Phanx.settings
+local settings
 
 local debug = oUF_Phanx.debug
 local si = oUF_Phanx.si
@@ -51,10 +51,14 @@ local UpdateHealth = function(self, event, unit)
 
 	local disconnected, dead = not UnitIsConnected(unit)
 	if disconnected then
-		health:SetValue(self.reverse and cur or max)
+		health:SetValue(self.reverse and 0 or max)
 	else
-		health:SetValue(self.reverse and (max - cur) or cur)
 		dead = UnitIsDeadOrGhost(unit)
+		if dead then
+			health:SetValue(self.reverse and 0 or max)
+		else
+			health:SetValue(self.reverse and (max - cur) or cur)
+		end
 	end
 
 	local color
@@ -78,11 +82,11 @@ local UpdateHealth = function(self, event, unit)
 	local r, g, b = color[1], color[2], color[3]
 
 	if self.reverse then
-		health:SetStatusBarColor(r, g, b)
+		health:SetStatusBarColor(r * 0.6, g * 0.6, b * 0.6)
 		health.bg:SetVertexColor(r * 0.2, g * 0.2, b * 0.2)
 	else
 		health:SetStatusBarColor(r * 0.2, g * 0.2, b * 0.2)
-		health.bg:SetVertexColor(r, g, b)
+		health.bg:SetVertexColor(r * 0.6, g * 0.6, b * 0.6)
 	end
 
 	health.value:SetTextColor(r, g, b)
@@ -117,16 +121,18 @@ local UpdatePower = function(self, event, unit)
 	local cur, max = UnitPower(unit), UnitPowerMax(unit)
 	if max > 0 then
 		power:Show()
+		power.value:Show()
 		power:SetMinMaxValues(0, max)
 		self.Health:SetPoint("TOP", power, "BOTTOM", 0, -1)
 	else
 		power:Hide()
+		power.value:Hide()
 		self.Health:SetPoint("TOP", self, "TOP", 0, PhanxBorder and -2 or (-settings.borderSize - 1))
 		return
 	end
 
-	local disconnected = not UnitIsConnected(unit)
-	if disconnected then
+	local dead, disconnected = UnitIsDeadOrGhost(unit), not UnitIsConnected(unit)
+	if dead or disconnected then
 		power:SetValue(self.reverse and max or 0)
 	else
 		power:SetValue(self.reverse and (max - cur) or cur)
@@ -137,7 +143,7 @@ local UpdatePower = function(self, event, unit)
 	local color
 	if disconnected then
 		color = oUF.colors.disconnected
-	elseif UnitIsDeadOrGhost(unit) then
+	elseif dead then
 		color = oUF.colors.dead
 	else
 		color = oUF.colors.power[powerType] or oUF.colors.power.MANA
@@ -232,18 +238,31 @@ oUF_Phanx.PostUpdateAuraIcon = PostUpdateAuraIcon
 ------------------------------------------------------------------------
 
 local function UpdateBorder(self)
-	local color
+	-- print("UpdateBorder", self.unit)
+
+	local color -- , alert
 	if self.debuffDispellable then
+		-- print(self.unit, "has dispellable debuff", self.debuffType)
 		color = colors.debuff[self.debuffType]
+		-- alert = true
 	elseif self.threatLevel > 1 then
+		-- print(self.unit, "has aggro")
 		color = colors.threat[self.threatLevel]
+		-- alert = true
 	elseif self.debuffType then
+		-- print(self.unit, "has debuff", self.debuffType)
 		color = colors.debuff[self.debuffType]
 	elseif self.threatLevel > 0 then
+		-- print(self.unit, "has high threat")
 		color = colors.threat[self.threatLevel]
 	elseif PhanxBorder then
+		-- print(self.unit, "has no interesting status")
 		color = settings.borderColor
 	end
+
+	-- if alert then
+	-- else
+	-- end
 
 	if color then
 		self:SetBackdropBorderColor(color[1], color[2], color[3], 1)
@@ -273,19 +292,16 @@ oUF_Phanx.UpdateDispelHighlight = UpdateDispelHighlight
 
 local function UpdateThreatHighlight(self, event, unit)
 	if self.unit ~= unit then return end
-	local status = UnitThreatSituation(unit)
-
+	local status = UnitThreatSituation(unit) or 0
 	-- debug("UpdateThreatHighlight", unit, tostring(status))
 
-	if settings.threatLevels then
-		status = status or 0
-	else
-		status = (status and status > 1) and 3 or 0
+	if not settings.threatLevels then
+		status = status > 1 and 3 or 0
 	end
 
-	if self.threatStatus ~= status then return end
+	if self.threatLevel == status then return end
 
-	self.threatStatus = status
+	self.threatLevel = status
 	self:UpdateBorder()
 end
 
@@ -295,13 +311,8 @@ oUF_Phanx.UpdateThreatHighlight = UpdateThreatHighlight
 
 local BACKDROP = {
 	bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 8,
-	edgeFile = "Interface\\BUTTONS\\WHITE8X8", edgeSize = settings.borderSize,
-	insets = {
-		left = settings.borderSize - 1,
-		right = settings.borderSize - 1,
-		top = settings.borderSize - 1,
-		bottom = settings.borderSize - 1,
-	},
+	edgeFile = "Interface\\BUTTONS\\WHITE8X8", edgeSize = 8,
+	insets = { left = 7, right = 7, top = 7, bottom = 7, },
 }
 if PhanxBorder then
 	BACKDROP.edgeSize = 0
@@ -317,8 +328,8 @@ oUF_Phanx.BACKDROP = BACKDROP
 
 local fakeThreat
 do
-	local DoNothing = function() return end
-	fakeThreat = { GetTexture = DoNothing, Hide = DoNothing, IsObjectType = DoNothing, SetVertexColor = DoNothing, }
+	local doNothing = function() return end
+	fakeThreat = { GetTexture = doNothing, Hide = doNothing, IsObjectType = doNothing, SetVertexColor = doNothing }
 end
 
 oUF_Phanx.fakeThreat = fakeThreat
@@ -392,6 +403,16 @@ local powerUnits = {
 }
 
 local Spawn = function(self, unit)
+	settings = oUF_Phanx.settings
+
+	if BACKDROP.edgeSize > 0 then
+		BACKDROP.edgeSize = settings.borderSize
+		BACKDROP.insets.left = settings.borderSize - 1
+		BACKDROP.insets.right = settings.borderSize - 1
+		BACKDROP.insets.top = settings.borderSize - 1
+		BACKDROP.insets.bottom = settings.borderSize - 1
+	end
+
 	local BORDER_SIZE = PhanxBorder and 1 or settings.borderSize
 	local FONT = oUF_Phanx:GetFont(settings.font)
 	local STATUSBAR = oUF_Phanx:GetStatusBarTexture(settings.statusbar)
