@@ -66,10 +66,10 @@ colors.dead = { 0.6, 0.6, 0.6 }
 colors.ghost = { 0.6, 0.6, 0.6 }
 colors.offline = { 0.6, 0.6, 0.6 }
 
-colors.civilian = { 0.2, 0.4, 1 }
-colors.friendly = { 0.2, 1, 0.2 }
-colors.hostile = { 1, 0.1, 0.1 }
-colors.neutral = { 1, 1, 0.2 }
+colors.civilian = { 0.2, 0.6, 1 }
+colors.friendly = { 0, 1, 0 }
+colors.hostile = { 1, 0, 0 }
+colors.neutral = { 1, 1, 0 }
 
 colors.power.AMMOSLOT = { 0.8, 0.6, 0 }
 colors.power.ENERGY = { 1, 1, 0.2 }
@@ -208,7 +208,7 @@ elseif myClass == "DRUID" then
 	end
 elseif myClass == "PALADIN" then
 	local RIGHTEOUS_FURY = GetSpellInfo(25780)
-	IsTanking = function()
+	function IsTanking()
 		return (myTalents[2] > myTalents[1]) and (myTalents[2] > myTalents[3]) and UnitAura("player", RIGHTEOUS_FURY, "HELPFUL")
 	end
 elseif myClass == "WARRIOR" then
@@ -230,10 +230,13 @@ oUF_Phanx.IsTanking = IsTanking
 
 ------------------------------------------------------------------------
 
+local traversed = { }
+
 local function setFonts(frame, font, outline)
 	if type(frame) ~= "table" then return end
 	for k, v in pairs(frame) do
-		if type(v) == "table" then
+		if type(v) == "table" and not traversed[v] then
+			traversed[v] = true
 			if v.SetFont then
 				local _, size = v:GetFont()
 				v:SetFont(font, size, outline)
@@ -254,6 +257,7 @@ function oUF_Phanx:SetFont(font, outline)
 
 	font = self:GetFont(font)
 
+	wipe(traversed)
 	for _, frame in ipairs(oUF.objects) do
 		setFonts(frame, font, outline)
 	end
@@ -263,9 +267,9 @@ end
 
 local function setStatusBarTextures(frame, statusbar)
 	if type(frame) ~= "table" then return end
---	print("setStatusBarTextures", frame.GetName and (frame:GetName() or "nil name") or ("no GetName"))
 	for k, v in pairs(frame) do
-		if type(v) == "table" then
+		if type(v) == "table" and not traversed[v] then
+			traversed[v] = true
 			if v.SetStatusBarTexture then
 				v:SetStatusBarTexture(statusbar)
 				if v.bg and v.bg.SetTexture then
@@ -287,6 +291,7 @@ function oUF_Phanx:SetStatusBarTexture(statusbar)
 
 	statusbar = self:GetStatusBarTexture(statusbar)
 
+	wipe(traversed)
 	for _, frame in ipairs(oUF.objects) do
 		setStatusBarTextures(frame, statusbar)
 	end
@@ -326,10 +331,12 @@ function oUF_Phanx:PLAYER_TALENT_UPDATE()
 	myTalents[3] = GetNumTalents(3) or 0
 end
 
+------------------------------------------------------------------------
+
 function oUF_Phanx:ADDON_LOADED(addon)
 	if addon ~= OUF_PHANX then return end
 	debug("ADDON_LOADED", addon)
---[[
+
 	if not oUF_Phanx_Settings then
 		oUF_Phanx_Settings = { }
 	end
@@ -340,7 +347,7 @@ function oUF_Phanx:ADDON_LOADED(addon)
 	end
 	settings = oUF_Phanx_Settings
 	self.settings = settings
-]]
+
 	local fonts = self.fonts
 	local statusbars = self.statusbars
 
@@ -456,7 +463,7 @@ oUF_Phanx.frame:SetScript("OnShow", function(self)
 	-- Select: Statusbar Texture --
 	-------------------------------
 
-	local statusbar = self:CreateScrollingDropdown(L["Bar Texture"], oUF_Phanx.statusbarList)
+	local statusbar = self:CreateScrollingDropdown(L["Bar Texture"], oUF_Phanx.statusbars)
 	statusbar.desc = L["Change the texture for bars on the frames."]
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -8)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -8)
@@ -532,7 +539,7 @@ oUF_Phanx.frame:SetScript("OnShow", function(self)
 	-- Select: Font Face --
 	-----------------------
 
-	local font = self:CreateScrollingDropdown(L["Font Face"], oUF_Phanx.fontList)
+	local font = self:CreateScrollingDropdown(L["Font Face"], oUF_Phanx.fonts)
 	font.desc = L["Choose the font face for text on the frames."]
 	font:SetPoint("TOPLEFT", notes, "BOTTOM", 8, -8)
 	font:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -8)
@@ -677,6 +684,8 @@ oUF_Phanx.frame:SetScript("OnShow", function(self)
 	borderStyle:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -8)
 	borderStyle:SetValue(settings.borderStyle, borderStyles[settings.borderStyle])
 
+	borderStyle:Hide()
+
 	------------------------
 	-- Range: Border Size -- [NYI]
 	------------------------
@@ -697,6 +706,8 @@ oUF_Phanx.frame:SetScript("OnShow", function(self)
 	--	end
 		return value
 	end
+
+	borderSize:Hide()
 
 	-------------------------
 	-- Color: Border Color -- [NYI]
@@ -721,6 +732,8 @@ oUF_Phanx.frame:SetScript("OnShow", function(self)
 	--		end
 	--	end
 	end
+
+	borderColor:Hide()
 
 	-----------------------------
 	-- Select: Focus Placement -- [NYI]
@@ -758,6 +771,8 @@ oUF_Phanx.frame:SetScript("OnShow", function(self)
 	focusPlacement:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", 0, -8)
 	focusPlacement:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -8)
 	focusPlacement:SetValue(settings.focusPlacement, focusPlacements[settings.focusPlacement])
+
+	focusPlacement:Hide()
 
 	---------------------------
 	-- Toggle: Threat Levels --
