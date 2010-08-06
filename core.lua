@@ -10,6 +10,7 @@
 local _, ns = ...
 local colors, config = oUF.colors, ns.config
 local playerClass = select(2, UnitClass("player"))
+local playerUnits = { player = true, pet = true, vehicle = true }
 local noop = function() return end
 
 ns.frames, ns.headers, ns.fontstrings, ns.statusbars = { }, { }, { }, { }
@@ -165,8 +166,10 @@ ns.PostUpdatePower = function(self, unit, cur, max)
 			self.value:SetFormattedText("%s.|cff%02x%02x%02x%s|r", si(UnitPower(unit)), color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
 		elseif type == "MANA" then
 			self.value:SetFormattedText("%d|cff%02x%02x%02x%%|r", floor(UnitPower(unit) / UnitPowerMax(unit) * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
-		else
+		elseif cur > 0 then
 			self.value:SetFormattedText("%d|cff%02x%02x%02x|r", floor(UnitPower(unit) / UnitPowerMax(unit) * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
+		else
+			self.value:SetText(nil)
 		end
 	elseif type == "MANA" and self:GetParent().isMouseOver then
 		self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
@@ -177,30 +180,34 @@ end
 
 ------------------------------------------------------------------------
 
-local playerUnits = { player = true, pet = true, vehicle = true }
+local AuraIconCD_OnShow = function(cd)
+	cd:GetParent():SetBorderParent(cd)
+end
+
+local AuraIconCD_OnHide = function(cd)
+	cd:GetParent():SetBorderParent(cd:GetParent())
+end
+
+local AuraIconOverlay_SetBorderColor = function(overlay, r, g, b)
+	if not r or not g or not b then
+		r, g, b = unpack(config.borderColor)
+	end
+	overlay:GetParent():SetBorderColor(r, g, b)
+end
 
 ns.PostCreateAuraIcon = function(iconframe, button)
-	button.icon:SetTexCoord(0.03, 0.97, 0.03, 0.97)
-
 	ns.CreateBorder(button, 12)
 
-	local i = 1
-	while true do
-		local child = select(i, button:GetChildren())
-		if not child then break end
-		if type(child) == "table" and child.IsObjectType and child:IsObjectType("Frame") and child.icon == button.icon then
-			-- found it!
-			button.timer = child.timer
-			button.timer:ClearAllPoints()
-			button.timer:SetPoint("BOTTOM", button, "TOP", 0, 0)
-			button.timer:SetFont(config.font, 16, "NONE")
-			button.timer.SetFont = noop
-			button.timer:SetTextColor(1, 1, 1)
-			button.timer.SetTextColor = noop
-			break
-		end
-		i = i + 1
-	end
+	button.cd:SetReverse(true)
+	button.cd:SetScript("OnShow", AuraIconCD_OnShow)
+	button.cd:SetScript("OnHide", AuraIconCD_OnHide)
+
+	button.icon:SetTexCoord(0.03, 0.97, 0.03, 0.97)
+
+	button.overlay:Hide()
+	button.overlay.Hide = AuraIconOverlay_SetBorderColor
+	button.overlay.SetVertexColor = AuraIconOverlay_SetBorderColor
+	button.overlay.Show = noop
 end
 
 ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
@@ -211,6 +218,33 @@ ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
 	else
 		button.icon:SetDesaturated(true)
 	end
+
+	if button.timer then return end
+
+	if OmniCC then
+		for i = 1, button:GetNumChildren() do
+			local child = select(i, button:GetChildren())
+			if child.text and child.icon then
+				-- found it!
+				button.timer = child.text
+
+				button.timer:ClearAllPoints()
+				button.timer:SetPoint("CENTER", button, "TOP", 0, 0)
+
+				button.timer:SetFont(config.font, 18, config.fontOutline)
+				button.timer.SetFont = noop
+
+				button.timer:SetTextColor(1, 0.8, 0)
+				button.timer.SetTextColor = noop
+
+				tinsert(ns.fontstrings, button.timer)
+
+				return
+			end
+		end
+	end
+
+	button.timer = true
 end
 
 ------------------------------------------------------------------------
@@ -616,21 +650,31 @@ ns.Spawn = function(self, unit)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(unpack(config.borderColor))
 
-	------------------------------
-	-- Element: Threat highlight --
-	------------------------------
-
-	if not unit:match("^.+target$") then
-		self.threatLevel = 0
-		self.ThreatHighlight = ns.UpdateThreatHighlight
-	end
-
 	-------------------------------
 	-- Element: Dispel highlight --
 	-------------------------------
 
 	self.DispelHighlight = ns.UpdateDispelHighlight
 	self.DispelHighlightFilter = true
+
+	-------------------------------
+	-- Element: Threat highlight --
+	-------------------------------
+
+	if not unit:match("^.+target$") then
+		self.threatLevel = 0
+		self.ThreatHighlight = ns.UpdateThreatHighlight
+	end
+
+	----------------------------
+	-- Element: Buff reminder --
+	----------------------------
+
+	if unit == "player" or unit == "party" or unit == "partypet" then
+		self.BuffReminder = (self.Power or self.Health):CreateTexture(nil, "OVERLAY")
+		self.BuffReminder:SetPoint("CENTER", self)
+		self.BuffReminder:SetSize(ns.config.height, ns.config.height)
+	end
 
 	---------------------------
 	-- Plugin: oUF_HealComm4 --
@@ -650,7 +694,7 @@ ns.Spawn = function(self, unit)
 
 	if IsAddOnLoaded("oUF_ReadyCheck") and unit == "player" or unit == "party" then
 		self.ReadyCheck = (self.Power or self.Health):CreateTexture(nil, "OVERLAY")
-		self.ReadyCheck:SetPoint("CENTER")
+		self.ReadyCheck:SetPoint("CENTER", self)
 		self.ReadyCheck:SetSize(config.height, config.height)
 
 		self.ReadyCheck.delayTime = 5

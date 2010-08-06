@@ -37,7 +37,7 @@ end
 oUF.TagEvents["combaticon"] = "PLAYER_REGEN_DISABLED PLAYER_REGEN_ENABLED"
 oUF.Tags["combaticon"] = function(unit)
 	if unit == "player" and UnitAffectingCombat("player") then
-		return [[|TInterface\CharacterFrame\UI-StateIcon:16:16:0:0:256:256:128:256:0:125|t ]]
+		return [[|TInterface\CharacterFrame\UI-StateIcon:20:20:0:0:256:256:132:252:4:121|t ]]
 	end
 end
 
