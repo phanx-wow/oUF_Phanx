@@ -45,16 +45,17 @@ end
 
 local unitDebuffType = { }
 
-local function applyDispelHighlight(self, event, unit, bar)
+local function applyDispelHighlight(self, unit)
 	local debuffType = unitDebuffType[unit]
 	if debuffType then
-		bar:SetStatusBarColor(unpack(DebuffTypeColor[debuffType]))
+		self:SetStatusBarColor(unpack(DebuffTypeColor[debuffType]))
 	end
 end
 
 local function Update(self, event, unit)
-	if self.unit ~= unit then return end
-	-- print("Update", unit)
+	-- print("DispelHighlight Update", event, unit)
+	if unit and unit ~= self.unit then return end
+	unit = unit or self.unit
 
 	local debuffType
 
@@ -78,10 +79,10 @@ local function Update(self, event, unit)
 		unitDebuffType[unit] = debuffType
 
 		if type(self.DispelHighlight) == "function" then
-			self:DispelHighlight(event, unit, debuffType, canDispel and canDispel[debuffType])
+			self:DispelHighlight(unit, debuffType, canDispel and canDispel[debuffType])
 		else
 			if debuffType and self.DispelHighlightFilter and not (canDispel and canDispel[debuffType]) then return end
-			applyDispelHighlight(self, event, unit, self.Health)
+			applyDispelHighlight(self.Health, unit)
 		end
 	end
 end
