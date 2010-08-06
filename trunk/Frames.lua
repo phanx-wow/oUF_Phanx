@@ -555,9 +555,6 @@ local Spawn = function(self, unit)
 			Name:SetJustifyH("LEFT")
 		end
 
---		self:RegisterEvent("UNIT_FACTION", UpdateName)
---		self:RegisterEvent("UNIT_CLASSIFICATION_CHANGED", UpdateName)
---		self:RegisterEvent("UNIT_LEVEL", UpdateName)
 		self:RegisterEvent("UNIT_NAME_UPDATE", UpdateName)
 		table.insert(self.__elements, UpdateName)
 
@@ -571,42 +568,42 @@ local Spawn = function(self, unit)
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[myClass]
 		ComboPoints:SetTextColor(color.r, color.g, color.b)
 
+		self:Tag(ComboPoints, "[cpoints]")
+
 		self.ComboPoints = ComboPoints
-		self.ComboPoints.variableAlpha = true
 	end
 
 	if unit == "target" then
 		local GAP = PhanxBorder and 4 or 1
 
-		local Auras = CreateFrame("Frame", nil, self)
-		Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
-		Auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
-		Auras:SetHeight((WIDTH - (GAP * 7)) / 8 * 4 + (GAP * 3))
+		local Debuffs = CreateFrame("Frame", nil, self)
+		Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
+		Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
+		Debuffs:SetHeight((WIDTH - (GAP * 7)) / 8 * 4 + (GAP * 3))
 
-		Auras["spacing-x"] = GAP
-		Auras["spacing-y"] = GAP
-		Auras["growth-x"] = "LEFT"
-		Auras["growth-y"] = "UP"
-		Auras.initialAnchor = "BOTTOMRIGHT"
-		Auras.size = (WIDTH - (GAP * 7)) / 8
-		Auras.gap = true
-		Auras.numBuffs = 16
-		Auras.numDebuffs = 16
-		Auras.showDebuffType = true
-		Auras.disableCooldown = true
+		Debuffs["spacing-x"] = GAP
+		Debuffs["spacing-y"] = GAP
+		Debuffs["growth-x"] = "RIGHT"
+		Debuffs["growth-y"] = "UP"
+		Debuffs.initialAnchor = "BOTTOMLEFT"
+		Debuffs.size = (WIDTH - (GAP * 7)) / 8
+		Debuffs.gap = true
+		Debuffs.num = 8
+		Debuffs.showDebuffType = true
 
-		Auras.CustomFilter = settings.filterAuras and oUF_Phanx.CustomAuraFilter
-		Auras.PostCreateIcon = PostCreateAuraIcon
-		Auras.PostUpdateIcon = PostUpdateAuraIcon
+		Debuffs.CustomFilter = settings.filterAuras and oUF_Phanx.CustomAuraFilter
+		Debuffs.PostCreateIcon = PostCreateAuraIcon
+		Debuffs.PostUpdateIcon = PostUpdateAuraIcon
 
-		self.Auras = Auras
+		self.Debuffs = Debuffs
 	end
 
 	if PhanxBorder then
-		PhanxBorder.AddBorder(self)
+		PhanxBorder.AddBorder(self, 13)
 		for i, t in ipairs(self.BorderTextures) do
 			t:SetParent(self.Health)
 		end
+		self:SetBackdropColor(0, 0, 0, 1)
 	end
 
 	----------------------------
@@ -628,23 +625,6 @@ local Spawn = function(self, unit)
 	self.DispelHighlight = UpdateDispelHighlight
 	self.DispelHighlightFilter = true
 
-	-----------------------------
-	-- Module: Global Cooldown --
-	-----------------------------
---[[
-	if unit == "player" then
-		local GCD = CreateFrame("Frame", nil, self.Power)
-		GCD:SetAllPoints(self.Power)
-
-		GCD.spark = self.GlobalCooldown:CreateTexture(nil, "OVERLAY")
-		GCD.spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-		GCD.spark:SetBlendMode("ADD")
-		GCD.spark:SetHeight(self.GlobalCooldown:GetHeight() * 5)
-		GCD.spark:SetWidth(10)
-
-		self.GlobalCooldown = GCD
-	end
-]]
 	----------------------------
 	-- Module: Incoming Heals --
 	----------------------------
@@ -732,7 +712,7 @@ oUF:RegisterStyle("Phanx", Spawn)
 oUF:Factory(function(self)
 	self:SetActiveStyle("Phanx")
 
-	local GAP = PhanxBorder and 7 or settings.borderSize
+	local GAP = PhanxBorder and 7 or oUF_Phanx.settings.borderSize
 
 	local player = self:Spawn("player")
 	player:SetPoint("TOP", UIParent, "CENTER", 0, -263)
