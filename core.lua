@@ -134,18 +134,10 @@ ns.PostUpdatePower = function(self, unit, cur, max)
 	local shown = self:IsShown()
 	if max == 0 then
 		if shown then
-			local frame = self:GetParent()
-			-- frame.Health:SetPoint("BOTTOM", frame, "BOTTOM", 0, 1)
-			for _, obj in ipairs(frame.powerreparent) do obj:SetParent(frame.Health) end
-			frame:SetBorderParent(frame.Health)
 			self:Hide()
 		end
 		return
 	elseif not shown then
-		local frame = self:GetParent()
-		-- frame.Health:SetPoint("BOTTOM", self, "TOP", 0, 0)
-		for _, obj in ipairs(frame.powerreparent) do obj:SetParent(self) end
-		frame:SetBorderParent(self)
 		self:Show()
 	end
 
@@ -181,11 +173,15 @@ end
 ------------------------------------------------------------------------
 
 local AuraIconCD_OnShow = function(cd)
-	cd:GetParent():SetBorderParent(cd)
+	local button = cd:GetParent()
+	button:SetBorderParent(cd)
+	button.count:SetParent(cd)
 end
 
 local AuraIconCD_OnHide = function(cd)
-	cd:GetParent():SetBorderParent(cd:GetParent())
+	local button = cd:GetParent()
+	button:SetBorderParent(button)
+	button.count:SetParent(button)
 end
 
 local AuraIconOverlay_SetBorderColor = function(overlay, r, g, b)
@@ -199,8 +195,9 @@ ns.PostCreateAuraIcon = function(iconframe, button)
 	ns.CreateBorder(button, 12)
 
 	button.cd:SetReverse(true)
-	button.cd:SetScript("OnShow", AuraIconCD_OnShow)
 	button.cd:SetScript("OnHide", AuraIconCD_OnHide)
+	button.cd:SetScript("OnShow", AuraIconCD_OnShow)
+	if button.cd:IsShown() then AuraIconCD_OnShow(button.cd) end
 
 	button.icon:SetTexCoord(0.03, 0.97, 0.03, 0.97)
 
@@ -229,7 +226,7 @@ ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
 				button.timer = child.text
 
 				button.timer:ClearAllPoints()
-				button.timer:SetPoint("CENTER", button, "TOP", 0, 0)
+				button.timer:SetPoint("CENTER", button, "TOP", 0, 2)
 
 				button.timer:SetFont(config.font, 18, config.fontOutline)
 				button.timer.SetFont = noop
@@ -399,7 +396,6 @@ ns.Spawn = function(self, unit)
 	-- print("Spawn", unit, self:GetName())
 
 	self.mouseovers = { }
-	self.powerreparent = { }
 
 	self.menu = ns.UnitFrame_DropdownMenu
 
@@ -454,19 +450,25 @@ ns.Spawn = function(self, unit)
 		self.Power.frequentUpdates = (unit == "player")
 
 		self.Power.PostUpdate = ns.PostUpdatePower
-
-		self.Health.value:SetParent(self.Power)
-		tinsert(self.powerreparent, self.Health.value)
 	end
+
+	-----------------------------------------------------------
+	-- Overlay to avoid reparenting stuff on powerless units --
+	-----------------------------------------------------------
+
+	self.overlay = CreateFrame("Frame", nil, self)
+	self.overlay:SetAllPoints(self)
+	self.overlay:SetFrameLevel(max(self.Health:GetFrameLevel(), self.Power and self.Power:GetFrameLevel() or 0) + 1)
+
+	self.Health.value:SetParent(self.overlay)
 
 	--------------------------
 	-- Element: Threat text --
 	--------------------------
 
 	if unit == "target" then
-		self.ThreatText = ns.CreateFontString(self.Power or self.Health, 20, "RIGHT")
+		self.ThreatText = ns.CreateFontString(self.overlay, 20, "RIGHT")
 		self.ThreatText:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
-		tinsert(self.powerreparent, self.ThreatText)
 	end
 
 	---------------------------
@@ -474,45 +476,58 @@ ns.Spawn = function(self, unit)
 	---------------------------
 
 	if unit == "target" or unit == "focus" then
-		self.Level = ns.CreateFontString(self.Power or self.Health, 16, "LEFT")
+		self.Level = ns.CreateFontString(self.overlay, 16, "LEFT")
 		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -3)
 
 		self:Tag(self.Level, "[difficulty][level][shortclassification]")
-		tinsert(self.powerreparent, self.Level)
 
-		self.Name = ns.CreateFontString(self.Power or self.Health, 20, "LEFT")
+		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
 		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, -1)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4)
 
 		self:Tag(self.Name, "[unitcolor][name]")
-		tinsert(self.powerreparent, self.Name)
 	end
 
 	if unit == "targettarget" or unit == "party" then
-		self.Name = ns.CreateFontString(self.Power or self.Health, 20, "LEFT")
+		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
 		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
 
 		self:Tag(self.Name, "[unitcolor][name]")
-		tinsert(self.powerreparent, self.Name)
+	end
+
+	-----------------------
+	-- Combo points text --
+	-----------------------
+
+	if unit == "target" then
+		self.ComboPoints = ns.CreateFontString(self.overlay, 32, "RIGHT")
+		self.ComboPoints:SetPoint("BOTTOMRIGHT", self.Health, "BOTTOMLEFT", -10, config.height * config.powerHeight - 6)
+		self.ComboPoints:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
+
+		self:Tag(self.ComboPoints, "[cpoints]")
+	elseif unit == "player" and playerClass == "SHAMAN" then
+		self.Maelstrom = ns.CreateFontString(self.overlay, 32, "LEFT")
+		self.Maelstrom:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
+		self.Maelstrom:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
+
+		self:Tag(self.Maelstrom, "[maelstrom]")
 	end
 
 	----------------
 	-- Raid icons --
 	----------------
 
-	self.RaidIcon = (self.Power or self.Health):CreateTexture(nil, "OVERLAY")
+	self.RaidIcon = self.overlay:CreateTexture(nil, "OVERLAY")
 	self.RaidIcon:SetPoint("CENTER", self, "TOPLEFT", 0, 0)
 	self.RaidIcon:SetSize(16, 16)
-
-	tinsert(self.powerreparent, self.RaidIcon)
 
 	------------------------
 	-- Dungeon Role icons --
 	------------------------
 
 	if unit == "player" or unit == "party" then
-		self.LFDRole = (self.Power or self.Health):CreateTexture(nil, "OVERLAY")
+		self.LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", 2, 0)
 		self.LFDRole:SetSize(16, 16)
 	end
@@ -522,13 +537,13 @@ ns.Spawn = function(self, unit)
 	-----------------------
 
 	if unit == "player" then
-		self.Status = ns.CreateFontString(self.Power or self.Health, 16, "LEFT")
-		self.Status:SetPoint("CENTER", self.Power or self.Health, "BOTTOMLEFT", 2, 0)
+		self.Status = ns.CreateFontString(self.overlay, 16, "LEFT")
+		self.Status:SetPoint("LEFT", self.Power or self.Health, "BOTTOMLEFT", 2, -2)
 
 		self:Tag(self.Status, "[combaticon][restingicon][leadericon][mastericon]")
 	elseif unit == "party" or unit == "target" then
-		self.Status = ns.CreateFontString(self.Power or self.Health, 16, "RIGHT")
-		self.Status:SetPoint("CENTER", self.Power or self.Health, "BOTTOMRIGHT", -2, 0)
+		self.Status = ns.CreateFontString(self.overlay, 16, "RIGHT")
+		self.Status:SetPoint("RIGHT", self.Power or self.Health, "BOTTOMRIGHT", -2, -2)
 
 		self:Tag(self.Status, "[mastericon][leadericon]")
 	end
@@ -643,7 +658,7 @@ ns.Spawn = function(self, unit)
 	-------------------------
 
 	ns.CreateBorder(self, config.borderSize)
-	self:SetBorderParent(self.Power or self.Health)
+	self:SetBorderParent(self.overlay)
 	self.UpdateBorder = ns.UpdateBorder
 
 	self:SetBackdrop(config.backdrop)
@@ -671,7 +686,7 @@ ns.Spawn = function(self, unit)
 	----------------------------
 
 	if unit == "player" or unit == "party" or unit == "partypet" then
-		self.BuffReminder = (self.Power or self.Health):CreateTexture(nil, "OVERLAY")
+		self.BuffReminder = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.BuffReminder:SetPoint("CENTER", self)
 		self.BuffReminder:SetSize(ns.config.height, ns.config.height)
 	end
@@ -693,7 +708,7 @@ ns.Spawn = function(self, unit)
 	----------------------------
 
 	if IsAddOnLoaded("oUF_ReadyCheck") and unit == "player" or unit == "party" then
-		self.ReadyCheck = (self.Power or self.Health):CreateTexture(nil, "OVERLAY")
+		self.ReadyCheck = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.ReadyCheck:SetPoint("CENTER", self)
 		self.ReadyCheck:SetSize(config.height, config.height)
 

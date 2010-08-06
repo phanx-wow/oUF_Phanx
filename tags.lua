@@ -75,3 +75,14 @@ oUF.Tags["restingicon"] = function(unit)
 		return [[|TInterface\CharacterFrame\UI-StateIcon:16:16:0:0:256:256:0:128:0:108|t]]
 	end
 end
+
+local MAELSTROM = GetSpellInfo(53817)
+oUF.TagEvents["maelstrom"] = "UNIT_AURA UNIT_ENTERED_VEHICLE UNIT_EXITED_VEHICLE"
+oUF.Tags["maelstrom"] = function(unit)
+	if unit == "player" then
+		local name, _, icon, count = UnitBuff("player", MAELSTROM)
+		if count and count > 0 then
+			return count
+		end
+	end
+end

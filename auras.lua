@@ -218,7 +218,7 @@ if playerClass == "ROGUE" then addAuras({
 if playerClass == "SHAMAN" then addAuras({
 	[16246] = 3, -- Clearcasting <== Elemental Focus
 	[16166] = 3, -- Elemental Mastery
-	[53817] = 3, -- Maelstrom Weapon
+--	[53817] = 3, -- Maelstrom Weapon -- not shown since we're using a combopoints-like text display for it
 	[16188] = 3, -- Nature's Swiftness
 	[53390] = 3, -- Tidal Waves
 
@@ -228,10 +228,10 @@ if playerClass == "SHAMAN" then addAuras({
 	[5697]  = 1, -- Water Breathing <== Undending Breath
 	[546]   = 1, -- Water Walking
 
-	[49231] = 1, -- Earth Shock
+--	[49231] = 1, -- Earth Shock
 	[3600]  = 1, -- Earthbind
 	[49233] = 2, -- Flame Shock
-	[49236] = 1, -- Frost Shock
+--	[49236] = 1, -- Frost Shock
 	[37976] = 1, -- Stoneclaw Stun
 	[17364] = 2, -- Stormstrike
 }) end
