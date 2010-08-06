@@ -37,106 +37,88 @@ local whitelist
 
 ------------------------------------------------------------------------
 
-if myClass == "DRUID" then whitelist = {
-	[GetSpellInfo(99)]    = true,  -- Demoralizing Roar
-	[GetSpellInfo(770)]   = true,  -- Faerie Fire
-	[GetSpellInfo(16857)] = true,  -- Faerie Fire (Feral)
-	[GetSpellInfo(6795)]  = true,  -- Growl
-	[GetSpellInfo(22570)] = true,  -- Maim
-	[GetSpellInfo(33878)] = true,  -- Mangle (Bear)
-	[GetSpellInfo(33876)] = true,  -- Mangle (Cat)
-	[GetSpellInfo(59881)] = true,  -- Pounce Stun
+if myClass == "DRUID" then
+	whitelist = {
+	-- Buffs
+		--[GetSpellInfo()] = true,  -- Regrowth
+		--[GetSpellInfo()] = true,  -- Rejuvenation
 
-	[GetSpellInfo(702)]   = true, -- Curse of Weakness
-	[GetSpellInfo(56222)] = "Ability_Physical_Taunt", -- Dark Command
-	[GetSpellInfo(57603)] = "Ability_Physical_Taunt", -- Death Grip
-	[GetSpellInfo(62124)] = "Ability_Physical_Taunt", -- Hand of Reckoning
-	[GetSpellInfo(31790)] = "Ability_Physical_Taunt", -- Righteous Defense
-	[GetSpellInfo(355)]   = "Ability_Physical_Taunt", -- Taunt
-	[GetSpellInfo(1160)]  = "Ability_Druid_DemoralizingRoar", -- Demoralizing Shout
-	[GetSpellInfo(26016)] = "Ability_Druid_DemoralizingRoar", -- Vindication
-	[GetSpellInfo(46857)] = "Ability_Druid_Mangle2", -- Trauma
+	-- Debuffs
+		[GetSpellInfo(99)]    = true,  -- Demoralizing Roar
+		[GetSpellInfo(770)]   = true,  -- Faerie Fire
+		[GetSpellInfo(16857)] = true,  -- Faerie Fire (Feral)
+		[GetSpellInfo(6795)]  = true,  -- Growl
+		[GetSpellInfo(22570)] = true,  -- Maim
+		[GetSpellInfo(33878)] = true,  -- Mangle (Bear)
+		[GetSpellInfo(33876)] = true,  -- Mangle (Cat)
+		[GetSpellInfo(59881)] = true,  -- Pounce Stun
 
---	[GetSpellInfo(53692)] = false, -- Lifebloom
---	[GetSpellInfo(8936)]  = false, -- Regrowth
---	[GetSpellInfo(774)]   = false, -- Rejuvenation
---	[GetSpellInfo(52610)] = false, -- Savage Roar
---	[GetSpellInfo(48438)] = false, -- Wild Growth
-
---	[GetSpellInfo(5570)]  = false, -- Insect Swarm
---	[GetSpellInfo(33745)] = false, -- Lacerate
---	[GetSpellInfo(8921)]  = false, -- Moonfire
---	[GetSpellInfo(59881)] = false, -- Rake
---	[GetSpellInfo(1079)]  = false, -- Rip
-} end
+	-- Equivalent Debuffs
+		[GetSpellInfo(702)]   = true, -- Curse of Weakness
+		[GetSpellInfo(56222)] = "Ability_Physical_Taunt", -- Dark Command
+		[GetSpellInfo(57603)] = "Ability_Physical_Taunt", -- Death Grip
+		[GetSpellInfo(62124)] = "Ability_Physical_Taunt", -- Hand of Reckoning
+		[GetSpellInfo(31790)] = "Ability_Physical_Taunt", -- Righteous Defense
+		[GetSpellInfo(355)]   = "Ability_Physical_Taunt", -- Taunt
+		[GetSpellInfo(1160)]  = "Ability_Druid_DemoralizingRoar", -- Demoralizing Shout
+		[GetSpellInfo(26016)] = "Ability_Druid_DemoralizingRoar", -- Vindication
+		[GetSpellInfo(46857)] = "Ability_Druid_Mangle2", -- Trauma
+	}
+end
 
 ------------------------------------------------------------------------
 
-if myClass == "PALADIN" then whitelist = {
-	[GetSpellInfo(53563)] = true,  -- Beacon of Light
-	[GetSpellInfo(20217)] = true,  -- Blessing of Kings
-	[GetSpellInfo(19740)] = true,  -- Blessing of Might
-	[GetSpellInfo(20911)] = true,  -- Blessing of Sanctuary
-	[GetSpellInfo(19742)] = true,  -- Blessing of Wisdom
-	[GetSpellInfo(19752)] = true,  -- Divine Intervention
-	[GetSpellInfo(498)]   = true,  -- Divine Protection
-	[GetSpellInfo(64205)] = true,  -- Divine Sacrifice
-	[GetSpellInfo(642)]   = true,  -- Divine Shield
-	[GetSpellInfo(25898)] = true,  -- Greater Blessing of Kings
-	[GetSpellInfo(25782)] = true,  -- Greater Blessing of Might
-	[GetSpellInfo(25899)] = true,  -- Greater Blessing of Sanctuary
-	[GetSpellInfo(25894)] = true,  -- Greater Blessing of Wisdom
-	[GetSpellInfo(1044)]  = true,  -- Hand of Freedom
-	[GetSpellInfo(1022)]  = true,  -- Hand of Protection
-	[GetSpellInfo(6940)]  = true,  -- Hand of Sacrifice
-	[GetSpellInfo(1038)]  = true,  -- Hand of Salvation
-	[GetSpellInfo(53651)] = true,  -- Light's Beacon
-	[GetSpellInfo(53601)] = true,  -- Sacred Shield
---	[GetSpellInfo(58597)] = true,  -- Sacred Shield (proc)
+if myClass == "PALADIN" then
+	blacklist[GetSpellInfo(68055)] = true -- Judgements of the Just
+	blacklist[GetSpellInfo(26016)] = true -- Vindication
 
-	[GetSpellInfo(31935)] = true,  -- Avenger's Shield
-	[GetSpellInfo(853)]   = true,  -- Hammer of Justice
-	[GetSpellInfo(62124)] = true,  -- Hand of Reckoning
-	[GetSpellInfo(2812)]  = true,  -- Holy Wrath
-	[GetSpellInfo(20184)] = true,  -- Judgement of Justice
-	[GetSpellInfo(20267)] = true,  -- Judgement of Light
-	[GetSpellInfo(20186)] = true,  -- Judgement of Wisdom
-	[GetSpellInfo(20066)] = true,  -- Repentance
-	[GetSpellInfo(31790)] = true,  -- Righteous Defense
-	[GetSpellInfo(10326)] = true,  -- Turn Evil
-	[GetSpellInfo(26016)] = true,  -- Vindication
+	whitelist = {
+	-- Buffs
+		[GetSpellInfo(19752)] = true,  -- Divine Intervention
+		[GetSpellInfo(1044)]  = true,  -- Hand of Freedom
+		[GetSpellInfo(1022)]  = true,  -- Hand of Protection
+		[GetSpellInfo(6940)]  = true,  -- Hand of Sacrifice
+		[GetSpellInfo(1038)]  = true,  -- Hand of Salvation
 
-	[GetSpellInfo(56222)] = "Spell_Holy_UnyieldingFaith", -- Dark Command
-	[GetSpellInfo(57603)] = "Spell_Holy_UnyieldingFaith", -- Death Grip
-	[GetSpellInfo(6795)]  = "Spell_Holy_UnyieldingFaith", -- Growl
-	[GetSpellInfo(355)]   = "Spell_Holy_UnyieldingFaith", -- Taunt
-	[GetSpellInfo(99)]    = "Spell_Holy_Vindication", -- Demoralizing Roar
-	[GetSpellInfo(1160)]  = "Spell_Holy_Vindication", -- Demoralizing Shout
+	-- Debuffs
+		[GetSpellInfo(31935)] = true,  -- Avenger's Shield
+		[GetSpellInfo(853)]   = true,  -- Hammer of Justice
+		[GetSpellInfo(62124)] = true,  -- Hand of Reckoning
+		[GetSpellInfo(20184)] = true,  -- Judgement of Justice
+		[GetSpellInfo(20267)] = true,  -- Judgement of Light
+		[GetSpellInfo(20186)] = true,  -- Judgement of Wisdom
+		[GetSpellInfo(20066)] = true,  -- Repentance
+		[GetSpellInfo(31790)] = true,  -- Righteous Defense
+		[GetSpellInfo(10326)] = true,  -- Turn Evil
 
---	[GetSpellInfo(53742)] = false, -- Blood Corruption
-} end
+	-- Equivalent Debuffs
+		[GetSpellInfo(56222)] = "Spell_Holy_UnyieldingFaith", -- Dark Command
+		[GetSpellInfo(57603)] = "Spell_Holy_UnyieldingFaith", -- Death Grip
+		[GetSpellInfo(6795)]  = "Spell_Holy_UnyieldingFaith", -- Growl
+		[GetSpellInfo(355)]   = "Spell_Holy_UnyieldingFaith", -- Taunt
+		[GetSpellInfo(99)]    = "Spell_Holy_Vindication", -- Demoralizing Roar
+		[GetSpellInfo(1160)]  = "Spell_Holy_Vindication", -- Demoralizing Shout
+	}
+end
 
 ------------------------------------------------------------------------
 
-if myClass == "SHAMAN" then whitelist = {
-	[GetSpellInfo(974)]   = true,  -- Earth Shield
-	[GetSpellInfo(131)]   = true,  -- Water Breathing
-	[GetSpellInfo(546)]   = true,  -- Water Walking
+if myClass == "SHAMAN" then
+	whitelist = {
+	-- Debuffs
+		[GetSpellInfo(51514)] = true,  -- Hex
 
-	[GetSpellInfo(8042)]  = true,  -- Earth Shock
-	[GetSpellInfo(8056)]  = true,  -- Frost Shock
-	[GetSpellInfo(8034)]  = true,  -- Frostbrand Attack
-	[GetSpellInfo(51514)] = true,  -- Hex
+	-- Equivalent Debuffs
 
-	[GetSpellInfo(5697)]  = true,  -- Unending Breath
+	-- Buffs
+		[GetSpellInfo(974)]   = true,  -- Earth Shield
+		[GetSpellInfo(131)]   = true,  -- Water Breathing
+		[GetSpellInfo(546)]   = true,  -- Water Walking
 
---	[GetSpellInfo(70809)] = false, -- Chained Heal (Resto T10 4-piece bonus)
---	[GetSpellInfo(51945)] = false, -- Earthliving
---	[GetSpellInfo(61295)] = false, -- Riptide
-
---	[GetSpellInfo(8050)]  = false, -- Flame Shock
---	[GetSpellInfo(17364)] = false, -- Stormstrike
-} end
+	-- Equivalent Buffs
+		[GetSpellInfo(5697)]  = true,  -- Unending Breath
+	}
+end
 
 ------------------------------------------------------------------------
 
@@ -197,6 +179,8 @@ end
 
 ------------------------------------------------------------------------
 
+PHANX_DEBUG_FRAME = ChatFrame3
+
 local playerUnits = {
 	player = true,
 	pet = true,
@@ -205,11 +189,33 @@ local playerUnits = {
 
 if whitelist then
 	oUF_Phanx.CustomAuraFilter = function(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-		return (not blacklist[name]) and (whitelist[name] or caster == unit or (playerUnits[caster] and duration > 0))
+		if blacklist[name] then
+			PHANX_DEBUG_FRAME:AddMessage(name .. " blacklisted")
+			return
+		end
+		local show
+		if whitelist[name] then
+			PHANX_DEBUG_FRAME:AddMessage(name .. " whitelisted")
+			show = true
+		end
+		if caster == unit then
+			PHANX_DEBUG_FRAME:AddMessage(name .. " cast by unit")
+			show = true
+		end
+		if duration > 0 and playerUnits[caster] then
+			PHANX_DEBUG_FRAME:AddMessage(name .. " cast by player")
+			show = true
+		end
+		if not show then
+			PHANX_DEBUG_FRAME:AddMessage(name .. " not shown")
+		end
+		return show
+	--	return (not blacklist[name]) and (whitelist[name] or caster == unit or (playerUnits[caster] and duration > 0))
 	end
 else
 	oUF_Phanx.CustomAuraFilter = function(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-		return not blacklist[name]
+		PHANX_DEBUG_FRAME:AddMessage(format("CustomAuraFilter: %s on %s from %s (duration %d)", tostring(name), tostring(unit), tostring(caster), tonumber(duration)))
+		return (not blacklist[name]) and (caster == unit or (playerUnits[caster] and duration > 0))
 	end
 end
 
@@ -217,7 +223,6 @@ end
 
 if whitelist then
 	oUF_Phanx.auraIconMap = { }
-
 	for spell, icon in pairs(whitelist) do
 		if type(icon) == "string" then
 			oUF_Phanx.auraIconMap[spell] = icon
