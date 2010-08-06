@@ -22,12 +22,12 @@ local function applyThreatHighlight(self, unit)
 end
 
 local function Update(self, event, unit)
-	print("ThreatHighlight: Update", event, unit)
+	-- print("ThreatHighlight: Update", event, unit)
 	if unit and unit ~= self.unit then return end
 	if not unit then unit = self.unit end
 
 	local status = UnitThreatSituation(unit)
-	print("UnitThreatSituation", status)
+	-- print("UnitThreatSituation", status)
 
 	if status and status > 0 then
 		if type(self.ThreatHighlight) == "function" then
