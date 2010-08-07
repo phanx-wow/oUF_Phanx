@@ -22,9 +22,9 @@ oUF.Tags["unitcolor"] = function(unit)
 	elseif UnitIsEnemy(unit, "player") then
 		color = oUF.colors.reaction[1]
 	else
-		color = oUF.colors.reaction[UnitReaction(unit, "player") or 5] or oUF.colors.disconnected
+		color = oUF.colors.reaction[UnitReaction(unit, "player") or 5]
 	end
-	return ("|cff%02x%02x%02x"):format(color[1] * 255, color[2] * 255, color[3] * 255)
+	return color and ("|cff%02x%02x%02x"):format(color[1] * 255, color[2] * 255, color[3] * 255) or "|cffffffff"
 end
 
 oUF.TagEvents["powercolor"] = "UNIT_DISPLAYPOWER"
