@@ -514,6 +514,31 @@ ns.Spawn = function(self, unit)
 		self:Tag(self.Maelstrom, "[maelstrom]")
 	end
 
+	-----------------------
+	-- Status icons --
+	-----------------------
+
+	if unit == "player" then
+		self.GroupStatus = ns.CreateFontString(self.overlay, 16, "LEFT")
+		self.GroupStatus:SetPoint("LEFT", self.Health, "TOPLEFT", 2, 2)
+
+		self:Tag(self.GroupStatus, "[leadericon][mastericon]")
+
+		self.Resting = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.Resting:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 0, -2)
+		self.Resting:SetSize(20, 20)
+
+		self.Combat = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.Combat:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", 0, -2)
+		self.Combat:SetSize(24, 24)
+
+	elseif unit == "party" or unit == "target" then
+		self.Status = ns.CreateFontString(self.overlay, 16, "RIGHT")
+		self.Status:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", -2, 0)
+
+		self:Tag(self.Status, "[mastericon][leadericon]")
+	end
+
 	----------------
 	-- Raid icons --
 	----------------
@@ -530,22 +555,6 @@ ns.Spawn = function(self, unit)
 		self.LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", 2, 0)
 		self.LFDRole:SetSize(16, 16)
-	end
-
-	-----------------------
-	-- Misc status icons --
-	-----------------------
-
-	if unit == "player" then
-		self.Status = ns.CreateFontString(self.overlay, 16, "LEFT")
-		self.Status:SetPoint("LEFT", self.Power or self.Health, "BOTTOMLEFT", 2, -2)
-
-		self:Tag(self.Status, "[combaticon][restingicon][leadericon][mastericon]")
-	elseif unit == "party" or unit == "target" then
-		self.Status = ns.CreateFontString(self.overlay, 16, "RIGHT")
-		self.Status:SetPoint("RIGHT", self.Power or self.Health, "BOTTOMRIGHT", -2, -2)
-
-		self:Tag(self.Status, "[mastericon][leadericon]")
 	end
 
 	----------------
