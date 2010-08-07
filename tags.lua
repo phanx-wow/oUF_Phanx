@@ -37,9 +37,11 @@ end
 oUF.TagEvents["combaticon"] = "PLAYER_REGEN_DISABLED PLAYER_REGEN_ENABLED"
 oUF.Tags["combaticon"] = function(unit)
 	if unit == "player" and UnitAffectingCombat("player") then
-		return [[|TInterface\CharacterFrame\UI-StateIcon:20:20:0:0:256:256:132:252:4:121|t ]]
+		return [[|TInterface\CharacterFrame\UI-StateIcon:0:0:0:0:64:64:37:58:5:26|t]]
 	end
 end
+oUF.UnitlessTagEvents["PLAYER_REGEN_DISABLED"] = true
+oUF.UnitlessTagEvents["PLAYER_REGEN_ENABLED"] = true
 
 oUF.TagEvents["leadericon"] = "PARTY_LEADER_CHANGED PARTY_MEMBERS_CHANGED"
 oUF.Tags["leadericon"] = function(unit)
@@ -65,14 +67,14 @@ oUF.Tags["mastericon"] = function(unit)
 		munit = "raid" .. rid
 	end
 	if munit and UnitIsUnit(munit, unit) then
-		return [[|TInterface\GroupFrame\UI-Group-MasterLooter:0|t]]
+		return [[|TInterface\GroupFrame\UI-Group-MasterLooter:0:0:0:2|t]]
 	end
 end
 
 oUF.TagEvents["restingicon"] = "PLAYER_UPDATE_RESTING"
 oUF.Tags["restingicon"] = function(unit)
 	if unit == "player" and IsResting() then
-		return [[|TInterface\CharacterFrame\UI-StateIcon:16:16:0:0:256:256:0:128:0:108|t]]
+		return [[|TInterface\CharacterFrame\UI-StateIcon:0:0:0:-6:64:64:28:6:6:28|t]]
 	end
 end
 

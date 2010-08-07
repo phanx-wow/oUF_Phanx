@@ -17,7 +17,7 @@ local playerClass = select(2, UnitClass("player"))
 
 local buffcheck = function(unit)
 	local found
-	for _, buff in ipairs(spells) do
+	for _, buff in ipairs(buffs) do
 		if UnitBuff(unit, buff) then
 			found = true
 			break
