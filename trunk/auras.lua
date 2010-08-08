@@ -325,13 +325,13 @@ if playerClass == "DRUID" or playerclass == "WARRIOR" then addAuras({
 	[33878] = 1, -- Mangle (Bear)
 	[33876] = 1, -- Mangle (Cat)
 	[46857] = 1, -- Trauma
-})
+}) end
 
 -- Healing Reduced (Player)
 if playerClass == "HUNTER" or playerClass == "WARRIOR" then addAuras({
 	[49050] = 1, -- Aimed Shot
 	[47486] = 1, -- Mortal Strike
-})
+}) end
 
 -- Taunted
 if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "WARRIOR" then addAuras({
@@ -368,14 +368,14 @@ addAuras({
 	[6358]  = 1, -- Seduction
 	[10955] = 1, -- Shackle Undead
 	[10326] = 1, -- Turn Evil
-}) end
+})
 
 ------------------------------------------------------------------------
 -- Level 80 Trinkets
-
+--[[
 addAuras({
 })
-
+--]]
 ------------------------------------------------------------------------
 -- Healing Reduced (NPC)
 --[[
@@ -497,7 +497,7 @@ ns.CustomAuraFilter = function(icons, unit, icon, name, rank, texture, count, dt
 		return playerunits[caster]
 	elseif aurav == 1 then
 		return true
-	elseif not unit or caster == unit then
-		return not UnitPlayerControlled(unit)
+	elseif not caster or caster == unit then
+		return UnitCanAttack(unit, "player") and not UnitPlayerControlled(unit)
 	end
 end

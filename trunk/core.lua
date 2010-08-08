@@ -221,14 +221,14 @@ ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
 	if OmniCC then
 		for i = 1, button:GetNumChildren() do
 			local child = select(i, button:GetChildren())
-			if child.text and child.icon then
+			if child.text and child.icon == button.icon then
 				-- found it!
 				button.timer = child.text
 
 				button.timer:ClearAllPoints()
 				button.timer:SetPoint("CENTER", button, "TOP", 0, 2)
 
-				button.timer:SetFont(config.font, 18, config.fontOutline)
+				button.timer:SetFont(config.font, unit:match("^party") and 14 or 18, config.fontOutline)
 				button.timer.SetFont = noop
 
 				button.timer:SetTextColor(1, 0.8, 0)
@@ -240,8 +240,6 @@ ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
 			end
 		end
 	end
-
-	button.timer = true
 end
 
 ------------------------------------------------------------------------
@@ -285,8 +283,8 @@ ns.PostChannelStart = function(self, unit, name, rank, text)
 	if self.SafeZone then
 		self.SafeZone:SetDrawLayer("ARTWORK")
 		self.SafeZone:ClearAllPoints()
-		self.SafeZone:SetPoint("TOPLEFT", self.Castbar)
-		self.SafeZone:SetPoint("BOTTOMLEFT", self.Castbar)
+		self.SafeZone:SetPoint("TOPLEFT", self)
+		self.SafeZone:SetPoint("BOTTOMLEFT", self)
 	end
 end
 
@@ -434,7 +432,7 @@ ns.Spawn = function(self, unit)
 
 	if ns.uconfig[unit].power then
 		self.Power = ns.CreateStatusBar(self, (ns.uconfig[unit].width or 1) > 0.75 and 16, "LEFT")
-		self.Power:SetFrameLevel(self.Health:GetFrameLevel() + 1)
+		self.Power:SetFrameLevel(self.Health:GetFrameLevel() + 2)
 		self.Power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
 		self.Power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)
 		self.Power:SetHeight(config.height * config.powerHeight)
@@ -461,7 +459,7 @@ ns.Spawn = function(self, unit)
 
 	self.overlay = CreateFrame("Frame", nil, self)
 	self.overlay:SetAllPoints(self)
-	self.overlay:SetFrameLevel(max(self.Health:GetFrameLevel(), self.Power and self.Power:GetFrameLevel() or 0) + 1)
+	self.overlay:SetFrameLevel(self.Health:GetFrameLevel() + (self.Power and 3 or 2))
 
 	self.Health.value:SetParent(self.overlay)
 
@@ -725,8 +723,15 @@ ns.Spawn = function(self, unit)
 
 	if IsAddOnLoaded("oUF_HealComm4") and (unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN")) then
 		self.HealCommBar = ns.CreateStatusBar(self.Health)
+		self.HealCommBar:SetFrameLevel(self.Health:GetFrameLevel() + 1)
 		self.HealCommBar:SetAllPoints(self.Health)
-		self.HealCommBar:SetStatusBarColor(0.2, 1, 0.2, 0.5)
+		self.HealCommBar:SetAlpha(0.25)
+		self.HealCommBar:SetStatusBarColor(0, 1, 0)
+
+		self.HealCommBar.bg:ClearAllPoints()
+		self.HealCommBar.bg:SetTexture("")
+		self.HealCommBar.bg:Hide()
+		self.HealCommBar.bg = nil
 
 		self.allowHealCommOverflow = false
 		self.HealCommOthersOnly = false
