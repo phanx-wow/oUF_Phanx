@@ -88,11 +88,7 @@ ns.uconfig = {
 --	Colors
 ------------------------------------------------------------------------
 
-oUF.colors.castbar = {
-	friend = { 0.2, 0.6, 0.2 },
-	enemy = { 0.6, 0.2, 0.2 },
-	shield = { 0.6, 0.5, 0 },
-}
+oUF.colors.uninterruptible = { 1, 0.7, 0 }
 
 oUF.colors.debuff = { }
 for type, color in pairs(DebuffTypeColor) do
