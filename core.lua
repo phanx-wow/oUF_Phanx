@@ -553,7 +553,7 @@ ns.Spawn = function(self, unit)
 
 	if unit == "player" or unit == "party" then
 		self.LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", 2, 0)
+		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and -2 or 2, 0)
 		self.LFDRole:SetSize(16, 16)
 	end
 
