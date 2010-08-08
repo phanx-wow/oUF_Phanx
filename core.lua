@@ -221,24 +221,30 @@ ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
 	if OmniCC then
 		for i = 1, button:GetNumChildren() do
 			local child = select(i, button:GetChildren())
-			if child.text and child.icon == button.icon then
+			if child.text and (child.icon == button.icon or child.cooldown == button.cd) then
 				-- found it!
+				child.SetAlpha = noop
+				child.SetScale = noop
+
+				child.text:ClearAllPoints()
+				child.text:SetPoint("CENTER", button, "TOP", 0, 2)
+
+				child.text:SetFont(config.font, unit:match("^party") and 14 or 18, config.fontOutline)
+				child.text.SetFont = noop
+
+				child.text:SetTextColor(1, 0.8, 0)
+				child.text.SetTextColor = noop
+				child.text.SetVertexColor = noop
+
+				tinsert(ns.fontstrings, child.text)
+
 				button.timer = child.text
-
-				button.timer:ClearAllPoints()
-				button.timer:SetPoint("CENTER", button, "TOP", 0, 2)
-
-				button.timer:SetFont(config.font, unit:match("^party") and 14 or 18, config.fontOutline)
-				button.timer.SetFont = noop
-
-				button.timer:SetTextColor(1, 0.8, 0)
-				button.timer.SetTextColor = noop
-
-				tinsert(ns.fontstrings, button.timer)
 
 				return
 			end
 		end
+	else
+		button.timer = true
 	end
 end
 
