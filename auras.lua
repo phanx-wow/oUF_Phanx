@@ -224,9 +224,9 @@ if playerClass == "SHAMAN" then addAuras({
 
 	[49284] = 1, -- Earth Shield
 	[61301] = 1, -- Riptide
-	[131]   = 1, -- Water Breathing
-	[5697]  = 1, -- Water Breathing <== Undending Breath
-	[546]   = 1, -- Water Walking
+--	[131]   = 1, -- Water Breathing
+--	[5697]  = 1, -- Water Breathing <== Undending Breath
+--	[546]   = 1, -- Water Walking
 
 --	[49231] = 1, -- Earth Shock
 	[3600]  = 1, -- Earthbind
@@ -246,8 +246,8 @@ if playerClass == "WARLOCK" then addAuras({
 	[17941] = 3, -- Shadow Trance
 
 	[27239] = 1, -- Soulstone Resurrection
-	[5697]  = 1, -- Unending Breath
-	[131]   = 1, -- Unending Breath <== Water Breathing
+--	[5697]  = 1, -- Unending Breath
+--	[131]   = 1, -- Unending Breath <== Water Breathing
 
 	[17962] = 2, -- Conflagrate
 	[47813] = 2, -- Corruption
@@ -327,7 +327,7 @@ if playerClass == "DRUID" or playerclass == "WARRIOR" then addAuras({
 	[46857] = 1, -- Trauma
 })
 
--- Healing Reduced
+-- Healing Reduced (Player)
 if playerClass == "HUNTER" or playerClass == "WARRIOR" then addAuras({
 	[49050] = 1, -- Aimed Shot
 	[47486] = 1, -- Mortal Strike
@@ -377,8 +377,15 @@ addAuras({
 })
 
 ------------------------------------------------------------------------
+-- Healing Reduced (NPC)
+--[[
+if playerClass == "DRUID" or playerClass == "PALADIN" or playerClass =="PRIEST" or playerClass == "SHAMAN" then addAuras({
+	[63038] = 1, -- Ulduar ==> Yogg-Saron ==> Dark Volley
+}) end
+--]]
+------------------------------------------------------------------------
 -- Raid Encounters
-
+--[[
 addAuras({
 	-- Naxxramas
 
@@ -387,6 +394,26 @@ addAuras({
 	-- Obsidian Sanctum
 
 	-- Ulduar
+	[62717] = 1, -- Ignis the Furnace Master ==> Slag Pot
+	[63024] = 1, -- XT-002 Deconstructor ==> Gravity Bomb
+	[63018] = 1, -- XT-002 Deconstructor ==> Searing Light
+	[61888] = 1, -- Steelbreaker => Overwhelming Power
+	[63355] = 1, -- Kologarn ==> Crunch Armor
+	[64290] = 1, -- Kologarn ==> Stone Grip
+	[64396] = 1, -- Auriaya ==> Guardian Swarm
+	[64666] = 1, -- Auriaya ==> Savage Pounce
+	[62532] = 1, -- Freya ==> Conservator's Grip
+--	[62310] = 1, -- Freya ==> Impale
+	[62283] = 1, -- Freya ==> Iron Roots
+	[61969] = 1, -- Hodir ==> Flash Freeze
+	[62130] = 1, -- Thorim ==> Unbalancing Strike
+	[62997] = 1, -- Mimiron ==> Plasma Blast
+	[63276] = 1, -- General Vezax ==> Mark of the Faceless
+	[63802] = 1, -- Yogg-Saron ==> Brain Link
+	[63830] = 1, -- Yogg-Saron ==> Malady of the Mind
+	[63134] = 1, -- Yogg-Saron ==> Sara's Blessing
+	[64125] = 1, -- Yogg-Saron ==> Squeeze
+	[64412] = 1, -- Algalon the Observer ==> Phase Punch
 
 	-- Trial of the Crusader
 	[66331] = 1, -- Gormok the Impaler ==> Impale
@@ -433,7 +460,7 @@ addAuras({
 	[74562] = 1, -- Halion ==> Fiery Consumption
 	[74792] = 1, -- Halion ==> Soul Consumption
 }) end
-
+--]]
 ------------------------------------------------------------------------
 --[[
 ns.AuraBlacklist = { -- not used currently

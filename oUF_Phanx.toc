@@ -27,4 +27,5 @@ playerstate.lua
 tags.lua
 tooltips.lua
 
+core.xml
 core.lua

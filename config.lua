@@ -64,17 +64,23 @@ ns.uconfig = {
 		point = "LEFT target RIGHT 10 0",
 		width = 0.5,
 	},
---	focus = {
---		power = true,
---	},
---	focustarget = {
---		width = 0.5,
---	},
+	focus = {
+		point = "TOPLEFT target BOTTOMLEFT 0 -30",
+		power = true,
+	},
+	focustarget = {
+		point = "LEFT focus RIGHT 10 0",
+		width = 0.5,
+	},
 	party = {
-		point = "BOTTOMLEFT targettarget BOTTOMRIGHT 175 125",
+		point = "TOPLEFT targettarget BOTTOMRIGHT 110 250",
 		width = 0.5,
 		power = true,
-		attributes = { "showParty", true, "yOffset", -25, "xOffset", 0, "showPlayer", true },
+		attributes = { "showParty", true, "showPlayer", true, "template", "oUF_PhanxPartyTemplate", "xOffset", 0, "yOffset", -25 },
+		visibility = "party",
+	},
+	partypet = {
+		width = 0.25,
 	},
 }
 
