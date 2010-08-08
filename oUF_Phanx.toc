@@ -14,7 +14,6 @@
 ## Dependencies: oUF
 ## OptionalDependencies: LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, oUF_AFK, oUF_ReadyCheck, oUF_Smooth
 
-# elements\buffs.lua
 elements\debuffs.lua
 # elements\heals.lua
 # elements\resurrections.lua
@@ -24,7 +23,7 @@ config.lua
 
 auras.lua
 border.lua
-playerstate.lua
+# playerstate.lua
 tags.lua
 tooltips.lua
 

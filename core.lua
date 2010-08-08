@@ -690,16 +690,6 @@ ns.Spawn = function(self, unit)
 		self.ThreatHighlight = ns.UpdateThreatHighlight
 	end
 
-	----------------------------
-	-- Element: Buff reminder --
-	----------------------------
-
-	if unit == "player" or unit == "party" or unit == "partypet" then
-		self.BuffReminder = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.BuffReminder:SetPoint("CENTER", self)
-		self.BuffReminder:SetSize(ns.config.height, ns.config.height)
-	end
-
 	---------------------------
 	-- Plugin: oUF_HealComm4 --
 	---------------------------
@@ -710,6 +700,15 @@ ns.Spawn = function(self, unit)
 		self.HealCommBar:SetStatusBarColor(0.2, 1, 0.2, 0.5)
 
 		self.allowHealCommOverflow = false
+	elseif (unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN")) then
+		self.Heals = ns.CreateStatusBar(self.Health)
+		self.Heals:SetHeight(self.Health:GetHeight() - (self.Power and self.Power:GetHeight() or 0))
+		self.Heals:SetStatusBarColor(0.2, 1, 0.2, 0.5)
+
+		self.Heals.allowOverflow = false
+		self.Heals.anchor = "LEFT"
+		self.Heals.ignoreHoTs = true
+		self.Heals.ignoreOwnHeals = false
 	end
 
 	----------------------------
