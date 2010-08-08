@@ -23,7 +23,7 @@ config.lua
 
 auras.lua
 border.lua
-# playerstate.lua
+playerstate.lua
 tags.lua
 tooltips.lua
 
