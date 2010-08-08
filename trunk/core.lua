@@ -393,6 +393,9 @@ end
 ------------------------------------------------------------------------
 
 ns.Spawn = function(self, unit)
+	if self:GetAttribute("unitsuffix") == "pet" then
+		unit = unit .. "pet"
+	end
 	-- print("Spawn", unit, self:GetName())
 
 	self.mouseovers = { }
@@ -488,7 +491,7 @@ ns.Spawn = function(self, unit)
 		self:Tag(self.Name, "[unitcolor][name]")
 	end
 
-	if unit == "targettarget" or unit == "party" then
+	if unit == "targettarget" or unit == "focustarget" or unit == "party" or unit == "partypet" then
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
 		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
@@ -580,26 +583,48 @@ ns.Spawn = function(self, unit)
 		self.Buffs.CustomFilter   = ns.CustomAuraFilter
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+	elseif unit == "party" then
+		local GAP = 6
+
+		self.Buffs = CreateFrame("Frame", nil, self)
+		self.Buffs:SetPoint("RIGHT", self, "LEFT", -10, 0)
+		self.Buffs:SetHeight(config.height)
+		self.Buffs:SetWidth((config.height * 4) + (GAP * 3))
+
+		self.Buffs["growth-x"] = "LEFT"
+		self.Buffs["growth-y"] = "DOWN"
+		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
+		self.Buffs["num"] = 4
+		self.Buffs["size"] = config.height
+		self.Buffs["spacing-x"] = GAP
+		self.Buffs["spacing-y"] = GAP
+
+		self.Buffs.CustomFilter   = ns.CustomAuraFilter
+		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 	elseif unit == "target" then
 		local GAP = 6
 
-		self.Debuffs = CreateFrame("Frame", nil, self)
-		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
-		self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
-		self.Debuffs:SetHeight(config.height * 2 + GAP)
+		self.Auras = CreateFrame("Frame", nil, self)
+		self.Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
+		self.Auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
+		self.Auras:SetHeight(config.height * 2 + GAP)
 
-		self.Debuffs["growth-x"] = "RIGHT"
-		self.Debuffs["growth-y"] = "UP"
-		self.Debuffs["initialAnchor"] = "BOTTOMLEFT"
-		self.Debuffs["num"] = floor((config.width - 4 + GAP) / (config.height + GAP))
-		self.Debuffs["showDebuffType"] = true
-		self.Debuffs["size"] = config.height
-		self.Debuffs["spacing-x"] = GAP
-		self.Debuffs["spacing-y"] = GAP
+		self.Auras["gap"] = true
+		self.Auras["growth-x"] = "RIGHT"
+		self.Auras["growth-y"] = "UP"
+		self.Auras["initialAnchor"] = "BOTTOMLEFT"
+		self.Auras["numBuffs"] = floor((config.width - 4 + GAP) / (config.height + GAP))
+		self.Auras["numDebuffs"] = floor((config.width - 4 + GAP) / (config.height + GAP))
+		self.Auras["showBuffType"] = false
+		self.Auras["showDebuffType"] = true
+		self.Auras["size"] = config.height
+		self.Auras["spacing-x"] = GAP
+		self.Auras["spacing-y"] = GAP
 
-		self.Debuffs.CustomFilter   = ns.CustomAuraFilter
-		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
-		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+		self.Auras.CustomFilter   = ns.CustomAuraFilter
+		self.Auras.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Auras.PostUpdateIcon = ns.PostUpdateAuraIcon
 	end
 
 	------------------------------
@@ -627,20 +652,14 @@ ns.Spawn = function(self, unit)
 			self.Castbar.SafeZone:SetTexture(config.statusbar)
 			self.Castbar.SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
 
-			self.Castbar.Time = self.Castbar:CreateFontString(nil, "OVERLAY")
+			self.Castbar.Time = ns.CreateFontString(self.Castbar, 20, "RIGHT")
 			self.Castbar.Time:SetPoint("RIGHT", self.Castbar, "RIGHT", -4, 0)
-			self.Castbar.Time:SetFont(config.font, 20, "OUTLINE")
-			self.Castbar.Time:SetJustifyH("RIGHT")
-			self.Castbar.Time:SetShadowOffset(1, -1)
 
 			self.Castbar.CustomDelayText = ns.CustomDelayText
 			self.Castbar.CustomTimeText = ns.CustomTimeText
 		elseif (ns.uconfig[unit].width or 1) > 0.75 then
-			self.Castbar.Text = self.Castbar:CreateFontString(nil, "OVERLAY")
+			self.Castbar.Text = ns.CreateFontString(self.Castbar, 16, "LEFT")
 			self.Castbar.Text:SetPoint("LEFT", self.Castbar, "LEFT", 4, 0)
-			self.Castbar.Text:SetFont(config.font, 16, "OUTLINE")
-			self.Castbar.Text:SetJustifyH("LEFT")
-			self.Castbar.Text:SetShadowOffset(1, -1)
 		end
 
 		self.Castbar.PostCastStart = ns.PostCastStart
@@ -690,6 +709,16 @@ ns.Spawn = function(self, unit)
 		self.ThreatHighlight = ns.UpdateThreatHighlight
 	end
 
+	---------------------
+	-- Plugin: oUF_AFK --
+	---------------------
+
+	if IsAddOnLoaded("oUF_AFK") and (unit == "player" or unit == "party") then
+		self.AFK = ns.CreateFontString(self.overlay, 12, "CENTER")
+		self.AFK:SetPoint("CENTER", self.Health, "BOTTOM", 0, -2)
+		self.AFK.fontFormat = "AFK %s:%s"
+	end
+
 	---------------------------
 	-- Plugin: oUF_HealComm4 --
 	---------------------------
@@ -731,7 +760,7 @@ ns.Spawn = function(self, unit)
 	-- Plugin: oUF_Smooth --
 	------------------------
 
-	if IsAddOnLoaded("oUF_Smooth") and unit ~= "party" and unit ~= "partypet" then
+	if IsAddOnLoaded("oUF_Smooth") and not unit:match(".+target$") then
 		self.Health.Smooth = true
 		if self.Power then
 			self.Power.Smooth = true
@@ -742,16 +771,18 @@ end
 
 ------------------------------------------------------------------------
 
-oUF:RegisterStyle("Goat", ns.Spawn)
+oUF:RegisterStyle("Phanx", ns.Spawn)
 
 oUF:Factory(function(oUF)
-	oUF:SetActiveStyle("Goat")
+	oUF:SetActiveStyle("Phanx")
 
 	for u, udata in pairs(ns.uconfig) do
-		if udata.attributes then
-			ns.headers[u] = oUF:SpawnHeader(nil, nil, u, unpack(udata.attributes))
-		else
-			ns.frames[u] = oUF:Spawn(u)
+		if udata.point then
+			if udata.attributes then
+				ns.headers[u] = oUF:SpawnHeader(nil, nil, udata.visibility, unpack(udata.attributes))
+			else
+				ns.frames[u] = oUF:Spawn(u)
+			end
 		end
 	end
 
