@@ -249,7 +249,7 @@ ns.PostCastStart = function(self, unit, name, rank, castid)
 	if UnitIsUnit(unit, "player") then
 		r, g, b = unpack(colors.class[playerClass])
 	elseif self.interrupt then
-		r, g, b = unpack(colors.reaction[4])
+		r, g, b = unpack(colors.uninterruptible)
 	elseif UnitIsFriend(unit, "player") then
 		r, g, b = unpack(colors.reaction[5])
 	else
