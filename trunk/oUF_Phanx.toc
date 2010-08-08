@@ -12,7 +12,7 @@
 ## X-WoWI-ID: 13993
 
 ## Dependencies: oUF
-## OptionalDependencies: LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, oUF_AFK, oUF_ReadyCheck, oUF_Smooth
+## OptionalDependencies: LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, oUF_AFK, oUF_HealComm4, oUF_ReadyCheck, oUF_Smooth
 
 elements\debuffs.lua
 # elements\heals.lua
