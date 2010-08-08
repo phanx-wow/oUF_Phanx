@@ -13,10 +13,11 @@ local playerClass = select(2, UnitClass("player"))
 if playerClass == "HUNTER" or playerClass == "MAGE" or playerClass == "ROGUE" or playerClass == "WARLOCK" then return end
 
 ns.eventFrame = CreateFrame("Frame")
+ns.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 local TANKFORM
 
-local function tankCheck()
+local function tankCheck(_, event)
 	local form = GetShapeshiftForm() or 0
 	if form > 0 then
 		local _, name = GetShapeshiftFormInfo(form)
@@ -36,11 +37,10 @@ end
 
 if playerClass == "DRUID" then
 	TANKFORM = GetSpellInfo(9634)
-	ns.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	ns.eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
 	ns.eventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 	ns.eventFrame:SetScript("OnEvent", function()
-		local t1, t2, t3 = GetNumTalents(1) or 0, GetNumTalents(2) or 0, GetNumTalents(3) or 0
+		local t1, t2, t3 = select(3, GetTalentTabInfo(1)) or 0, select(3, GetTalentTabInfo(2)) or 0, select(3, GetTalentTabInfo(3)) or 0
 		ns.isHealing = (t3 > t1) and (t3 > t2)
 		tankCheck()
 	end)
@@ -49,11 +49,10 @@ end
 
 if playerClass == "PALADIN" then
 	TANKFORM = GetSpellInfo(25780)
-	ns.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	ns.eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
 	ns.eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 	ns.eventFrame:SetScript("OnEvent", function()
-		local t1, t2, t3 = GetNumTalents(1) or 0, GetNumTalents(2) or 0, GetNumTalents(3) or 0
+		local t1, t2, t3 = select(3, GetTalentTabInfo(1)) or 0, select(3, GetTalentTabInfo(2)) or 0, select(3, GetTalentTabInfo(3)) or 0
 		ns.isHealing = (t1 > t2) and (t1 > t3)
 		ns.isTanking = UnitAura("player", TANKFORM, "HELPFUL")
 	end)
@@ -61,20 +60,18 @@ if playerClass == "PALADIN" then
 end
 
 if playerClass == "PRIEST" then
-	ns.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	ns.eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
 	ns.eventFrame:SetScript("OnEvent", function()
-		local t1, t2, t3 = GetNumTalents(1) or 0, GetNumTalents(2) or 0, GetNumTalents(3) or 0
+		local t1, t2, t3 = select(3, GetTalentTabInfo(1)) or 0, select(3, GetTalentTabInfo(2)) or 0, select(3, GetTalentTabInfo(3)) or 0
 		ns.isHealing = (t1 > t3) or (t2 > t3)
 	end)
 	return
 end
 
 if playerClass == "SHAMAN" then
-	ns.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	ns.eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
-	ns.eventFrame:SetScript("OnEvent", function()
-		local t1, t2, t3 = GetNumTalents(1) or 0, GetNumTalents(2) or 0, GetNumTalents(3) or 0
+	ns.eventFrame:SetScript("OnEvent", function(_, event)
+		local t1, t2, t3 = select(3, GetTalentTabInfo(1)) or 0, select(3, GetTalentTabInfo(2)) or 0, select(3, GetTalentTabInfo(3)) or 0
 		ns.isHealing = (t3 > t1) and (t3 > t2)
 	end)
 	return

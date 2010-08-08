@@ -26,7 +26,7 @@ ns.si = function(value)
 		return ("%.2fm"):format(value / 1000000)
 	elseif absvalue >= 100000 then
 		return ("%.0fk"):format(value / 1000)
-	elseif absvalue >= 10000 then
+	elseif absvalue >= 1000 then
 		return ("%.1fk"):format(value / 1000)
 	end
 
@@ -110,9 +110,9 @@ ns.PostUpdateHealth = function(self, unit, cur, max)
 	-- OTHER:  percent, current on mouseover
 
 	if cur < max then
-		if ns.isHealer and UnitCanAssist("player", unit) then
-			if self:GetParent().isMouseOver then
-				self.value:SetFormattedText("|cff%02x%02x%02x%d%%|r", color[1] * 255, color[2] * 255, color[3] * 255, floor(UnitHealth(unit) / UnitHealthMax(unit) * 100 + 0.5))
+		if ns.isHealing and UnitCanAssist("player", unit) then
+			if self:GetParent().isMouseOver and not unit:match("^party") then
+				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
 			else
 				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit) - UnitHealthMax(unit)))
 			end
@@ -700,7 +700,9 @@ ns.Spawn = function(self, unit)
 		self.HealCommBar:SetStatusBarColor(0.2, 1, 0.2, 0.5)
 
 		self.allowHealCommOverflow = false
-	elseif (unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN")) then
+		self.HealCommOthersOnly = false
+		self.HealCommTimeframe = 3
+--[[
 		self.Heals = ns.CreateStatusBar(self.Health)
 		self.Heals:SetHeight(self.Health:GetHeight() - (self.Power and self.Power:GetHeight() or 0))
 		self.Heals:SetStatusBarColor(0.2, 1, 0.2, 0.5)
@@ -709,6 +711,7 @@ ns.Spawn = function(self, unit)
 		self.Heals.anchor = "LEFT"
 		self.Heals.ignoreHoTs = true
 		self.Heals.ignoreOwnHeals = false
+--]]
 	end
 
 	----------------------------
