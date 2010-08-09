@@ -16,7 +16,7 @@
 
 elements\debuffs.lua
 # elements\heals.lua
-# elements\resurrections.lua
+elements\resurrections.lua
 elements\threat.lua
 
 config.lua

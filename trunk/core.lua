@@ -42,7 +42,7 @@ ns.UpdateBorder = function(self)
 	-- print("UpdateBorder", self.unit, "threat", threat, "debuff", debuff, "dispellable", dispellable)
 
 	local color
-	if dispellable or (debuff and threat == 0) then
+	if dispellable then
 		-- print(self.unit, "has dispellable debuff:", debuff)
 		color = colors.debuff[debuff]
 	elseif threat > 1 then
@@ -307,12 +307,6 @@ end
 ns.UpdateDispelHighlight = function(self, unit, debuffType, canDispel)
 	-- print("UpdateDispelHighlight", unit, debuffType, canDispel)
 
-	if self.debuffType == debuffType then return end
-
-	self.debuffType = debuffType
-	self.debuffDispellable = canDispel
-
-	-- print("New debuff type:", debuffType, canDispel and "dispellable" or "not dispellable")
 	self:UpdateBorder()
 end
 
@@ -326,9 +320,9 @@ ns.UpdateThreatHighlight = function(self, unit, status)
 	end
 
 	if self.threatLevel == status then return end
+	-- print("New threat status:", status)
 
 	self.threatLevel = status
-	-- print("New threat status:", status)
 	self:UpdateBorder()
 end
 
@@ -406,6 +400,8 @@ ns.Spawn = function(self, unit)
 
 	self.menu = ns.UnitFrame_DropdownMenu
 
+	self:SetScript("OnAttributeChanged", OnAttributeChanged)
+
 	self:SetScript("OnEnter", ns.UnitFrame_OnEnter)
 	self:SetScript("OnLeave", ns.UnitFrame_OnLeave)
 
@@ -468,7 +464,11 @@ ns.Spawn = function(self, unit)
 	self.overlay:SetFrameLevel(self.Health:GetFrameLevel() + (self.Power and 3 or 2))
 
 	self.Health.value:SetParent(self.overlay)
-
+--[[
+	if self:GetAttribute("unitsuffix") == "pet" then
+		self.overlay:RegisterEvent("UNIT_PET", UpdateAllElements)
+	end
+--]]
 	--------------------------
 	-- Element: Threat text --
 	--------------------------
@@ -678,7 +678,7 @@ ns.Spawn = function(self, unit)
 	-- Range --
 	-----------
 
-	if unit ~= "player" and not unit:match("target") then
+	if unit == "pet" or unit == "party" or unit == "partypet" then
 		self.Range = {
 			insideAlpha = 1,
 			outsideAlpha = 0.5,
@@ -711,6 +711,15 @@ ns.Spawn = function(self, unit)
 	if not unit:match("^.+target$") then
 		self.threatLevel = 0
 		self.ThreatHighlight = ns.UpdateThreatHighlight
+	end
+
+	--------------------------------
+	-- Element: Resurrection text --
+	--------------------------------
+
+	if not unit:match("^.+target$") then
+		self.Resurrection = ns.CreateFontString(self.overlay, 16, "CENTER")
+		self.Resurrection:SetPoint("CENTER", self.Health)
 	end
 
 	---------------------
@@ -790,7 +799,7 @@ oUF:Factory(function(oUF)
 	for u, udata in pairs(ns.uconfig) do
 		if udata.point then
 			if udata.attributes then
-				ns.headers[u] = oUF:SpawnHeader(nil, nil, udata.visibility, unpack(udata.attributes))
+				ns.headers[u] = oUF:SpawnHeader(nil, nil, udata.visible, unpack(udata.attributes))
 			else
 				ns.frames[u] = oUF:Spawn(u)
 			end
