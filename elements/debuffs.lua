@@ -20,7 +20,10 @@
 		frame.DispelHighlightFilter = true
 ----------------------------------------------------------------------]]
 
+local _, ns = ...
+local oUF = ns.oUF or oUF
 if not oUF then return end
+
 if select(4, GetAddOnInfo("oUF_DebuffHighlight")) then return end
 
 local class = select(2, UnitClass("player"))
