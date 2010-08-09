@@ -24,6 +24,9 @@ if not oUF then return end
 if select(4, GetAddOnInfo("oUF_DebuffHighlight")) then return end
 
 local class = select(2, UnitClass("player"))
+
+local canSteal = class == "MAGE"
+local canPurge = class == "PRIEST" or class == "SHAMAN" or class == "WARLOCK" or class == "WARRIOR"
 local canDispel = {
 	Curse = class == "DRUID" or class == "MAGE" or class == "SHAMAN",
 	Disease = class == "PALADIN" or class == "PRIEST" or class == "SHAMAN",
@@ -31,31 +34,33 @@ local canDispel = {
 	Poison = class == "DRUID" or class == "PALADIN" or class == "SHAMAN",
 }
 
-local DebuffPriority = { }
+------------------------------------------------------------------------
+
+local dispelPriority = { }
 for type, priority in pairs({ Curse = 2, Disease = 4, Magic = 1, Poison = 3 }) do
-	table.insert(DebuffPriority, type)
-	DebuffPriority[type] = ((canDispel and canDispel[type]) and 10 or 5) - priority
+	table.insert(dispelPriority, type)
+	dispelPriority[type] = (canDispel[type] and 10 or 5) - priority
 end
-table.sort(DebuffPriority, function(a, b) return DebuffPriority[a] > DebuffPriority[b] end)
+table.sort(dispelPriority, function(a, b) return dispelPriority[a] > dispelPriority[b] end)
 
-local DebuffTypeColor = { }
-for type, color in pairs(_G.DebuffTypeColor) do
-	DebuffTypeColor[type] = { color.r, color.g, color.b }
+local colors = { }
+for type, color in pairs(DebuffTypeColor) do
+	colors[type] = { color.r, color.g, color.b }
 end
+oUF.colors.debuffType = colors
 
-local unitDebuffType = { }
+------------------------------------------------------------------------
 
 local function applyDispelHighlight(self, unit)
-	local debuffType = unitDebuffType[unit]
+	local debuffType = self.debuffType
 	if debuffType then
-		self:SetStatusBarColor(unpack(DebuffTypeColor[debuffType]))
+		self:SetStatusBarColor(unpack(colors[debuffType]))
 	end
 end
 
 local function Update(self, event, unit)
+	if self.unit ~= unit then return end
 	-- print("DispelHighlight Update", event, unit)
-	if unit and unit ~= self.unit then return end
-	unit = unit or self.unit
 
 	local debuffType
 
@@ -64,31 +69,41 @@ local function Update(self, event, unit)
 		while true do
 			local name, _, _, _, type = UnitAura(unit, i, "HARMFUL")
 			if not name then break end
-			-- print("UnitAura", unit, i, name or "NONE", type or "NONE")
-			if type and (not debuffType or DebuffPriority[type] > DebuffPriority[debuffType]) then
+			-- print("UnitAura", unit, i, tostring(name), tostring(type))
+			if type and (not debuffType or dispelPriority[type] > dispelPriority[debuffType]) then
 				-- print("debuffType", type)
 				debuffType = type
 			end
 			i = i + 1
 		end
+	elseif UnitCanAttack("player", unit) then
+		local i = 1
+		while true do
+			local name, _, _, _, type, _, _, _, stealable = UnitAura(unit, i, "HELPFUL")
+			if not name then break end
+			-- print("UnitAura", unit, i, tostring(name), tostring(type))
+			if (canPurge and type == "MAGIC") or (canSteal and stealable) then
+				debuffType = type
+				break
+			end
+			i = i + 1
+		end
 	end
 
-	if unitDebuffType[unit] ~= debuffType then
-		-- print("unitDebuffType", unitDebuffType[unit] or "NONE", "debuffType", debuffType or "NONE")
+	if self.debuffType == debuffType then return end
+	-- print("UpdateDispelHighlight", unit, tostring(self.debuffType), "==>", tostring(debuffType))
 
-		unitDebuffType[unit] = debuffType
+	self.debuffType = debuffType
 
-		if type(self.DispelHighlight) == "function" then
-			self:DispelHighlight(unit, debuffType, canDispel and canDispel[debuffType])
-		else
-			if debuffType and self.DispelHighlightFilter and not (canDispel and canDispel[debuffType]) then return end
-			applyDispelHighlight(self.Health, unit)
-		end
+	if type(self.DispelHighlight) == "function" then
+		self:DispelHighlight(unit, debuffType, canDispel[debuffType])
+	elseif debuffType and (canDispel[debuffType] or not self.DispelHighlightFilter) then
+		applyDispelHighlight(self.Health, unit)
 	end
 end
 
 local function Enable(self)
-	if not self.DispelHighlight or (self.DispelHighlightFilter and not canDispel) then return end
+	if not self.DispelHighlight or (self.DispelHighlightFilter and (class == "DEATHKNIGHT" or class == "HUNTER" or class == "ROGUE")) then return end
 
 	self:RegisterEvent("UNIT_AURA", Update)
 
@@ -102,7 +117,7 @@ local function Enable(self)
 end
 
 local function Disable(self)
-	if not self.DispelHighlight or (self.DispelHighlightFilter and not canDispel) then return end
+	if not self.DispelHighlight or (self.DispelHighlightFilter and (class == "DEATHKNIGHT" or class == "HUNTER" or class == "ROGUE")) then return end
 
 	self:UnregisterEvent("UNIT_AURA", Update)
 end
