@@ -97,6 +97,7 @@ local function Update(self, event, unit)
 	-- print("UpdateDispelHighlight", unit, tostring(self.debuffType), "==>", tostring(debuffType))
 
 	self.debuffType = debuffType
+	self.debuffDispellable = debuffType and canDispel[debuffType]
 
 	if type(self.DispelHighlight) == "function" then
 		self:DispelHighlight(unit, debuffType, canDispel[debuffType])

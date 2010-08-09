@@ -3,7 +3,7 @@
 		<Frames>
 			<Button name="$parentPet" inherits="SecureUnitButtonTemplate">
 				<Anchors>
-					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" relativeTo="$parent">
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parent">
 						<Offset>
 							<AbsDimension x="10" y="0"/>
 						</Offset>

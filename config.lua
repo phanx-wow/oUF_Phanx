@@ -77,9 +77,9 @@ ns.uconfig = {
 		width = 0.5,
 		power = true,
 		attributes = { "showParty", true, "showPlayer", true, "template", "oUF_PhanxPartyTemplate", "xOffset", 0, "yOffset", -25 },
-		visibility = "party",
+		visible = "party",
 	},
-	partypet = {
+	partypet = { -- not spawned normally, so point/attributes/visible are not needed
 		width = 0.25,
 	},
 }
@@ -89,13 +89,6 @@ ns.uconfig = {
 ------------------------------------------------------------------------
 
 oUF.colors.uninterruptible = { 1, 0.7, 0 }
-
-oUF.colors.debuff = { }
-for type, color in pairs(DebuffTypeColor) do
-	if type ~= "none" then
-		oUF.colors.debuff[type] = { color.r, color.g, color.b }
-	end
-end
 
 oUF.colors.threat = { }
 for i = 1, 3 do
