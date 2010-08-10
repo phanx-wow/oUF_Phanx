@@ -50,7 +50,7 @@ local colors = { }
 for type, color in pairs(DebuffTypeColor) do
 	colors[type] = { color.r, color.g, color.b }
 end
-oUF.colors.debuffType = colors
+oUF.colors.debuff = colors
 
 ------------------------------------------------------------------------
 
