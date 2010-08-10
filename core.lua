@@ -670,8 +670,10 @@ ns.Spawn = function(self, unit)
 		self.Castbar.PostChannelStart = ns.PostChannelStart
 
 		ns.CreateBorder(self.Castbar)
-		self.Castbar.BorderTextures[1]:SetPoint("TOPLEFT", self.Castbar.Icon, "TOPLEFT", -6, 6)
-		self.Castbar.BorderTextures[4]:SetPoint("BOTTOMLEFT", self.Castbar.Icon, "BOTTOMLEFT", -6, -6)
+
+		local d = floor(config.borderSize / 2 + 0.5) - 2
+		self.Castbar.BorderTextures[1]:SetPoint("TOPLEFT", self.Castbar.Icon, "TOPLEFT", -d, d)
+		self.Castbar.BorderTextures[4]:SetPoint("BOTTOMLEFT", self.Castbar.Icon, "BOTTOMLEFT", -d, -d)
 	end
 
 	-----------
