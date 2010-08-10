@@ -29,7 +29,7 @@ ns.AuraList = {
 
 ------------------------------------------------------------------------
 
-if playerClass == "DEATHNKNIGHT" then addAuras({
+if playerClass == "DEATHKNIGHT" then addAuras({
 	[48707] = 3, -- Anti-Magic Shell
 	[49222] = 3, -- Bone Shield
 	[49028] = 3, -- Dancing Rune Weapon
