@@ -9,6 +9,8 @@
 
 local _, ns = ...
 
+ns.borderedObjects = { }
+
 ns.CreateBorder = function(self, size, offset)
 	if type(self) ~= "table" or not self.CreateTexture or self.BorderTextures then return end
 
@@ -68,6 +70,8 @@ ns.CreateBorder = function(self, size, offset)
 	if self.SetBackdropBorderColor then
 		self.SetBackdropBorderColor = ns.SetBorderColor
 	end
+
+	tinsert(ns.borderedObjects, self)
 
 	ns.SetBorderColor(self)
 	ns.SetBorderSize(self, size, offset)

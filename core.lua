@@ -8,12 +8,13 @@
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
-local colors, config = oUF.colors, ns.config
+local config
+local colors = oUF.colors
 local playerClass = select(2, UnitClass("player"))
 local playerUnits = { player = true, pet = true, vehicle = true }
 local noop = function() return end
 
-ns.frames, ns.headers, ns.fontstrings, ns.statusbars = { }, { }, { }, { }
+ns.frames, ns.headers, ns.objects, ns.fontstrings, ns.statusbars = { }, { }, { }, { }, { }
 
 ------------------------------------------------------------------------
 
@@ -391,6 +392,8 @@ end
 ------------------------------------------------------------------------
 
 ns.Spawn = function(self, unit)
+	tinsert(ns.objects, self)
+
 	if self:GetAttribute("unitsuffix") == "pet" then
 		unit = unit .. "pet"
 	end
@@ -464,20 +467,16 @@ ns.Spawn = function(self, unit)
 	self.overlay:SetFrameLevel(self.Health:GetFrameLevel() + (self.Power and 3 or 2))
 
 	self.Health.value:SetParent(self.overlay)
---[[
-	if self:GetAttribute("unitsuffix") == "pet" then
-		self.overlay:RegisterEvent("UNIT_PET", UpdateAllElements)
-	end
---]]
-	--------------------------
-	-- Element: Threat text --
-	--------------------------
 
+	--------------------------
+	-- Element: Threat text -- NOT YET IMPLEMENTED
+	--------------------------
+--[[
 	if unit == "target" then
 		self.ThreatText = ns.CreateFontString(self.overlay, 20, "RIGHT")
 		self.ThreatText:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
 	end
-
+]]
 	---------------------------
 	-- Name text, Level text --
 	---------------------------
@@ -526,10 +525,10 @@ ns.Spawn = function(self, unit)
 	-----------------------
 
 	if unit == "player" then
-		self.GroupStatus = ns.CreateFontString(self.overlay, 16, "LEFT")
-		self.GroupStatus:SetPoint("LEFT", self.Health, "TOPLEFT", 2, 2)
+		self.Status = ns.CreateFontString(self.overlay, 16, "LEFT")
+		self.Status:SetPoint("LEFT", self.Health, "TOPLEFT", 2, 2)
 
-		self:Tag(self.GroupStatus, "[leadericon][mastericon]")
+		self:Tag(self.Status, "[leadericon][mastericon]")
 
 		self.Resting = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.Resting:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 0, -2)
@@ -597,7 +596,7 @@ ns.Spawn = function(self, unit)
 
 		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "DOWN"
-		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
+		self.Buffs["initialAnchor"] = "RIGHT"
 		self.Buffs["num"] = 4
 		self.Buffs["size"] = config.height
 		self.Buffs["spacing-x"] = GAP
@@ -608,7 +607,46 @@ ns.Spawn = function(self, unit)
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 	elseif unit == "target" then
 		local GAP = 6
+		local MAX_ICONS = floor((config.width - 4 + GAP) / (config.height + GAP)) - 1
+		local NUM_BUFFS = math.max(1, MAX_ICONS * 0.2)
+		local NUM_DEBUFFS = math.min(MAX_ICONS - 1, floor(MAX_ICONS * 0.8))
 
+		self.Debuffs = CreateFrame("Frame", nil, self)
+
+		self.Debuffs["growth-x"] = "RIGHT"
+		self.Debuffs["growth-y"] = "UP"
+		self.Debuffs["initialAnchor"] = "BOTTOMLEFT"
+		self.Debuffs["num"] = NUM_DEBUFFS
+		self.Debuffs["showType"] = true
+		self.Debuffs["size"] = config.height
+		self.Debuffs["spacing-x"] = GAP
+		self.Debuffs["spacing-y"] = GAP * 2
+
+		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
+		self.Debuffs:SetWidth( (config.height * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)) )
+
+		self.Debuffs.CustomFilter   = ns.CustomAuraFilter
+		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+
+		self.Buffs = CreateFrame("Frame", nil, self)
+
+		self.Buffs["growth-x"] = "LEFT"
+		self.Buffs["growth-y"] = "UP"
+		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
+		self.Buffs["num"] = NUM_BUFFS
+		self.Buffs["showType"] = false
+		self.Buffs["size"] = config.height
+		self.Buffs["spacing-x"] = GAP
+		self.Buffs["spacing-y"] = GAP * 2
+
+		self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, 24)
+		self.Debuffs:SetWidth( (config.height * NUM_DEBUFFS) + (GAP * (NUM_BUFFS - 1)) )
+
+		self.Buffs.CustomFilter   = ns.CustomAuraFilter
+		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+--[[
 		self.Auras = CreateFrame("Frame", nil, self)
 		self.Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
 		self.Auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
@@ -621,7 +659,6 @@ ns.Spawn = function(self, unit)
 		self.Auras["numBuffs"] = floor((config.width - 4 + GAP) / (config.height + GAP)) * 2
 		self.Auras["numDebuffs"] = floor((config.width - 4 + GAP) / (config.height + GAP)) * 2
 		self.Auras["showBuffType"] = false
-		self.Auras["showDebuffType"] = true
 		self.Auras["size"] = config.height
 		self.Auras["spacing-x"] = GAP
 		self.Auras["spacing-y"] = GAP
@@ -629,6 +666,7 @@ ns.Spawn = function(self, unit)
 		self.Auras.CustomFilter   = ns.CustomAuraFilter
 		self.Auras.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Auras.PostUpdateIcon = ns.PostUpdateAuraIcon
+--]]
 	end
 
 	------------------------------
@@ -674,6 +712,14 @@ ns.Spawn = function(self, unit)
 		local d = floor(config.borderSize / 2 + 0.5) - 2
 		self.Castbar.BorderTextures[1]:SetPoint("TOPLEFT", self.Castbar.Icon, "TOPLEFT", -d, d)
 		self.Castbar.BorderTextures[4]:SetPoint("BOTTOMLEFT", self.Castbar.Icon, "BOTTOMLEFT", -d, -d)
+
+		local o = self.Castbar.SetBorderSize
+		self.Castbar.SetBorderSize = function(self, size, offset)
+			o(self, size, offset)
+			local d = floor(size / 2 + 0.5) - 2
+			self.BorderTextures[1]:SetPoint("TOPLEFT", self.Icon, "TOPLEFT", -d, d)
+			self.BorderTextures[4]:SetPoint("BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d)
+		end
 	end
 
 	-----------
@@ -786,7 +832,6 @@ ns.Spawn = function(self, unit)
 			self.Power.Smooth = true
 		end
 	end
-
 end
 
 ------------------------------------------------------------------------
@@ -794,6 +839,8 @@ end
 oUF:RegisterStyle("Phanx", ns.Spawn)
 
 oUF:Factory(function(oUF)
+	config = ns.config
+
 	oUF:SetActiveStyle("Phanx")
 
 	for u, udata in pairs(ns.uconfig) do
