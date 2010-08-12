@@ -12,7 +12,9 @@
 ## X-WoWI-ID: 13993
 
 ## Dependencies: oUF
-## OptionalDependencies: LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, oUF_AFK, oUF_HealComm4, oUF_ReadyCheck, oUF_Smooth
+## OptionalDependencies: LibAboutPanel, LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, oUF_AFK, oUF_HealComm4, oUF_ReadyCheck, oUF_Smooth
+
+core.xml
 
 elements\dispel.lua
 elements\heals.lua
@@ -27,5 +29,4 @@ playerstate.lua
 tags.lua
 tooltips.lua
 
-core.xml
 core.lua

@@ -158,8 +158,11 @@ end)
 --	Options panel
 ------------------------------------------------------------------------
 
-local libs = { "PhanxConfig-Checkbox", "PhanxConfig-ColorPicker", "PhanxConfig-Dropdown", "PhanxConfig-ScrollingDropdown", "PhanxConfig-Slider", "LibAboutPanel" }
-for i, lib in ipairs(libs) do LoadAddOn(lib) end
+LoadAddOn("PhanxConfigWidgets")
+if not LibStub then return end
+for i, lib in ipairs({ "PhanxConfig-Checkbox", "PhanxConfig-ColorPicker", "PhanxConfig-Dropdown", "PhanxConfig-ScrollingDropdown", "PhanxConfig-Slider", "LibSharedMedia-3.0" }) do
+	if not LibStub(lib, true) then return end
+end
 
 ns.fontList, ns.statusbarList = { }, { }
 
@@ -526,6 +529,20 @@ end)
 
 InterfaceOptions_AddCategory(ns.optionsPanel)
 
-SlashCmdList.OUFPHANX = function() InterfaceOptionsFrame_OpenToCategory(ns.optionsPanel) end
+------------------------------------------------------------------------
+
+local AboutPanel = LibStub("LibAboutPanel", true)
+if AboutPanel then
+	ns.aboutPanel = AboutPanel.new(ns.optionsPanel, "oUF_Phanx")
+end
+
+------------------------------------------------------------------------
 
 SLASH_OUFPHANX1 = "/pouf"
+
+SlashCmdList.OUFPHANX = function()
+	if ns.aboutPanel then
+		InterfaceOptionsFrame_OpenToCategory(ns.aboutPanel)
+	end
+	InterfaceOptionsFrame_OpenToCategory(ns.optionsPanel)
+end
