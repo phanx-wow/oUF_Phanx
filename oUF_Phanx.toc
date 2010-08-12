@@ -8,7 +8,7 @@
 ## X-Copyright: Copyright © 2008–2010 Phanx.
 ## X-License: See README file for license terms.
 ## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-## X-Curse-ProjectName: ouf-phanx
+## X-Curse-Project-ID: ouf-phanx
 ## X-WoWI-ID: 13993
 
 ## Dependencies: oUF
