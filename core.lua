@@ -394,6 +394,10 @@ end
 ns.Spawn = function(self, unit)
 	tinsert(ns.objects, self)
 
+	if unit == "party" then
+		self.isPartyFrame = true
+	end
+
 	if self:GetAttribute("unitsuffix") == "pet" then
 		unit = unit .. "pet"
 	end
@@ -586,6 +590,8 @@ ns.Spawn = function(self, unit)
 		self.Buffs.CustomFilter   = ns.CustomAuraFilter
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+
+		self.Buffs.parent = self
 	elseif unit == "party" then
 		local GAP = 6
 
@@ -605,6 +611,8 @@ ns.Spawn = function(self, unit)
 		self.Buffs.CustomFilter   = ns.CustomAuraFilter
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+
+		self.Buffs.parent = self
 	elseif unit == "target" then
 		local GAP = 6
 
@@ -631,6 +639,8 @@ ns.Spawn = function(self, unit)
 		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
+		self.Debuffs.parent = self
+
 		self.Buffs = CreateFrame("Frame", nil, self)
 
 		self.Buffs["growth-x"] = "LEFT"
@@ -649,6 +659,8 @@ ns.Spawn = function(self, unit)
 		self.Buffs.CustomFilter   = ns.CustomAuraFilter
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+
+		self.Buffs.parent = self
 --[[
 		self.Auras = CreateFrame("Frame", nil, self)
 		self.Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
