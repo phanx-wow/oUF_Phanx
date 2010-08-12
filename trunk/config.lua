@@ -533,7 +533,7 @@ InterfaceOptions_AddCategory(ns.optionsPanel)
 
 local AboutPanel = LibStub("LibAboutPanel", true)
 if AboutPanel then
-	ns.aboutPanel = AboutPanel.new(ns.optionsPanel, "oUF_Phanx")
+	ns.aboutPanel = AboutPanel.new(ns.optionsPanel.name, "oUF_Phanx")
 end
 
 ------------------------------------------------------------------------
