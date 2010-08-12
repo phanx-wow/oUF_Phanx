@@ -8,19 +8,22 @@
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
-if not ns.config.spellCostPercent then return end
 
-local MANA_COST_PATTERN = MANA_COST:replace("%d", "(%d+)")
-local MANA_COST_TEXT = MANA_COST:replace("%d", "%d%%")
+table.insert(ns.loadFuncs, function()
 
-GameTooltip:HookScript("OnTooltipSetSpell", function()
-	for i = 2, 4 do
-		local line = _G["GameTooltipTextLeft" .. i]
-		local text = line:GetText()
-		if not text then return end
-		local cost = text:match(MANA_COST_PATTERN)
-		if cost then
-			return line:SetFormattedText(MANA_COST_TEXT, floor(tonumber(cost) / UnitManaMax("player") * 100 + 0.5))
+	local MANA_COST_PATTERN = MANA_COST:replace("%d", "(%d+)")
+	local MANA_COST_TEXT = MANA_COST:replace("%d", "%d%%")
+
+	GameTooltip:HookScript("OnTooltipSetSpell", function()
+		for i = 2, 4 do
+			local line = _G["GameTooltipTextLeft" .. i]
+			local text = line:GetText()
+			if not text then return end
+			local cost = text:match(MANA_COST_PATTERN)
+			if cost then
+				return line:SetFormattedText(MANA_COST_TEXT, floor(tonumber(cost) / UnitManaMax("player") * 100 + 0.5))
+			end
 		end
-	end
+	end)
+
 end)
