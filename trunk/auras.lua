@@ -538,11 +538,11 @@ ns.AuraList = t
 local auras = ns.AuraList
 local playerunits = { player = true, pet = true, vehicle = true }
 
-ns.CustomAuraFilter = function(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
+ns.CustomAuraFilter = function(self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
 	local aurav = auras[name]
 	-- print("CustomAuraFilter", unit, name, caster, aurav)
 	if aurav == 4 then
-		return unit == "player"
+		return unit == "player" and not self.parent.isPartyFrame
 	elseif aurav == 2 then
 		return playerunits[caster]
 	elseif aurav == 1 then
