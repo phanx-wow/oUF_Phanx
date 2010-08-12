@@ -56,9 +56,11 @@ local Enable = function(self)
 				name = ("%s-%s"):format(name, realm)
 			end
 			resStatus[name] = nil
-			self.Resurrection:SetText(nil)
+			self.parent.Resurrection:SetText(nil)
 		end
 	end
+
+	return true
 end
 
 oUF:AddElement("Resurrection", Update, Enable, Disable)
