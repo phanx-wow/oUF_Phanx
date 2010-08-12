@@ -607,8 +607,9 @@ ns.Spawn = function(self, unit)
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 	elseif unit == "target" then
 		local GAP = 6
+
 		local MAX_ICONS = floor((config.width - 4 + GAP) / (config.height + GAP)) - 1
-		local NUM_BUFFS = math.max(1, MAX_ICONS * 0.2)
+		local NUM_BUFFS = math.max(1, floor(MAX_ICONS * 0.2))
 		local NUM_DEBUFFS = math.min(MAX_ICONS - 1, floor(MAX_ICONS * 0.8))
 
 		self.Debuffs = CreateFrame("Frame", nil, self)
@@ -624,6 +625,7 @@ ns.Spawn = function(self, unit)
 
 		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
 		self.Debuffs:SetWidth( (config.height * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)) )
+		self.Debuffs:SetHeight( (config.height * 2) + (GAP * 2) )
 
 		self.Debuffs.CustomFilter   = ns.CustomAuraFilter
 		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
@@ -641,7 +643,8 @@ ns.Spawn = function(self, unit)
 		self.Buffs["spacing-y"] = GAP * 2
 
 		self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, 24)
-		self.Debuffs:SetWidth( (config.height * NUM_DEBUFFS) + (GAP * (NUM_BUFFS - 1)) )
+		self.Buffs:SetWidth( (config.height * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)) )
+		self.Buffs:SetHeight( (config.height * 2) + (GAP * 2) )
 
 		self.Buffs.CustomFilter   = ns.CustomAuraFilter
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon

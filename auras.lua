@@ -539,8 +539,8 @@ local auras = ns.AuraList
 local playerunits = { player = true, pet = true, vehicle = true }
 
 ns.CustomAuraFilter = function(icons, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-	-- print("CustomAuraFilter", unit, name, caster, auras[name])
 	local aurav = auras[name]
+	-- print("CustomAuraFilter", unit, name, caster, aurav)
 	if aurav == 4 then
 		return unit == "player"
 	elseif aurav == 2 then
