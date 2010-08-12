@@ -118,6 +118,8 @@ local function Enable(self)
 			applyDispelHighlight(...)
 		end
 	end
+
+	return true
 end
 
 local function Disable(self)

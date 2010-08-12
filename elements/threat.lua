@@ -27,7 +27,8 @@ local function Update(self, event, unit)
 	if self.unit ~= unit then return end
 
 	local status = UnitThreatSituation(unit)
-	-- print("ThreatHighlight: Update", event, unit, status)
+	-- local status = UnitIsFriend(unit, "player") and UnitThreatSituation(unit) or UnitThreatSituation("player", unit)
+	-- print("ThreatHighlight Update", event, unit, status)
 
 	if status and status > 0 then
 		if type(self.ThreatHighlight) == "function" then
@@ -53,6 +54,8 @@ local function Enable(self)
 			applyThreatHighlight(...)
 		end
 	end
+
+	return true
 end
 
 local function Disable(self)

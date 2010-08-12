@@ -39,19 +39,19 @@ local si = ns.si
 
 ns.UpdateBorder = function(self)
 	local threat, debuff, dispellable = self.threatLevel, self.debuffType, self.debuffDispellable
-	-- print("UpdateBorder", self.unit, "threat", threat, "debuff", debuff, "dispellable", dispellable)
+	-- print("UpdateBorder", self.unit, "threatLevel", threat, "debuffType", debuff, "debuffDispellable", dispellable)
 
 	local color
-	if dispellable then
+	if debuff and dispellable then
 		-- print(self.unit, "has dispellable debuff:", debuff)
 		color = colors.debuff[debuff]
-	elseif threat > 1 then
+	elseif threat and threat > 1 then
 		-- print(self.unit, "has aggro:", threat)
 		color = colors.threat[threat]
 	elseif debuff and not config.dispellableDebuffsOnly then
 		-- print(self.unit, "has debuff:", debuff)
 		color = colors.debuff[debuff]
-	elseif threat > 0 then
+	elseif threat and threat > 0 then
 		-- print(self.unit, "has high threat")
 		color = colors.threat[threat]
 	else
@@ -710,10 +710,8 @@ ns.Spawn = function(self, unit)
 	-- Element: Threat highlight --
 	-------------------------------
 
-	if not unit:match("^.+target$") then
-		self.threatLevel = 0
-		self.ThreatHighlight = ns.UpdateThreatHighlight
-	end
+	self.threatLevel = 0
+	self.ThreatHighlight = ns.UpdateThreatHighlight
 
 	--------------------------------
 	-- Element: Resurrection text --
