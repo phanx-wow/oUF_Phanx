@@ -266,6 +266,7 @@ ns.PostCastStart = function(self, unit, name, rank, castid)
 	self:SetStatusBarColor(r * 0.6, g * 0.6, b * 0.6)
 
 	if self.SafeZone then
+		self:GetStatusBarTexture():SetDrawLayer("ARTWORK")
 		self.SafeZone:SetDrawLayer("BORDER")
 		self.SafeZone:ClearAllPoints()
 		self.SafeZone:SetPoint("TOPRIGHT", self)
@@ -288,6 +289,7 @@ ns.PostChannelStart = function(self, unit, name, rank, text)
 	self:SetStatusBarColor(r * 0.6, g * 0.6, b * 0.6)
 
 	if self.SafeZone then
+		self:GetStatusBarTexture():SetDrawLayer("BORDER")
 		self.SafeZone:SetDrawLayer("ARTWORK")
 		self.SafeZone:ClearAllPoints()
 		self.SafeZone:SetPoint("TOPLEFT", self)
@@ -723,6 +725,9 @@ ns.Spawn = function(self, unit)
 		self.Castbar.PostChannelStart = ns.PostChannelStart
 
 		ns.CreateBorder(self.Castbar)
+		for i, tex in ipairs(self.Castbar.BorderTextures) do
+			tex:SetDrawLayer("OVERLAY")
+		end
 
 		local d = floor(config.borderSize / 2 + 0.5) - 2
 		self.Castbar.BorderTextures[1]:SetPoint("TOPLEFT", self.Castbar.Icon, "TOPLEFT", -d, d)
