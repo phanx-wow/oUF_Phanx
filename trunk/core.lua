@@ -93,6 +93,10 @@ ns.PostUpdateHealth = function(self, unit, cur, max)
 		return self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, UnitIsGhost(unit) and GHOST or DEAD)
 	end
 
+	if cur > 0 then
+		self:GetStatusBarTexture():SetTexCoord(0, cur / max, 0, 1)
+	end
+
 	local color
 	if UnitIsPlayer(unit) then
 		local _, class = UnitClass(unit)
@@ -148,6 +152,10 @@ ns.PostUpdatePower = function(self, unit, cur, max)
 			self.value:SetText(nil)
 		end
 		return
+	end
+
+	if cur > 0 then
+		self:GetStatusBarTexture():SetTexCoord(0, cur / max, 0, 1)
 	end
 
 	if not self.value then return end
@@ -297,14 +305,6 @@ ns.PostChannelStart = function(self, unit, name, rank, text)
 	end
 end
 
-ns.CustomDelayText = function(self, duration)
-	self.Time:SetFormattedText("+%.1f %.1f", self.delay, duration)
-end
-
-ns.CustomTimeText = function(self, duration)
-	self.Time:SetFormattedText("%.1f", duration)
-end
-
 ------------------------------------------------------------------------
 
 ns.UpdateDispelHighlight = function(self, unit, debuffType, canDispel)
@@ -372,7 +372,13 @@ ns.CreateFontString = function(parent, size, justify)
 	return fs
 end
 
-ns.CreateStatusBar = function(parent, size, justify)
+ns.SetStatusBarValue = function(self, cur)
+	local min, max = self:GetMinMaxValues()
+	self:GetStatusBarTexture():SetTexCoord(0, (cur - min) / (max - min), 0, 1)
+	self.orig_SetValue(self, cur)
+end
+
+ns.CreateStatusBar = function(parent, size, justify, nohook)
 	local sb = CreateFrame("StatusBar", nil, parent)
 	sb:SetStatusBarTexture(config.statusbar)
 	sb:GetStatusBarTexture():SetDrawLayer("BORDER")
@@ -385,6 +391,11 @@ ns.CreateStatusBar = function(parent, size, justify)
 
 	if size then
 		sb.value = ns.CreateFontString(sb, size, justify)
+	end
+
+	if not nohook then
+		sb.orig_SetValue = sb.SetValue
+		sb.SetValue = ns.SetStatusBarValue
 	end
 
 	tinsert(ns.statusbars, sb)
@@ -424,7 +435,7 @@ ns.Spawn = function(self, unit)
 	-- Health bar and text --
 	-------------------------
 
-	self.Health = ns.CreateStatusBar(self, 24, "RIGHT")
+	self.Health = ns.CreateStatusBar(self, 24, "RIGHT", true)
 	self.Health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -1)
 	self.Health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
 	self.Health:SetPoint("BOTTOM", self, "BOTTOM", 0, 1)
@@ -442,7 +453,7 @@ ns.Spawn = function(self, unit)
 	------------------------
 
 	if ns.uconfig[unit].power then
-		self.Power = ns.CreateStatusBar(self, (ns.uconfig[unit].width or 1) > 0.75 and 16, "LEFT")
+		self.Power = ns.CreateStatusBar(self, (ns.uconfig[unit].width or 1) > 0.75 and 16, "LEFT", true)
 		self.Power:SetFrameLevel(self.Health:GetFrameLevel() + 2)
 		self.Power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
 		self.Power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)
@@ -713,9 +724,6 @@ ns.Spawn = function(self, unit)
 
 			self.Castbar.Time = ns.CreateFontString(self.Castbar, 20, "RIGHT")
 			self.Castbar.Time:SetPoint("RIGHT", self.Castbar, "RIGHT", -4, 0)
-
-			self.Castbar.CustomDelayText = ns.CustomDelayText
-			self.Castbar.CustomTimeText = ns.CustomTimeText
 		elseif (ns.uconfig[unit].width or 1) > 0.75 then
 			self.Castbar.Text = ns.CreateFontString(self.Castbar, 16, "LEFT")
 			self.Castbar.Text:SetPoint("LEFT", self.Castbar, "LEFT", 4, 0)
@@ -908,7 +916,7 @@ oUF:Factory(function(oUF)
 		_G[barname .. "Background"]:SetVertexColor(0.2, 0.2, 0.2, 1)
 
 		_G[barname .. "Text"]:ClearAllPoints()
-		_G[barname .. "Text"]:SetPoint("LEFT", bar, 0, 1)
+		_G[barname .. "Text"]:SetPoint("LEFT", bar, 4, 1)
 		_G[barname .. "Text"]:SetFont(config.font, 16, "OUTLINE")
 
 		_G[barname .. "StatusBar"]:SetAllPoints(bar)
