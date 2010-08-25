@@ -13,6 +13,7 @@
 
 ## Dependencies: oUF
 ## OptionalDependencies: LibAboutPanel, LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, oUF_AFK, oUF_HealComm4, oUF_ReadyCheck, oUF_Smooth
+## SavedVariables: PoUFDB
 
 core.xml
 

@@ -102,6 +102,9 @@ ns.SetAllStatusBarTextures = function(file)
 
 	for _, v in ipairs(ns.statusbars) do
 		v:SetStatusBarTexture(file)
+		if v.bg then
+			v.bg:SetTexture(file)
+		end
 	end
 end
 
