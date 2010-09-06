@@ -810,7 +810,7 @@ ns.Spawn = function(self, unit)
 	-- Plugin: oUF_HealComm4 --
 	---------------------------
 
-	if IsAddOnLoaded("oUF_HealComm4") and (unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN")) then
+	if IsAddOnLoaded("oUF_HealComm4") and LibStub and LibStub("LibHealComm-4.0", true) and (unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN")) then
 		self.HealCommBar = ns.CreateStatusBar(self.Health)
 		self.HealCommBar:SetFrameLevel(self.Health:GetFrameLevel() + 1)
 		self.HealCommBar:SetAllPoints(self.Health)
