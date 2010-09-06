@@ -11,6 +11,8 @@ local _, ns = ...
 
 table.insert(ns.loadFuncs, function()
 
+	if not ns.config.modifySpellTooltips then return end
+
 	local MANA_COST_PATTERN = MANA_COST:replace("%d", "(%d+)")
 	local MANA_COST_TEXT = MANA_COST:replace("%d", "%d%%")
 
@@ -21,7 +23,8 @@ table.insert(ns.loadFuncs, function()
 			if not text then return end
 			local cost = text:match(MANA_COST_PATTERN)
 			if cost then
-				return line:SetFormattedText(MANA_COST_TEXT, floor(tonumber(cost) / UnitManaMax("player") * 100 + 0.5))
+				local unit = UnitInVehicle("player") and "vehicle" or "player"
+				return line:SetFormattedText(MANA_COST_TEXT, floor(tonumber(cost) / UnitManaMax(unit) * 100 + 0.5))
 			end
 		end
 	end)

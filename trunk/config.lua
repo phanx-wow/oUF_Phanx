@@ -124,7 +124,7 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 
 		threatLevels = true,			-- show threat levels instead of binary aggro
 
-		spellCostPercent = true,		-- modify spell tooltips to show mana cost as a percent
+--		modifySpellTooltips = true,		-- modify spell tooltips to show mana cost as a percent -- OFF by default
 
 		statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
 
