@@ -17,7 +17,7 @@
 
 core.xml
 
-# elements\afk.lua
+elements\afk.lua
 elements\dispel.lua
 elements\heals.lua
 elements\resurrections.lua
