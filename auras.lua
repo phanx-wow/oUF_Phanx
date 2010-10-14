@@ -60,7 +60,6 @@ if playerClass == "DRUID" then addAuras({
 	[48518] = 4, -- Eclipse (Lunar)
 	[48517] = 4, -- Eclipse (Solar)
 	[22842] = 4, -- Frenzied Regeneration
-	[16886] = 4, -- Nature's Grace
 	[17116] = 4, -- Nature's Swiftness
 	[52610] = 4, -- Savage Roar
 	[61336] = 4, -- Survival Instincts
@@ -121,7 +120,7 @@ if playerClass == "HUNTER" then addAuras({
 
 if playerClass == "MAGE" then addAuras({
 	[12042] = 4, -- Arcane Power
-	[12536] = 4, -- Clearcasting <== Arcane Concentration
+--	[12536] = 4, -- Clearcasting <== Arcane Concentration
 	[28682] = 4, -- Combustion
 	[44544] = 4, -- Fingers of Frost
 	[57761] = 4, -- Fireball! <== Brain Freeze
@@ -138,7 +137,7 @@ if playerClass == "MAGE" then addAuras({
 	[42931] = 1, -- Cone of Cold
 	[44572] = 1, -- Deep Freeze
 	[42950] = 1, -- Dragon's Breath
-	[42833] = 2, -- Fireball
+--	[42833] = 2, -- Fireball
 	[42917] = 1, -- Frost Nova
 	[47610] = 2, -- Frostfire Bolt
 	[22959] = 1, -- Improved Scorch
@@ -168,14 +167,12 @@ if playerClass == "PALADIN" then addAuras({
 	[58597] = 2, -- Sacred Shield
 
 	[31935] = 1, -- Avenger's Shield
+	[31803] = 2, -- Censure
 	[25771] = 1, -- Forbearance
 	[853]   = 1, -- Hammer of Justice
 	[20184] = 1, -- Judgement of Justice
 	[20267] = 1, -- Judgement of Light
 	[20186] = 1, -- Judgement of Wisdom
-	[53736] = 2, -- Seal of Corruption
-	[31801] = 2, -- Seal of Vengeance
-	[63529] = 1, -- Silenced - Shield of the Templar
 }) end
 
 ------------------------------------------------------------------------
@@ -233,6 +230,7 @@ if playerClass == "SHAMAN" then addAuras({
 	[3600]  = 1, -- Earthbind
 	[49233] = 2, -- Flame Shock
 --	[49236] = 1, -- Frost Shock
+	[77655] = 2, -- Searing Flames
 	[37976] = 1, -- Stoneclaw Stun
 	[17364] = 2, -- Stormstrike
 }) end
@@ -352,6 +350,7 @@ if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "PAL
 
 addAuras({
 	[18647] = 1, -- Banish
+	[76780] = 1, -- Bind Elemental
 	[33786] = 1, -- Cyclone
 	[53308] = 1, -- Entangling Roots
 	[6215]  = 1, -- Fear
@@ -531,25 +530,35 @@ ns.AuraBlacklist = { -- not used currently
 --]]
 ------------------------------------------------------------------------
 
-local t = { }
-for k, v in pairs(ns.AuraList) do t[GetSpellInfo(k)] = v end
-ns.AuraList = t
+ns.AuraNameList = { }
 
-local auras = ns.AuraList
+local ids = ns.AuraList
+local names = ns.AuraNameList
+
+for k, v in pairs(ids) do
+	local name = GetSpellInfo(k)
+	if name then
+		names[name] = v
+	end
+end
+
 local playerunits = { player = true, pet = true, vehicle = true }
 
+local filters = {
+	[1] = function(self, unit, caster) return true end,
+	[2] = function(self, unit, caster) return playerunits[caster] end,
+	[3] = function(self, unit, caster) return UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) end,
+	[4] = function(self, unit, caster) return unit == "player" and not self.__owner.isGroupFrame end,
+}
+
 ns.CustomAuraFilter = function(self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-	local aurav = auras[name]
-	-- print("CustomAuraFilter", unit, name, caster, aurav)
-	if aurav == 4 then
-		return unit == "player" and not self.parent.isPartyFrame
-	elseif aurav == 2 then
-		return playerunits[caster]
-	elseif aurav == 1 then
-		return true
-	elseif aurav == 3 then
-		return UnitIsFriend(unit, "player") and UnitPlayerControlled(unit)
-	elseif not caster or caster == unit then
-		return UnitCanAttack(unit, "player") and not UnitPlayerControlled(unit)
+	local v = ids[spellID] -- names[name]
+
+	-- print("CustomAuraFilter", unit, caster, name, spellID, v)
+
+	if v and filters[v] then
+		return filters[v](self, unit, caster)
+	else
+		return (not caster or caster == unit) and UnitCanAttack(unit, "player") and not UnitPlayerControlled(unit)
 	end
 end

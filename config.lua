@@ -122,9 +122,11 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 	local defaults = {
 		dispelFilter = true,			-- only highlight the frame for debuffs you can dispel
 
+		ignoreOwnHeals = false,			-- only show incoming heals from other players
+
 		threatLevels = true,			-- show threat levels instead of binary aggro
 
---		modifySpellTooltips = true,		-- modify spell tooltips to show mana cost as a percent -- OFF by default
+		modifySpellTooltips = false,	-- modify spell tooltips to show mana cost as a percent -- OFF by default
 
 		statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
 
@@ -487,8 +489,24 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 			if frame.DispelHighlight then
 				frame.DispelHighlightFilter = checked
 				if frame:IsShown() then
-					frame:UpdateElement("DispelHighlight")
+					frame.DispelHighlight:ForceUpdate()
 				end
+			end
+		end
+	end
+
+	--------------------------------------------------------------------
+
+	local healFilter = self:CreateCheckbox(L["Ignore own heals"])
+	healFilter.desc = L["Show only incoming heals cast by other players."]
+	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -8)
+	healFilter:SetChecked(db.ignoreOwnHeals)
+
+	healFilter.OnClick = function(self, checked)
+		db.ignoreOwnHeals = checked
+		for _, frame in ipairs(oUF.objects) do
+			if frame.HealPrediction and frame:IsShown() then
+				frame.HealPrediction:ForceUpdate()
 			end
 		end
 	end
@@ -497,14 +515,14 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 
 	local threatLevels = self:CreateCheckbox(L["Show threat levels"])
 	threatLevels.desc = L["Show threat levels instead of binary aggro status."]
-	threatLevels:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -8)
+	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -8)
 	threatLevels:SetChecked(db.threatLevels)
 
 	threatLevels.OnClick = function(self, checked)
 		db.threatLevels = checked
 		for _, frame in ipairs(oUF.objects) do
 			if frame.ThreatHighlight and frame:IsShown() then
-				frame:UpdateElement("ThreatHighlight")
+				frame.ThreatHighlight:ForceUpdate()
 			end
 		end
 	end

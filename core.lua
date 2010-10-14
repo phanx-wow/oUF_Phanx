@@ -73,7 +73,7 @@ ns.PostUpdateHealth = function(self, unit, cur, max)
 
 	if not UnitIsConnected(unit) then
 		local color = colors.disconnected
-		local power = self:GetParent().Power
+		local power = self.__owner.Power
 		if power then
 			power:SetValue(0)
 			if power.value then
@@ -83,7 +83,7 @@ ns.PostUpdateHealth = function(self, unit, cur, max)
 		return self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, PLAYER_OFFLINE)
 	elseif UnitIsDeadOrGhost(unit) then
 		local color = colors.disconnected
-		local power = self:GetParent().Power
+		local power = self.__owner.Power
 		if power then
 			power:SetValue(0)
 			if power.value then
@@ -116,21 +116,48 @@ ns.PostUpdateHealth = function(self, unit, cur, max)
 
 	if cur < max then
 		if ns.isHealing and UnitCanAssist("player", unit) then
-			if self:GetParent().isMouseOver and not unit:match("^party") then
+			if self.__owner.isMouseOver and not unit:match("^party") then
 				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
 			else
 				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit) - UnitHealthMax(unit)))
 			end
-		elseif self:GetParent().isMouseOver then
+		elseif self.__owner.isMouseOver then
 			self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
 		else
 			self.value:SetFormattedText("|cff%02x%02x%02x%d%%|r", color[1] * 255, color[2] * 255, color[3] * 255, floor(UnitHealth(unit) / UnitHealthMax(unit) * 100 + 0.5))
 		end
-	elseif self:GetParent().isMouseOver then
+	elseif self.__owner.isMouseOver then
 		self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealthMax(unit)))
 	else
 		self.value:SetText(nil)
 	end
+end
+
+------------------------------------------------------------------------
+
+ns.UpdateHealPrediction = function(self, event, unit)
+	if self.unit ~= unit then return end
+
+	local incoming = UnitGetIncomingHeals(unit) or 0
+
+	if incoming == 0 then
+		return self:Hide()
+	end
+
+	if self.ignoreSelf then
+		incoming = incoming - (UnitGetIncomingHeals(unit, "player") or 0)
+	end
+
+	local health = self.__owner.Health:GetValue()
+	local _, maxHealth = self.__owner.Health:GetMinMaxValues()
+
+	if health + incoming > maxHealth * self.maxOverflow then
+		incoming = maxHealth * self.maxOverflow - health
+	end
+
+	self:SetMinMaxValues(0, maxHealth)
+	self:SetValue(incoming)
+	self:Show()
 end
 
 ------------------------------------------------------------------------
@@ -163,7 +190,7 @@ ns.PostUpdatePower = function(self, unit, cur, max)
 	local _, type = UnitPowerType(unit)
 	local color = colors.power[type] or colors.power.FUEL
 	if cur < max then
-		if self:GetParent().isMouseOver then
+		if self.__owner.isMouseOver then
 			self.value:SetFormattedText("%s.|cff%02x%02x%02x%s|r", si(UnitPower(unit)), color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
 		elseif type == "MANA" then
 			self.value:SetFormattedText("%d|cff%02x%02x%02x%%|r", floor(UnitPower(unit) / UnitPowerMax(unit) * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
@@ -172,7 +199,7 @@ ns.PostUpdatePower = function(self, unit, cur, max)
 		else
 			self.value:SetText(nil)
 		end
-	elseif type == "MANA" and self:GetParent().isMouseOver then
+	elseif type == "MANA" and self.__owner.isMouseOver then
 		self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
 	else
 		self.value:SetText(nil)
@@ -337,7 +364,7 @@ ns.UnitFrame_OnEnter = function(self)
 	end
 	self.isMouseOver = true
 	for _, element in ipairs(self.mouseovers) do
-		self:UpdateElement(element)
+		self[element]:ForceUpdate()
 	end
 end
 
@@ -345,7 +372,7 @@ ns.UnitFrame_OnLeave = function(self)
 	UnitFrame_OnLeave(self)
 	self.isMouseOver = nil
 	for _, element in ipairs(self.mouseovers) do
-		self:UpdateElement(element)
+		self[element]:ForceUpdate()
 	end
 end
 
@@ -404,32 +431,32 @@ end
 
 ------------------------------------------------------------------------
 
-ns.Spawn = function(self, unit)
+ns.Spawn = function(self, unit, isSingle)
+	-- print("Spawn", self:GetName(), unit)
 	tinsert(ns.objects, self)
-
-	if unit == "party" then
-		self.isPartyFrame = true
-	end
-
-	if self:GetAttribute("unitsuffix") == "pet" then
-		unit = unit .. "pet"
-	end
-	-- print("Spawn", unit, self:GetName())
 
 	self.mouseovers = { }
 
 	self.menu = ns.UnitFrame_DropdownMenu
 
-	self:SetScript("OnAttributeChanged", OnAttributeChanged)
-
 	self:SetScript("OnEnter", ns.UnitFrame_OnEnter)
 	self:SetScript("OnLeave", ns.UnitFrame_OnLeave)
 
 	self:RegisterForClicks("anyup")
-	self:SetAttribute("*type2", "menu")
 
-	self:SetAttribute("initial-width",  config.width *  (ns.uconfig[unit].width  or 1))
-	self:SetAttribute("initial-height", config.height * (ns.uconfig[unit].height or 1))
+	local FRAME_WIDTH  = config.width  * (ns.uconfig[unit].width  or 1)
+	local FRAME_HEIGHT = config.height * (ns.uconfig[unit].height or 1)
+
+	if isSingle then
+		self:SetAttribute("*type2", "menu")
+		self:SetAttribute("initial-width", FRAME_WIDTH)
+		self:SetAttribute("initial-height", FRAME_HEIGHT)
+		self:SetWidth(FRAME_WIDTH)
+		self:SetHeight(FRAME_HEIGHT)
+	else
+		-- used for aura filtering
+		self.isGroupFrame = true
+	end
 
 	-------------------------
 	-- Health bar and text --
@@ -447,6 +474,27 @@ ns.Spawn = function(self, unit)
 
 	self.Health.PostUpdate = ns.PostUpdateHealth
 	tinsert(self.mouseovers, "Health")
+
+	---------------------------
+	-- Predicted healing bar --
+	---------------------------
+
+	self.HealPrediction = ns.CreateStatusBar(self.Health)
+	self.HealPrediction:SetFrameLevel(self.Health:GetFrameLevel() + 1)
+	self.HealPrediction:SetAllPoints(self.Health)
+	self.HealPrediction:SetAlpha(0.25)
+	self.HealPrediction:SetStatusBarColor(0, 1, 0)
+	self.HealPrediction:Hide()
+
+	self.HealPrediction.bg:ClearAllPoints()
+	self.HealPrediction.bg:SetTexture("")
+	self.HealPrediction.bg:Hide()
+	self.HealPrediction.bg = nil
+
+	self.HealPrediction.ignoreSelf = config.ignoreOwnHeals
+	self.HealPrediction.maxOverflow = 1
+
+	self.HealPrediction.Override = UpdateHealPrediction
 
 	------------------------
 	-- Power bar and text --
@@ -519,22 +567,48 @@ ns.Spawn = function(self, unit)
 		self:Tag(self.Name, "[unitcolor][name]")
 	end
 
+	-----------------
+	-- Soul shards --
+	-----------------
+
+	if unit == "player" and playerClass == "WARLOCK" then
+		self.SoulShards = { }
+		for i = 1, 3 do
+			self.SoulShards[i] = self.overlay:CreateTexture(nil, "OVERLAY")
+			self.SoulShards[i]:SetTexture([[Interface\PlayerFrame\UI-WarlockShard]])
+			self.SoulShards[i]:SetTexCoord(2/128, 16/128, 2/64, 27/64)
+		end
+		self.SoulShards[2]:SetPoint("CENTER", self, "BOTTOM", 0, 0)
+		self.SoulShards[1]:SetPoint("RIGHT", self.SoulShards[2], "LEFT", 0, 0)
+		self.SoulShards[3]:SetPoint("LEFT", self.SoulShards[2], "RIGHT", 0, 0)
+	end
+
 	-----------------------
 	-- Combo points text --
 	-----------------------
 
 	if unit == "target" then
-		self.ComboPoints = ns.CreateFontString(self.overlay, 32, "RIGHT")
-		self.ComboPoints:SetPoint("BOTTOMRIGHT", self.Health, "BOTTOMLEFT", -10, config.height * config.powerHeight - 6)
-		self.ComboPoints:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
-
-		self:Tag(self.ComboPoints, "[cpoints]")
-	elseif unit == "player" and playerClass == "SHAMAN" then
-		self.Maelstrom = ns.CreateFontString(self.overlay, 32, "LEFT")
-		self.Maelstrom:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
-		self.Maelstrom:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
-
-		self:Tag(self.Maelstrom, "[maelstrom]")
+		self.ComboPointsText = ns.CreateFontString(self.overlay, 32, "RIGHT")
+		self.ComboPointsText:SetPoint("BOTTOMRIGHT", self.Health, "BOTTOMLEFT", -10, config.height * config.powerHeight - 6)
+		self.ComboPointsText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
+		self:Tag(self.ComboPointsText, "[cpoints]")
+	elseif unit == "player" then
+		if playerClass == "SHAMAN" then
+			self.MaelstromText = ns.CreateFontString(self.overlay, 32, "LEFT")
+			self.MaelstromText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
+			self.MaelstromText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
+			self:Tag(self.MaelstromText, "[maelstrom]")
+		elseif playerClass == "PALADIN" then
+			self.HolyPowerText = ns.CreateFontString(self.overlay, 32, "LEFT")
+			self.HolyPowerText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
+			self.HolyPowerText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
+			self:Tag(self.HolyPowerText, "[holypower]")
+		elseif playerClass == "WARLOCK" then
+			self.SoulShardsText = ns.CreateFontString(self.overlay, 32, "LEFT")
+			self.SoulShardsText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
+			self.SoulShardsText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
+			self:Tag(self.SoulShardsText, "[soulshards]")
+		end
 	end
 
 	-----------------------
@@ -562,17 +636,27 @@ ns.Spawn = function(self, unit)
 		self:Tag(self.Status, "[mastericon][leadericon]")
 	end
 
-	----------------
-	-- Raid icons --
-	----------------
+	----------------------
+	-- Ready check icon --
+	----------------------
+
+	if unit == "player" or unit == "party" then
+		self.ReadyCheck = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.ReadyCheck:SetPoint("CENTER", self)
+		self.ReadyCheck:SetSize(config.height, config.height)
+	end
+
+	-----------------------
+	-- Raid target icons --
+	-----------------------
 
 	self.RaidIcon = self.overlay:CreateTexture(nil, "OVERLAY")
 	self.RaidIcon:SetPoint("CENTER", self, "TOPLEFT", 0, 0)
 	self.RaidIcon:SetSize(16, 16)
 
-	------------------------
-	-- Dungeon Role icons --
-	------------------------
+	----------------
+	-- Role icons --
+	----------------
 
 	if unit == "player" or unit == "party" then
 		self.LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
@@ -674,27 +758,6 @@ ns.Spawn = function(self, unit)
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
 		self.Buffs.parent = self
---[[
-		self.Auras = CreateFrame("Frame", nil, self)
-		self.Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
-		self.Auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
-		self.Auras:SetHeight(config.height * 2 + GAP)
-
-		self.Auras["gap"] = true
-		self.Auras["growth-x"] = "RIGHT"
-		self.Auras["growth-y"] = "UP"
-		self.Auras["initialAnchor"] = "BOTTOMLEFT"
-		self.Auras["numBuffs"] = floor((config.width - 4 + GAP) / (config.height + GAP)) * 2
-		self.Auras["numDebuffs"] = floor((config.width - 4 + GAP) / (config.height + GAP)) * 2
-		self.Auras["showBuffType"] = false
-		self.Auras["size"] = config.height
-		self.Auras["spacing-x"] = GAP
-		self.Auras["spacing-y"] = GAP
-
-		self.Auras.CustomFilter   = ns.CustomAuraFilter
-		self.Auras.PostCreateIcon = ns.PostCreateAuraIcon
-		self.Auras.PostUpdateIcon = ns.PostUpdateAuraIcon
---]]
 	end
 
 	------------------------------
@@ -806,50 +869,6 @@ ns.Spawn = function(self, unit)
 		self.AFK.fontFormat = "AFK %s:%s"
 	end
 
-	---------------------------
-	-- Plugin: oUF_HealComm4 --
-	---------------------------
-
-	if IsAddOnLoaded("oUF_HealComm4") and LibStub and LibStub("LibHealComm-4.0", true) and (unit == "player" or (playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN")) then
-		self.HealCommBar = ns.CreateStatusBar(self.Health)
-		self.HealCommBar:SetFrameLevel(self.Health:GetFrameLevel() + 1)
-		self.HealCommBar:SetAllPoints(self.Health)
-		self.HealCommBar:SetAlpha(0.25)
-		self.HealCommBar:SetStatusBarColor(0, 1, 0)
-
-		self.HealCommBar.bg:ClearAllPoints()
-		self.HealCommBar.bg:SetTexture("")
-		self.HealCommBar.bg:Hide()
-		self.HealCommBar.bg = nil
-
-		self.allowHealCommOverflow = false
-		self.HealCommOthersOnly = false
-		self.HealCommTimeframe = 3
---[[
-		self.Heals = ns.CreateStatusBar(self.Health)
-		self.Heals:SetHeight(self.Health:GetHeight() - (self.Power and self.Power:GetHeight() or 0))
-		self.Heals:SetStatusBarColor(0.2, 1, 0.2, 0.5)
-
-		self.Heals.allowOverflow = false
-		self.Heals.anchor = "LEFT"
-		self.Heals.ignoreHoTs = true
-		self.Heals.ignoreOwnHeals = false
---]]
-	end
-
-	----------------------------
-	-- Plugin: oUF_ReadyCheck --
-	----------------------------
-
-	if IsAddOnLoaded("oUF_ReadyCheck") and unit == "player" or unit == "party" then
-		self.ReadyCheck = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.ReadyCheck:SetPoint("CENTER", self)
-		self.ReadyCheck:SetSize(config.height, config.height)
-
-		self.ReadyCheck.delayTime = 5
-		self.ReadyCheck.fadeTime = 1
-	end
-
 	------------------------
 	-- Plugin: oUF_Smooth --
 	------------------------
@@ -864,18 +883,32 @@ end
 
 ------------------------------------------------------------------------
 
-oUF:RegisterStyle("Phanx", ns.Spawn)
-
 oUF:Factory(function(oUF)
 	config = ns.config
 
+	oUF:RegisterStyle("Phanx", ns.Spawn)
 	oUF:SetActiveStyle("Phanx")
+
+	local initialConfigFunction = [[
+		self:SetAttribute("*type2", "menu")
+		self:SetAttribute("initial-width", %d)
+		self:SetAttribute("initial-height", %d)
+		self:SetWidth(%d)
+		self:SetHeight(%d)
+	]]
 
 	for u, udata in pairs(ns.uconfig) do
 		if udata.point then
 			if udata.attributes then
-				ns.headers[u] = oUF:SpawnHeader(nil, nil, udata.visible, unpack(udata.attributes))
+				-- print("generating header for", u)
+				local FRAME_WIDTH  = config.width  * (udata.width  or 1)
+				local FRAME_HEIGHT = config.height * (udata.height or 1)
+
+				ns.headers[u] = oUF:SpawnHeader(nil, udata.template, nil,
+					"oUF-initialConfigFunction", initialConfigFunction:format(FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH, FRAME_HEIGHT),
+					unpack(udata.attributes))
 			else
+				-- print("generating frame for", u)
 				ns.frames[u] = oUF:Spawn(u)
 			end
 		end
@@ -885,11 +918,13 @@ oUF:Factory(function(oUF)
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
 		f:SetPoint(p1, ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+		f:Show()
 	end
 	for u, f in pairs(ns.headers) do
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
 		f:SetPoint(p1, ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+		f:Show()
 	end
 
 	for i = 1, 3 do

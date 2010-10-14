@@ -78,13 +78,31 @@ oUF.Tags["restingicon"] = function(unit)
 	end
 end
 
-local MAELSTROM = GetSpellInfo(53817)
-oUF.TagEvents["maelstrom"] = "UNIT_AURA UNIT_ENTERED_VEHICLE UNIT_EXITED_VEHICLE"
-oUF.Tags["maelstrom"] = function(unit)
-	if unit == "player" then
-		local name, _, icon, count = UnitBuff("player", MAELSTROM)
-		if count and count > 0 then
-			return count
+local _, PLAYER_CLASS = UnitClass("player")
+
+if PLAYER_CLASS == "SHAMAN" then
+	local MAELSTROM = GetSpellInfo(53817)
+	oUF.TagEvents["maelstrom"] = "UNIT_AURA UNIT_ENTERED_VEHICLE UNIT_EXITED_VEHICLE"
+	oUF.Tags["maelstrom"] = function(unit)
+		if unit == "player" then
+			local name, _, icon, count = UnitBuff("player", MAELSTROM)
+			return name and count > 0 and count
 		end
+	end
+end
+
+if PLAYER_CLASS == "PALADIN" then
+	oUF.TagEvents["holypower"] = "UNIT_POWER"
+	oUF.Tags["holypower"] = function(unit)
+		local holypower = UnitPower(unit, SPELL_POWER_HOLY_POWER)
+		return holypower > 0 and holypower
+	end
+end
+
+if PLAYER_CLASS == "SHAMAN" then
+	oUF.TagEvents["soulshards"] = "UNIT_POWER"
+	oUF.Tags["soulshards"] = function(unit)
+		local soulshards = UnitPower(unit, SPELL_POWER_SOUL_SHARDS)
+		return soulshards > 0 and soulshards
 	end
 end
