@@ -1,5 +1,6 @@
 --[[--------------------------------------------------------------------
 	oUF_AFK
+	Based on oUF_Smurf's AFK module by Merl @ chainweb.net
 
 	Usage:
 		self.AFK = self:CreateFontString(nil, "OVERLAY")

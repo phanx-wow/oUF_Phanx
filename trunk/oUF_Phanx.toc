@@ -1,5 +1,5 @@
-## Interface: 30300
-## Version: 3.3.5.wowi:revision
+## Interface: 40000
+## Version: 4.0.1.wowi:revision
 
 ## Title: oUF Phanx
 ## Notes: An oUF layout.
@@ -12,7 +12,7 @@
 ## X-WoWI-ID: 13993
 
 ## Dependencies: oUF
-## OptionalDependencies: LibAboutPanel, LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
+## OptionalDependencies: LibAboutPanel, LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets, oUF_ReadyCheck
 ## SavedVariables: PoUFDB
 
 core.xml
