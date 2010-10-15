@@ -50,8 +50,8 @@ ns.uconfig = {
 		attributes = { "showParty", true, "showPlayer", true, "template", "oUF_PhanxPartyTemplate", "xOffset", 0, "yOffset", -25 },
 		visible = "party",
 	},
-	partypet = { -- not spawned normally, so point/attributes/visible are not needed
-		width = 0.25,
+	partypet = {
+		width = 0.5,
 	},
 }
 

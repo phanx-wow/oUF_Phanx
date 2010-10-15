@@ -435,6 +435,10 @@ ns.Spawn = function(self, unit, isSingle)
 	-- print("Spawn", self:GetName(), unit)
 	tinsert(ns.objects, self)
 
+	if not unit then
+		unit = "partypet" -- hack
+	end
+
 	self.mouseovers = { }
 
 	self.menu = ns.UnitFrame_DropdownMenu
@@ -449,8 +453,10 @@ ns.Spawn = function(self, unit, isSingle)
 
 	if isSingle then
 		self:SetAttribute("*type2", "menu")
+
 		self:SetAttribute("initial-width", FRAME_WIDTH)
 		self:SetAttribute("initial-height", FRAME_HEIGHT)
+
 		self:SetWidth(FRAME_WIDTH)
 		self:SetHeight(FRAME_HEIGHT)
 	else
@@ -891,9 +897,14 @@ oUF:Factory(function(oUF)
 
 	local initialConfigFunction = [[
 		self:SetAttribute("*type2", "menu")
-		self:SetAttribute("initial-width", %d)
+		if self:GetAttribute("unitsuffix") == "pet" then
+			self:SetAttribute("initial-width", %d)
+			self:SetWidth(%d)
+		else
+			self:SetAttribute("initial-width", %d)
+			self:SetWidth(%d)
+		end
 		self:SetAttribute("initial-height", %d)
-		self:SetWidth(%d)
 		self:SetHeight(%d)
 	]]
 
@@ -901,11 +912,12 @@ oUF:Factory(function(oUF)
 		if udata.point then
 			if udata.attributes then
 				-- print("generating header for", u)
-				local FRAME_WIDTH  = config.width  * (udata.width  or 1)
-				local FRAME_HEIGHT = config.height * (udata.height or 1)
+				local W  = config.width  * (udata.width  or 1)
+				local H = config.height * (udata.height or 1)
+				local W2 = W * ((ns.uconfig[u .. "pet"] and ns.uconfig[u .. "pet"].width) or 1)
 
 				ns.headers[u] = oUF:SpawnHeader(nil, udata.template, nil,
-					"oUF-initialConfigFunction", initialConfigFunction:format(FRAME_WIDTH, FRAME_HEIGHT, FRAME_WIDTH, FRAME_HEIGHT),
+					"oUF-initialConfigFunction", initialConfigFunction:format(W2, W2, W, W, H, H),
 					unpack(udata.attributes))
 			else
 				-- print("generating frame for", u)
