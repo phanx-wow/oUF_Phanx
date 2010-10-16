@@ -3,7 +3,6 @@
 	<Script file="Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua"/>
 	<Script file="Libs\ChatThrottleLib\ChatThrottleLib.lua"/>
 	<Script file="Libs\LibAboutPanel\LibAboutPanel.lua"/>
-	<Script file="Libs\LibHealComm-4.0\LibHealComm-4.0.lua"/>
 	<Script file="Libs\LibResComm-1.0\LibResComm-1.0.lua"/>
 	<Script file="Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua"/>
 	<Script file="Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua"/>

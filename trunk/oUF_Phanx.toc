@@ -12,14 +12,13 @@
 ## X-WoWI-ID: 13993
 
 ## Dependencies: oUF
-## OptionalDependencies: LibAboutPanel, LibHealComm-4.0, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets, oUF_ReadyCheck
+## OptionalDependencies: LibAboutPanel, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets, oUF_ReadyCheck
 ## SavedVariables: PoUFDB
 
 core.xml
 
 elements\afk.lua
 elements\dispel.lua
-elements\heals.lua
 elements\resurrections.lua
 elements\threat.lua
 
