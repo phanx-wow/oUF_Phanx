@@ -69,8 +69,6 @@ end
 ------------------------------------------------------------------------
 
 ns.PostUpdateHealth = function(self, unit, cur, max)
-	if unit ~= self.unit then return end
-
 	if not UnitIsConnected(unit) then
 		local color = colors.disconnected
 		local power = self.__owner.Power
@@ -135,29 +133,35 @@ end
 
 ------------------------------------------------------------------------
 
-ns.UpdateHealPrediction = function(self, event, unit)
+ns.UpdateIncomingHeals = function(self, event, unit)
 	if self.unit ~= unit then return end
+
+	local bar = self.HealPrediction
 
 	local incoming = UnitGetIncomingHeals(unit) or 0
 
 	if incoming == 0 then
-		return self:Hide()
+		return bar:Hide()
+	end
+
+	local health = self.Health:GetValue()
+	local _, maxHealth = self.Health:GetMinMaxValues()
+
+	if health == maxHealth then
+		return bar:Hide()
 	end
 
 	if self.ignoreSelf then
 		incoming = incoming - (UnitGetIncomingHeals(unit, "player") or 0)
 	end
 
-	local health = self.__owner.Health:GetValue()
-	local _, maxHealth = self.__owner.Health:GetMinMaxValues()
-
-	if health + incoming > maxHealth * self.maxOverflow then
-		incoming = maxHealth * self.maxOverflow - health
+	if incoming == 0 then
+		return bar:Hide()
 	end
 
-	self:SetMinMaxValues(0, maxHealth)
-	self:SetValue(incoming)
-	self:Show()
+	bar:SetMinMaxValues(0, maxHealth)
+	bar:SetValue(health + incoming)
+	bar:Show()
 end
 
 ------------------------------------------------------------------------
@@ -364,7 +368,7 @@ ns.UnitFrame_OnEnter = function(self)
 	end
 	self.isMouseOver = true
 	for _, element in ipairs(self.mouseovers) do
-		self[element]:ForceUpdate()
+		element:ForceUpdate()
 	end
 end
 
@@ -372,7 +376,7 @@ ns.UnitFrame_OnLeave = function(self)
 	UnitFrame_OnLeave(self)
 	self.isMouseOver = nil
 	for _, element in ipairs(self.mouseovers) do
-		self[element]:ForceUpdate()
+		element:ForceUpdate()
 	end
 end
 
@@ -443,8 +447,8 @@ ns.Spawn = function(self, unit, isSingle)
 
 	self.menu = ns.UnitFrame_DropdownMenu
 
-	self:SetScript("OnEnter", ns.UnitFrame_OnEnter)
-	self:SetScript("OnLeave", ns.UnitFrame_OnLeave)
+	self:HookScript("OnEnter", ns.UnitFrame_OnEnter)
+	self:HookScript("OnLeave", ns.UnitFrame_OnLeave)
 
 	self:RegisterForClicks("anyup")
 
@@ -471,26 +475,29 @@ ns.Spawn = function(self, unit, isSingle)
 	self.Health = ns.CreateStatusBar(self, 24, "RIGHT", true)
 	self.Health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -1)
 	self.Health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
-	self.Health:SetPoint("BOTTOM", self, "BOTTOM", 0, 1)
+	self.Health:SetPoint("BOTTOM", self, "BOTTOM", 0, 0)
 	self.Health:SetStatusBarColor(unpack(config.borderColor))
+
+	self.Health:GetStatusBarTexture():SetDrawLayer("ARTWORK")
 
 	self.Health.bg:SetVertexColor(0.3, 0.3, 0.3)
 
 	self.Health.value:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, config.height * config.powerHeight - 2)
 
 	self.Health.PostUpdate = ns.PostUpdateHealth
-	tinsert(self.mouseovers, "Health")
+	tinsert(self.mouseovers, self.Health)
 
 	---------------------------
 	-- Predicted healing bar --
 	---------------------------
 
-	self.HealPrediction = ns.CreateStatusBar(self.Health)
-	self.HealPrediction:SetFrameLevel(self.Health:GetFrameLevel() + 1)
+	self.HealPrediction = ns.CreateStatusBar(self)
 	self.HealPrediction:SetAllPoints(self.Health)
 	self.HealPrediction:SetAlpha(0.25)
 	self.HealPrediction:SetStatusBarColor(0, 1, 0)
 	self.HealPrediction:Hide()
+
+	self.HealPrediction:SetFrameLevel(self.Health:GetFrameLevel())
 
 	self.HealPrediction.bg:ClearAllPoints()
 	self.HealPrediction.bg:SetTexture("")
@@ -500,7 +507,7 @@ ns.Spawn = function(self, unit, isSingle)
 	self.HealPrediction.ignoreSelf = config.ignoreOwnHeals
 	self.HealPrediction.maxOverflow = 1
 
-	self.HealPrediction.Override = UpdateHealPrediction
+	self.HealPrediction.Override = ns.UpdateIncomingHeals
 
 	------------------------
 	-- Power bar and text --
@@ -519,7 +526,7 @@ ns.Spawn = function(self, unit, isSingle)
 			self.Power.value:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 4, config.height * config.powerHeight - 2)
 			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -8, 0)
 
-			tinsert(self.mouseovers, "Power")
+			tinsert(self.mouseovers, self.Power)
 		end
 
 		self.Power.colorClass = true

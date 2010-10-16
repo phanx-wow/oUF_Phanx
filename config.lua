@@ -16,7 +16,7 @@ local SharedMedia
 
 ns.uconfig = {
 	player = {
-		point = "TOPRIGHT UIParent CENTER -100 -200",
+		point = "BOTTOMRIGHT UIParent CENTER -100 -230",
 		power = true,
 		castbar = true,
 	},
@@ -27,7 +27,7 @@ ns.uconfig = {
 		castbar = true,
 	},
 	target = {
-		point = "LEFT player RIGHT 200 0",
+		point = "BOTTOMLEFT UIParent CENTER 100 -230",
 		power = true,
 		castbar = true,
 	},
