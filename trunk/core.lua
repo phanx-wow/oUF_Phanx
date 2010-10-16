@@ -849,6 +849,16 @@ ns.Spawn = function(self, unit, isSingle)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(unpack(config.borderColor))
 
+	----------------------
+	-- Element: AFK text --
+	----------------------
+
+	if unit == "player" or unit == "party" then
+		self.AFK = ns.CreateFontString(self.overlay, 12, "CENTER")
+		self.AFK:SetPoint("CENTER", self.Health, "BOTTOM", 0, -2)
+		self.AFK.fontFormat = "AFK %s:%s"
+	end
+
 	-------------------------------
 	-- Element: Dispel highlight --
 	-------------------------------
@@ -870,16 +880,6 @@ ns.Spawn = function(self, unit, isSingle)
 	if not unit:match("^.+target$") then
 		self.Resurrection = ns.CreateFontString(self.overlay, 16, "CENTER")
 		self.Resurrection:SetPoint("CENTER", self.Health)
-	end
-
-	---------------------
-	-- Plugin: oUF_AFK --
-	---------------------
-
-	if IsAddOnLoaded("oUF_AFK") and (unit == "player" or unit == "party") then
-		self.AFK = ns.CreateFontString(self.overlay, 12, "CENTER")
-		self.AFK:SetPoint("CENTER", self.Health, "BOTTOM", 0, -2)
-		self.AFK.fontFormat = "AFK %s:%s"
 	end
 
 	------------------------
