@@ -220,17 +220,19 @@ if playerClass == "SHAMAN" then addAuras({
 	[16188] = 4, -- Nature's Swiftness
 	[53390] = 4, -- Tidal Waves
 
-	[49284] = 1, -- Earth Shield
-	[61301] = 1, -- Riptide
+	[974]   = 1, -- Earth Shield
+--	[51945] = 1, -- Earthliving
+	[61295] = 1, -- Riptide
 --	[131]   = 1, -- Water Breathing
 --	[5697]  = 1, -- Water Breathing <== Undending Breath
 --	[546]   = 1, -- Water Walking
 
---	[49231] = 1, -- Earth Shock
+--	[8042]  = 1, -- Earth Shock
 	[3600]  = 1, -- Earthbind
-	[49233] = 2, -- Flame Shock
---	[49236] = 1, -- Frost Shock
-	[77655] = 2, -- Searing Flames
+	[8050]  = 2, -- Flame Shock
+--	[8056]  = 1, -- Frost Shock
+	[8034]  = 2, -- Frostbrand Attack
+	[77661] = 2, -- Searing Flames
 	[37976] = 1, -- Stoneclaw Stun
 	[17364] = 2, -- Stormstrike
 }) end
