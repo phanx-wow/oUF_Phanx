@@ -27,6 +27,8 @@ local resStatus = { }
 local resTarget = { }
 
 local Update = function(self, event, unit)
+	if not unit then return end -- frame currently not used (party/partypet)
+
 	local name, realm = UnitName(unit)
 	if realm and realm ~= "" then
 		name = ("%s-%s"):format(name, realm)
