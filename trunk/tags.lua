@@ -99,7 +99,7 @@ if PLAYER_CLASS == "PALADIN" then
 	end
 end
 
-if PLAYER_CLASS == "SHAMAN" then
+if PLAYER_CLASS == "WARLOCK" then
 	oUF.TagEvents["soulshards"] = "UNIT_POWER"
 	oUF.Tags["soulshards"] = function(unit)
 		local soulshards = UnitPower(unit, SPELL_POWER_SOUL_SHARDS)
