@@ -21,9 +21,10 @@ local addAuras = function(t) for k, v in pairs(t) do ns.AuraList[k] = v end end
 ------------------------------------------------------------------------
 
 ns.AuraList = {
+	[90355] = 4, -- Ancient Hysteria
 	[2825]  = 4, -- Bloodlust
 	[32182] = 4, -- Heroism
-	[49016] = 4, -- Hysteria
+	[80353] = 4, -- Time Warp
 	[29166] = 4, -- Innervate
 	[10060] = 4, -- Power Infusion
 }
@@ -34,7 +35,6 @@ if playerClass == "DEATHKNIGHT" then addAuras({
 	[48707] = 4, -- Anti-Magic Shell
 	[49222] = 4, -- Bone Shield
 	[49028] = 4, -- Dancing Rune Weapon
-	[49796] = 4, -- Deathchill
 	[59052] = 4, -- Freezing Fog <== Rime
 	[48792] = 4, -- Icebound Fortitude
 	[51124] = 4, -- Killing Machine
@@ -44,11 +44,10 @@ if playerClass == "DEATHKNIGHT" then addAuras({
 
 	[59879] = 2, -- Blood Plague
 	[45524] = 1, -- Chains of Ice
-	[49938] = 2, -- Death and Decay
+	[43265] = 2, -- Death and Decay
 	[59921] = 2, -- Frost Fever
-	[51735] = 2, -- Ebon Plague
+	[65142] = 2, -- Ebon Plague
 	[49203] = 1, -- Hungering Cold
-	[49005] = 2, -- Mark of Blood
 }) end
 
 ------------------------------------------------------------------------
@@ -56,37 +55,43 @@ if playerClass == "DEATHKNIGHT" then addAuras({
 if playerClass == "DRUID" then addAuras({
 	[22812] = 4, -- Barkskin
 	[50334] = 4, -- Berserk
+	[5229]  = 4, -- Enrage
 	[16870] = 4, -- Clearcasting <== Omen of Clarity
 	[48518] = 4, -- Eclipse (Lunar)
 	[48517] = 4, -- Eclipse (Solar)
 	[22842] = 4, -- Frenzied Regeneration
+	[16886] = 4, -- Nature's Grace
+	[16689] = 4, -- Nature's Grasp
 	[17116] = 4, -- Nature's Swiftness
 	[52610] = 4, -- Savage Roar
 	[61336] = 4, -- Survival Instincts
-	[50213] = 4, -- Tiger's Fury
+	[5217] 	= 4, -- Tiger's Fury
 
-	[48451] = 2, -- Lifebloom
-	[48443] = 1, -- Regrowth
-	[48441] = 1, -- Rejuvenation
-	[53251] = 1, -- Wild Growth
+	[33763] = 2, -- Lifebloom
+	[94447] = 2, -- Lifebloom (Tree of Life)
+	[8936] 	= 1, -- Regrowth
+	[774] 	= 1, -- Rejuvenation
+	[467]   = 1, -- Thorns
+	[48438] = 1, -- Wild Growth
 
-	[770]   = 1, -- Faerie Fire
-	[16857] = 1, -- Faerie Fire (Feral)
-	[48468] = 2, -- Insect Swarm
-	[48568] = 2, -- Lacerate
+	[5211]  = 1, -- Bash
+	[5570] 	= 2, -- Insect Swarm
+	[33745] = 2, -- Lacerate
 	[22570] = 1, -- Maim
-	[48463] = 2, -- Moonfire
-	[59881] = 1, -- Pounce Stun
-	[48574] = 2, -- Rake
-	[49800] = 2, -- Rip
-	[26995] = 1, -- Soothe Animal
+	[8921] 	= 2, -- Moonfire
+	[93402] = 2, -- Sunfire
+	[9005]  = 1, -- Pounce
+	[1822] 	= 2, -- Rake
+	[1079] 	= 2, -- Rip
 }) end
 
 ------------------------------------------------------------------------
 
 if playerClass == "HUNTER" then addAuras({
 	[19574] = 4, -- Bestial Wrath
+	[82921] = 4, -- Bombardment
 	[53434] = 4, -- Call of the Wild
+	[51775] = 4, -- Camouflage
 	[19263] = 4, -- Deterrence
 	[5384]  = 4, -- Feign Death
 	[56453] = 4, -- Lock and Load
@@ -97,108 +102,132 @@ if playerClass == "HUNTER" then addAuras({
 	[6991]  = 2, -- Feed Pet
 	[19577] = 2, -- Intimidation
 	[34026] = 2, -- Kill Command
-	[48990] = 2, -- Mend Pet
+	[136] 	= 2, -- Mend Pet
 
-	[63672] = 2, -- Black Arrow
+	[3674]  = 2, -- Black Arrow
 	[5116]  = 1, -- Concussive Shot
-	[48999] = 1, -- Counterattack
-	[60053] = 2, -- Explosive Shot
-	[49065] = 2, -- Explosive Trap Effect
-	[53338] = 1, -- Hunter's Mark
+	[19306] = 1, -- Counterattack
+	[53301] = 2, -- Explosive Shot
+	[43446] = 2, -- Explosive Trap Effect
+	[1130] 	= 1, -- Hunter's Mark
 	[57140] = 2, -- Immolation Trap Effect
-	[14327] = 1, -- Scare Beast
+	[1513] 	= 1, -- Scare Beast
 	[19503] = 1, -- Scatter Shot
-	[3043]  = 1, -- Scorpid Sting
-	[49001] = 2, -- Serpent Sting
+	[1978] 	= 2, -- Serpent Sting
 	[34490] = 1, -- Silencing Shot
-	[3034]  = 2, -- Viper Sting
 	[2974]  = 1, -- Wing Clip
-	[49012] = 1, -- Wyvern Sting
+	[19386] = 1, -- Wyvern Sting
 }) end
 
 ------------------------------------------------------------------------
 
 if playerClass == "MAGE" then addAuras({
+	[36032] = 4, -- Arcane Blast
 	[12042] = 4, -- Arcane Power
+--	[57531] = 4, -- Arcane Potency
+	[31643] = 4, -- Blazing Speed
+	[57761] = 4, -- Brain Freeze
 --	[12536] = 4, -- Clearcasting <== Arcane Concentration
-	[28682] = 4, -- Combustion
 	[44544] = 4, -- Fingers of Frost
 	[57761] = 4, -- Fireball! <== Brain Freeze
 	[48108] = 4, -- Hot Streak
+	[11426] = 4, -- Ice Barrier
+	[45438] = 4, -- Ice Block
 	[12472] = 4, -- Icy Veins
-	[44401] = 4, -- Missile Barrage
+	[64343] = 4, -- Impact
+	[543]   = 4, -- Mage Ward
 	[12043] = 4, -- Presence of Mind
 
-	[43017] = 1, -- Amplify Magic
-	[43015] = 1, -- Dampen Magic
 	[54646] = 1, -- Focus Magic
 
-	[42945] = 1, -- Blast Wave
-	[42931] = 1, -- Cone of Cold
+	[11113] = 1, -- Blast Wave
+	[12486] = 2, -- Chilled <== Blizzard <== Ice Shards
+	[83853] = 4, -- Combustion
+	[120] 	= 1, -- Cone of Cold
+	[22959] = 1, -- Critical Mass
 	[44572] = 1, -- Deep Freeze
-	[42950] = 1, -- Dragon's Breath
---	[42833] = 2, -- Fireball
-	[42917] = 1, -- Frost Nova
-	[47610] = 2, -- Frostfire Bolt
-	[22959] = 1, -- Improved Scorch
-	[55360] = 2, -- Living Bomb
+	[31661] = 1, -- Dragon's Breath
+	[122] 	= 1, -- Frost Nova
+	[44614] = 2, -- Frostfire Bolt
+	[44457] = 2, -- Living Bomb
+	[11366] = 2, -- Pyroblast
+	[92315] = 2, -- Pyroblast!
+	[82691] = 2, -- Ring of Frost
 	[31589] = 1, -- Slow
 }) end
 
 ------------------------------------------------------------------------
 
 if playerClass == "PALADIN" then addAuras({
+	[86701] = 4, -- Ancient Crusader
+	[86657] = 4, -- Ancient Guardian
+	[86674] = 4, -- Ancient Healer
+	[31850] = 4, -- Ardent Defender
 	[31884] = 4, -- Avenging Wrath
-	[20216] = 4, -- Divine Favor
+	[31842] = 4, -- Divine Favor
 	[54428] = 4, -- Divine Plea
 	[31842] = 4, -- Divine Protection
-	[64205] = 4, -- Divine Sacrifice
 	[642]   = 4, -- Divine Shield
-	[31834] = 4, -- Light's Grace
+	[20925] = 4, -- Holy Shield
+	[82327] = 4, -- Holy Radiance
+	[84963] = 4, -- Inquisition
+	[85433] = 4, -- Sacred Duty
 	[59578] = 4, -- The Art of War
+	[85696] = 4, -- Zealotry
 
 	[31821] = 2, -- Aura Mastery
 	[53563] = 2, -- Beacon of Light
-	[19752] = 1, -- Divine Intervention
+	[70940] = 1, -- Divine Guardian
 	[1044]  = 1, -- Hand of Freedom
 	[1022]  = 1, -- Hand of Protection
 	[6940]  = 1, -- Hand of Sacrifice
 	[1038]  = 1, -- Hand of Salvation
-	[58597] = 2, -- Sacred Shield
 
 	[31935] = 1, -- Avenger's Shield
 	[31803] = 2, -- Censure
 	[25771] = 1, -- Forbearance
 	[853]   = 1, -- Hammer of Justice
-	[20184] = 1, -- Judgement of Justice
-	[20267] = 1, -- Judgement of Light
-	[20186] = 1, -- Judgement of Wisdom
+	[2812]  = 2, -- Holy Wrath
+	[85285] = 2, -- Rebuke -- NEEDS CHECK
+	[20710] = 1, -- Seal of Justice
 }) end
 
 ------------------------------------------------------------------------
 
 if playerClass == "PRIEST" then addAuras({
+	[14751] = 4, -- Chakra
+	[87117] = 4, -- Dark Evangelism -- NEEDS CHECK
+	[87118] = 4, -- Dark Evangelism -- NEEDS CHECK
+	[47585] = 4, -- Dispersion
+	[81660] = 4, -- Evangelism -- NEEDS CHECK
+	[81661] = 4, -- Evangelism -- NEEDS CHECK
 	[586]   = 4, -- Fade
 	[14751] = 4, -- Inner Focus
-	[15271] = 4, -- Spirit Tap
-	[33151] = 4, -- Surge of Light
+	[73413] = 4, -- Inner Will
+	[88688] = 4, -- Surge of Light
 
 	[6346]  = 1, -- Fear Ward
-	[47517] = 2, -- Grace
+	[77613] = 2, -- Grace
 	[47788] = 1, -- Guardian Spirit
 	[33206] = 1, -- Pain Suppression
-	[48066] = 1, -- Power Word: Shield
-	[48068] = 2, -- Renew
+	[81782] = 1, -- Power Word: Barrier
+	[17]    = 1, -- Power Word: Shield
+	[139]   = 2, -- Renew
 
 	[47753] = 2, -- Divine Aegis
-	[48300] = 2, -- Devouring Plague
+	[2944]  = 2, -- Devouring Plague
+	[605]   = 1, -- Mind Control
+	[81292] = 2, -- Mind Melt (Rank 1)
+	[87160] = 2, -- Mind Melt (Rank 2)
 	[453]   = 1, -- Mind Soothe
+	[87178] = 2, -- Mind Spike
 	[33198] = 1, -- Misery
+	[87193] = 2, -- Paralysis (Rank 1)
+	[87194] = 2, -- Paralysis (Rank 2)
 	[64044] = 1, -- Psychic Horror
-	[10890] = 1, -- Psychic Scream
-	[15258] = 2, -- Shadow Weaving
-	[48125] = 2, -- Shadow Word: Pain
-	[48160] = 1, -- Vampiric Touch
+	[8122]  = 1, -- Psychic Scream
+	[589]   = 2, -- Shadow Word: Pain
+	[34914] = 1, -- Vampiric Touch
 	[6788]  = 1, -- Weakened Soul
 }) end
 
@@ -208,7 +237,20 @@ if playerClass == "ROGUE" then addAuras({
 	[13750] = 4, -- Adrenaline Rush
 	[13877] = 4, -- Blade Flurry
 	[67210] = 4, -- Clearcasting <== Rogue T9 2P Bonus
-	[6774]  = 4, -- Slice and Dice
+	[31224] = 4, -- Cloak of Shadows
+	[14177] = 4, -- Cold Blood
+	[73651] = 4, -- Recuperate
+	[5171]  = 4, -- Slice and Dice
+	[56934] = 4, -- Tricks of the Trade
+
+	[2094]  = 1, -- Blind
+	[1833]  = 1, -- Cheap Shot
+	[51722] = 1, -- Dismantle
+	[703]   = 2, -- Garrote
+	[1776]  = 2, -- Gouge
+	[408]   = 1, -- Kidney Shot
+	[84617] = 2, -- Revealing Strike
+	[79140] = 2, -- Vendetta
 }) end
 
 ------------------------------------------------------------------------
@@ -242,50 +284,66 @@ if playerClass == "SHAMAN" then addAuras({
 if playerClass == "WARLOCK" then addAuras({
 	[34936] = 4, -- Backlash
 	[47241] = 4, -- Demon Form
+	[88448] = 4, -- Demonic Rebirth
 	[47283] = 4, -- Empowered Imp
+	[65371] = 4, -- Eradication
 	[71165] = 4, -- Molten Core
+	[91711] = 4, -- Nether Ward
 	[17941] = 4, -- Shadow Trance
+	[6229]  = 4, -- Shadow Ward
+	[74434] = 4, -- Soulburn
 
-	[27239] = 1, -- Soulstone Resurrection
+	[80398] = 2, -- Dark Intent
+	[20707] = 1, -- Soulstone Resurrection
 --	[5697]  = 1, -- Unending Breath
 --	[131]   = 1, -- Unending Breath <== Water Breathing
 
+	[980]   = 2, -- Bane of Agony
+	[603]   = 2, -- Bane of Doom
+	[80240] = 2, -- Bane of Havoc
 	[17962] = 2, -- Conflagrate
-	[47813] = 2, -- Corruption
-	[47864] = 2, -- Curse of Agony
+	[172]   = 2, -- Corruption
+	[1490]  = 1, -- Curse of the Elements
 	[18223] = 1, -- Curse of Exhaustion
-	[47865] = 1, -- Curse of the Elements
-	[11719] = 1, -- Curse of Tongues
-	[50511] = 1, -- Curse of Weakness
-	[6215]  = 2, -- Fear
-	[59164] = 2, -- Haunt
-	[17928] = 2, -- Howl of Terror
-	[47811] = 2, -- Immolate
-	[47836] = 2, -- Seed of Corruption
-	[61290] = 2, -- Shadowflame
-	[47843] = 2, -- Unstable Affliction
+	[1714]  = 1, -- Curse of Tongues
+	[702]   = 1, -- Curse of Weakness
+	[5782]  = 2, -- Fear
+	[48181] = 2, -- Haunt
+	[5484]  = 2, -- Howl of Terror
+	[348]   = 2, -- Immolate
+	[27243] = 2, -- Seed of Corruption
+	[47897] = 2, -- Shadowflame
+	[30108] = 2, -- Unstable Affliction
 }) end
 
 ------------------------------------------------------------------------
 
 if playerClass == "WARRIOR" then addAuras({
 	[46924] = 4, -- Bladestorm
+	[85730] = 4, -- Deadly Calm
 	[12292] = 4, -- Death Wish
 	[55694] = 4, -- Enraged Regeneration
+	[1134]  = 4, -- Inner Rage
 	[12975] = 4, -- Last Stand
 	[1719]  = 4, -- Recklessness
 	[20230] = 4, -- Retaliation
 	[2565]  = 4, -- Shield Block
 	[871]   = 4, -- Shield Wall
 	[46916] = 4, -- Slam! <== Bloodsurge
-	[52437] = 4, -- Sudden Death
 	[12328] = 4, -- Sweeping Strikes
 	[50227] = 4, -- Sword and Board
 	[34428] = 4, -- Victory Rush
 
+	[50720] = 2, -- Vigilance
+
+	[86346] = 2, -- Colossus Smash
+	[12809] = 1, -- Concussion Blow
+	[676]   = 2, -- Disarmed!
 	[1715]  = 1, -- Hamstring
-	[47465] = 2, -- Rend
+	[772]   = 2, -- Rend
 	[7386]  = 2, -- Sunder Armor
+	[85388] = 2, -- Throwdown
+	[6343]  = 1, -- Thunder Clap
 }) end
 
 ------------------------------------------------------------------------
@@ -296,9 +354,13 @@ if playerRace == "Dwarf" then
 elseif playerRace == "NightElf" then
 	ns.AuraList[58984] = 4 -- Shadowmeld
 elseif playerRace == "Orc" then
-	ns.AuraList[20572] = 4 -- Blood Fury
+	ns.AuraList[20572] = 4 -- Blood Fury (attack power)
+	ns.AuraList[33702] = 4 -- Blood Fury (spell power)
+	ns.AuraList[33697] = 4 -- Blood Fury (attack power and spell damage)
 elseif playerRace == "Scourge" then
 	ns.AuraList[7744]  = 4 -- Will of the Forsaken
+elseif playerRace == "Tauren" then
+	ns.AuraList[20549] = 1 -- War Stomp
 elseif playerRace == "Troll" then
 	ns.AuraList[26297] = 4 -- Berserking
 end
@@ -306,23 +368,25 @@ end
 ------------------------------------------------------------------------
 -- Equivalent Debuffs
 
--- Attack Power Reduced
-if playerClass == "DRUID" or playerClass == "WARRIOR" then addAuras({
-	[702]   = 1, -- Curse of Weakness
-	[99]    = 1, -- Demoralizing Roar
-	[1160]  = 1, -- Demoralizing Shout
-	[26016] = 1, -- Vindication
-}) end
+-- Armor Reduced
+if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then addAuras({
+	[8647] 	= 1, -- Expose Armor
+	[91565] = 1, -- Faerie Fire
+	[7386] 	= 1, -- Sunder Armor
+})
 
 -- Attack Speed Reduced
-if playerClass == "WARRIOR" then addAuras({
-	[58181] = 1, -- Infected Wounds
+if playerClass == "DEATHKNIGHT" or playerClass == "WARRIOR" then addAuras({
+	[8042]  = 1, -- Earth Shock
+	[55095] = 1, -- Frost Fever -- 45477 Icy Touch
+	[58180] = 1, -- Infected Wounds
 	[68055] = 1, -- Judgements of the Just
-	[47502] = 1, -- Thunder Clap
+	[6343]  = 1, -- Thunder Clap
 }) end
 
 -- Bleed Damage Increased
-if playerClass == "DRUID" or playerclass == "WARRIOR" then addAuras({
+if playerClass == "DRUID" or playerClass == "ROGUE" or playerclass == "WARRIOR" then addAuras({
+	[16511] = 1, -- Hemorrhage
 	[33878] = 1, -- Mangle (Bear)
 	[33876] = 1, -- Mangle (Cat)
 	[46857] = 1, -- Trauma
@@ -330,8 +394,27 @@ if playerClass == "DRUID" or playerclass == "WARRIOR" then addAuras({
 
 -- Healing Reduced (Player)
 if playerClass == "HUNTER" or playerClass == "WARRIOR" then addAuras({
-	[49050] = 1, -- Aimed Shot
+	[56112] = 3, -- Furious Attacks
+	[48301] = 3, -- Mind Trauma
+	[30213] = 3, -- Legion Strike (Felguard)
 	[47486] = 1, -- Mortal Strike
+	[82654] = 3, -- Widow Venom
+}) end
+
+-- Cast Speed Reduced
+if playerClass == "DEATHKNIGHT" or playerClass == "MAGE" or playerClass == "ROGUE" or playerClass == "WARLOCK" then addAuras({
+	[1714]  = 3, -- Curse of Tongues
+	[5760]  = 3, -- Mind-Numbing Poison
+	[73975] = 3, -- Necrotic Strike
+	[31589] = 3, -- Slow
+
+-- Physical Damage Dealt Reduced
+if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "WARRIOR" then addAuras({
+	[702]   = 1, -- Curse of Weakness
+	[99]    = 1, -- Demoralizing Roar
+	[1160]  = 1, -- Demoralizing Shout
+	[81130] = 1, -- Scarlet Fever
+	[26017] = 1, -- Vindication
 }) end
 
 -- Taunted
@@ -340,7 +423,7 @@ if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "PAL
 	[1161]  = 1, -- Challenging Shout
 	[56222] = 1, -- Dark Command
 	[57603] = 1, -- Death Grip
-	[57603] = 1, -- Growl
+	[6795]  = 1, -- Growl
 	[62124] = 1, -- Hand of Reckoning
 	[694]   = 1, -- Mocking Blow
 	[31790] = 1, -- Righteous Defense
@@ -351,24 +434,24 @@ if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "PAL
 -- Crowd Control
 
 addAuras({
-	[18647] = 1, -- Banish
+	[710]   = 1, -- Banish
 	[76780] = 1, -- Bind Elemental
 	[33786] = 1, -- Cyclone
-	[53308] = 1, -- Entangling Roots
-	[6215]  = 1, -- Fear
-	[14309] = 1, -- Freezing Trap
+	[339]   = 1, -- Entangling Roots
+	[5782]  = 1, -- Fear
+	[55041] = 1, -- Freezing Trap Effect
 	[51514] = 1, -- Hex
-	[18658] = 1, -- Hibernate
-	[12825] = 1, -- Polymorph
+	[2637]  = 1, -- Hibernate
+	[118]   = 1, -- Polymorph
 	[61305] = 1, -- Polymorph (Black Cat)
 	[28272] = 1, -- Polymorph (Pig)
 	[61721] = 1, -- Polymorph (Rabbit)
 	[61780] = 1, -- Polymorph (Turkey)
 	[28271] = 1, -- Polymorph (Turtle)
 	[20066] = 1, -- Repentance
-	[51724] = 1, -- Sap
+	[6670]  = 1, -- Sap
 	[6358]  = 1, -- Seduction
-	[10955] = 1, -- Shackle Undead
+	[9484]  = 1, -- Shackle Undead
 	[10326] = 1, -- Turn Evil
 })
 
@@ -377,140 +460,6 @@ addAuras({
 --[[
 addAuras({
 })
---]]
-------------------------------------------------------------------------
--- Healing Reduced (NPC)
---[[
-if playerClass == "DRUID" or playerClass == "PALADIN" or playerClass =="PRIEST" or playerClass == "SHAMAN" then addAuras({
-	[19434] = 3, -- Aimed Shot
-	[40599] = 3, -- Arcing Smash
-	[23169] = 3, -- Brood Affliction: Green
-	[43410] = 3, -- Chop
-	[34073] = 3, -- Curse of the Bleeding Hollow
-	[13583] = 3, -- Curse of the Deadwood
-	[45347] = 3, -- Dark Touched
-	[63038] = 3, -- Dark Volley
-	[36023] = 3, -- Deathblow
-	[34625] = 3, -- Demolish
-	[34366] = 3, -- Ebon Poison
-	[48291] = 3, -- Fetid Rot
-	[32378] = 3, -- Filet
-	[56112] = 3, -- Furious Attacks
-	[19716] = 3, -- Gehennas' Curse
-	[52645] = 3, -- Hex of Weakness
-	[70671] = 3, -- Leeching Rot -- 70710 Heroic
-	[36917] = 3, -- Magma-Thrower's Curse
-	[48301] = 3, -- Mind Trauma
-	[22859] = 3, -- Mortal Cleave
-	[12294] = 3, -- Mortal Strike (Warriors)
-	[24573] = 3, -- Mortal Strike (Broodlord Lashlayer)
-	[43441] = 3, -- Mortal Strike (Hex Lord Malacrass)
-	[44268] = 3, -- Mortal Strike (Warlord Salaris)
-	[25646] = 3, -- Mortal Wound -- Also 31464, 36814, 54378
-	[69674] = 3, -- Mutated Infection
-	[28776] = 3, -- Necrotic Poison
-	[60626] = 3, -- Necrotic Strike
-	[30423] = 3, -- Nether Portal - Dominance
-	[68391] = 3, -- Permafrost
-	[59525] = 3, -- Ray of Pain
-	[45885] = 3, -- Shadow Spike
-	[54525] = 3, -- Shroud of Darkness
-	[35189] = 3, -- Solar Strike
-	[32315] = 3, -- Soul Strike
-	[70588] = 3, -- Suppression
-	[32858] = 3, -- Touch of the Forgotten
-	[7068]  = 3, -- Veil of Shadow (Nefarian)
-	[28440] = 3, -- Veil of Shadow (Dread Creeper)
-	[69633] = 3, -- Veil of Shadow (Spectral Warden)
-	[13218] = 3, -- Wound Poison (Rogues)
-	[43461] = 3, -- Wound Poison (Hex Lord Malacrass)
-	[13222] = 3, -- Wound Poison II
-	[13223] = 3, -- Wound Poison III
-	[13224] = 3, -- Wound Poison IV
-	[27189] = 3, -- Wound Poison V
-	[57974] = 3, -- Wound Poison VI
-	[57975] = 3, -- Wound Poison VII
-	[52771] = 3, -- Wounding Strike
-	[44534] = 3, -- Wretched Strike
-
-	[41292] = 3, -- Aura of Suffering
-	[45996] = 3, -- Darkness
-	[59513] = 3, -- Embrace of the Vampyr
-	[30843] = 3, -- Enfeeble
-	[55593] = 3, -- Necrotic Aura
-}) end
---]]
-------------------------------------------------------------------------
--- Raid Encounters
---[[
-addAuras({
-	-- Ulduar
-	[62717] = 3, -- Ignis the Furnace Master ==> Slag Pot
-	[63024] = 3, -- XT-002 Deconstructor ==> Gravity Bomb
-	[63018] = 3, -- XT-002 Deconstructor ==> Searing Light
-	[61888] = 3, -- Steelbreaker => Overwhelming Power
-	[63355] = 3, -- Kologarn ==> Crunch Armor
-	[64290] = 3, -- Kologarn ==> Stone Grip
-	[64396] = 3, -- Auriaya ==> Guardian Swarm
-	[64666] = 3, -- Auriaya ==> Savage Pounce
-	[62532] = 3, -- Freya ==> Conservator's Grip
---	[62310] = 3, -- Freya ==> Impale
-	[62283] = 3, -- Freya ==> Iron Roots
-	[61969] = 3, -- Hodir ==> Flash Freeze
-	[62130] = 3, -- Thorim ==> Unbalancing Strike
-	[62997] = 3, -- Mimiron ==> Plasma Blast
-	[63276] = 3, -- General Vezax ==> Mark of the Faceless
-	[63802] = 3, -- Yogg-Saron ==> Brain Link
-	[63830] = 3, -- Yogg-Saron ==> Malady of the Mind
-	[63134] = 3, -- Yogg-Saron ==> Sara's Blessing
-	[64125] = 3, -- Yogg-Saron ==> Squeeze
-	[64412] = 3, -- Algalon the Observer ==> Phase Punch
-
-	-- Trial of the Crusader
-	[66331] = 3, -- Gormok the Impaler ==> Impale
-	[66406] = 3, -- Gormok the Impaler ==> Snobolled!
-	[66823] = 3, -- Acidmaw ==> Paralytic Toxin
-	[66869] = 3, -- Dreadscale ==> Burning Bile
-	[66689] = 3, -- Icehowl ==> Arctic Breath
-	[66237] = 3, -- Lord Jaraxxus ==> Incinerate Flesh
-	[68124] = 3, -- Lord Jaraxxus ==> Legion Flame
-	[66012] = 3, -- Anub'arak ==> Freezing Slash
-	[67700] = 3, -- Anub'arak ==> Penetrating Cold
-
-	-- Icecrown Citadel
-	[69065] = 3, -- Lord Marrowgar ==> Impaled
-	[72385] = 3, -- Deathbringer Saurfang ==> Boiling Blood
-	[72293] = 3, -- Deathbringer Saurfang ==> Mark of the Fallen Champion
-	[72410] = 3, -- Deathbringer Saurfang ==> Rune of Blood
-	[69279] = 3, -- Festergut ==> Gas Spore
-	[72219] = 3, -- Festergut ==> Gastric Bloat
-	[72103] = 3, -- Festergut ==> Inoculated
-	[69674] = 3, -- Rotface ==> Mutated Infection
-	[70672] = 3, -- Professor Putricide ==> Gaseous Bloat
-	[72672] = 3, -- Professor Putricide ==> Mutated Plague
-	[70447] = 3, -- Professor Putricide ==> Volatile Ooze Adhesive
-	[71510] = 3, -- Blood-Queen Lana'thel ==> Blood Mirror
-	[70867] = 3, -- Blood-Queen Lana'thel ==> Essence of the Blood Queen
-	[70877] = 3, -- Blood-Queen Lana'thel ==> Frenzied Bloodthirst
-	[71340] = 3, -- Blood-Queen Lana'thel ==> Pact of the Darkfallen
-	[71265] = 3, -- Blood-Queen Lana'thel ==> Swarming Shadows
-	[70923] = 3, -- Blood-Queen Lana'thel ==> Uncontrollable Frenzy
-	[70873] = 3, -- Valithria Dreamwalker ==> Emerald Vigor
-	[70106] = 3, -- Sindragosa ==> Chilled to the Bone
-	[70126] = 3, -- Sindragosa ==> Frost Beacon
-	[70157] = 3, -- Sindragosa ==> Ice Tomb
-	[69766] = 3, -- Sindragosa ==> Instability
-	[70127] = 3, -- Sindragosa ==> Mystic Buffet
-	[68980] = 3, -- The Lich King ==> Harvest Soul
-	[74322] = 3, -- The Lich King ==> Harvested Soul
-	[70337] = 3, -- The Lich King ==> Necrotic Plague
-	[74074] = 3, -- The Lich King ==> Plague Siphon
-	[69409] = 3, -- The Lich King ==> Soul Reaper
-
-	-- Ruby Sanctum
-	[74562] = 3, -- Halion ==> Fiery Consumption
-	[74792] = 3, -- Halion ==> Soul Consumption
-}) end
 --]]
 ------------------------------------------------------------------------
 --[[
