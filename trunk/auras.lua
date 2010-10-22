@@ -438,6 +438,10 @@ if playerClass == "PRIEST" then addAuras({
 	[6788]  = 1, -- Weakened Soul
 
 	[14751] = 4, -- Chakra
+	[81208] = 4, -- Chakra: Heal
+	[81206] = 4, -- Chakra: Prayer of Healing
+	[81207] = 4, -- Chakra: Renew
+	[81209] = 4, -- Chakra: Smite
 	[87117] = 4, -- Dark Evangelism -- NEEDS CHECK
 	[87118] = 4, -- Dark Evangelism -- NEEDS CHECK
 	[47585] = 4, -- Dispersion
