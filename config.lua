@@ -444,7 +444,7 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 
 	borderSize.OnValueChanged = function(self, value)
 		value = math.floor(value + 0.5)
-		db.posy = value
+		db.borderSize = value
 		for _, frame in ipairs(ns.borderedObjects) do
 			frame:SetBorderSize(value)
 		end
@@ -470,6 +470,10 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 			frame:SetBorderColor(r, g, b)
 		end
 		for _, frame in ipairs(oUF.objects) do
+			if frame.Health then
+				frame.Health:SetStatusBarColor(r, g, b)
+				frame.Health.bg:SetVertexColor(r * 1.5, g * 1.5, b * 1.5)
+			end
 			if frame.UpdateBorder then
 				frame:UpdateBorder()
 			end
