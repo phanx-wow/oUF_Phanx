@@ -292,7 +292,7 @@ if playerClass == "DRUID" then addAuras({
 --	Hunter
 
 if playerClass == "HUNTER" then addAuras({
-	[50433] = 2, -- Ankhe Crack [crocolisk]
+	[50433] = 2, -- Ankle Crack [crocolisk]
 	[3674]  = 2, -- Black Arrow
 	[35101] = 2, -- Concussive Barrage
 	[5116]  = 2, -- Concussive Shot
@@ -629,7 +629,15 @@ if playerClass == "WARRIOR" then addAuras({
 ------------------------------------------------------------------------
 -- Racials
 
-if playerRace == "Dwarf" then
+if playerRace == "Draenei" then
+	auras[59545] = 4 -- Gift of the Naaru (death knight)
+	auras[59543] = 4 -- Gift of the Naaru (hunter)
+	auras[59548] = 4 -- Gift of the Naaru (mage)
+	auras[59542] = 4 -- Gift of the Naaru (paladin)
+	auras[59544] = 4 -- Gift of the Naaru (priest)
+	auras[59547] = 4 -- Gift of the Naaru (shaman)
+	auras[28880] = 4 -- Gift of the Naaru (warrior)
+elseif playerRace == "Dwarf" then
 	auras[20594] = 4 -- Stoneform
 elseif playerRace == "NightElf" then
 	auras[58984] = 4 -- Shadowmeld
@@ -643,6 +651,8 @@ elseif playerRace == "Tauren" then
 	auras[20549] = 1 -- War Stomp
 elseif playerRace == "Troll" then
 	auras[26297] = 4 -- Berserking
+elseif playerRace == "Worgen" then
+	auras[68992] = 4 -- Darkflight
 end
 
 ------------------------------------------------------------------------

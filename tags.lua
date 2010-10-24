@@ -79,11 +79,11 @@ oUF.Tags["restingicon"] = function(unit)
 end
 
 local MAELSTROM_WEAPON = GetSpellInfo(53817)
-oUF.TagEvents["maelstrom"] = "UNIT_AURA UNIT_ENTERED_VEHICLE UNIT_EXITED_VEHICLE"
+oUF.TagEvents["maelstrom"] = "UNIT_AURA"
 oUF.Tags["maelstrom"] = function(unit)
 	if unit == "player" then
 		local name, _, icon, count = UnitBuff("player", MAELSTROM_WEAPON)
-		return name and count > 0 and count
+		return name and count
 	end
 end
 
@@ -92,6 +92,28 @@ oUF.Tags["holypower"] = function(unit)
 	local holypower = UnitPower(unit, SPELL_POWER_HOLY_POWER)
 	return holypower > 0 and holypower
 end
+
+local EVANGELISM = GetSpellInfo(81661) -- 81660 for rank 1
+local DARK_EVANGELISM = GetSpellInfo(87118) -- 87117 for rank 1
+oUF.TagEvents["evangelism"] = "UNIT_AURA"
+oUF.Tags["evangelism"] = function(unit)
+	if unit == "player" then
+		local name, _, icon, count = UnitBuff("player", EVANGELISM)
+		if name then return count end
+		name, _, icon, count = UnitBuff("player", DARK_EVANGELISM)
+		return name and count
+	end
+end
+
+local SHADOW_ORB = GetSpellInfo(77487)
+oUF.TagEvents["shadoworbs"] = "UNIT_AURA"
+oUF.Tags["shadoworbs"] = function(unit)
+	if unit == "player" then
+		local name, _, icon, count = UnitBuff("player", SHADOW_ORB)
+		return name and count
+	end
+end
+
 
 oUF.TagEvents["soulshards"] = "UNIT_POWER"
 oUF.Tags["soulshards"] = function(unit)
