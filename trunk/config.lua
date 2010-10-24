@@ -493,7 +493,7 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 			if frame.DispelHighlight then
 				frame.DispelHighlightFilter = checked
 				if frame:IsShown() then
-					frame.DispelHighlight:ForceUpdate()
+					frame:GetScript("OnEvent")(frame, "UNIT_AURA", "player")
 				end
 			end
 		end

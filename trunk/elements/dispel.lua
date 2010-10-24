@@ -29,12 +29,13 @@ if select(4, GetAddOnInfo("oUF_DebuffHighlight")) then return end
 local class = select(2, UnitClass("player"))
 
 local canSteal = class == "MAGE"
-local canPurge = class == "PRIEST" or class == "SHAMAN" or class == "WARLOCK" or class == "WARRIOR"
+local canTranq = class == "DRUID" or class == "HUNTER" or class == "ROGUE"
+local canPurge = class == "HUNTER" or class == "PRIEST" or class == "SHAMAN" or class == "WARLOCK" or class == "WARRIOR"
 local canDispel = {
 	Curse = class == "DRUID" or class == "MAGE" or class == "SHAMAN",
-	Disease = class == "PALADIN" or class == "PRIEST" or class == "SHAMAN",
-	Magic = class == "PALADIN" or class == "PRIEST",
-	Poison = class == "DRUID" or class == "PALADIN" or class == "SHAMAN",
+	Disease = class == "PALADIN" or class == "PRIEST",
+	Magic = class == "DRUID" or class == "PALADIN" or class == "PRIEST" or class == "SHAMAN",
+	Poison = class == "DRUID" or class == "PALADIN",
 }
 
 ------------------------------------------------------------------------
@@ -46,7 +47,9 @@ for type, priority in pairs({ Curse = 2, Disease = 4, Magic = 1, Poison = 3 }) d
 end
 table.sort(dispelPriority, function(a, b) return dispelPriority[a] > dispelPriority[b] end)
 
-local colors = { }
+local colors = {
+	["Enrage"] = { 0.8, 0.2, 0 }
+}
 for type, color in pairs(DebuffTypeColor) do
 	colors[type] = { color.r, color.g, color.b }
 end
@@ -85,7 +88,7 @@ local function Update(self, event, unit)
 			local name, _, _, _, type, _, _, _, stealable = UnitAura(unit, i, "HELPFUL")
 			if not name then break end
 			-- print("UnitAura", unit, i, tostring(name), tostring(type))
-			if (canPurge and type == "MAGIC") or (canSteal and stealable) then
+			if (canPurge and type == "MAGIC") or (canTranq and type == "ENRAGE") or (canSteal and stealable) then
 				debuffType = type
 				break
 			end

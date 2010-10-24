@@ -49,7 +49,7 @@ ns.UpdateBorder = function(self)
 	elseif threat and threat > 1 then
 		-- print(self.unit, "has aggro:", threat)
 		color = colors.threat[threat]
-	elseif debuff and not config.dispellableDebuffsOnly then
+	elseif debuff and not config.dispelFilter then
 		-- print(self.unit, "has debuff:", debuff)
 		color = colors.debuff[debuff]
 	elseif threat and threat > 0 then
@@ -475,8 +475,8 @@ ns.Spawn = function(self, unit, isSingle)
 	local r, g, b = unpack(config.borderColor)
 
 	self.Health = ns.CreateStatusBar(self, 24, "RIGHT", true)
-	self.Health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -1)
-	self.Health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
+	self.Health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -2)
+	self.Health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -2)
 	self.Health:SetPoint("BOTTOM", self, "BOTTOM", 0, 0)
 	self.Health:SetStatusBarColor(r, g, b)
 
