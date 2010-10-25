@@ -608,16 +608,21 @@ ns.Spawn = function(self, unit, isSingle)
 		self.ComboPointsText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
 		self:Tag(self.ComboPointsText, "[cpoints]")
 	elseif unit == "player" then
-		if playerClass == "SHAMAN" then
-			self.MaelstromText = ns.CreateFontString(self.overlay, 32, "LEFT")
-			self.MaelstromText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
-			self.MaelstromText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
-			self:Tag(self.MaelstromText, "[maelstrom]")
-		elseif playerClass == "PALADIN" then
+		if playerClass == "PALADIN" then
 			self.HolyPowerText = ns.CreateFontString(self.overlay, 32, "LEFT")
 			self.HolyPowerText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
 			self.HolyPowerText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
 			self:Tag(self.HolyPowerText, "[holypower]")
+		elseif playerClass == "PRIEST" then
+			self.ShadowOrbsText = ns.CreateFontString(self.overlay, 32, "LEFT")
+			self.ShadowOrbsText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
+			self.ShadowOrbsText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
+			self:Tag(self.ShadowOrbsText, "[shadoworbs]")
+		elseif playerClass == "SHAMAN" then
+			self.MaelstromText = ns.CreateFontString(self.overlay, 32, "LEFT")
+			self.MaelstromText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
+			self.MaelstromText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
+			self:Tag(self.MaelstromText, "[maelstrom]")
 		elseif playerClass == "WARLOCK" then
 			self.SoulShardsText = ns.CreateFontString(self.overlay, 32, "LEFT")
 			self.SoulShardsText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
