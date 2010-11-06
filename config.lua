@@ -130,7 +130,7 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 
 		statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
 
-		font = [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]],
+		font = [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]],
 		fontOutline = "OUTLINE",
 
 		borderColor = { 0.2, 0.2, 0.2 },
@@ -186,6 +186,7 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 
 	SharedMedia = LibStub("LibSharedMedia-3.0", true)
 	if SharedMedia then
+		SharedMedia:Register("font", "Droid Seif", [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]])
 		SharedMedia:Register("font", "Expressway", [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]])
 		SharedMedia:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
 
