@@ -6,13 +6,13 @@
 ## Author: Phanx
 ## X-Email: addons@phanx.net
 ## X-Copyright: Copyright © 2008–2010 Phanx.
-## X-License: See README file for license terms.
+## X-License: Do not redistribute. See LICENSE file for details.
 ## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 ## X-Curse-Project-ID: ouf-phanx
 ## X-WoWI-ID: 13993
 
 ## Dependencies: oUF
-## OptionalDependencies: LibAboutPanel, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets, oUF_ReadyCheck
+## OptionalDependencies: LibAboutPanel, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
 ## SavedVariables: PoUFDB
 
 core.xml
