@@ -585,7 +585,7 @@ ns.Spawn = function(self, unit, isSingle)
 	-----------------
 	-- Soul shards --
 	-----------------
-
+--[=[
 	if unit == "player" and playerClass == "WARLOCK" then
 		self.SoulShards = { }
 		for i = 1, 3 do
@@ -597,7 +597,7 @@ ns.Spawn = function(self, unit, isSingle)
 		self.SoulShards[1]:SetPoint("RIGHT", self.SoulShards[2], "LEFT", 0, 0)
 		self.SoulShards[3]:SetPoint("LEFT", self.SoulShards[2], "RIGHT", 0, 0)
 	end
-
+--]=]
 	-----------------------
 	-- Combo points text --
 	-----------------------
