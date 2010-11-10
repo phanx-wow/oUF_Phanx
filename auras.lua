@@ -471,8 +471,8 @@ if playerClass == "ROGUE" then addAuras({
 	[51585] = 2, -- Blade Twisting
 	[2094]  = 2, -- Blind
 	[1833]  = 2, -- Cheap Shot
-	[44289] = 2, -- Crippling Poison -- NEEDS CHECK
-	[2818]  = 2, -- Deadly Poison -- NEEDS CHECK
+	[3409] = 2, -- Crippling Poison
+	[2818]  = 2, -- Deadly Poison
 	[26679] = 2, -- Deadly Throw
 	[51722] = 2, -- Dismantle
 	[8647]  = 1, -- Expose Armor
@@ -483,7 +483,7 @@ if playerClass == "ROGUE" then addAuras({
 	[14251] = 1, -- Riposte
 	[1943]  = 2, -- Rupture
 	[79140] = 2, -- Vendetta
-	[13218] = 2, -- Wound Poison -- NEEDS CHECK
+	[13218] = 2, -- Wound Poison
 
 	[13750] = 4, -- Adrenaline Rush
 	[13877] = 4, -- Blade Flurry
@@ -511,7 +511,7 @@ if playerClass == "SHAMAN" then addAuras({
 	[89523] = 1, -- Grounding Totem [reflect]
 	[8178]  = 1, -- Grounding Totem Effect
 	[51514] = 2, -- Hex
-	[77661] = 1, -- Searing Flames -- NEEDS CHECK
+	[77661] = 1, -- Searing Flames
 	[37976] = 1, -- Stoneclaw Stun
 	[17364] = 2, -- Stormstrike
 
