@@ -47,11 +47,14 @@ ns.uconfig = {
 		point = "TOPLEFT targettarget BOTTOMRIGHT 110 250",
 		width = 0.5,
 		power = true,
-		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "template", "oUF_PhanxPartyTemplate", "xOffset", 0, "yOffset", -25 },
+		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25 },
 		visible = "party",
 	},
 	partypet = {
-		width = 0.5,
+		point = "TOPLEFT party TOPRIGHT 10 0",
+		width = 0.25,
+		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "unitSuffix", "pet" },
+		visible = "party",
 	},
 }
 
