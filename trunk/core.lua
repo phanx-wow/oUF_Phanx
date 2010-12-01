@@ -245,6 +245,8 @@ ns.PostCreateAuraIcon = function(iconframe, button)
 	button.overlay.Hide = AuraIconOverlay_SetBorderColor
 	button.overlay.SetVertexColor = AuraIconOverlay_SetBorderColor
 	button.overlay.Show = noop
+
+	button:SetScript("OnClick", nil) -- because oUF still tries to cancel buffs on right-click, and Blizzard thinks preventing this will stop botting?
 end
 
 ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
@@ -263,11 +265,16 @@ ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
 			local child = select(i, button:GetChildren())
 			if child.text and (child.icon == button.icon or child.cooldown == button.cd) then
 				-- found it!
+				child.ClearAllPoints = noop
 				child.SetAlpha = noop
+				child.SetPoint = noop
 				child.SetScale = noop
 
 				child.text:ClearAllPoints()
+				child.text.ClearAllPoints = noop
+
 				child.text:SetPoint("CENTER", button, "TOP", 0, 2)
+				child.text.SetPoint = noop
 
 				child.text:SetFont(config.font, unit:match("^party") and 14 or 18, config.fontOutline)
 				child.text.SetFont = noop
@@ -656,6 +663,40 @@ ns.Spawn = function(self, unit, isSingle)
 		self:Tag(self.Status, "[mastericon][leadericon]")
 	end
 
+	----------------
+	-- Phase icon --
+	----------------
+
+	if unit == "party" or unit == "target" or unit == "focus" then
+		self.PhaseIcon = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.PhaseIcon:SetPoint("TOP", self, "TOP", 0, -4)
+		self.PhaseIcon:SetPoint("BOTTOM", self, "BOTTOM", 0, 4)
+		self.PhaseIcon:SetWidth(self.PhaseIcon:GetHeight())
+		self.PhaseIcon:SetTexture([[Interface\Icons\Spell_Frost_Stun]])
+		self.PhaseIcon:SetTexCoord(0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9)
+		self.PhaseIcon:SetDesaturated(true)
+		self.PhaseIcon:SetBlendMode("ADD")
+		self.PhaseIcon:SetAlpha(0.5)
+	end
+
+	---------------------
+	-- Quest boss icon --
+	---------------------
+
+	if unit == "target" then
+		self.QuestIcon = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.QuestIcon:SetPoint("CENTER", self, "LEFT", 0, 0)
+		self.QuestIcon:SetSize(32, 32)
+	end
+
+	-----------------------
+	-- Raid target icons --
+	-----------------------
+
+	self.RaidIcon = self.overlay:CreateTexture(nil, "OVERLAY")
+	self.RaidIcon:SetPoint("CENTER", self, 0, 0)
+	self.RaidIcon:SetSize(32, 32)
+
 	----------------------
 	-- Ready check icon --
 	----------------------
@@ -665,14 +706,6 @@ ns.Spawn = function(self, unit, isSingle)
 		self.ReadyCheck:SetPoint("CENTER", self)
 		self.ReadyCheck:SetSize(config.height, config.height)
 	end
-
-	-----------------------
-	-- Raid target icons --
-	-----------------------
-
-	self.RaidIcon = self.overlay:CreateTexture(nil, "OVERLAY")
-	self.RaidIcon:SetPoint("CENTER", self, "TOPLEFT", 0, 0)
-	self.RaidIcon:SetSize(16, 16)
 
 	----------------
 	-- Role icons --
@@ -911,13 +944,8 @@ oUF:Factory(function(oUF)
 
 	local initialConfigFunction = [[
 		self:SetAttribute("*type2", "menu")
-		if self:GetAttribute("unitsuffix") == "pet" then
-			self:SetAttribute("initial-width", %d)
-			self:SetWidth(%d)
-		else
-			self:SetAttribute("initial-width", %d)
-			self:SetWidth(%d)
-		end
+		self:SetAttribute("initial-width", %d)
+		self:SetWidth(%d)
 		self:SetAttribute("initial-height", %d)
 		self:SetHeight(%d)
 	]]
@@ -926,12 +954,11 @@ oUF:Factory(function(oUF)
 		if udata.point then
 			if udata.attributes then
 				-- print("generating header for", u)
-				local W  = config.width  * (udata.width  or 1)
-				local H = config.height * (udata.height or 1)
-				local W2 = W * ((ns.uconfig[u .. "pet"] and ns.uconfig[u .. "pet"].width) or 1)
+				local w = config.width  * (udata.width  or 1)
+				local h = config.height * (udata.height or 1)
 
-				ns.headers[u] = oUF:SpawnHeader(nil, udata.template, nil,
-					"oUF-initialConfigFunction", initialConfigFunction:format(W2, W2, W, W, H, H),
+				ns.headers[u] = oUF:SpawnHeader(nil, nil, udata.visible,
+					"oUF-initialConfigFunction", initialConfigFunction:format(w, w, h, h),
 					unpack(udata.attributes))
 			else
 				-- print("generating frame for", u)
