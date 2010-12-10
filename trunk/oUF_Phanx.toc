@@ -1,12 +1,12 @@
 ## Interface: 40000
-## Version: 4.0.1.wowi:revision
+## Version: 4.0.3.wowi:revision
 
 ## Title: oUF Phanx
 ## Notes: An oUF layout.
 ## Author: Phanx
 ## X-Email: addons@phanx.net
-## X-Copyright: Copyright © 2008–2010 Phanx.
-## X-License: Do not redistribute. See LICENSE file for details.
+## X-Copyright: Copyright © 2008–2010 Phanx
+## X-License: Public Domain
 ## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 ## X-Curse-Project-ID: ouf-phanx
 ## X-WoWI-ID: 13993

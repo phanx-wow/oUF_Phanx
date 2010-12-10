@@ -1,10 +1,16 @@
 --[[--------------------------------------------------------------------
-	oUF_Phanx
-	An oUF layout.
-	by Phanx < addons@phanx.net >
-	Copyright © 2008–2010 Phanx. See README file for license terms.
-	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-	http://wow.curseforge.com/addons/ouf-phanx/
+oUF_Phanx
+Fully-featured PVE-oriented layout for oUF.
+
+http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+http://wow.curseforge.com/addons/ouf-phanx/
+
+Copyright © 2007–2010 Phanx < addons@phanx.net >
+
+I, the copyright holder of this work, hereby release it into the public
+domain. This applies worldwide. In case this is not legally possible:
+I grant anyone the right to use this work for any purpose, without any
+conditions, unless such conditions are required by law.
 ------------------------------------------------------------------------
 	Values:
 	1 = by anyone on anyone

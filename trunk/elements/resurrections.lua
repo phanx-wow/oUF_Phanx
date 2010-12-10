@@ -1,6 +1,7 @@
 --[[--------------------------------------------------------------------
 	oUF_Resurrection
 	Adds resurrection status text to oUF frames.
+	Loosely based on GridStatusRes.
 
 	Usage:
 		frame.Resurrection = frame.Health:CreateFontString(nil, "OVERLAY", "GameFontNormal")
