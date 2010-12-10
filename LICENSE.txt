@@ -1,26 +1,31 @@
-oUF_Phanx - a World of Warcraft user interface addon
+oUF_Phanx
+Fully-featured PVE-oriented layout for oUF.
+http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+http://wow.curseforge.com/addons/ouf-phanx/
 
-Copyright © 2008–2010 A. Kinley, a.k.a. Phanx
+Copyright © 2008–2010 Phanx < addons@phanx.net >
 
-The contents of this software, excluding third-party resources, are 
-copyrighted to its author with all rights reserved, under United States 
-and international copyright law. Copyright law specifices certain rights 
-and restrictions persuant to your use of this software. In particular, 
-please note:
+The contents of this software, excluding third-party resources, are
+copyrighted to its author with all rights reserved, under United States
+and international copyright law. Copyright law specifices certain rights
+and restrictions persuant to your use of this software. The author of
+this software also grants you several additional rights. In particular:
 
-1. You MAY download and run this software as a user interface addon 
+1. You MAY download and run this software as a user interface addon
    inside the World of Warcraft game client.
 
-2. You MAY make modifications to this software for your own private use.
+2. You MAY make modifications to your local copy of this software for
+   your own private use.
 
-3. You MAY NOT distribute this software in any form, with or without
-   modifications, including as part of a compilation, without prior
-   written permission from its author(s).
+3. You MAY distribute an unmodified copy of this software as part of a
+   compilation released through Curse.com, CurseForge.com, WoWAce.com,
+   or WoWInterface.com.
 
-Additionally, the author of this addon hereby grants you the following
-non-exclusive right:
+4. You MAY NOT distribute this software in any other way, with or
+   without modifications, without prior written permission from its
+   author(s).
 
-4. You MAY use source code from this software for any purpose, provided
+5. You MAY use source code from this software for any purpose, provided
    that the names of this software and/or its author(s) are not used to
    promote your project, and do not appear in the title, source code, or
    file names of your project, outside of an optional credits notation.

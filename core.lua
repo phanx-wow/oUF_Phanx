@@ -1,8 +1,8 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
-	An oUF layout.
+	Fully-featured PVE-oriented layout for oUF.
 	by Phanx < addons@phanx.net >
-	Copyright © 2008–2010 Phanx. See README file for license terms.
+	Copyright © 2007–2010. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://wow.curseforge.com/addons/ouf-phanx/
 ----------------------------------------------------------------------]]
@@ -389,12 +389,16 @@ end
 
 ns.UnitFrame_DropdownMenu = function(self)
 	local unit = self.unit:sub(1, -2)
-	local cunit = self.unit:gsub("^%l", string.upper)
-	if cunit == "Vehicle" then cunit = "Pet" end
 	if unit == "party" or unit == "partypet" then
 		ToggleDropDownMenu(1, nil, _G["PartyMemberFrame" .. self.id .. "DropDown"], "cursor", 0, 0)
-	elseif _G[cunit .. "FrameDropDown"] then
-		ToggleDropDownMenu(1, nil, _G[cunit .. "FrameDropDown"], "cursor", 0, 0)
+	else
+		local cunit = self.unit:gsub("^%l", string.upper)
+		if cunit == "Vehicle" then
+			cunit = "Pet"
+		end
+		if _G[cunit .. "FrameDropDown"] then
+			ToggleDropDownMenu(1, nil, _G[cunit .. "FrameDropDown"], "cursor", 0, 0)
+		end
 	end
 end
 
