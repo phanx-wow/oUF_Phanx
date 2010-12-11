@@ -395,12 +395,16 @@ end
 
 ns.UnitFrame_DropdownMenu = function(self)
 	local unit = self.unit:sub(1, -2)
-	local cunit = self.unit:gsub("^%l", string.upper)
-	if cunit == "Vehicle" then cunit = "Pet" end
 	if unit == "party" or unit == "partypet" then
 		ToggleDropDownMenu(1, nil, _G["PartyMemberFrame" .. self.id .. "DropDown"], "cursor", 0, 0)
-	elseif _G[cunit .. "FrameDropDown"] then
-		ToggleDropDownMenu(1, nil, _G[cunit .. "FrameDropDown"], "cursor", 0, 0)
+	else
+		local cunit = self.unit:gsub("^%l", string.upper)
+		if cunit == "Vehicle" then
+			cunit = "Pet"
+		end
+		if _G[cunit .. "FrameDropDown"] then
+			ToggleDropDownMenu(1, nil, _G[cunit .. "FrameDropDown"], "cursor", 0, 0)
+		end
 	end
 end
 
