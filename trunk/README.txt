@@ -1,18 +1,12 @@
-oUF_Phanx
-Fully-featured PVE-oriented layout for oUF.
+# oUF_Phanx
 
-http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-http://wow.curseforge.com/addons/ouf-phanx/
+* by Phanx < addons@phanx.net >
+* Copyright © 2008–2010 Phanx. Some rights reserved. See LICENSE.txt for details.
+* http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+* http://wow.curseforge.com/addons/ouf-phanx/
 
-Copyright © 2008–2010 Phanx < addons@phanx.net >
 
-I, the copyright holder of this work, hereby release it into the public
-domain. This applies worldwide. In case this is not legally possible:
-I grant anyone the right to use this work for any purpose, without any
-conditions, unless such conditions are required by law.
-
-------------------------------------------------------------------------
-Description
+## Description
 
 oUF_Phanx is a layout for oUF. I use it for PvE tanking, healing, and
 melee damage-dealing.
@@ -33,8 +27,8 @@ plugin which does not require explicit support from within a layout.
 Requires oUF 1.5.3 or higher:
 http://www.wowinterface.com/downloads/info9994-oUF.html
 
-------------------------------------------------------------------------
-Usage
+
+## Usage
 
 Some basic options can be changed in the configuration panel. Find it in
 the Interface Options window or by typing "/pouf".
@@ -52,8 +46,8 @@ the code, post in the oUF forum on WoWInterface:
 
 http://www.wowinterface.com/forums/forumdisplay.php?f=87
 
-------------------------------------------------------------------------
-Feature Requests
+
+## Feature Requests
 
 * http://www.wowinterface.com/portal.php?uid=28751&a=listfeatures
 * http://wow.curseforge.com/addons/ouf-phanx/tickets/?status=+&type=e
@@ -63,8 +57,8 @@ most requests for major changes or additions will not be considered. If
 you'd like to suggest a minor change, or request support for a plugin,
 feel free to submit a feature request ticket.
 
-------------------------------------------------------------------------
-Bug Reports
+
+## Bug Reports
 
 * http://www.wowinterface.com/portal.php?uid=28751&a=listbugs
 * http://wow.curseforge.com/addons/ouf-phanx/tickets/?status=+&type=d
@@ -91,8 +85,8 @@ and always sucks to scroll through.
 Remember to check on your ticket after a few days, as I may need more
 information from you in order to identify or fix the problem!
 
-------------------------------------------------------------------------
-Contact
+
+## Contact
 
 If you have a comment or question that is not a bug report or a
 feature request, you may post a comment on the download page.
@@ -100,7 +94,3 @@ feature request, you may post a comment on the download page.
 If you need to contact me privately, you may do so by sending email
 to < addons@phanx.net > or by sending a private message to Phanx on
 either download site.
-
-Please note that I will ignore any private messages or emails that
-are reporting problems, requesting features, or asking for help with
-addons. Use the ticket tracker or the comment page for those things.

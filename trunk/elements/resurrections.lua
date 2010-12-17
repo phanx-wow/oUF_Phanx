@@ -3,6 +3,9 @@
 	Adds resurrection status text to oUF frames.
 	Loosely based on GridStatusRes.
 
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone plugin.
+
 	Usage:
 		frame.Resurrection = frame.Health:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		frame.Resurrection:SetPoint("CENTER", frame)

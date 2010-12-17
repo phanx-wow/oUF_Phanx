@@ -2,6 +2,9 @@
 	oUF_ThreatHighlight
 	Highlights oUF frames by threat level.
 
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone module.
+
 	Simple usage:
 		self.ThreatHighlight = true
 
