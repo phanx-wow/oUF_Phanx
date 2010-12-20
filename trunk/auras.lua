@@ -69,7 +69,7 @@ if playerClass == "WARRIOR" then addAuras({
 }) end
 
 ------------------------------------------------------------------------
---	Bleed damage taken reduced
+--	Bleed damage taken increased
 
 if playerClass == "DRUID" or playerClass == "ROGUE" then addAuras({
 	[35290] = 1, -- Gore [hunter boar] -- NEEDS CHECK
@@ -226,7 +226,7 @@ if playerClass == "DEATHKNIGHT" then addAuras({
 	[48792] = 4, -- Icebound Fortitude
 	[51124] = 4, -- Killing Machine
 	[49039] = 4, -- Lichborne
-	[57271] = 4, -- Pillar of Frost
+	[51271] = 4, -- Pillar of Frost
 	[50421] = 4, -- Scent of Blood
 	[81340] = 4, -- Sudden Doom
 	[55233] = 4, -- Vampiric Blood
@@ -298,7 +298,7 @@ if playerClass == "HUNTER" then addAuras({
 	[5116]  = 2, -- Concussive Shot
 	[19306] = 2, -- Counterattack
 	[20736] = 2, -- Distracting Shot
-	[64808] = 2, -- Entrapment
+	[64803] = 2, -- Entrapment
 	[53301] = 2, -- Explosive Shot
 	[13812] = 2, -- Explosive Trap -- NEEDS CHECK 43446
 	[3355]  = 2, -- Freezing Trap -- NEEDS CHECK 31932 43415 55041
@@ -408,7 +408,7 @@ if playerClass == "PALADIN" then addAuras({
 	[54149] = 4, -- Infusion of Light
 	[84963] = 4, -- Inquisition
 	[85433] = 4, -- Sacred Duty
-	[85496] = 4, -- Speed of Light [haste effect]
+	[85497] = 4, -- Speed of Light [haste effect]
 	[59578] = 4, -- The Art of War
 	[85696] = 4, -- Zealotry
 
@@ -471,13 +471,14 @@ if playerClass == "ROGUE" then addAuras({
 	[51585] = 2, -- Blade Twisting
 	[2094]  = 2, -- Blind
 	[1833]  = 2, -- Cheap Shot
-	[3409] = 2, -- Crippling Poison
+	[3409]  = 2, -- Crippling Poison
 	[2818]  = 2, -- Deadly Poison
 	[26679] = 2, -- Deadly Throw
 	[51722] = 2, -- Dismantle
 	[8647]  = 1, -- Expose Armor
 	[703]   = 2, -- Garrote
 	[1776]  = 2, -- Gouge
+	[89775] = 2, -- Hemorrhage [dot from glyph]
 	[408]   = 2, -- Kidney Shot
 	[84617] = 2, -- Revealing Strike
 	[14251] = 1, -- Riposte
@@ -512,7 +513,7 @@ if playerClass == "SHAMAN" then addAuras({
 	[8178]  = 1, -- Grounding Totem Effect
 	[51514] = 2, -- Hex
 	[77661] = 1, -- Searing Flames
-	[37976] = 1, -- Stoneclaw Stun
+	[39796] = 1, -- Stoneclaw Stun
 	[17364] = 2, -- Stormstrike
 
 	[16166] = 4, -- Elemental Mastery [instant cast]
@@ -539,7 +540,7 @@ if playerClass == "WARLOCK" then addAuras({
 	[80240] = 2, -- Bane of Havoc
 	[710]   = 2, -- Banish
 	[172]   = 2, -- Corruption
-	[18233] = 1, -- Curse of Exhaustion
+	[29539] = 1, -- Curse of Exhaustion
 	[1490]  = 1, -- Curse of the Elements
 	[1714]  = 1, -- Curse of Tongues
 	[702]   = 1, -- Curse of Weakness
@@ -559,7 +560,7 @@ if playerClass == "WARLOCK" then addAuras({
 	[79462] = 4, -- Demon Soul: Felguard
 	[79460] = 4, -- Demon Soul: Felhunter
 	[79459] = 4, -- Demon Soul: Imp
-	[75463] = 4, -- Demon Soul: Succubus
+	[79463] = 4, -- Demon Soul: Succubus
 	[79464] = 4, -- Demon Soul: Voidwalker
 	[88448] = 4, -- Demonic Rebirth
 	[47283] = 4, -- Empowered Imp
@@ -567,7 +568,7 @@ if playerClass == "WARLOCK" then addAuras({
 	[50589] = 4, -- Immolation Aura
 	[47241] = 4, -- Metamorphosis
 	[71165] = 4, -- Molten Core
-	[57373] = 4, -- Nether Protection (Arcane)
+	[54373] = 4, -- Nether Protection (Arcane)
 	[54371] = 4, -- Nether Protection (Fire)
 	[54372] = 4, -- Nether Protection (Frost)
 	[54370] = 4, -- Nether Protection (Holy)
