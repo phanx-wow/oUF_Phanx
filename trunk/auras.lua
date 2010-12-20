@@ -435,6 +435,7 @@ if playerClass == "PRIEST" then addAuras({
 	[8122]  = 2, -- Psychic Scream
 	[9484]  = 2, -- Shackle Undead
 	[589]   = 2, -- Shadow Word: Pain
+	[34914] = 2, -- Vampiric Touch
 	[6788]  = 1, -- Weakened Soul
 
 	[14751] = 4, -- Chakra
@@ -460,7 +461,7 @@ if playerClass == "PRIEST" then addAuras({
 	[33206] = 2, -- Pain Suppression
 	[10060] = 2, -- Power Infusion
 	[17]    = 1, -- Power Word: Shield
-	[33076] = 2, -- Prayer of Mending
+	[41635] = 2, -- Prayer of Mending
 	[139]   = 2, -- Renew
 }) end
 
