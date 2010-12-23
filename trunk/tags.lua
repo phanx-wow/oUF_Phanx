@@ -7,6 +7,8 @@
 	http://wow.curseforge.com/addons/ouf-phanx/
 ----------------------------------------------------------------------]]
 
+local _, ns = ...
+
 oUF.TagEvents["unitcolor"] = "UNIT_HEALTH UNIT_CLASSIFICATION UNIT_REACTION"
 oUF.Tags["unitcolor"] = function(unit)
 	local color

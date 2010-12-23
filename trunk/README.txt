@@ -1,6 +1,7 @@
 # oUF_Phanx
 
 * by Phanx < addons@phanx.net >
+* Currently maintained by Akkorian < akkorian@hotmail.com >
 * Copyright © 2008–2010 Phanx. Some rights reserved. See LICENSE.txt for details.
 * http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 * http://wow.curseforge.com/addons/ouf-phanx/
@@ -8,21 +9,21 @@
 
 ## Description
 
-oUF_Phanx is a layout for oUF. I use it for PvE tanking, healing, and
-melee damage-dealing.
+oUF_Phanx is a PvE-oriented layout for oUF.
 
-Features include aggro highlighting, dispellable debuff highlighting,
-incoming heal bars, incoming resurrection text, AFK timers, filtered
-aura display, casting bars for player, pet, and target, and more
-detailed text on mouseover.
+Features include aggro highlighting, debuff highlighting with dispel
+prioritization, incoming heal bars, resurrection status text, AFK timer
+text, filtered aura display, casting bars for player/pet/target, and
+more detailed health and power text on mouseover.
 
-Supports the player, pet, target, targettarget, focus, focustarget,
-party, and partypet units. Boss frames will be added in the future.
-Raid frames will **not** be added; use Grid or another raid frame addon
-of your choice.
+This layout supports the player, pet, target, target of target, focus,
+target of focus, party, and party pet units. Boss unit frames will be
+added in the future. Raid frames will *not* be added; use Grid or
+another raid frame addon of your choice.
 
-Supported plugins include oUF_MovableFrames, oUF_Smooth, and any other
-plugin which does not require explicit support from within a layout.
+The oUF_Smooth plugin is supported, along with any other plugin which
+does not require explicit support from within a layout. If you’d like to
+see support for a specific plugin, post a feature request.
 
 Requires oUF 1.5.3 or higher:
 http://www.wowinterface.com/downloads/info9994-oUF.html
@@ -31,66 +32,27 @@ http://www.wowinterface.com/downloads/info9994-oUF.html
 ## Usage
 
 Some basic options can be changed in the configuration panel. Find it in
-the Interface Options window or by typing "/pouf".
+the Interface Options window or by typing “/pouf”.
 
-A few additional options are available by editing the "oUF_Phanx.lua"
+A few additional options are available by editing the “oUF_Phanx.lua”
 file in your SavedVariables directory. Note that you must have logged
 in with the addon enabled, and then logged out or reloaded your UI, at
 least once before this file will appear. Also, you must log out before
 editing this file, or your changes will have no effect.
 
-If you want to change something that doesn't have an option to change,
-you will need to modify the layout's code yourself, and I will NOT
+If you want to change something that doesn’t have an option to change,
+you will need to modify the layout’s code yourself, and I will *not*
 provide any support or assistance for this. If you need help modifying
 the code, post in the oUF forum on WoWInterface:
 
 http://www.wowinterface.com/forums/forumdisplay.php?f=87
 
 
-## Feature Requests
+## Feedback
 
-* http://www.wowinterface.com/portal.php?uid=28751&a=listfeatures
-* http://wow.curseforge.com/addons/ouf-phanx/tickets/?status=+&type=e
+To report a bug or request a feature, please use the ticket tracker on
+either download site. Use the comments page only for general questions
+and comments.
 
-oUF_Phanx is primarily written to fill my own needs for PvE play, and
-most requests for major changes or additions will not be considered. If
-you'd like to suggest a minor change, or request support for a plugin,
-feel free to submit a feature request ticket.
-
-
-## Bug Reports
-
-* http://www.wowinterface.com/portal.php?uid=28751&a=listbugs
-* http://wow.curseforge.com/addons/ouf-phanx/tickets/?status=+&type=d
-
-Before reporting a problem, please:
-
-1. Double-check that you have the latest version of the addon.
-2. Disable all other addons and see if the problem still happens.
-3. Enable Lua error display or install BugSack to capture any error
-   messages related to the problem.
-
-When submitting a bug report, include:
-
-* What version of the addon are you using?
-* What version and language do you play WoW in?
-* Does the problem happen when all other addons are disabled?
-* What is the problem? What steps can I follow to reproduce it?
-* Include exact text of the first related error message, if any.
-
-Please DO NOT include lists of local variables or installed addons. Some
-error addons append this information, but it's almost never relevant,
-and always sucks to scroll through.
-
-Remember to check on your ticket after a few days, as I may need more
-information from you in order to identify or fix the problem!
-
-
-## Contact
-
-If you have a comment or question that is not a bug report or a
-feature request, you may post a comment on the download page.
-
-If you need to contact me privately, you may do so by sending email
-to < addons@phanx.net > or by sending a private message to Phanx on
-either download site.
+If you need to contact me privately, send me a private message on either
+download site, or email me at addons@phanx.net or akkorian@hotmail.com.

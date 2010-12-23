@@ -3,10 +3,12 @@
 
 ## Title: oUF Phanx
 ## Notes: An oUF layout.
-## Author: Phanx
-## X-Email: addons@phanx.net
+## Author: Phanx, Akkorian
+## X-Email: addons@phanx.net, akkorian@hotmail.com
 ## X-Copyright: Copyright © 2008–2010 Phanx
 ## X-License: Some rights reserved. See LICENSE.txt for details.
+## X-CompatibleLocales: deDE, enUS, esES, esMX, frFR, koKR, ruRU, zhTW
+## X-Localizations: enUS
 ## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 ## X-Curse-Project-ID: ouf-phanx
 ## X-WoWI-ID: 13993
