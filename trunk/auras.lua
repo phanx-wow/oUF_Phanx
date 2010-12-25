@@ -36,6 +36,7 @@ addAuras({
 	[1022]  = 4, -- Hand of Protection
 	[32182] = 4, -- Heroism
 	[29166] = 4, -- Innervate
+	[55503] = 4, -- Lifeblood [herbalism]
 	[80353] = 4, -- Time Warp
 	[33206] = 4, -- Pain Suppression
 	[10060] = 4, -- Power Infusion
