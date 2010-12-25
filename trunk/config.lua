@@ -189,7 +189,7 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 
 	SharedMedia = LibStub("LibSharedMedia-3.0", true)
 	if SharedMedia then
-		SharedMedia:Register("font", "Droid Seif", [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]])
+		SharedMedia:Register("font", "Droid Serif", [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]])
 		SharedMedia:Register("font", "Expressway", [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]])
 		SharedMedia:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
 
