@@ -174,12 +174,18 @@ end
 
 ns.fontList, ns.statusbarList = { }, { }
 
-ns.L = setmetatable(ns.L or { }, { __index = function(self, k)
-	if not k then return "ERROR" end
+ns.L = setmetatable(ns.L or { }, { __index = function(t, k)
+	if k == nil then return "" end
 	local v = tostring(k)
-	self[k] = v
+	t[k] = v
 	return v
 end })
+for k, v in pairs(ns.L) do -- clean up missing translations
+	if v == "" then
+		ns.L[k] = k
+	end
+end
+
 
 ns.optionsPanel = CreateFrame("Frame", nil, InterfaceOptionsFramePanelContainer)
 ns.optionsPanel.name = "oUF Phanx"
@@ -189,6 +195,7 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 
 	SharedMedia = LibStub("LibSharedMedia-3.0", true)
 	if SharedMedia then
+		SharedMedia:Register("font", "Andika", [[Interface\AddOns\oUF_Phanx\media\AndikaBasic-Custom.ttf]])
 		SharedMedia:Register("font", "Droid Serif", [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]])
 		SharedMedia:Register("font", "Expressway", [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]])
 		SharedMedia:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
@@ -254,12 +261,12 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 	notes:SetJustifyH("LEFT")
 	notes:SetJustifyV("TOP")
 	notes:SetNonSpaceWrap(true)
-	notes:SetText(L["Use this panel to configure some basic options for this layout."])
+	notes:SetText(L["oUF_Phanx is a layout for Haste's oUF framework. Use this panel to configure some basic options for this layout."])
 
 	--------------------------------------------------------------------
 
 	local statusbar = self:CreateScrollingDropdown(L["Texture"], ns.statusbarList)
-	statusbar.desc = L["Change the bar texture for the frames."]
+	statusbar.desc = L["Select a texture for health and power bars."]
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
 	for k, v in pairs(SharedMedia:HashTable("statusbar")) do
@@ -336,7 +343,7 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 	--------------------------------------------------------------------
 
 	local font = self:CreateScrollingDropdown(L["Font"], ns.fontList)
-	font.desc = L["Change the typeface for text on the frames."]
+	font.desc = L["Select a typeface for text on the frames."]
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 	for k, v in pairs(SharedMedia:HashTable("font")) do
@@ -433,7 +440,7 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 			UIDropDownMenu_AddButton(info)
 		end)
 	end
-	outline.desc = L["Change the outline thickness for text on the frames."]
+	outline.desc = L["Select an outline weight for text on the frames."]
 	outline:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -12)
 	outline:SetPoint("TOPRIGHT", font, "BOTTOMRIGHT", 0, -12)
 	outline:SetValue(db.fontOutline, outlines[db.fontOutline])
@@ -458,7 +465,7 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 	--------------------------------------------------------------------
 
 	local borderColor = self:CreateColorPicker(L["Border Color"])
-	borderColor.desc = L["Change the default color of the frame borders."]
+	borderColor.desc = L["Set the default color for frame borders."]
 	borderColor:SetPoint("TOPLEFT", borderSize, "BOTTOMLEFT", 5, -12)
 	borderColor:SetColor(unpack(db.borderColor))
 
@@ -486,8 +493,8 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 
 	--------------------------------------------------------------------
 
-	local dispelFilter = self:CreateCheckbox(L["Filter dispel highlight"])
-	dispelFilter.desc = L["Show the dispel highlight only for debuffs you can dispel yourself."]
+	local dispelFilter = self:CreateCheckbox(L["Filter debuff highlight"])
+	dispelFilter.desc = L["Show the debuff highlight only for debuffs you can dispel."]
 	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 	dispelFilter:SetChecked(db.dispelFilter)
 
