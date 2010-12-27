@@ -24,6 +24,7 @@ elements\dispel.lua
 elements\resurrections.lua
 elements\threat.lua
 
+localization.lua
 config.lua
 
 auras.lua
