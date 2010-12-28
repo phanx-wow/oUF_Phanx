@@ -266,7 +266,7 @@ ns.optionsPanel:SetScript("OnShow", function(self)
 	--------------------------------------------------------------------
 
 	local statusbar = self:CreateScrollingDropdown(L["Texture"], ns.statusbarList)
-	statusbar.desc = L["Select a texture for health and power bars."]
+	statusbar.desc = L["Select a texture for health, power, and other bars."]
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
 	for k, v in pairs(SharedMedia:HashTable("statusbar")) do

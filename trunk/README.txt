@@ -48,6 +48,14 @@ the code, post in the oUF forum on WoWInterface:
 http://www.wowinterface.com/forums/forumdisplay.php?f=87
 
 
+## Localization
+
+oUF_Phanx is compatible with all locales.
+
+oUF_Phanx is translated into English and Español. If you can provide
+translations for any locale, please contact me.
+
+
 ## Feedback
 
 To report a bug or request a feature, please use the ticket tracker on
