@@ -484,19 +484,19 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Health bar and text --
 	-------------------------
 
-	local r, g, b = unpack(config.borderColor)
-
 	self.Health = ns.CreateStatusBar(self, 24, "RIGHT", true)
 	self.Health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -2)
 	self.Health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -2)
 	self.Health:SetPoint("BOTTOM", self, "BOTTOM", 0, 0)
-	self.Health:SetStatusBarColor(r, g, b)
 
 	self.Health:GetStatusBarTexture():SetDrawLayer("ARTWORK")
-
-	self.Health.bg:SetVertexColor(r * 1.5, g * 1.5, b * 1.5)
-
 	self.Health.value:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, config.height * config.powerHeight - 2)
+
+	local mu = config.bgColorIntensity
+	local r, g, b = unpack(config.borderColor)
+	self.Health:SetStatusBarColor(r, g, b)
+	self.Health.bg:SetVertexColor(r * mu, g * mu, b * mu)
+	self.Health.bg.multiplier = mu
 
 	self.Health.PostUpdate = ns.PostUpdateHealth
 	tinsert(self.mouseovers, self.Health)
