@@ -5,7 +5,7 @@
 ## Notes: An oUF layout.
 ## Author: Phanx, Akkorian
 ## X-Email: addons@phanx.net, akkorian@hotmail.com
-## X-Copyright: Copyright © 2008–2010 Phanx
+## X-Copyright: Copyright © 2008–2011 Phanx
 ## X-License: Some rights reserved. See LICENSE.txt for details.
 ## X-CompatibleLocales: deDE, enUS, esES, esMX, frFR, koKR, ruRU, zhTW
 ## X-Localizations: enUS, esES, esMX
@@ -31,6 +31,5 @@ auras.lua
 border.lua
 playerstate.lua
 tags.lua
-tooltips.lua
 
 core.lua

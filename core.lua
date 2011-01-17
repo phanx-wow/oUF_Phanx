@@ -2,7 +2,8 @@
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
 	by Phanx < addons@phanx.net >
-	Copyright © 2007–2010. Some rights reserved. See LICENSE.txt for details.
+	Currently maintained by Akkorian < akkorian@hotmail.com >
+	Copyright © 2007–2011. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://wow.curseforge.com/addons/ouf-phanx/
 ----------------------------------------------------------------------]]
@@ -533,8 +534,6 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)
 		self.Power:SetHeight(config.height * config.powerHeight)
 
-		self.Power.bg.multiplier = 0.5
-
 		if self.Power.value then
 			self.Power.value:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 4, config.height * config.powerHeight - 2)
 			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -8, 0)
@@ -542,6 +541,7 @@ ns.Spawn = function(self, unit, isSingle)
 			tinsert(self.mouseovers, self.Power)
 		end
 
+		self.Power.bg.multiplier = 0.5
 		self.Power.colorClass = true
 		self.Power.colorReaction = true
 		self.Power.frequentUpdates = (unit == "player")

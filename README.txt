@@ -2,7 +2,7 @@
 
 * by Phanx < addons@phanx.net >
 * Currently maintained by Akkorian < akkorian@hotmail.com >
-* Copyright © 2008–2010 Phanx. Some rights reserved. See LICENSE.txt for details.
+* Copyright © 2008–2011 Phanx. Some rights reserved. See LICENSE.txt for details.
 * http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 * http://wow.curseforge.com/addons/ouf-phanx/
 

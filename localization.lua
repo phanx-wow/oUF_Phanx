@@ -2,18 +2,17 @@
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
 	by Phanx < addons@phanx.net >
-	Currently maintainted by Akkorian < akkorian@hotmail.com >.
-	Copyright © 2007–2010. Some rights reserved. See LICENSE.txt for details.
+	Currently maintained by Akkorian < akkorian@hotmail.com >
+	Copyright © 2007–2011. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://wow.curseforge.com/addons/ouf-phanx/
 ----------------------------------------------------------------------]]
 
 local locale = GetLocale()
-if locale:match("^en") then return end
+if locale:match( "^en" ) then return end
 
 local _, ns = ...
-
-local L = { }
+local L = {}
 ns.L = L
 
 --[[--------------------------------------------------------------------
@@ -32,8 +31,6 @@ if locale == "deDE" then
 	L["None"] = ""
 	L["Thin"] = ""
 	L["Thick"] = ""
-	L["Border Color"] = ""
-	L["Set the default color for frame borders."] = ""
 	L["Border Size"] = ""
 	L["Change the size of the frame borders."] = ""
 	L["Filter debuff highlight"] = ""
@@ -42,6 +39,16 @@ if locale == "deDE" then
 	L["Show only incoming heals cast by other players."] = ""
 	L["Show threat levels"] = ""
 	L["Show threat levels instead of binary aggro status."] = ""
+	L["Colors"] = ""
+	L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = ""
+	L["Health bar color"] = ""
+	L["Change the health bar color."] = ""
+	L["Color health bars by..."] = ""
+	L["Change how health bars are colored."] = ""
+	L["Background intensity"] = ""
+	L["Change the brightness of the health bar background color, relative to the foreground color."] = ""
+	L["Border color"] = ""
+	L["Change the default frame border color."] = ""
 return end
 
 --[[--------------------------------------------------------------------
@@ -61,8 +68,6 @@ if locale == "esES" or GetLocale() == "esMX" then
 	L["None"] = "Ninguno"
 	L["Thin"] = "Fino"
 	L["Thick"] = "Grueso"
-	L["Border Color"] = "Color de borde"
-	L["Set the default color for frame borders."] = "Ajusta el color por defecto, para los bordes de los marcos."
 	L["Border Size"] = "Tamaño de borde"
 	L["Change the size of the frame borders."] = "Ajusta el tamaño para los bordes de los marcos."
 	L["Filter debuff highlight"] = "Resaltar sólo perjuicios disipables"
@@ -71,6 +76,16 @@ if locale == "esES" or GetLocale() == "esMX" then
 	L["Show only incoming heals cast by other players."] = "Mostrar sólo las sanaciones lanzadas por otros."
 	L["Show threat levels"] = "Mostrar los niveles de amenaza"
 	L["Show threat levels instead of binary aggro status."] = "Mostrar los niveles de amenaza en lugar del sólo agro."
+	L["Colors"] = "Colores"
+	L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = "Estas opciones te permiten modificar los colores utilizados para las diferentes partes de los marcos."
+	L["Health bar color"] = "Color de barras de salud"
+	L["Change the health bar color."] = "Cambiar el color de las barras de salud."
+	L["Color health bars by..."] = "Colorea las barras de salud por..."
+	L["Change how health bars are colored."] = "Cambiar como están coloreadas las barras de salud."
+	L["Background intensity"] = "Brillo de fondo"
+	L["Change the brightness of the health bar background color, relative to the foreground color."] = "Cambiar el brillo de los fondos de las barras de salud, en relación con el color de primer plano."
+	L["Border color"] = "Color de borde"
+	L["Change the default frame border color."] = "Ajusta el color por defecto para los bordes de los marcos."
 return end
 
 --[[--------------------------------------------------------------------
@@ -89,8 +104,6 @@ if locale == "frFR" then
 	L["None"] = ""
 	L["Thin"] = ""
 	L["Thick"] = ""
-	L["Border Color"] = ""
-	L["Set the default color for frame borders."] = ""
 	L["Border Size"] = ""
 	L["Change the size of the frame borders."] = ""
 	L["Filter debuff highlight"] = ""
@@ -99,6 +112,16 @@ if locale == "frFR" then
 	L["Show only incoming heals cast by other players."] = ""
 	L["Show threat levels"] = ""
 	L["Show threat levels instead of binary aggro status."] = ""
+	L["Colors"] = ""
+	L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = ""
+	L["Health bar color"] = ""
+	L["Change the health bar color."] = ""
+	L["Color health bars by..."] = ""
+	L["Change how health bars are colored."] = ""
+	L["Background intensity"] = ""
+	L["Change the brightness of the health bar background color, relative to the foreground color."] = ""
+	L["Border color"] = ""
+	L["Change the default frame border color."] = ""
 return end
 
 --[[--------------------------------------------------------------------
@@ -117,8 +140,6 @@ if locale == "ruRU" then
 	L["None"] = ""
 	L["Thin"] = ""
 	L["Thick"] = ""
-	L["Border Color"] = ""
-	L["Set the default color for frame borders."] = ""
 	L["Border Size"] = ""
 	L["Change the size of the frame borders."] = ""
 	L["Filter debuff highlight"] = ""
@@ -127,6 +148,16 @@ if locale == "ruRU" then
 	L["Show only incoming heals cast by other players."] = ""
 	L["Show threat levels"] = ""
 	L["Show threat levels instead of binary aggro status."] = ""
+	L["Colors"] = ""
+	L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = ""
+	L["Health bar color"] = ""
+	L["Change the health bar color."] = ""
+	L["Color health bars by..."] = ""
+	L["Change how health bars are colored."] = ""
+	L["Background intensity"] = ""
+	L["Change the brightness of the health bar background color, relative to the foreground color."] = ""
+	L["Border color"] = ""
+	L["Change the default frame border color."] = ""
 return end
 
 --[[--------------------------------------------------------------------
@@ -145,8 +176,6 @@ if locale == "koKR" then
 	L["None"] = ""
 	L["Thin"] = ""
 	L["Thick"] = ""
-	L["Border Color"] = ""
-	L["Set the default color for frame borders."] = ""
 	L["Border Size"] = ""
 	L["Change the size of the frame borders."] = ""
 	L["Filter debuff highlight"] = ""
@@ -155,6 +184,16 @@ if locale == "koKR" then
 	L["Show only incoming heals cast by other players."] = ""
 	L["Show threat levels"] = ""
 	L["Show threat levels instead of binary aggro status."] = ""
+	L["Colors"] = ""
+	L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = ""
+	L["Health bar color"] = ""
+	L["Change the health bar color."] = ""
+	L["Color health bars by..."] = ""
+	L["Change how health bars are colored."] = ""
+	L["Background intensity"] = ""
+	L["Change the brightness of the health bar background color, relative to the foreground color."] = ""
+	L["Border color"] = ""
+	L["Change the default frame border color."] = ""
 return end
 
 --[[--------------------------------------------------------------------
@@ -173,8 +212,6 @@ if locale == "zhCN" then
 	L["None"] = ""
 	L["Thin"] = ""
 	L["Thick"] = ""
-	L["Border Color"] = ""
-	L["Set the default color for frame borders."] = ""
 	L["Border Size"] = ""
 	L["Change the size of the frame borders."] = ""
 	L["Filter debuff highlight"] = ""
@@ -183,6 +220,16 @@ if locale == "zhCN" then
 	L["Show only incoming heals cast by other players."] = ""
 	L["Show threat levels"] = ""
 	L["Show threat levels instead of binary aggro status."] = ""
+	L["Colors"] = ""
+	L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = ""
+	L["Health bar color"] = ""
+	L["Change the health bar color."] = ""
+	L["Color health bars by..."] = ""
+	L["Change how health bars are colored."] = ""
+	L["Background intensity"] = ""
+	L["Change the brightness of the health bar background color, relative to the foreground color."] = ""
+	L["Border color"] = ""
+	L["Change the default frame border color."] = ""
 return end
 
 --[[--------------------------------------------------------------------
@@ -201,8 +248,6 @@ if locale == "zhTW" then
 	L["None"] = ""
 	L["Thin"] = ""
 	L["Thick"] = ""
-	L["Border Color"] = ""
-	L["Set the default color for frame borders."] = ""
 	L["Border Size"] = ""
 	L["Change the size of the frame borders."] = ""
 	L["Filter debuff highlight"] = ""
@@ -211,4 +256,14 @@ if locale == "zhTW" then
 	L["Show only incoming heals cast by other players."] = ""
 	L["Show threat levels"] = ""
 	L["Show threat levels instead of binary aggro status."] = ""
+	L["Colors"] = ""
+	L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = ""
+	L["Health bar color"] = ""
+	L["Change the health bar color."] = ""
+	L["Color health bars by..."] = ""
+	L["Change how health bars are colored."] = ""
+	L["Background intensity"] = ""
+	L["Change the brightness of the health bar background color, relative to the foreground color."] = ""
+	L["Border color"] = ""
+	L["Change the default frame border color."] = ""
 return end
