@@ -272,6 +272,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	statusbar.valueText.bg:SetPoint( "LEFT", statusbar.valueText, -4, -1 )
 	statusbar.valueText.bg:SetHeight( 16 )
 	statusbar.valueText.bg:SetVertexColor( 0.4, 0.4, 0.4 )
+
 	statusbar.OnValueChanged = function( self, value )
 		local file = SharedMedia:Fetch( "statusbar", value )
 		if db.statusbar == file then return end
@@ -279,6 +280,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 		self.valueText.bg:SetTexture( file )
 		ns.SetAllStatusBarTextures()
 	end
+
 	do
 		local button_OnClick = statusbar.button:GetScript( "OnClick" )
 		statusbar.button:SetScript( "OnClick", function( self )
@@ -338,6 +340,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	font.desc = L["Select a typeface for text on the frames."]
 	font:SetPoint( "TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12 )
 	font:SetPoint( "TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12 )
+
 	font.OnValueChanged = function( self, value )
 		local file = SharedMedia:Fetch( "font", value )
 		if db.font == file then return end
@@ -346,6 +349,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 		self.valueText:SetFont( file, height, flags )
 		ns.SetAllFonts()
 	end
+
 	do
 		local button_OnClick = font.button:GetScript( "OnClick" )
 		font.button:SetScript( "OnClick", function( self )
@@ -434,6 +438,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	borderSize.desc = L["Change the size of the frame borders."]
 	borderSize:SetPoint( "TOPLEFT", outline, "BOTTOMLEFT", 0, -12 )
 	borderSize:SetPoint( "TOPRIGHT", outline, "BOTTOMRIGHT", 0, -12 )
+
 	borderSize.OnValueChanged = function( self, value )
 		value = math.floor( value + 0.5 )
 		db.borderSize = value
@@ -441,6 +446,30 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 			frame:SetBorderSize( value )
 		end
 		return value
+	end
+
+	--------------------------------------------------------------------
+
+	local borderColor = self:CreateColorPicker( L["Border color"] )
+	borderColor.desc = L["Change the default frame border color."]
+	borderColor:SetPoint( "TOPLEFT", borderSize, "BOTTOMLEFT", 0, -12 )
+
+	borderColor.GetColor = function()
+		return unpack( db.borderColor )
+	end
+
+	borderColor.OnColorChanged = function( self, r, g, b )
+		db.borderColor[1] = r
+		db.borderColor[2] = g
+		db.borderColor[3] = b
+		for _, frame in ipairs( ns.borderedObjects ) do
+			frame:SetBorderColor( r, g, b )
+		end
+		for _, frame in ipairs( oUF.objects ) do
+			if frame.UpdateBorder then
+				frame:UpdateBorder()
+			end
+		end
 	end
 
 	--------------------------------------------------------------------
@@ -465,6 +494,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	local healFilter = self:CreateCheckbox( L["Ignore own heals"] )
 	healFilter.desc = L["Show only incoming heals cast by other players."]
 	healFilter:SetPoint( "TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -8 )
+
 	healFilter.OnClick = function( self, checked )
 		db.ignoreOwnHeals = checked
 		for _, frame in ipairs( oUF.objects ) do
@@ -479,6 +509,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	local threatLevels = self:CreateCheckbox( L["Show threat levels"] )
 	threatLevels.desc = L["Show threat levels instead of binary aggro status."]
 	threatLevels:SetPoint( "TOPLEFT", healFilter, "BOTTOMLEFT", 0, -8 )
+
 	threatLevels.OnClick = function( self, checked )
 		db.threatLevels = checked
 		for _, frame in ipairs( oUF.objects ) do
@@ -492,17 +523,18 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 	self.refresh = function()
 		for k, v in pairs( SharedMedia:HashTable( "statusbar" ) ) do
-			if v == db.statusbar or v:match( "( [ ^\\ ]+ )$" ) == db.statusbar:match( "( [ ^\\ ]+ )$" ) then
+			if v == db.statusbar or v:match( "([^\\]+)$" ) == db.statusbar:match( "([^\\]+)$" ) then
 				statusbar:SetValue( k )
 			end
 		end
 		for k, v in pairs( SharedMedia:HashTable( "font" ) ) do
-			if v == db.font or v:lower():match( "( [ ^\\ ]+ )%.ttf$" ) == db.font:lower():match( "( [ ^\\ ]+ )%.ttf$" ) then
+			if v == db.font or v:lower():match( "([^\\]+)%.ttf$" ) == db.font:lower():match( "([^\\]+)%.ttf$" ) then
 				font:SetValue( k )
 			end
 		end
 		outline:SetValue( db.fontOutline, outlines[ db.fontOutline ] )
 		borderSize:SetValue( db.borderSize )
+		borderColor:SetColor( unpack( db.borderColor ) )
 		dispelFilter:SetChecked( db.dispelFilter )
 		healFilter:SetChecked( db.ignoreOwnHeals )
 		threatLevels:SetChecked( db.threatLevels )
@@ -517,7 +549,8 @@ InterfaceOptions_AddCategory( ns.optionsPanel )
 ------------------------------------------------------------------------
 
 ns.colorsPanel = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
-ns.colorsPanel.name = L["Colors"]
+ns.colorsPanel.parent = ns.optionsPanel.name
+ns.colorsPanel.name = ns.L["Bar Colors"]
 ns.colorsPanel:Hide()
 
 ns.colorsPanel:SetScript( "OnShow", function( self )
@@ -527,7 +560,6 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 	self.CreateCheckbox = LibStub( "PhanxConfig-Checkbox" ).CreateCheckbox
 	self.CreateColorPicker = LibStub( "PhanxConfig-ColorPicker" ).CreateColorPicker
 	self.CreateDropdown = LibStub( "PhanxConfig-Dropdown" ).CreateDropdown
-	self.CreateScrollingDropdown = LibStub( "PhanxConfig-ScrollingDropdown" ).CreateScrollingDropdown
 	self.CreateSlider = LibStub( "PhanxConfig-Slider" ).CreateSlider
 
 	--------------------------------------------------------------------
@@ -549,36 +581,20 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local barColor = self:CreateColorPicker( L["Health bar color"] )
-	barColor.desc = L["Change the health bar color."]
-	barColor:SetPoint( "TOPLEFT", notes, "BOTTOM", 8, -12 )
-	barColor.OnColorChanged = function( self, r, g, b )
-		db.barColor[1] = r
-		db.barColor[2] = g
-		db.barColor[3] = b
-		for _, object in ipairs( oUF.objects ) do
-			local hp = object.Health
-			if type( hp ) == "table" then
-				hp:SetStatusBarColor( r, g, b )
-				local mu = hp.bg.multiplier
-				hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
-			end
-		end
-	end )
+	local barColor
 
-	--------------------------------------------------------------------
-
-	local healthModes = {
-		["CLASS"]  = L["Class"],
+	local barColorModes = {
+		["CLASS"]  = L["By Class"],
+		["HEALTH"] = L["By Health"],
 		["CUSTOM"] = L["Custom"],
-		["HEALTH"] = L["Health"],
 	}
-	local barColorMode = self:CreateDropdown( L["Color health bar by..."] )
+
+	local barColorMode = self:CreateDropdown( L["Health color mode"] )
 	barColorMode.desc = L["Change how health bars are colored."]
 	barColorMode:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
 	barColorMode:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 )
+
 	do
-		local info = {}
 		local function OnClick( self )
 			local v = self.value
 			db.barColorMode = v
@@ -589,8 +605,9 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 					hp.colorClass = v == "CLASS"
 					hp.colorSmooth = v == "HEALTH"
 					if v == "CUSTOM" then
-						hp:SetStatusBarColor( r, g, b )
 						local mu = hp.bg.multiplier
+						local r, g, b = unpack( config.barColor )
+						hp:SetStatusBarColor( r, g, b )
 						hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
 					else
 						hp:ForceUpdate()
@@ -603,13 +620,21 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 				barColor:Hide()
 			end
 		end
+
+		local info = {}
 		UIDropDownMenu_Initialize( barColorMode.dropdown, function()
 			local selected = db.barColorMode
 
-			info.text = L["Class"]
+			info.text = L["By Class"]
 			info.value = "CLASS"
 			info.func = OnClick
 			info.checked = "CLASS" == selected
+			UIDropDownMenu_AddButton( info )
+
+			info.text = L["By Health"]
+			info.value = "HEALTH"
+			info.func = OnClick
+			info.checked = "HEALTH" == selected
 			UIDropDownMenu_AddButton( info )
 
 			info.text = L["Custom"]
@@ -617,23 +642,128 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 			info.func = OnClick
 			info.checked = "CUSTOM" == selected
 			UIDropDownMenu_AddButton( info )
-
-			info.text = L["Health"]
-			info.value = "HEALTH"
-			info.func = OnClick
-			info.checked = "HEALTH" == selected
-			UIDropDownMenu_AddButton( info )
 		end )
 	end
 
 	--------------------------------------------------------------------
 
+	barColor = self:CreateColorPicker( L["Health bar color"] )
+	barColor.desc = L["Change the health bar color."]
+	barColor:SetPoint( "BOTTOMLEFT", barColorMode, "BOTTOMRIGHT", 16, 6 )
+
+	barColor.OnColorChanged = function( self, r, g, b )
+		db.barColor[1] = r
+		db.barColor[2] = g
+		db.barColor[3] = b
+		for _, object in ipairs( oUF.objects ) do
+			local hp = object.Health
+			if type( hp ) == "table" then
+				local mu = hp.bg.multiplier
+				hp:SetStatusBarColor( r, g, b )
+				hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+			end
+		end
+	end
+
+	--------------------------------------------------------------------
+
+	local powerColor
+
+	local powerColorModes = {
+		["CLASS"]  = L["By Class"],
+		["POWER"]  = L["By Power Type"],
+		["CUSTOM"] = L["Custom"],
+	}
+
+	local powerColorMode = self:CreateDropdown( L["Power color mode"] )
+	powerColorMode.desc = L["Change how power bars are colored."]
+	powerColorMode:SetPoint( "TOPLEFT", barColorMode, "BOTTOMLEFT", 0, -12 )
+	powerColorMode:SetPoint( "TOPRIGHT", barColorMode, "BOTTOMRIGHT", 0, -12 )
+
+	do
+		local function OnClick( self )
+			local v = self.value
+			db.powerColorMode = v
+			powerColorMode:SetValue( v, self.text )
+			for _, object in ipairs( oUF.objects ) do
+				local pp = object.Power
+				if type( pp ) == "table" then
+					pp.colorClass = v == "CLASS"
+					pp.colorPower = v == "POWER"
+					if v == "CUSTOM" then
+						local mu = pp.bg.multiplier
+						local r, g, b = unpack( db.powerColor )
+						pp:SetStatusBarColor( r, g, b )
+						pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+					else
+						pp:ForceUpdate()
+					end
+				end
+			end
+			if v == "CUSTOM" then
+				powerColor:Show()
+			else
+				powerColor:Hide()
+			end
+		end
+
+		local info = {}
+		UIDropDownMenu_Initialize( powerColorMode.dropdown, function()
+			local selected = db.powerColorMode
+
+			info.text = L["By Class"]
+			info.value = "CLASS"
+			info.func = OnClick
+			info.checked = "CLASS" == selected
+			UIDropDownMenu_AddButton( info )
+
+			info.text = L["By Power Type"]
+			info.value = "POWER"
+			info.func = OnClick
+			info.checked = "HEALTH" == selected
+			UIDropDownMenu_AddButton( info )
+
+			info.text = L["Custom"]
+			info.value = "CUSTOM"
+			info.func = OnClick
+			info.checked = "CUSTOM" == selected
+			UIDropDownMenu_AddButton( info )
+		end )
+	end
+
+	powerColorMode:Hide() -- NYI
+
+	--------------------------------------------------------------------
+
+	powerColor = self:CreateColorPicker( L["Health bar color"] )
+	powerColor.desc = L["Change the health bar color."]
+	powerColor:SetPoint( "BOTTOMLEFT", powerColorMode, "BOTTOMRIGHT", 16, 4 )
+
+	powerColor.OnColorChanged = function( self, r, g, b )
+		db.powerColor[1] = r
+		db.powerColor[2] = g
+		db.powerColor[3] = b
+		for _, object in ipairs( oUF.objects ) do
+			local pp = object.Power
+			if type( pp ) == "table" then
+				local mu = pp.bg.multiplier
+				pp:SetStatuspowerColor( r, g, b )
+				pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+			end
+		end
+	end
+
+	powerColor:Hide() -- NYI
+
+	--------------------------------------------------------------------
+
 	local bgColorIntensity = self:CreateSlider( L["Background intensity"], 0, 2, 0.1, true )
 	bgColorIntensity.desc = L["Change the brightness of the health bar background color, relative to the foreground color."]
-	bgColorIntensity:SetPoint( "TOPLEFT", barColorMode, "BOTTOMLEFT", 0, -12 )
-	bgColorIntensity:SetPoint( "TOPRIGHT", barColorMode, "BOTTOMRIGHT", 0, -12 )
+	bgColorIntensity:SetPoint( "TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -16 )
+	bgColorIntensity:SetPoint( "TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -16 )
+
 	bgColorIntensity.OnValueChanged = function( self, value )
-		value = math.floor( value + 0.5 )
+		value = math.floor( value * 100 + 0.5 ) / 100
 		db.bgColorIntensity = value
 		local custom = db.barColorMode == "CUSTOM"
 		for _, frame in ipairs( oUF.objects ) do
@@ -652,45 +782,22 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local borderColor = self:CreateColorPicker( L["Border color"] )
-	borderColor.desc = L["Change the default frame border color."]
-	borderColor:SetPoint( "TOPLEFT", notes, "BOTTOM", 8, -12 )
-	borderColor.GetColor = function()
-		return unpack( db.borderColor )
-	end
-	borderColor.OnColorChanged = function( self, r, g, b )
-		db.borderColor[1] = r
-		db.borderColor[2] = g
-		db.borderColor[3] = b
-		for _, frame in ipairs( ns.borderedObjects ) do
-			frame:SetBorderColor( r, g, b )
-		end
-		for _, frame in ipairs( oUF.objects ) do
-			if frame.UpdateBorder then
-				frame:UpdateBorder()
-			end
-		end
-	end
-
-	--------------------------------------------------------------------
-
 	self.refresh = function()
-		barColor:SetColor( unpack( db.barColor ) )
 		barColorMode:SetValue( db.barColorMode, barColorModes[ db.barColorMode ] )
 		if db.barColorMode == "CUSTOM" then
 			barColor:Show()
 		else
 			barColor:Hide()
 		end
+		barColor:SetColor( unpack( db.barColor ) )
 		bgColorIntensity:SetValue( db.bgColorIntensity )
-		borderColor:SetColor( unpack( db.borderColor ) )
 	end
 
 	self.refresh()
 	self:SetScript( "OnShow", nil )
 end )
 
-InterfaceOptions_AddCategory( ns.colorsPanel, ns.optionsPanel.name )
+InterfaceOptions_AddCategory( ns.colorsPanel )
 
 ------------------------------------------------------------------------
 
