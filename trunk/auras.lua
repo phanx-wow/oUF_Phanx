@@ -2,7 +2,8 @@
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
 	by Phanx < addons@phanx.net >
-	Copyright © 2007–2010. Some rights reserved. See LICENSE.txt for details.
+	Currently maintained by Akkorian < akkorian@hotmail.com >
+	Copyright © 2007–2011. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://wow.curseforge.com/addons/ouf-phanx/
 ------------------------------------------------------------------------
@@ -14,15 +15,15 @@
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
-local playerClass = select(2, UnitClass("player"))
-local playerRace = select(2, UnitRace("player"))
+local playerClass = select( 2, UnitClass( "player" ) )
+local playerRace = select( 2, UnitRace( "player" ) )
 
-local auras = { }
+local auras = {}
 
-local function addAuras(t)
-	for k, v in pairs(t) do
-		if not auras[k] then
-			auras[k] = v
+local function addAuras( t )
+	for k, v in pairs( t ) do
+		if not auras[ k ] then
+			auras[ k ] = v
 		end
 	end
 end
@@ -321,11 +322,15 @@ if playerClass == "HUNTER" then addAuras({
 	[15571] = 4, -- Dazed <== Aspect of the Cheetah
 	[19263] = 4, -- Deterrence
 	[5384]  = 4, -- Feign Death
+	[82926] = 4, -- Fire! <== Lock and Load
+	[64418] = 4, -- Sniper Training [Rank 1]
+	[64419] = 4, -- Sniper Training [Rank 2]
+	[64420] = 4, -- Sniper Training [Rank 3]
 	[56453] = 4, -- Lock and Load
 	[34477] = 4, -- Misdirection
 	[3045]  = 4, -- Rapid Fire
 	[35099] = 4, -- Rapid Killing
-	[82925] = 4, -- Ready, Set, Aim...
+--	[82925] = 4, -- Ready, Set, Aim...
 
 	[19574] = 2, -- Bestial Wrath
 	[1539]  = 2, -- Feed Pet
@@ -665,21 +670,21 @@ end
 local unitIsPlayer = { player = true, pet = true, vehicle = true }
 
 local filters = {
-	[1] = function(self, unit, caster) return true end,
-	[2] = function(self, unit, caster) return unitIsPlayer[caster] end,
-	[3] = function(self, unit, caster) return UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) end,
-	[4] = function(self, unit, caster) return unit == "player" and not self.__owner.isGroupFrame end,
+	[1] = function( self, unit, caster ) return true end,
+	[2] = function( self, unit, caster ) return unitIsPlayer[ caster ] end,
+	[3] = function( self, unit, caster ) return UnitIsFriend( unit, "player" ) and UnitPlayerControlled( unit ) end,
+	[4] = function( self, unit, caster ) return unit == "player" and not self.__owner.isGroupFrame end,
 }
 
-ns.CustomAuraFilter = function(self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID)
-	local v = auras[spellID]
+ns.CustomAuraFilter = function( self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID )
+	local v = auras[ spellID ]
 
-	-- print("CustomAuraFilter", unit, caster, name, spellID, v)
+	-- print( "CustomAuraFilter", unit, caster, name, spellID, v )
 
-	if v and filters[v] then
-		return filters[v](self, unit, caster)
+	if v and filters[ v ] then
+		return filters[ v ]( self, unit, caster )
 	else
-		return (not caster or caster == unit) and UnitCanAttack(unit, "player") and not UnitPlayerControlled(unit)
+		return ( not caster or caster == unit ) and UnitCanAttack( unit, "player" ) and not UnitPlayerControlled( unit )
 	end
 end
 

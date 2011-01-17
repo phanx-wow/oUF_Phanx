@@ -3,7 +3,7 @@ Fully-featured PVE-oriented layout for oUF.
 http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 http://wow.curseforge.com/addons/ouf-phanx/
 
-Copyright © 2008–2010 Phanx < addons@phanx.net >
+Copyright © 2008–2011 Phanx < addons@phanx.net >
 
 The contents of this software, excluding third-party resources, are
 copyrighted to its author with all rights reserved, under United States
