@@ -54,7 +54,7 @@ ns.uconfig = {
 	partypet = {
 		point = "TOPLEFT party TOPRIGHT 10 0",
 		width = 0.25,
-		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "unitSuffix", "pet" },
+		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "useOwnerUnit", true, "unitsuffix", "pet" },
 		visible = "party",
 	},
 }
