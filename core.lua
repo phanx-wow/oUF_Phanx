@@ -448,12 +448,15 @@ end
 ------------------------------------------------------------------------
 
 ns.Spawn = function(self, unit, isSingle)
-	-- print("Spawn", self:GetName(), unit)
-	tinsert(ns.objects, self)
-
-	if not unit then
-		unit = "partypet" -- hack
+	if self:GetParent():GetAttribute("useOwnerUnit") then
+		local suffix = self:GetParent():GetAttribute("unitsuffix")
+		self:SetAttribute("useOwnerUnit", true)
+		self:SetAttribute("unitsuffix", suffix)
+		unit = unit .. suffix
 	end
+
+	print("Spawn", self:GetName(), unit)
+	tinsert(ns.objects, self)
 
 	self.mouseovers = { }
 
@@ -955,18 +958,19 @@ oUF:Factory(function(oUF)
 	]]
 
 	for u, udata in pairs(ns.uconfig) do
+		local name = "oUFPhanx" .. u:gsub("%a", string.upper, 1):gsub("target", "Target"):gsub("pet", "Pet")
 		if udata.point then
 			if udata.attributes then
 				-- print("generating header for", u)
 				local w = config.width  * (udata.width  or 1)
 				local h = config.height * (udata.height or 1)
 
-				ns.headers[u] = oUF:SpawnHeader(nil, nil, udata.visible,
+				ns.headers[u] = oUF:SpawnHeader(name, nil, udata.visible,
 					"oUF-initialConfigFunction", initialConfigFunction:format(w, w, h, h),
 					unpack(udata.attributes))
 			else
 				-- print("generating frame for", u)
-				ns.frames[u] = oUF:Spawn(u)
+				ns.frames[u] = oUF:Spawn(u, name)
 			end
 		end
 	end
@@ -974,13 +978,13 @@ oUF:Factory(function(oUF)
 	for u, f in pairs(ns.frames) do
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
-		f:SetPoint(p1, ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 		f:Show()
 	end
 	for u, f in pairs(ns.headers) do
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
-		f:SetPoint(p1, ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 		f:Show()
 	end
 
