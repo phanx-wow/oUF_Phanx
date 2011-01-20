@@ -455,7 +455,7 @@ ns.Spawn = function(self, unit, isSingle)
 		unit = unit .. suffix
 	end
 
-	print("Spawn", self:GetName(), unit)
+	-- print("Spawn", self:GetName(), unit)
 	tinsert(ns.objects, self)
 
 	self.mouseovers = { }

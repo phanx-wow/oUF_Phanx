@@ -255,7 +255,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	local notes = self:CreateFontString( nil, "ARTWORK", "GameFontHighlightSmall" )
 	notes:SetPoint( "TOPLEFT", title, "BOTTOMLEFT", 0, -8 )
 	notes:SetPoint( "TOPRIGHT", title, "BOTTOMRIGHT", 0, -8 )
-	notes:SetHeight( 20 )
+	notes:SetHeight( 32 )
 	notes:SetJustifyH( "LEFT" )
 	notes:SetJustifyV( "TOP" )
 	notes:SetNonSpaceWrap( true )
@@ -436,8 +436,8 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 	local borderSize = self:CreateSlider( L["Border Size"], 8, 24, 1 )
 	borderSize.desc = L["Change the size of the frame borders."]
-	borderSize:SetPoint( "TOPLEFT", outline, "BOTTOMLEFT", 0, -12 )
-	borderSize:SetPoint( "TOPRIGHT", outline, "BOTTOMRIGHT", 0, -12 )
+	borderSize:SetPoint( "TOPLEFT", outline, "BOTTOMLEFT", -2, -12 )
+	borderSize:SetPoint( "TOPRIGHT", outline, "BOTTOMRIGHT", 4, -12 )
 
 	borderSize.OnValueChanged = function( self, value )
 		value = math.floor( value + 0.5 )
@@ -452,7 +452,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 	local borderColor = self:CreateColorPicker( L["Border color"] )
 	borderColor.desc = L["Change the default frame border color."]
-	borderColor:SetPoint( "TOPLEFT", borderSize, "BOTTOMLEFT", 0, -12 )
+	borderColor:SetPoint( "TOPLEFT", borderSize, "BOTTOMLEFT", 6, -8 )
 
 	borderColor.GetColor = function()
 		return unpack( db.borderColor )
@@ -606,11 +606,11 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 					hp.colorSmooth = v == "HEALTH"
 					if v == "CUSTOM" then
 						local mu = hp.bg.multiplier
-						local r, g, b = unpack( config.barColor )
+						local r, g, b = unpack( db.barColor )
 						hp:SetStatusBarColor( r, g, b )
 						hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
 					else
-						hp:ForceUpdate()
+						object:GetScript( "OnEvent" )( object, "UNIT_HEALTH", object.unit )
 					end
 				end
 			end
@@ -650,6 +650,10 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 	barColor = self:CreateColorPicker( L["Health bar color"] )
 	barColor.desc = L["Change the health bar color."]
 	barColor:SetPoint( "BOTTOMLEFT", barColorMode, "BOTTOMRIGHT", 16, 6 )
+
+	barColor.GetColor = function()
+		return unpack( db.barColor )
+	end
 
 	barColor.OnColorChanged = function( self, r, g, b )
 		db.barColor[1] = r
@@ -696,7 +700,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 						pp:SetStatusBarColor( r, g, b )
 						pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
 					else
-						pp:ForceUpdate()
+						object:GetScript( "OnEvent" )( object, "UNIT_POWER", object.unit )
 					end
 				end
 			end
@@ -773,7 +777,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 				if custom then
 					barColor:OnColorChanged( unpack( db.barColor ) )
 				else
-					hp:ForceUpdate()
+					object:GetScript( "OnEvent" )( object, "UNIT_HEALTH", object.unit )
 				end
 			end
 		end
