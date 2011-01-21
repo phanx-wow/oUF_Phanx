@@ -465,7 +465,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 		for _, frame in ipairs( ns.borderedObjects ) do
 			frame:SetBorderColor( r, g, b )
 		end
-		for _, frame in ipairs( oUF.objects ) do
+		for _, frame in ipairs( ns.objects ) do
 			if frame.UpdateBorder then
 				frame:UpdateBorder()
 			end
@@ -479,11 +479,11 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	dispelFilter:SetPoint( "TOPLEFT", notes, "BOTTOM", 12, -24 )
 	dispelFilter.OnClick = function( self, checked )
 		db.dispelFilter = checked
-		for _, frame in ipairs( oUF.objects ) do
+		for _, frame in ipairs( ns.objects ) do
 			if frame.DispelHighlight then
 				frame.DispelHighlightFilter = checked
 				if frame:IsShown() then
-					frame:GetScript( "OnEvent" )( frame, "UNIT_AURA", "player" )
+					frame:GetScript( "OnEvent" )( frame, "UNIT_AURA", frame.unit )
 				end
 			end
 		end
@@ -599,8 +599,8 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 			local v = self.value
 			db.barColorMode = v
 			barColorMode:SetValue( v, self.text )
-			for _, object in ipairs( oUF.objects ) do
-				local hp = object.Health
+			for _, frame in ipairs( ns.objects ) do
+				local hp = frame.Health
 				if type( hp ) == "table" then
 					hp.colorClass = v == "CLASS"
 					hp.colorSmooth = v == "HEALTH"
@@ -610,7 +610,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 						hp:SetStatusBarColor( r, g, b )
 						hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
 					else
-						object:GetScript( "OnEvent" )( object, "UNIT_HEALTH", object.unit )
+						frame:GetScript( "OnEvent" )( frame, "UNIT_HEALTH", frame.unit )
 					end
 				end
 			end
@@ -659,8 +659,8 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 		db.barColor[1] = r
 		db.barColor[2] = g
 		db.barColor[3] = b
-		for _, object in ipairs( oUF.objects ) do
-			local hp = object.Health
+		for _, frame in ipairs( ns.objects ) do
+			local hp = frame.Health
 			if type( hp ) == "table" then
 				local mu = hp.bg.multiplier
 				hp:SetStatusBarColor( r, g, b )
@@ -689,7 +689,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 			local v = self.value
 			db.powerColorMode = v
 			powerColorMode:SetValue( v, self.text )
-			for _, object in ipairs( oUF.objects ) do
+			for _, frame in ipairs( ns.objects ) do
 				local pp = object.Power
 				if type( pp ) == "table" then
 					pp.colorClass = v == "CLASS"
@@ -700,7 +700,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 						pp:SetStatusBarColor( r, g, b )
 						pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
 					else
-						object:GetScript( "OnEvent" )( object, "UNIT_POWER", object.unit )
+						frame:GetScript( "OnEvent" )( frame, "UNIT_POWER", frame.unit )
 					end
 				end
 			end
@@ -747,8 +747,8 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 		db.powerColor[1] = r
 		db.powerColor[2] = g
 		db.powerColor[3] = b
-		for _, object in ipairs( oUF.objects ) do
-			local pp = object.Power
+		for _, frame in ipairs( ns.objects ) do
+			local pp = frame.Power
 			if type( pp ) == "table" then
 				local mu = pp.bg.multiplier
 				pp:SetStatuspowerColor( r, g, b )
@@ -770,14 +770,14 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 		value = math.floor( value * 100 + 0.5 ) / 100
 		db.bgColorIntensity = value
 		local custom = db.barColorMode == "CUSTOM"
-		for _, frame in ipairs( oUF.objects ) do
+		for _, frame in ipairs( ns.objects ) do
 			local hp = frame.Health
 			if type( hp ) == "table" then
 				hp.bg.multiplier = value
 				if custom then
 					barColor:OnColorChanged( unpack( db.barColor ) )
 				else
-					object:GetScript( "OnEvent" )( object, "UNIT_HEALTH", object.unit )
+					frame:GetScript( "OnEvent" )( frame, "UNIT_HEALTH", frame.unit )
 				end
 			end
 		end
