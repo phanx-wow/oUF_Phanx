@@ -609,7 +609,7 @@ if playerClass == "WARRIOR" then addAuras({
 	[94009] = 2, -- Rend
 	[64382] = 1, -- Shattering Throw
 	[46968] = 2, -- Shockwave
-	[7386]  = 2, -- Sunder Armor
+	[58567] = 2, -- Sunder Armor
 	[85388] = 2, -- Throwdown
 	[6343]  = 2, -- Thunder Clap
 
@@ -623,14 +623,15 @@ if playerClass == "WARRIOR" then addAuras({
 	[55694] = 4, -- Enraged Regeneration
 	[1134]  = 4, -- Inner Rage
 	[65156] = 4, -- Juggernaut
-	[12975] = 4, -- Last Stand
+	[12976] = 4, -- Last Stand
 	[1719]  = 4, -- Recklessness
 	[20230] = 4, -- Retaliation
 	[2565]  = 4, -- Shield Block
-	[817]   = 4, -- Shield Wall
+	[871]   = 4, -- Shield Wall
 	[23920] = 4, -- Spell Reflection
 	[50227] = 4, -- Sword and Board
-	[34428] = 4, -- Victory Rush -- NEEDS CHECK
+	[87069] = 4, -- Thunderstruck
+	[32216] = 4, -- Victory Rush
 
 	[3411]  = 2, -- Intervene
 	[50720] = 2, -- Vigilance
