@@ -455,29 +455,32 @@ ns.Spawn = function(self, unit, isSingle)
 		unit = unit .. suffix
 	end
 
+	local uconfig = ns.uconfig[ unit ]
+	self.spawnunit = unit
+
 	-- print("Spawn", self:GetName(), unit)
-	tinsert(ns.objects, self)
+	tinsert( ns.objects, self )
 
 	self.mouseovers = { }
 
 	self.menu = ns.UnitFrame_DropdownMenu
 
-	self:HookScript("OnEnter", ns.UnitFrame_OnEnter)
-	self:HookScript("OnLeave", ns.UnitFrame_OnLeave)
+	self:HookScript( "OnEnter", ns.UnitFrame_OnEnter )
+	self:HookScript( "OnLeave", ns.UnitFrame_OnLeave )
 
 	self:RegisterForClicks("anyup")
 
-	local FRAME_WIDTH  = config.width  * (ns.uconfig[unit].width  or 1)
-	local FRAME_HEIGHT = config.height * (ns.uconfig[unit].height or 1)
+	local FRAME_WIDTH  = config.width  * ( uconfig.width  or 1 )
+	local FRAME_HEIGHT = config.height * ( uconfig.height or 1 )
 
 	if isSingle then
-		self:SetAttribute("*type2", "menu")
+		self:SetAttribute( "*type2", "menu" )
 
-		self:SetAttribute("initial-width", FRAME_WIDTH)
-		self:SetAttribute("initial-height", FRAME_HEIGHT)
+		self:SetAttribute( "initial-width", FRAME_WIDTH )
+		self:SetAttribute( "initial-height", FRAME_HEIGHT )
 
-		self:SetWidth(FRAME_WIDTH)
-		self:SetHeight(FRAME_HEIGHT)
+		self:SetWidth( FRAME_WIDTH )
+		self:SetHeight( FRAME_HEIGHT )
 	else
 		-- used for aura filtering
 		self.isGroupFrame = true
@@ -487,22 +490,22 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Health bar and text --
 	-------------------------
 
-	self.Health = ns.CreateStatusBar(self, 24, "RIGHT", true)
-	self.Health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -2)
-	self.Health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -2)
-	self.Health:SetPoint("BOTTOM", self, "BOTTOM", 0, 0)
+	self.Health = ns.CreateStatusBar( self, 24, "RIGHT", true )
+	self.Health:SetPoint( "TOPLEFT", self, "TOPLEFT", 1, -2 )
+	self.Health:SetPoint( "TOPRIGHT", self, "TOPRIGHT", -1, -2 )
+	self.Health:SetPoint( "BOTTOM", self, "BOTTOM", 0, 0 )
 
-	self.Health:GetStatusBarTexture():SetDrawLayer("ARTWORK")
-	self.Health.value:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, config.height * config.powerHeight - 2)
+	self.Health:GetStatusBarTexture():SetDrawLayer( "ARTWORK" )
+	self.Health.value:SetPoint( "BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, config.height * config.powerHeight - 2 )
 
-	self.Health.colorClass = config.barColorMode == "CLASS"
-	self.Health.colorReaction = config.barColorMode == "CLASS"
-	self.Health.colorSmooth = config.barColorMode == "HEALTH"
+	self.Health.colorClass = config.healthColorMode == "CLASS"
+	self.Health.colorReaction = config.healthColorMode == "CLASS"
+	self.Health.colorSmooth = config.healthColorMode == "HEALTH"
 	self.Health.bg.multiplier = config.bgColorIntensity
 
-	if config.barColorMode == "CUSTOM" then
+	if config.healthColorMode == "CUSTOM" then
 		local mu = config.bgColorIntensity
-		local r, g, b = unpack( config.barColor )
+		local r, g, b = unpack( config.healthColor )
 		self.Health:SetStatusBarColor( r, g, b )
 		self.Health.bg:SetVertexColor( r * mu, g * mu, b * mu )
 	end
@@ -514,16 +517,16 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Predicted healing bar --
 	---------------------------
 
-	self.HealPrediction = ns.CreateStatusBar(self)
-	self.HealPrediction:SetAllPoints(self.Health)
-	self.HealPrediction:SetAlpha(0.25)
-	self.HealPrediction:SetStatusBarColor(0, 1, 0)
+	self.HealPrediction = ns.CreateStatusBar( self )
+	self.HealPrediction:SetAllPoints( self.Health )
+	self.HealPrediction:SetAlpha( 0.25 )
+	self.HealPrediction:SetStatusBarColor( 0, 1, 0 )
 	self.HealPrediction:Hide()
 
-	self.HealPrediction:SetFrameLevel(self.Health:GetFrameLevel())
+	self.HealPrediction:SetFrameLevel( self.Health:GetFrameLevel() )
 
 	self.HealPrediction.bg:ClearAllPoints()
-	self.HealPrediction.bg:SetTexture("")
+	self.HealPrediction.bg:SetTexture( "" )
 	self.HealPrediction.bg:Hide()
 	self.HealPrediction.bg = nil
 
@@ -536,18 +539,18 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Power bar and text --
 	------------------------
 
-	if ns.uconfig[unit].power then
-		self.Power = ns.CreateStatusBar(self, (ns.uconfig[unit].width or 1) > 0.75 and 16, "LEFT", true)
-		self.Power:SetFrameLevel(self.Health:GetFrameLevel() + 2)
-		self.Power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
-		self.Power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)
-		self.Power:SetHeight(config.height * config.powerHeight)
+	if ns.uconfig[ unit ].power then
+		self.Power = ns.CreateStatusBar(self, ( ns.uconfig[ unit ].width or 1 ) > 0.75 and 16, "LEFT", true )
+		self.Power:SetFrameLevel(self.Health:GetFrameLevel() + 2 )
+		self.Power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1 )
+		self.Power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1 )
+		self.Power:SetHeight(config.height * config.powerHeight )
 
 		if self.Power.value then
-			self.Power.value:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 4, config.height * config.powerHeight - 2)
-			self.Power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -8, 0)
+			self.Power.value:SetPoint( "BOTTOMLEFT", self, "BOTTOMLEFT", 4, config.height * config.powerHeight - 2 )
+			self.Power.value:SetPoint( "BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -8, 0 )
 
-			tinsert(self.mouseovers, self.Power)
+			tinsert( self.mouseovers, self.Power )
 		end
 
 		self.Power.colorClass = config.powerColorMode == "CLASS"
@@ -562,7 +565,7 @@ ns.Spawn = function(self, unit, isSingle)
 			self.Power.bg:SetVertexColor( r * mu, g * mu, b * mu )
 		end
 
-		self.Power.frequentUpdates = (unit == "player")
+		self.Power.frequentUpdates = unit == "player"
 		self.Power.PostUpdate = ns.PostUpdatePower
 	end
 
@@ -570,19 +573,19 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Overlay to avoid reparenting stuff on powerless units --
 	-----------------------------------------------------------
 
-	self.overlay = CreateFrame("Frame", nil, self)
-	self.overlay:SetAllPoints(self)
-	self.overlay:SetFrameLevel(self.Health:GetFrameLevel() + (self.Power and 3 or 2))
+	self.overlay = CreateFrame( "Frame", nil, self )
+	self.overlay:SetAllPoints( self )
+	self.overlay:SetFrameLevel( self.Health:GetFrameLevel() + ( self.Power and 3 or 2 ) )
 
-	self.Health.value:SetParent(self.overlay)
+	self.Health.value:SetParent( self.overlay )
 
 	--------------------------
 	-- Element: Threat text -- NOT YET IMPLEMENTED
 	--------------------------
 --[[
 	if unit == "target" then
-		self.ThreatText = ns.CreateFontString(self.overlay, 20, "RIGHT")
-		self.ThreatText:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
+		self.ThreatText = ns.CreateFontString( self.overlay, 20, "RIGHT" )
+		self.ThreatText:SetPoint( "BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4 )
 	end
 ]]
 	---------------------------
@@ -590,24 +593,24 @@ ns.Spawn = function(self, unit, isSingle)
 	---------------------------
 
 	if unit == "target" or unit == "focus" then
-		self.Level = ns.CreateFontString(self.overlay, 16, "LEFT")
-		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -3)
+		self.Level = ns.CreateFontString( self.overlay, 16, "LEFT" )
+		self.Level:SetPoint( "BOTTOMLEFT", self.Health, "TOPLEFT", 2, -3 )
 
-		self:Tag(self.Level, "[difficulty][level][shortclassification]")
+		self:Tag( self.Level, "[difficulty][level][shortclassification]" )
 
-		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
-		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, -1)
-		self.Name:SetPoint("BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4)
+		self.Name = ns.CreateFontString( self.overlay, 20, "LEFT" )
+		self.Name:SetPoint( "BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, -1 )
+		self.Name:SetPoint( "BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4 )
 
-		self:Tag(self.Name, "[unitcolor][name]")
+		self:Tag( self.Name, "[unitcolor][name]" )
 	end
 
 	if unit == "targettarget" or unit == "focustarget" or unit == "party" or unit == "partypet" then
-		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
-		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
-		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
+		self.Name = ns.CreateFontString( self.overlay, 20, "LEFT" )
+		self.Name:SetPoint( "BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4 )
+		self.Name:SetPoint( "BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4 )
 
-		self:Tag(self.Name, "[unitcolor][name]")
+		self:Tag( self.Name, "[unitcolor][name]" )
 	end
 
 	-----------------
@@ -617,13 +620,13 @@ ns.Spawn = function(self, unit, isSingle)
 	if unit == "player" and playerClass == "WARLOCK" then
 		self.SoulShards = { }
 		for i = 1, 3 do
-			self.SoulShards[i] = self.overlay:CreateTexture(nil, "OVERLAY")
-			self.SoulShards[i]:SetTexture([[Interface\PlayerFrame\UI-WarlockShard]])
-			self.SoulShards[i]:SetTexCoord(2/128, 16/128, 2/64, 27/64)
+			self.SoulShards[ i ] = self.overlay:CreateTexture( nil, "OVERLAY" )
+			self.SoulShards[ i ]:SetTexture( [[Interface\PlayerFrame\UI-WarlockShard]] )
+			self.SoulShards[ i ]:SetTexCoord( 2/128, 16/128, 2/64, 27/64 )
 		end
-		self.SoulShards[2]:SetPoint("CENTER", self, "BOTTOM", 0, 0)
-		self.SoulShards[1]:SetPoint("RIGHT", self.SoulShards[2], "LEFT", 0, 0)
-		self.SoulShards[3]:SetPoint("LEFT", self.SoulShards[2], "RIGHT", 0, 0)
+		self.SoulShards[2]:SetPoint( "CENTER", self, "BOTTOM", 0, 0 )
+		self.SoulShards[1]:SetPoint( "RIGHT", self.SoulShards[2], "LEFT", 0, 0 )
+		self.SoulShards[3]:SetPoint( "LEFT", self.SoulShards[2], "RIGHT", 0, 0 )
 	end
 --]=]
 	-----------------------
@@ -631,31 +634,31 @@ ns.Spawn = function(self, unit, isSingle)
 	-----------------------
 
 	if unit == "target" then
-		self.ComboPointsText = ns.CreateFontString(self.overlay, 32, "RIGHT")
-		self.ComboPointsText:SetPoint("BOTTOMRIGHT", self.Health, "BOTTOMLEFT", -10, config.height * config.powerHeight - 6)
-		self.ComboPointsText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
-		self:Tag(self.ComboPointsText, "[cpoints]")
+		self.ComboPointsText = ns.CreateFontString( self.overlay, 32, "RIGHT" )
+		self.ComboPointsText:SetPoint( "BOTTOMRIGHT", self.Health, "BOTTOMLEFT", -10, config.height * config.powerHeight - 6 )
+		self.ComboPointsText:SetTextColor( colors.class[ playerClass ][1], colors.class[ playerClass ][2], colors.class[ playerClass ][3] )
+		self:Tag( self.ComboPointsText, "[cpoints]" )
 	elseif unit == "player" then
 		if playerClass == "PALADIN" then
-			self.HolyPowerText = ns.CreateFontString(self.overlay, 32, "LEFT")
-			self.HolyPowerText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
-			self.HolyPowerText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
-			self:Tag(self.HolyPowerText, "[holypower]")
+			self.HolyPowerText = ns.CreateFontString( self.overlay, 32, "LEFT" )
+			self.HolyPowerText:SetPoint( "BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6 )
+			self.HolyPowerText:SetTextColor( colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3] )
+			self:Tag( self.HolyPowerText, "[holypower]" )
 		elseif playerClass == "PRIEST" then
-			self.ShadowOrbsText = ns.CreateFontString(self.overlay, 32, "LEFT")
-			self.ShadowOrbsText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
-			self.ShadowOrbsText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
-			self:Tag(self.ShadowOrbsText, "[shadoworbs]")
+			self.ShadowOrbsText = ns.CreateFontString( self.overlay, 32, "LEFT" )
+			self.ShadowOrbsText:SetPoint( "BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6 )
+			self.ShadowOrbsText:SetTextColor( colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3] )
+			self:Tag( self.ShadowOrbsText, "[shadoworbs]" )
 		elseif playerClass == "SHAMAN" then
-			self.MaelstromText = ns.CreateFontString(self.overlay, 32, "LEFT")
-			self.MaelstromText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
-			self.MaelstromText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
-			self:Tag(self.MaelstromText, "[maelstrom]")
+			self.MaelstromText = ns.CreateFontString( self.overlay, 32, "LEFT" )
+			self.MaelstromText:SetPoint( "BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6 )
+			self.MaelstromText:SetTextColor( colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3] )
+			self:Tag( self.MaelstromText, "[maelstrom]" )
 		elseif playerClass == "WARLOCK" then
-			self.SoulShardsText = ns.CreateFontString(self.overlay, 32, "LEFT")
-			self.SoulShardsText:SetPoint("BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6)
-			self.SoulShardsText:SetTextColor(colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3])
-			self:Tag(self.SoulShardsText, "[soulshards]")
+			self.SoulShardsText = ns.CreateFontString( self.overlay, 32, "LEFT" )
+			self.SoulShardsText:SetPoint( "BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6 )
+			self.SoulShardsText:SetTextColor( colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3] )
+			self:Tag( self.SoulShardsText, "[soulshards]" )
 		end
 	end
 
@@ -664,24 +667,24 @@ ns.Spawn = function(self, unit, isSingle)
 	-----------------------
 
 	if unit == "player" then
-		self.Status = ns.CreateFontString(self.overlay, 16, "LEFT")
-		self.Status:SetPoint("LEFT", self.Health, "TOPLEFT", 2, 2)
+		self.Status = ns.CreateFontString( self.overlay, 16, "LEFT" )
+		self.Status:SetPoint( "LEFT", self.Health, "TOPLEFT", 2, 2 )
 
-		self:Tag(self.Status, "[leadericon][mastericon]")
+		self:Tag( self.Status, "[leadericon][mastericon]" )
 
-		self.Resting = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Resting:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 0, -2)
-		self.Resting:SetSize(20, 20)
+		self.Resting = self.overlay:CreateTexture( nil, "OVERLAY" )
+		self.Resting:SetPoint( "LEFT", self.Health, "BOTTOMLEFT", 0, -2 )
+		self.Resting:SetSize( 20, 20 )
 
-		self.Combat = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Combat:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", 0, -2)
-		self.Combat:SetSize(24, 24)
+		self.Combat = self.overlay:CreateTexture( nil, "OVERLAY" )
+		self.Combat:SetPoint( "RIGHT", self.Health, "BOTTOMRIGHT", 0, -2 )
+		self.Combat:SetSize( 24, 24 )
 
 	elseif unit == "party" or unit == "target" then
-		self.Status = ns.CreateFontString(self.overlay, 16, "RIGHT")
-		self.Status:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", -2, 0)
+		self.Status = ns.CreateFontString( self.overlay, 16, "RIGHT" )
+		self.Status:SetPoint( "RIGHT", self.Health, "BOTTOMRIGHT", -2, 0 )
 
-		self:Tag(self.Status, "[mastericon][leadericon]")
+		self:Tag( self.Status, "[mastericon][leadericon]" )
 	end
 
 	----------------
@@ -689,15 +692,15 @@ ns.Spawn = function(self, unit, isSingle)
 	----------------
 
 	if unit == "party" or unit == "target" or unit == "focus" then
-		self.PhaseIcon = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.PhaseIcon:SetPoint("TOP", self, "TOP", 0, -4)
-		self.PhaseIcon:SetPoint("BOTTOM", self, "BOTTOM", 0, 4)
-		self.PhaseIcon:SetWidth(self.PhaseIcon:GetHeight())
-		self.PhaseIcon:SetTexture([[Interface\Icons\Spell_Frost_Stun]])
-		self.PhaseIcon:SetTexCoord(0.05, 0.95, 0.5-0.25*0.9, 0.5+0.25*0.9)
-		self.PhaseIcon:SetDesaturated(true)
-		self.PhaseIcon:SetBlendMode("ADD")
-		self.PhaseIcon:SetAlpha(0.5)
+		self.PhaseIcon = self.overlay:CreateTexture( nil, "OVERLAY" )
+		self.PhaseIcon:SetPoint( "TOP", self, "TOP", 0, -4 )
+		self.PhaseIcon:SetPoint( "BOTTOM", self, "BOTTOM", 0, 4 )
+		self.PhaseIcon:SetWidth( self.PhaseIcon:GetHeight() )
+		self.PhaseIcon:SetTexture( [[Interface\Icons\Spell_Frost_Stun]] )
+		self.PhaseIcon:SetTexCoord( 0.05, 0.95, 0.5 - 0.25 * 0.9, 0.5 + 0.25 * 0.9 )
+		self.PhaseIcon:SetDesaturated( true )
+		self.PhaseIcon:SetBlendMode( "ADD" )
+		self.PhaseIcon:SetAlpha( 0.5 )
 	end
 
 	---------------------
@@ -705,27 +708,27 @@ ns.Spawn = function(self, unit, isSingle)
 	---------------------
 
 	if unit == "target" then
-		self.QuestIcon = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.QuestIcon:SetPoint("CENTER", self, "LEFT", 0, 0)
-		self.QuestIcon:SetSize(32, 32)
+		self.QuestIcon = self.overlay:CreateTexture( nil, "OVERLAY" )
+		self.QuestIcon:SetPoint( "CENTER", self, "LEFT", 0, 0 )
+		self.QuestIcon:SetSize( 32, 32 )
 	end
 
 	-----------------------
 	-- Raid target icons --
 	-----------------------
 
-	self.RaidIcon = self.overlay:CreateTexture(nil, "OVERLAY")
-	self.RaidIcon:SetPoint("CENTER", self, 0, 0)
-	self.RaidIcon:SetSize(32, 32)
+	self.RaidIcon = self.overlay:CreateTexture( nil, "OVERLAY" )
+	self.RaidIcon:SetPoint( "CENTER", self, 0, 0 )
+	self.RaidIcon:SetSize( 32, 32 )
 
 	----------------------
 	-- Ready check icon --
 	----------------------
 
 	if unit == "player" or unit == "party" then
-		self.ReadyCheck = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.ReadyCheck:SetPoint("CENTER", self)
-		self.ReadyCheck:SetSize(config.height, config.height)
+		self.ReadyCheck = self.overlay:CreateTexture( nil, "OVERLAY" )
+		self.ReadyCheck:SetPoint( "CENTER", self )
+		self.ReadyCheck:SetSize( config.height, config.height )
 	end
 
 	----------------
@@ -733,9 +736,9 @@ ns.Spawn = function(self, unit, isSingle)
 	----------------
 
 	if unit == "player" or unit == "party" then
-		self.LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and -2 or 2, 0)
-		self.LFDRole:SetSize(16, 16)
+		self.LFDRole = self.overlay:CreateTexture( nil, "OVERLAY" )
+		self.LFDRole:SetPoint( "CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and -2 or 2, 0 )
+		self.LFDRole:SetSize( 16, 16 )
 	end
 
 	----------------
@@ -745,15 +748,15 @@ ns.Spawn = function(self, unit, isSingle)
 	if unit == "player" then
 		local GAP = 6
 
-		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
-		self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, 24)
-		self.Buffs:SetHeight(config.height)
+		self.Buffs = CreateFrame( "Frame", nil, self )
+		self.Buffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 2, 24 )
+		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", -2, 24 )
+		self.Buffs:SetHeight( config.height )
 
 		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "UP"
 		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
-		self.Buffs["num"] = floor((config.width - 4 + GAP) / (config.height + GAP))
+		self.Buffs["num"] = floor( ( config.width - 4 + GAP ) / ( config.height + GAP ) )
 		self.Buffs["size"] = config.height
 		self.Buffs["spacing-x"] = GAP
 		self.Buffs["spacing-y"] = GAP
@@ -766,10 +769,10 @@ ns.Spawn = function(self, unit, isSingle)
 	elseif unit == "party" then
 		local GAP = 6
 
-		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetPoint("RIGHT", self, "LEFT", -10, 0)
-		self.Buffs:SetHeight(config.height)
-		self.Buffs:SetWidth((config.height * 4) + (GAP * 3))
+		self.Buffs = CreateFrame( "Frame", nil, self )
+		self.Buffs:SetPoint( "RIGHT", self, "LEFT", -10, 0 )
+		self.Buffs:SetHeight( config.height )
+		self.Buffs:SetWidth( ( config.height * 4 ) + ( GAP * 3 ) )
 
 		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "DOWN"
@@ -787,11 +790,11 @@ ns.Spawn = function(self, unit, isSingle)
 	elseif unit == "target" then
 		local GAP = 6
 
-		local MAX_ICONS = floor((config.width - 4 + GAP) / (config.height + GAP)) - 1
-		local NUM_BUFFS = math.max(1, floor(MAX_ICONS * 0.2))
-		local NUM_DEBUFFS = math.min(MAX_ICONS - 1, floor(MAX_ICONS * 0.8))
+		local MAX_ICONS = floor( ( config.width - 4 + GAP ) / ( config.height + GAP ) ) - 1
+		local NUM_BUFFS = math.max( 1, floor( MAX_ICONS * 0.2 ) )
+		local NUM_DEBUFFS = math.min( MAX_ICONS - 1, floor( MAX_ICONS * 0.8 ) )
 
-		self.Debuffs = CreateFrame("Frame", nil, self)
+		self.Debuffs = CreateFrame( "Frame", nil, self )
 
 		self.Debuffs["growth-x"] = "RIGHT"
 		self.Debuffs["growth-y"] = "UP"
@@ -802,9 +805,9 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Debuffs["spacing-x"] = GAP
 		self.Debuffs["spacing-y"] = GAP * 2
 
-		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
-		self.Debuffs:SetWidth( (config.height * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)) )
-		self.Debuffs:SetHeight( (config.height * 2) + (GAP * 2) )
+		self.Debuffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 2, 24 )
+		self.Debuffs:SetWidth(  ( config.height * NUM_DEBUFFS ) + ( GAP * ( NUM_DEBUFFS - 1 ) )  )
+		self.Debuffs:SetHeight(  ( config.height * 2 ) + ( GAP * 2 )  )
 
 		self.Debuffs.CustomFilter   = ns.CustomAuraFilter
 		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
@@ -812,7 +815,7 @@ ns.Spawn = function(self, unit, isSingle)
 
 		self.Debuffs.parent = self
 
-		self.Buffs = CreateFrame("Frame", nil, self)
+		self.Buffs = CreateFrame( "Frame", nil, self )
 
 		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "UP"
@@ -823,9 +826,9 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Buffs["spacing-x"] = GAP
 		self.Buffs["spacing-y"] = GAP * 2
 
-		self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -2, 24)
-		self.Buffs:SetWidth( (config.height * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)) )
-		self.Buffs:SetHeight( (config.height * 2) + (GAP * 2) )
+		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", -2, 24 )
+		self.Buffs:SetWidth(  ( config.height * NUM_BUFFS ) + ( GAP * ( NUM_BUFFS - 1 ) )  )
+		self.Buffs:SetHeight(  ( config.height * 2 ) + ( GAP * 2 )  )
 
 		self.Buffs.CustomFilter   = ns.CustomAuraFilter
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
@@ -838,52 +841,52 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Cast bar, icon, and text --
 	------------------------------
 
-	if ns.uconfig[unit].castbar then
-		local height = config.height * (1 - config.powerHeight)
+	if uconfig.castbar then
+		local height = config.height * ( 1 - config.powerHeight )
 
-		self.Castbar = ns.CreateStatusBar(self)
-		self.Castbar:SetPoint("TOPLEFT", self, "BOTTOMLEFT", height, -10)
-		self.Castbar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -10)
-		self.Castbar:SetHeight(height)
+		self.Castbar = ns.CreateStatusBar( self )
+		self.Castbar:SetPoint( "TOPLEFT", self, "BOTTOMLEFT", height, -10 )
+		self.Castbar:SetPoint( "TOPRIGHT", self, "BOTTOMRIGHT", 0, -10 )
+		self.Castbar:SetHeight( height )
 
-		self.Castbar.bg:SetVertexColor(unpack(config.borderColor))
+		self.Castbar.bg:SetVertexColor( unpack( config.borderColor ) )
 
-		self.Castbar.Icon = self.Castbar:CreateTexture(nil, "BACKDROP")
-		self.Castbar.Icon:SetPoint("TOPRIGHT", self.Castbar, "TOPLEFT", 0, 0)
-		self.Castbar.Icon:SetPoint("BOTTOMRIGHT", self.Castbar, "BOTTOMLEFT", 0, 0)
-		self.Castbar.Icon:SetWidth(height)
-		self.Castbar.Icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		self.Castbar.Icon = self.Castbar:CreateTexture( nil, "BACKDROP" )
+		self.Castbar.Icon:SetPoint( "TOPRIGHT", self.Castbar, "TOPLEFT", 0, 0 )
+		self.Castbar.Icon:SetPoint( "BOTTOMRIGHT", self.Castbar, "BOTTOMLEFT", 0, 0 )
+		self.Castbar.Icon:SetWidth( height )
+		self.Castbar.Icon:SetTexCoord( 0.07, 0.93, 0.07, 0.93 )
 
 		if unit == "player" then
-			self.Castbar.SafeZone = self.Castbar:CreateTexture(nil, "BORDER")
-			self.Castbar.SafeZone:SetTexture(config.statusbar)
-			self.Castbar.SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
+			self.Castbar.SafeZone = self.Castbar:CreateTexture( nil, "BORDER" )
+			self.Castbar.SafeZone:SetTexture( config.statusbar )
+			self.Castbar.SafeZone:SetVertexColor( 1, 0.5, 0, 0.75 )
 
-			self.Castbar.Time = ns.CreateFontString(self.Castbar, 20, "RIGHT")
-			self.Castbar.Time:SetPoint("RIGHT", self.Castbar, "RIGHT", -4, 0)
-		elseif (ns.uconfig[unit].width or 1) > 0.75 then
-			self.Castbar.Text = ns.CreateFontString(self.Castbar, 16, "LEFT")
-			self.Castbar.Text:SetPoint("LEFT", self.Castbar, "LEFT", 4, 0)
+			self.Castbar.Time = ns.CreateFontString( self.Castbar, 20, "RIGHT" )
+			self.Castbar.Time:SetPoint( "RIGHT", self.Castbar, "RIGHT", -4, 0 )
+		elseif ( uconfig.width or 1 ) > 0.75 then
+			self.Castbar.Text = ns.CreateFontString( self.Castbar, 16, "LEFT" )
+			self.Castbar.Text:SetPoint( "LEFT", self.Castbar, "LEFT", 4, 0 )
 		end
 
 		self.Castbar.PostCastStart = ns.PostCastStart
 		self.Castbar.PostChannelStart = ns.PostChannelStart
 
-		ns.CreateBorder(self.Castbar)
-		for i, tex in ipairs(self.Castbar.BorderTextures) do
-			tex:SetDrawLayer("OVERLAY")
+		ns.CreateBorder( self.Castbar )
+		for i, tex in ipairs( self.Castbar.BorderTextures ) do
+			tex:SetDrawLayer( "OVERLAY" )
 		end
 
-		local d = floor(config.borderSize / 2 + 0.5) - 2
-		self.Castbar.BorderTextures[1]:SetPoint("TOPLEFT", self.Castbar.Icon, "TOPLEFT", -d, d)
-		self.Castbar.BorderTextures[4]:SetPoint("BOTTOMLEFT", self.Castbar.Icon, "BOTTOMLEFT", -d, -d)
+		local d = floor( config.borderSize / 2 + 0.5 ) - 2
+		self.Castbar.BorderTextures[1]:SetPoint( "TOPLEFT", self.Castbar.Icon, "TOPLEFT", -d, d )
+		self.Castbar.BorderTextures[4]:SetPoint( "BOTTOMLEFT", self.Castbar.Icon, "BOTTOMLEFT", -d, -d )
 
 		local o = self.Castbar.SetBorderSize
-		self.Castbar.SetBorderSize = function(self, size, offset)
-			o(self, size, offset)
-			local d = floor(size / 2 + 0.5) - 2
-			self.BorderTextures[1]:SetPoint("TOPLEFT", self.Icon, "TOPLEFT", -d, d)
-			self.BorderTextures[4]:SetPoint("BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d)
+		self.Castbar.SetBorderSize = function( self, size, offset )
+			o( self, size, offset )
+			local d = floor( size / 2 + 0.5 ) - 2
+			self.BorderTextures[1]:SetPoint( "TOPLEFT", self.Icon, "TOPLEFT", -d, d )
+			self.BorderTextures[4]:SetPoint( "BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d )
 		end
 	end
 
@@ -902,21 +905,21 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Border and backdrop --
 	-------------------------
 
-	ns.CreateBorder(self, config.borderSize)
-	self:SetBorderParent(self.overlay)
+	ns.CreateBorder( self, config.borderSize )
+	self:SetBorderParent( self.overlay )
 	self.UpdateBorder = ns.UpdateBorder
 
-	self:SetBackdrop(config.backdrop)
-	self:SetBackdropColor(0, 0, 0, 1)
-	self:SetBackdropBorderColor(unpack(config.borderColor))
+	self:SetBackdrop( config.backdrop )
+	self:SetBackdropColor( 0, 0, 0, 1 )
+	self:SetBackdropBorderColor( unpack( config.borderColor ) )
 
 	----------------------
 	-- Element: AFK text --
 	----------------------
 
 	if unit == "player" or unit == "party" then
-		self.AFK = ns.CreateFontString(self.overlay, 12, "CENTER")
-		self.AFK:SetPoint("CENTER", self.Health, "BOTTOM", 0, -2)
+		self.AFK = ns.CreateFontString( self.overlay, 12, "CENTER" )
+		self.AFK:SetPoint( "CENTER", self.Health, "BOTTOM", 0, -2 )
 		self.AFK.fontFormat = "AFK %s:%s"
 	end
 
@@ -938,16 +941,16 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Element: Resurrection text --
 	--------------------------------
 
-	if not unit:match("^.+target$") then
-		self.Resurrection = ns.CreateFontString(self.overlay, 16, "CENTER")
-		self.Resurrection:SetPoint("CENTER", self.Health)
+	if not unit:match( "^.+target$" ) then
+		self.Resurrection = ns.CreateFontString( self.overlay, 16, "CENTER" )
+		self.Resurrection:SetPoint( "CENTER", self.Health )
 	end
 
 	------------------------
 	-- Plugin: oUF_Smooth --
 	------------------------
 
-	if IsAddOnLoaded("oUF_Smooth") and not unit:match(".+target$") then
+	if IsAddOnLoaded( "oUF_Smooth" ) and not unit:match( ".+target$" ) then
 		self.Health.Smooth = true
 		if self.Power then
 			self.Power.Smooth = true
@@ -957,80 +960,84 @@ end
 
 ------------------------------------------------------------------------
 
-oUF:Factory(function(oUF)
+oUF:Factory( function( oUF )
 	config = ns.config
 
-	oUF:RegisterStyle("Phanx", ns.Spawn)
-	oUF:SetActiveStyle("Phanx")
+	oUF:RegisterStyle( "Phanx", ns.Spawn )
+	oUF:SetActiveStyle( "Phanx" )
 
 	local initialConfigFunction = [[
-		self:SetAttribute("*type2", "menu")
-		self:SetAttribute("initial-width", %d)
-		self:SetWidth(%d)
-		self:SetAttribute("initial-height", %d)
-		self:SetHeight(%d)
+		self:SetAttribute( "*type2", "menu" )
+		self:SetAttribute( "initial-width", %d )
+		self:SetWidth( %d )
+		self:SetAttribute( "initial-height", %d )
+		self:SetHeight( %d )
 	]]
 
-	for u, udata in pairs(ns.uconfig) do
-		local name = "oUFPhanx" .. u:gsub("%a", string.upper, 1):gsub("target", "Target"):gsub("pet", "Pet")
+	for u, udata in pairs( ns.uconfig ) do
+		local name = "oUFPhanx" .. u:gsub( "%a", string.upper, 1 ):gsub( "target", "Target" ):gsub( "pet", "Pet" )
 		if udata.point then
 			if udata.attributes then
-				-- print("generating header for", u)
-				local w = config.width  * (udata.width  or 1)
-				local h = config.height * (udata.height or 1)
+				-- print( "generating header for", u )
+				local w = config.width  * ( udata.width  or 1 )
+				local h = config.height * ( udata.height or 1 )
 
-				ns.headers[u] = oUF:SpawnHeader(name, nil, udata.visible,
-					"oUF-initialConfigFunction", initialConfigFunction:format(w, w, h, h),
-					unpack(udata.attributes))
+				ns.headers[ u ] = oUF:SpawnHeader( name, nil, udata.visible,
+					"oUF-initialConfigFunction", initialConfigFunction:format( w, w, h, h ),
+					unpack( udata.attributes ) )
 			else
-				-- print("generating frame for", u)
-				ns.frames[u] = oUF:Spawn(u, name)
+				-- print( "generating frame for", u )
+				ns.frames[ u ] = oUF:Spawn( u, name )
 			end
 		end
 	end
 
-	for u, f in pairs(ns.frames) do
-		local udata = ns.uconfig[u]
-		local p1, parent, p2, x, y = string.split(" ", udata.point)
-		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+	for u, f in pairs( ns.frames ) do
+		local udata = ns.uconfig[ u ]
+		local p1, parent, p2, x, y = string.split( " ", udata.point )
+		f:SetPoint( p1, ns.headers[ parent ] or ns.frames[ parent ] or _G[ parent ] or UIParent, p2, tonumber( x ) or 0, tonumber( y ) or 0 )
 		f:Show()
 	end
-	for u, f in pairs(ns.headers) do
-		local udata = ns.uconfig[u]
-		local p1, parent, p2, x, y = string.split(" ", udata.point)
-		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+	for u, f in pairs( ns.headers ) do
+		local udata = ns.uconfig[ u ]
+		local p1, parent, p2, x, y = string.split( " ", udata.point )
+		f:SetPoint( p1, ns.headers[ parent ] or ns.frames[ parent ] or _G[ parent ] or UIParent, p2, tonumber( x ) or 0, tonumber( y ) or 0 )
 		f:Show()
 	end
 
 	for i = 1, 3 do
 		local barname = "MirrorTimer" .. i
-		local bar = _G[barname]
+		local bar = _G[ barname ]
 
-		for i, region in pairs({ bar:GetRegions() }) do
+		for i, region in pairs( { bar:GetRegions() } ) do
 			if region.GetTexture and region:GetTexture() == "SolidTexture" then
 				region:Hide()
 			end
 		end
 
-		ns.CreateBorder(bar)
+		ns.CreateBorder( bar )
 
-		bar:SetParent(UIParent)
-		bar:SetWidth(225)
-		bar:SetHeight(config.height * (1 - config.powerHeight))
+		bar:SetParent( UIParent )
+		bar:SetWidth( 225 )
+		bar:SetHeight( config.height * ( 1 - config.powerHeight ) )
 
-		_G[barname .. "Border"]:Hide()
+		bar.bg = bar:GetRegions()
+		bar.bg:ClearAllPoints()
+		bar.bg:SetAllPoints( bar )
+		bar.bg:SetTexture( config.statusbar )
+		bar.bg:SetVertexColor( 0.2, 0.2, 0.2, 1 )
 
-		_G[barname .. "Background"] = bar:CreateTexture(nil, "BACKGROUND")
-		_G[barname .. "Background"]:SetAllPoints(bar)
-		_G[barname .. "Background"]:SetTexture(config.statusbar)
-		_G[barname .. "Background"]:SetVertexColor(0.2, 0.2, 0.2, 1)
+		bar.text = _G[ barname .. "Text" ]
+		bar.text:ClearAllPoints()
+		bar.text:SetPoint( "LEFT", bar, 4, 1 )
+		bar.text:SetFont( config.font, 16, "OUTLINE" )
 
-		_G[barname .. "Text"]:ClearAllPoints()
-		_G[barname .. "Text"]:SetPoint("LEFT", bar, 4, 1)
-		_G[barname .. "Text"]:SetFont(config.font, 16, "OUTLINE")
+		bar.border = _G[ barname .. "Border" ]
+		bar.border:Hide()
 
-		_G[barname .. "StatusBar"]:SetAllPoints(bar)
-		_G[barname .. "StatusBar"]:SetStatusBarTexture(config.statusbar)
-		_G[barname .. "StatusBar"]:SetAlpha(0.8)
+		bar.bar = _G[ barname .. "StatusBar" ]
+		bar.bar:SetAllPoints( bar )
+		bar.bar:SetStatusBarTexture( config.statusbar )
+		bar.bar:SetAlpha( 0.8 )
 	end
-end)
+end )

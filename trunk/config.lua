@@ -140,8 +140,11 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		ignoreOwnHeals = false,			-- only show incoming heals from other players
 		threatLevels = true,			-- show threat levels instead of binary aggro
 
-		barColor = { 0.2, 0.2, 0.2 },
-		barColorMode = "CUSTOM",
+		healthColor = { 0.2, 0.2, 0.2 },
+		healthColorMode = "CUSTOM",
+
+		powerColor = { 0.8, 0.8, 0.8 },
+		powerColorMode = "CLASS",
 
 		bgColorIntensity = 1.5,
 
@@ -450,30 +453,6 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local borderColor = self:CreateColorPicker( L["Border color"] )
-	borderColor.desc = L["Change the default frame border color."]
-	borderColor:SetPoint( "TOPLEFT", borderSize, "BOTTOMLEFT", 6, -8 )
-
-	borderColor.GetColor = function()
-		return unpack( db.borderColor )
-	end
-
-	borderColor.OnColorChanged = function( self, r, g, b )
-		db.borderColor[1] = r
-		db.borderColor[2] = g
-		db.borderColor[3] = b
-		for _, frame in ipairs( ns.borderedObjects ) do
-			frame:SetBorderColor( r, g, b )
-		end
-		for _, frame in ipairs( ns.objects ) do
-			if frame.UpdateBorder then
-				frame:UpdateBorder()
-			end
-		end
-	end
-
-	--------------------------------------------------------------------
-
 	local dispelFilter = self:CreateCheckbox( L["Filter debuff highlight"] )
 	dispelFilter.desc = L["Show the debuff highlight only for debuffs you can dispel."]
 	dispelFilter:SetPoint( "TOPLEFT", notes, "BOTTOM", 12, -24 )
@@ -534,7 +513,6 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 		end
 		outline:SetValue( db.fontOutline, outlines[ db.fontOutline ] )
 		borderSize:SetValue( db.borderSize )
-		borderColor:SetColor( unpack( db.borderColor ) )
 		dispelFilter:SetChecked( db.dispelFilter )
 		healFilter:SetChecked( db.ignoreOwnHeals )
 		threatLevels:SetChecked( db.threatLevels )
@@ -550,7 +528,7 @@ InterfaceOptions_AddCategory( ns.optionsPanel )
 
 ns.colorsPanel = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
 ns.colorsPanel.parent = ns.optionsPanel.name
-ns.colorsPanel.name = ns.L["Bar Colors"]
+ns.colorsPanel.name = ns.L["Colors"]
 ns.colorsPanel:Hide()
 
 ns.colorsPanel:SetScript( "OnShow", function( self )
@@ -581,50 +559,52 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local barColor
+	local healthColor
 
-	local barColorModes = {
+	local healthColorModes = {
 		["CLASS"]  = L["By Class"],
 		["HEALTH"] = L["By Health"],
 		["CUSTOM"] = L["Custom"],
 	}
 
-	local barColorMode = self:CreateDropdown( L["Health color mode"] )
-	barColorMode.desc = L["Change how health bars are colored."]
-	barColorMode:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
-	barColorMode:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 )
+	local healthColorMode = self:CreateDropdown( L["Health color mode"] )
+	healthColorMode.desc = L["Change how health bars are colored."]
+	healthColorMode:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
+	healthColorMode:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 )
 
 	do
 		local function OnClick( self )
 			local v = self.value
-			db.barColorMode = v
-			barColorMode:SetValue( v, self.text )
+			db.healthColorMode = v
+			healthColorMode:SetValue( v, self.text )
 			for _, frame in ipairs( ns.objects ) do
-				local hp = frame.Health
-				if type( hp ) == "table" then
-					hp.colorClass = v == "CLASS"
-					hp.colorReaction = v == "CLASS"
-					hp.colorSmooth = v == "HEALTH"
-					if v == "CUSTOM" then
-						local mu = hp.bg.multiplier
-						local r, g, b = unpack( db.barColor )
-						hp:SetStatusBarColor( r, g, b )
-						hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
-					else
-						frame:GetScript( "OnEvent" )( frame, "UNIT_HEALTH", frame.unit )
+				if frame:IsShown() then
+					local hp = frame.Health
+					if type( hp ) == "table" then
+						hp.colorClass = v == "CLASS"
+						hp.colorReaction = v == "CLASS"
+						hp.colorSmooth = v == "HEALTH"
+						if v == "CUSTOM" then
+							local mu = hp.bg.multiplier
+							local r, g, b = unpack( db.healthColor )
+							hp:SetStatusBarColor( r, g, b )
+							hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+						else
+							hp:ForceUpdate()
+						end
 					end
 				end
 			end
 			if v == "CUSTOM" then
-				barColor:Show()
+				healthColor:Show()
 			else
-				barColor:Hide()
+				healthColor:Hide()
 			end
 		end
 
 		local info = {}
-		UIDropDownMenu_Initialize( barColorMode.dropdown, function()
-			local selected = db.barColorMode
+		UIDropDownMenu_Initialize( healthColorMode.dropdown, function()
+			local selected = db.healthColorMode
 
 			info.text = L["By Class"]
 			info.value = "CLASS"
@@ -648,24 +628,26 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	barColor = self:CreateColorPicker( L["Health bar color"] )
-	barColor.desc = L["Change the health bar color."]
-	barColor:SetPoint( "BOTTOMLEFT", barColorMode, "BOTTOMRIGHT", 16, 6 )
+	healthColor = self:CreateColorPicker( L["Health bar color"] )
+	healthColor.desc = L["Change the health bar color."]
+	healthColor:SetPoint( "BOTTOMLEFT", healthColorMode, "BOTTOMRIGHT", 16, 4 )
 
-	barColor.GetColor = function()
-		return unpack( db.barColor )
+	healthColor.GetColor = function()
+		return unpack( db.healthColor )
 	end
 
-	barColor.OnColorChanged = function( self, r, g, b )
-		db.barColor[1] = r
-		db.barColor[2] = g
-		db.barColor[3] = b
+	healthColor.OnColorChanged = function( self, r, g, b )
+		db.healthColor[1] = r
+		db.healthColor[2] = g
+		db.healthColor[3] = b
 		for _, frame in ipairs( ns.objects ) do
-			local hp = frame.Health
-			if type( hp ) == "table" then
-				local mu = hp.bg.multiplier
-				hp:SetStatusBarColor( r, g, b )
-				hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+			if frame:IsShown() then
+				local hp = frame.Health
+				if type( hp ) == "table" then
+					local mu = hp.bg.multiplier
+					hp:SetStatusBarColor( r, g, b )
+					hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+				end
 			end
 		end
 	end
@@ -682,31 +664,33 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	local powerColorMode = self:CreateDropdown( L["Power color mode"] )
 	powerColorMode.desc = L["Change how power bars are colored."]
-	powerColorMode:SetPoint( "TOPLEFT", barColorMode, "BOTTOMLEFT", 0, -12 )
-	powerColorMode:SetPoint( "TOPRIGHT", barColorMode, "BOTTOMRIGHT", 0, -12 )
+	powerColorMode:SetPoint( "TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12 )
+	powerColorMode:SetPoint( "TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12 )
 
 	do
 		local function OnClick( self )
-			local v = self.value
-			db.powerColorMode = v
-			powerColorMode:SetValue( v, self.text )
+			local value = self.value
+			db.powerColorMode = value
+			powerColorMode:SetValue( value, self.text )
 			for _, frame in ipairs( ns.objects ) do
-				local pp = object.Power
-				if type( pp ) == "table" then
-					pp.colorClass = v == "CLASS"
-					pp.colorReaction = v == "CLASS"
-					pp.colorPower = v == "POWER"
-					if v == "CUSTOM" then
-						local mu = pp.bg.multiplier
-						local r, g, b = unpack( db.powerColor )
-						pp:SetStatusBarColor( r, g, b )
-						pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
-					else
-						frame:GetScript( "OnEvent" )( frame, "UNIT_POWER", frame.unit )
+				if frame:IsShown() then
+					local pp = frame.Power
+					if type( pp ) == "table" then
+						pp.colorClass = value == "CLASS"
+						pp.colorReaction = value == "CLASS"
+						pp.colorPower = value == "POWER"
+						if value == "CUSTOM" then
+							local mu = pp.bg.multiplier
+							local r, g, b = unpack( db.powerColor )
+							pp:SetStatusBarColor( r, g, b )
+							pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+						else
+							pp:ForceUpdate()
+						end
 					end
 				end
 			end
-			if v == "CUSTOM" then
+			if value == "CUSTOM" then
 				powerColor:Show()
 			else
 				powerColor:Hide()
@@ -737,8 +721,6 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 		end )
 	end
 
-	powerColorMode:Hide() -- NYI
-
 	--------------------------------------------------------------------
 
 	powerColor = self:CreateColorPicker( L["Health bar color"] )
@@ -750,16 +732,16 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 		db.powerColor[2] = g
 		db.powerColor[3] = b
 		for _, frame in ipairs( ns.objects ) do
-			local pp = frame.Power
-			if type( pp ) == "table" then
-				local mu = pp.bg.multiplier
-				pp:SetStatuspowerColor( r, g, b )
-				pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+			if frame:IsShown() then
+				local pp = frame.Power
+				if type( pp ) == "table" then
+					local mu = pp.bg.multiplier
+					pp:SetStatusBarColor( r, g, b )
+					pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+				end
 			end
 		end
 	end
-
-	powerColor:Hide() -- NYI
 
 	--------------------------------------------------------------------
 
@@ -771,15 +753,31 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 	bgColorIntensity.OnValueChanged = function( self, value )
 		value = math.floor( value * 100 + 0.5 ) / 100
 		db.bgColorIntensity = value
-		local custom = db.barColorMode == "CUSTOM"
+		local healthCustom = db.healthColorMode == "CUSTOM"
+		local powerCustom = db.powerColorMode == "CUSTOM"
 		for _, frame in ipairs( ns.objects ) do
-			local hp = frame.Health
-			if type( hp ) == "table" then
-				hp.bg.multiplier = value
-				if custom then
-					barColor:OnColorChanged( unpack( db.barColor ) )
-				else
-					frame:GetScript( "OnEvent" )( frame, "UNIT_HEALTH", frame.unit )
+			if frame:IsShown() then
+				local hp = frame.Health
+				if type( hp ) == "table" then
+					hp.bg.multiplier = value
+					if healthCustom then
+						local r, g, b = unpack( db.healthColor )
+						hp:SetStatusBarColor( r, g, b )
+						hp.bg:SetVertexColor( r * value, g * value, b * value )
+					else
+						hp:ForceUpdate()
+					end
+				end
+				local pp = frame.Power
+				if type( pp ) == "table" then
+					pp.bg.multiplier = value
+					if powerCustom then
+						local r, g, b = unpack( db.powerColor )
+						pp:SetStatusBarColor( r, g, b )
+						pp.bg:SetVertexColor( r * value, g * value, b * value )
+					else
+						pp:ForceUpdate()
+					end
 				end
 			end
 		end
@@ -788,15 +786,47 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	self.refresh = function()
-		barColorMode:SetValue( db.barColorMode, barColorModes[ db.barColorMode ] )
-		if db.barColorMode == "CUSTOM" then
-			barColor:Show()
-		else
-			barColor:Hide()
+	local borderColor = self:CreateColorPicker( L["Border color"] )
+	borderColor.desc = L["Change the default frame border color."]
+	borderColor:SetPoint( "BOTTOMLEFT", bgColorIntensity, "BOTTOMRIGHT", 16, 12 )
+
+	borderColor.GetColor = function()
+		return unpack( db.borderColor )
+	end
+
+	borderColor.OnColorChanged = function( self, r, g, b )
+		db.borderColor[1] = r
+		db.borderColor[2] = g
+		db.borderColor[3] = b
+		for _, frame in ipairs( ns.borderedObjects ) do
+			frame:SetBorderColor( r, g, b )
 		end
-		barColor:SetColor( unpack( db.barColor ) )
+		for _, frame in ipairs( ns.objects ) do
+			if frame.UpdateBorder then
+				frame:UpdateBorder()
+			end
+		end
+	end
+
+	--------------------------------------------------------------------
+
+	self.refresh = function()
+		healthColorMode:SetValue( db.healthColorMode, healthColorModes[ db.healthColorMode ] )
+		healthColor:SetColor( unpack( db.healthColor ) )
+		if db.healthColorMode == "CUSTOM" then
+			healthColor:Show()
+		else
+			healthColor:Hide()
+		end
+		powerColorMode:SetValue( db.powerColorMode, powerColorModes[ db.powerColorMode ] )
+		powerColor:SetColor( unpack( db.powerColor ) )
+		if db.powerColorMode == "CUSTOM" then
+			powerColor:Show()
+		else
+			powerColor:Hide()
+		end
 		bgColorIntensity:SetValue( db.bgColorIntensity )
+		borderColor:SetColor( unpack( db.borderColor ) )
 	end
 
 	self.refresh()
