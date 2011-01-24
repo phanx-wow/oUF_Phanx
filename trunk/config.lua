@@ -603,6 +603,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 				local hp = frame.Health
 				if type( hp ) == "table" then
 					hp.colorClass = v == "CLASS"
+					hp.colorReaction = v == "CLASS"
 					hp.colorSmooth = v == "HEALTH"
 					if v == "CUSTOM" then
 						local mu = hp.bg.multiplier
@@ -693,6 +694,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 				local pp = object.Power
 				if type( pp ) == "table" then
 					pp.colorClass = v == "CLASS"
+					pp.colorReaction = v == "CLASS"
 					pp.colorPower = v == "POWER"
 					if v == "CUSTOM" then
 						local mu = pp.bg.multiplier

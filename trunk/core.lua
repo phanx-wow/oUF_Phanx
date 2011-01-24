@@ -495,11 +495,17 @@ ns.Spawn = function(self, unit, isSingle)
 	self.Health:GetStatusBarTexture():SetDrawLayer("ARTWORK")
 	self.Health.value:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, config.height * config.powerHeight - 2)
 
-	local mu = config.bgColorIntensity
-	local r, g, b = unpack(config.borderColor)
-	self.Health:SetStatusBarColor(r, g, b)
-	self.Health.bg:SetVertexColor(r * mu, g * mu, b * mu)
-	self.Health.bg.multiplier = mu
+	self.Health.colorClass = config.barColorMode == "CLASS"
+	self.Health.colorReaction = config.barColorMode == "CLASS"
+	self.Health.colorSmooth = config.barColorMode == "HEALTH"
+	self.Health.bg.multiplier = config.bgColorIntensity
+
+	if config.barColorMode == "CUSTOM" then
+		local mu = config.bgColorIntensity
+		local r, g, b = unpack( config.barColor )
+		self.Health:SetStatusBarColor( r, g, b )
+		self.Health.bg:SetVertexColor( r * mu, g * mu, b * mu )
+	end
 
 	self.Health.PostUpdate = ns.PostUpdateHealth
 	tinsert(self.mouseovers, self.Health)
@@ -544,11 +550,19 @@ ns.Spawn = function(self, unit, isSingle)
 			tinsert(self.mouseovers, self.Power)
 		end
 
-		self.Power.bg.multiplier = 0.5
-		self.Power.colorClass = true
-		self.Power.colorReaction = true
-		self.Power.frequentUpdates = (unit == "player")
+		self.Power.colorClass = config.powerColorMode == "CLASS"
+		self.Power.colorReaction = config.powerColorMode == "CLASS"
+		self.Power.colorPower = config.powerColorMode == "POWER"
+		self.Power.bg.multiplier = config.bgColorIntensity
 
+		if config.powerColorMode == "CUSTOM" then
+			local mu = config.bgColorIntensity
+			local r, g, b = unpack( config.powerColor )
+			self.Power:SetStatuspowerColor( r, g, b )
+			self.Power.bg:SetVertexColor( r * mu, g * mu, b * mu )
+		end
+
+		self.Power.frequentUpdates = (unit == "player")
 		self.Power.PostUpdate = ns.PostUpdatePower
 	end
 
