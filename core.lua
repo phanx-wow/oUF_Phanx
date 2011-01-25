@@ -806,8 +806,8 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Debuffs["spacing-y"] = GAP * 2
 
 		self.Debuffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 2, 24 )
-		self.Debuffs:SetWidth(  ( config.height * NUM_DEBUFFS ) + ( GAP * ( NUM_DEBUFFS - 1 ) )  )
-		self.Debuffs:SetHeight(  ( config.height * 2 ) + ( GAP * 2 )  )
+		self.Debuffs:SetWidth( ( config.height * NUM_DEBUFFS ) + ( GAP * ( NUM_DEBUFFS - 1 ) ) )
+		self.Debuffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
 
 		self.Debuffs.CustomFilter   = ns.CustomAuraFilter
 		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
@@ -827,14 +827,56 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Buffs["spacing-y"] = GAP * 2
 
 		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", -2, 24 )
-		self.Buffs:SetWidth(  ( config.height * NUM_BUFFS ) + ( GAP * ( NUM_BUFFS - 1 ) )  )
-		self.Buffs:SetHeight(  ( config.height * 2 ) + ( GAP * 2 )  )
+		self.Buffs:SetWidth( ( config.height * NUM_BUFFS ) + ( GAP * ( NUM_BUFFS - 1 ) ) )
+		self.Buffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
 
 		self.Buffs.CustomFilter   = ns.CustomAuraFilter
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
 		self.Buffs.parent = self
+	end
+
+	-----------------
+	-- Eclipse Bar --
+	-----------------
+	
+	if unit == "player" and playerClass == "DRUID" then
+		local eclipseBar = CreateFrame( "Frame", nil, self )
+		eclipseBar:SetPoint( "TOPLEFT", self, "BOTTOMLEFT", 0, -10 )
+		eclipseBar:SetPoint( "TOPRIGHT", self, "BOTTOMRIGHT", 0, -10 )
+		eclipseBar:SetHeight( height )
+
+		eclipseBar.bg = eclipseBar:CreateTexture( nil, "BACKGROUND" )
+		eclipseBar.bg:SetTexture( config.statusbar )
+		eclipseBar.bg:SetVertexColor( 1, 0.5, 0, 0.75 )
+	
+		local lunarBar = ns.CreateStatusBar( self )
+		lunarBar:SetPoint( "TOPLEFT", eclipseBar, "TOPLEFT", 0, 0 )
+		lunarBar:SetPoint( "BOTTOMLEFT", eclipseBar, "BOTTOMLEFT", 0, 0 )
+		lunarBar:SetWidth( config.width )
+		lunarBar:SetStatusBarColor( 0, 0, 1 )
+		eclipseBar.LunarBar = lunarBar
+	
+		local solarBar = ns.CreateStatusBar( self )
+		solarBar:SetPoint( "TOPLEFT", lunarBar:GetStatusBarTexture(), "TOPRIGHT", 0, 0 )
+		solarBar:SetPoint( "BOTTOMLEFT", lunarBar:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0 )
+		solarBar:SetPoint( "TOPRIGHT", eclipseBar, "TOPRIGHT", 0, 0 )
+		solarBar:SetPoint( "BOTTOMRIGHT", eclipseBar, "BOTTOMRIGHT", 0, 0 )
+		solarBar:SetStatusBarColor( 1, 0.8, 0 )
+		eclipseBar.SolarBar = solarBar
+	
+		local eclipseBarText = ns.CreateFontString( self, 12, "CENTER" )
+		eclipseBarText:SetPoint( "CENTER", eclipseBar, "CENTER", 0, 0 )
+		self:Tag( eclipseBarText, "[pereclipse]%" )
+		eclipseBar.Text = eclipseBarText
+	
+		self.EclipseBar = eclipseBar
+
+		ns.CreateBorder( eclipseBar )
+		for i, tex in ipairs( eclipseBar.BorderTextures ) do
+			tex:SetParent( solarBar )
+		end
 	end
 
 	------------------------------
