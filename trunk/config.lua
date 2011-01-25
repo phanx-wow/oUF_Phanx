@@ -57,6 +57,26 @@ ns.uconfig = {
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "useOwnerUnit", true, "unitsuffix", "pet" },
 		visible = "party",
 	},
+	boss1 = {
+		point = "TOPRIGHT Minimap BOTTOMRIGHT 0 -30",
+		width = 0.5,
+		power = true,
+	},
+	boss2 = {
+		point = "TOPRIGHT boss1 BOTTOMRIGHT 0 -10",
+		width = 0.5,
+		power = true,
+	},
+	boss3 = {
+		point = "TOPRIGHT boss2 BOTTOMRIGHT 0 -10",
+		width = 0.5,
+		power = true,
+	},
+	boss4 = {
+		point = "TOPRIGHT boss4 BOTTOMRIGHT 0 -10",
+		width = 0.5,
+		power = true,
+	},
 }
 
 ------------------------------------------------------------------------
