@@ -37,11 +37,19 @@ addAuras({
 	[1022]  = 4, -- Hand of Protection
 	[32182] = 4, -- Heroism
 	[29166] = 4, -- Innervate
-	[55503] = 4, -- Lifeblood [herbalism]
 	[80353] = 4, -- Time Warp
 	[33206] = 4, -- Pain Suppression
 	[10060] = 4, -- Power Infusion
 	[49016] = 4, -- Unholy Frenzy
+
+	[81708] = 4, -- Lifeblood [Rank 1]
+	[55428] = 4, -- Lifeblood [Rank 2]
+	[55480] = 4, -- Lifeblood [Rank 3]
+	[55500] = 4, -- Lifeblood [Rank 4]
+	[55501] = 4, -- Lifeblood [Rank 5]
+	[55502] = 4, -- Lifeblood [Rank 6]
+	[55503] = 4, -- Lifeblood [Rank 7]
+	[74497] = 4, -- Lifeblood [Rank 8]
 })
 
 ------------------------------------------------------------------------
