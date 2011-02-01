@@ -73,7 +73,7 @@ ns.uconfig = {
 		power = true,
 	},
 	boss4 = {
-		point = "TOPRIGHT boss4 BOTTOMRIGHT 0 -10",
+		point = "TOPRIGHT boss3 BOTTOMRIGHT 0 -10",
 		width = 0.5,
 		power = true,
 	},
