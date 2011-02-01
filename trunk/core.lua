@@ -376,7 +376,11 @@ ns.UnitFrame_OnEnter = function(self)
 	end
 	self.isMouseOver = true
 	for _, element in ipairs(self.mouseovers) do
-		element:ForceUpdate()
+		if element.ForceUpdate then
+			element:ForceUpdate()
+		else
+			element:Show()
+		end
 	end
 end
 
@@ -384,7 +388,11 @@ ns.UnitFrame_OnLeave = function(self)
 	UnitFrame_OnLeave(self)
 	self.isMouseOver = nil
 	for _, element in ipairs(self.mouseovers) do
-		element:ForceUpdate()
+		if element.ForceUpdate then
+			element:ForceUpdate()
+		else
+			element:Hide()
+		end
 	end
 end
 
@@ -541,10 +549,10 @@ ns.Spawn = function(self, unit, isSingle)
 
 	if ns.uconfig[ unit ].power then
 		self.Power = ns.CreateStatusBar(self, ( ns.uconfig[ unit ].width or 1 ) > 0.75 and 16, "LEFT", true )
-		self.Power:SetFrameLevel(self.Health:GetFrameLevel() + 2 )
-		self.Power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1 )
-		self.Power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1 )
-		self.Power:SetHeight(config.height * config.powerHeight )
+		self.Power:SetFrameLevel( self.Health:GetFrameLevel() + 2 )
+		self.Power:SetPoint( "BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1 )
+		self.Power:SetPoint( "BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1 )
+		self.Power:SetHeight( config.height * config.powerHeight )
 
 		if self.Power.value then
 			self.Power.value:SetPoint( "BOTTOMLEFT", self, "BOTTOMLEFT", 4, config.height * config.powerHeight - 2 )
@@ -561,7 +569,7 @@ ns.Spawn = function(self, unit, isSingle)
 		if config.powerColorMode == "CUSTOM" then
 			local mu = config.bgColorIntensity
 			local r, g, b = unpack( config.powerColor )
-			self.Power:SetStatuspowerColor( r, g, b )
+			self.Power:SetStatusBarColor( r, g, b )
 			self.Power.bg:SetVertexColor( r * mu, g * mu, b * mu )
 		end
 
@@ -838,39 +846,42 @@ ns.Spawn = function(self, unit, isSingle)
 	end
 
 	-----------------
-	-- Eclipse Bar --
+	-- Eclipse bar --
 	-----------------
-	
+
 	if unit == "player" and playerClass == "DRUID" then
+		local mu = config.bgColorIntensity
+
 		local eclipseBar = CreateFrame( "Frame", nil, self )
 		eclipseBar:SetPoint( "TOPLEFT", self, "BOTTOMLEFT", 0, -10 )
 		eclipseBar:SetPoint( "TOPRIGHT", self, "BOTTOMRIGHT", 0, -10 )
-		eclipseBar:SetHeight( height )
+		eclipseBar:SetHeight( config.height * ( 1 - config.powerHeight ) )
 
-		eclipseBar.bg = eclipseBar:CreateTexture( nil, "BACKGROUND" )
-		eclipseBar.bg:SetTexture( config.statusbar )
-		eclipseBar.bg:SetVertexColor( 1, 0.5, 0, 0.75 )
-	
-		local lunarBar = ns.CreateStatusBar( self )
+		local lunarBar = ns.CreateStatusBar( eclipseBar )
 		lunarBar:SetPoint( "TOPLEFT", eclipseBar, "TOPLEFT", 0, 0 )
 		lunarBar:SetPoint( "BOTTOMLEFT", eclipseBar, "BOTTOMLEFT", 0, 0 )
 		lunarBar:SetWidth( config.width )
-		lunarBar:SetStatusBarColor( 0, 0, 1 )
+		lunarBar:SetStatusBarColor( 0.4, 0.3, 1 )
+		lunarBar.bg:SetVertexColor( 0.4 * mu, 0.3 * mu, 1 * mu )
 		eclipseBar.LunarBar = lunarBar
-	
-		local solarBar = ns.CreateStatusBar( self )
+
+		local solarBar = ns.CreateStatusBar( eclipseBar )
 		solarBar:SetPoint( "TOPLEFT", lunarBar:GetStatusBarTexture(), "TOPRIGHT", 0, 0 )
 		solarBar:SetPoint( "BOTTOMLEFT", lunarBar:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0 )
 		solarBar:SetPoint( "TOPRIGHT", eclipseBar, "TOPRIGHT", 0, 0 )
 		solarBar:SetPoint( "BOTTOMRIGHT", eclipseBar, "BOTTOMRIGHT", 0, 0 )
 		solarBar:SetStatusBarColor( 1, 0.8, 0 )
+		solarBar.bg:SetVertexColor( 1 * mu, 0.8 * mu, 0 * mu )
 		eclipseBar.SolarBar = solarBar
-	
-		local eclipseBarText = ns.CreateFontString( self, 12, "CENTER" )
+
+		local eclipseBarText = ns.CreateFontString( solarBar, 12, "CENTER" )
 		eclipseBarText:SetPoint( "CENTER", eclipseBar, "CENTER", 0, 0 )
-		self:Tag( eclipseBarText, "[pereclipse]%" )
+		eclipseBarText:Hide()
 		eclipseBar.Text = eclipseBarText
-	
+
+		self:Tag( eclipseBarText, "[pereclipse]%" )
+		table.insert( self.mouseovers, eclipseBarText )
+
 		self.EclipseBar = eclipseBar
 
 		ns.CreateBorder( eclipseBar )
