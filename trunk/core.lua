@@ -605,7 +605,14 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Level:SetPoint( "BOTTOMLEFT", self.Health, "TOPLEFT", 2, -3 )
 
 		self:Tag( self.Level, "[difficulty][level][shortclassification]" )
-
+--[[
+		if unit == "target" then
+			self.RareElite = self.overlay:CreateTexture(nil, "ARTWORK")
+			self.RareElite:SetPoint("TOPRIGHT", self, "TOPRIGHT", 10, 10)
+			self.RareElite:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 10, -10)
+			self.RareElite:SetTexture("Interface\\AddOns\\oUF_Phanx\\media\\Elite")
+		end
+]]
 		self.Name = ns.CreateFontString( self.overlay, 20, "LEFT" )
 		self.Name:SetPoint( "BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, -1 )
 		self.Name:SetPoint( "BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4 )
