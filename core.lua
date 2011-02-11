@@ -509,6 +509,7 @@ ns.Spawn = function(self, unit, isSingle)
 	self.Health.colorClass = config.healthColorMode == "CLASS"
 	self.Health.colorReaction = config.healthColorMode == "CLASS"
 	self.Health.colorSmooth = config.healthColorMode == "HEALTH"
+
 	self.Health.bg.multiplier = config.bgColorIntensity
 
 	if config.healthColorMode == "CUSTOM" then
@@ -564,13 +565,14 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Power.colorClass = config.powerColorMode == "CLASS"
 		self.Power.colorReaction = config.powerColorMode == "CLASS"
 		self.Power.colorPower = config.powerColorMode == "POWER"
-		self.Power.bg.multiplier = config.bgColorIntensity
+
+		self.Power.bg.multiplier = 1 / config.bgColorIntensity
 
 		if config.powerColorMode == "CUSTOM" then
 			local mu = config.bgColorIntensity
 			local r, g, b = unpack( config.powerColor )
 			self.Power:SetStatusBarColor( r, g, b )
-			self.Power.bg:SetVertexColor( r * mu, g * mu, b * mu )
+			self.Power.bg:SetVertexColor( r / mu, g / mu, b / mu )
 		end
 
 		self.Power.frequentUpdates = unit == "player"
@@ -810,6 +812,9 @@ ns.Spawn = function(self, unit, isSingle)
 		local NUM_DEBUFFS = math.min( MAX_ICONS - 1, floor( MAX_ICONS * 0.8 ) )
 
 		self.Debuffs = CreateFrame( "Frame", nil, self )
+		self.Debuffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 2, 24 )
+		self.Debuffs:SetWidth( ( config.height * NUM_DEBUFFS ) + ( GAP * ( NUM_DEBUFFS - 1 ) ) )
+		self.Debuffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
 
 		self.Debuffs["growth-x"] = "RIGHT"
 		self.Debuffs["growth-y"] = "UP"
@@ -820,10 +825,6 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Debuffs["spacing-x"] = GAP
 		self.Debuffs["spacing-y"] = GAP * 2
 
-		self.Debuffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 2, 24 )
-		self.Debuffs:SetWidth( ( config.height * NUM_DEBUFFS ) + ( GAP * ( NUM_DEBUFFS - 1 ) ) )
-		self.Debuffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
-
 		self.Debuffs.CustomFilter   = ns.CustomAuraFilter
 		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
@@ -831,6 +832,9 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Debuffs.parent = self
 
 		self.Buffs = CreateFrame( "Frame", nil, self )
+		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", -2, 24 )
+		self.Buffs:SetWidth( ( config.height * NUM_BUFFS ) + ( GAP * ( NUM_BUFFS - 1 ) ) )
+		self.Buffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
 
 		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "UP"
@@ -840,10 +844,6 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Buffs["size"] = config.height
 		self.Buffs["spacing-x"] = GAP
 		self.Buffs["spacing-y"] = GAP * 2
-
-		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", -2, 24 )
-		self.Buffs:SetWidth( ( config.height * NUM_BUFFS ) + ( GAP * ( NUM_BUFFS - 1 ) ) )
-		self.Buffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
 
 		self.Buffs.CustomFilter   = ns.CustomAuraFilter
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
