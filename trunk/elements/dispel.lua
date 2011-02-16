@@ -36,7 +36,7 @@ for type, color in pairs( DebuffTypeColor ) do
 	colors[ type ] = { color.r, color.g, color.b }
 end
 
-local enrageEffects = ( PoUFDB and PoUFDB.enrageEffects ) or { }
+local enrageEffects = { }
 local invulnEffects = { [642] = true, [1022] = true, [45438] = true, }
 
 local canDispel, canPurge, canShatter, canSteal, canTranq = { }
@@ -189,6 +189,11 @@ local f = CreateFrame( "Frame" )
 f:RegisterEvent( "PLAYER_TALENT_UPDATE" )
 f:RegisterEvent( "SPELLS_CHANGED" )
 f:SetScript( "OnEvent", function( self, event )
+	PoUFDB.enrageEffects = PoUFDB.enrageEffects or { }
+	for id in pairs( PoUFDB.enrageEffects ) do
+		enrageEffects[ id ] = true
+	end
+
 	if class == "DRUID" then
 		if IsSpellKnown( 2782 ) then -- Remove Corruption
 			canDispel.Curse = true
