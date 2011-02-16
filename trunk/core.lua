@@ -1023,6 +1023,15 @@ end
 oUF:Factory( function( oUF )
 	config = ns.config
 
+	for _, menu in pairs( UnitPopupMenus ) do
+		for i = #menu, 1, -1 do
+			local name = menu[ i ]
+			if name == "SET_FOCUS" or name == "CLEAR_FOCUS" or name == "LOCK_FOCUS_FRAME" or name == "UNLOCK_FOCUS_FRAME" then
+				table.remove( menu, i )
+			end
+		end
+	end
+
 	oUF:RegisterStyle( "Phanx", ns.Spawn )
 	oUF:SetActiveStyle( "Phanx" )
 
