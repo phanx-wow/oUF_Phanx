@@ -268,6 +268,7 @@ if playerClass == "DRUID" then addAuras({
 
 	[22812] = 4, -- Barkskin
 	[50334] = 4, -- Berserk
+	[93622] = 4, -- Berserk [Mangle (Bear) cooldown reset proc]
 	[16870] = 4, -- Clearcasting <== Omen of Clarity
 	[1850]  = 4, -- Dash
 	[5229]  = 4, -- Enrage
