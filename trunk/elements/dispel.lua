@@ -36,7 +36,7 @@ for type, color in pairs( DebuffTypeColor ) do
 	colors[ type ] = { color.r, color.g, color.b }
 end
 
-local enrageEffects = { [134] = true, [256] = true, [772] = true, [4146] = true, [8599] = true, [12880] = true, [14201] = true, [14202] = true, [14203] = true, [14204] = true, [15061] = true, [15716] = true, [18501] = true, [19451] = true, [19812] = true, [22428] = true, [23128] = true, [23257] = true, [23342] = true, [24689] = true, [25503] = true, [26041] = true, [26051] = true, [28371] = true, [29131] = true, [29340] = true, [30485] = true, [31540] = true, [31915] = true, [32714] = true, [33958] = true, [34392] = true, [34670] = true, [37605] = true, [37648] = true, [37975] = true, [38046] = true, [38166] = true, [38664] = true, [39031] = true, [39575] = true, [40076] = true, [40601] = true, [41254] = true, [41364] = true, [41447] = true, [42705] = true, [42745] = true, [43139] = true, [43292] = true, [43664] = true, [47399] = true, [48138] = true, [48142] = true, [48193] = true, [48391] = true, [48702] = true, [49029] = true, [50420] = true, [50636] = true, [51170] = true, [51513] = true, [51662] = true, [52071] = true, [52262] = true, [52309] = true, [52461] = true, [52470] = true, [52537] = true, [53361] = true, [54356] = true, [54427] = true, [54475] = true, [54508] = true, [54781] = true, [55285] = true, [55462] = true, [56646] = true, [56729] = true, [56769] = true, [57514] = true, [57516] = true, [57518] = true, [57519] = true, [57520] = true, [57521] = true, [57522] = true, [57733] = true, [58942] = true, [59465] = true, [59694] = true, [59697] = true, [59707] = true, [59828] = true, [60075] = true, [60177] = true, [60430] = true, [61369] = true, [62071] = true, [63147] = true, [63227] = true, [63848] = true, [66092] = true, [66759] = true, [67233] = true, [67657] = true, [67658] = true, [67659] = true, [68541] = true, [69052] = true, [70371] = true, [72143] = true, [72146] = true, [72147] = true, [72148] = true, [72203] = true, [75998] = true, [76100] = true, [76487] = true, [76691] = true, [76816] = true, [76862] = true, [77238] = true, [78722] = true, [78943] = true, [79420] = true, [80084] = true, [80158] = true, [80467] = true, [81706] = true, [81772] = true, [82033] = true, [82759] = true, [86736] = true, [90045] = true, [90872] = true, [91668] = true, [92946] = true, [95436] = true, [95459] = true, }
+local enrageEffects = ( PoUFDB and PoUFDB.enrageEffects ) or { }
 local invulnEffects = { [642] = true, [1022] = true, [45438] = true, }
 
 local canDispel, canPurge, canShatter, canSteal, canTranq = { }
@@ -44,6 +44,47 @@ local dispelPriority = { Curse = 3, Disease = 1, Magic = 4, Poison = 2 }
 
 local defaultPriority = { Curse = 2, Disease = 4, Magic = 1, Poison = 3 }
 local prioritySort = function( a, b ) return dispelPriority[ a ] > dispelPriority[ b ] end
+
+------------------------------------------------------------------------
+
+local scanUnit, scanIndex
+
+do
+	local scanTooltip
+
+	local function CreateScanTooltip()
+		scanTooltip = CreateFrame( "GameTooltip" )
+		scanTooltip.left, scanTooltip.right = scanTooltip:CreateFontString(), scanTooltip:CreateFontString()
+		scanTooltip.left:SetFontObject( GameFontNormal )
+		scanTooltip.right:SetFontObject( GameFontNormal )
+		scanTooltip:AddFontStrings( scanTooltip.left, scanTooltip.right )
+		return scanTooltip
+	end
+
+	local function IsEnrageEffect( unit, index )
+		scanTooltip = scanTooltip or CreateScanTooltip()
+		scanTooltip:SetOwner( UIParent, "ANCHOR_NONE" )
+		scanTooltip:ClearLines()
+		scanTooltip:SetUnitBuff( unit, index )
+		local name = scanTooltip.left:GetText()
+		local type = scanTooltip.right:GetText()
+		scanTooltip:Hide()
+		return type == "Enrage", name
+	end
+
+	setmetatable( enrageEffects, { __index = function( enrageEffects, id )
+		if not scanUnit or not scanIndex or not type( id ) == "number" then return end
+
+		local result, name = IsEnrageEffect( scanUnit, scanIndex )
+		if result then
+			print( "Found enrage effect", id, name )
+			PoUFDB.enrageEffects = PoUFDB.enrageEffects or { }
+			PoUFDB.enrageEffects[ id ] = name
+		end
+		rawset( enrageEffects, id, result )
+		return result
+	end } )
+end
 
 ------------------------------------------------------------------------
 
@@ -73,17 +114,34 @@ local function Update( self, event, unit )
 			i = i + 1
 		end
 	elseif UnitCanAttack( "player", unit ) then
+		scanUnit = unit
+
 		local i = 1
 		while true do
 			local name, _, _, _, type, _, _, _, stealable, _, id = UnitAura( unit, i, "HELPFUL" )
 			if not name then break end
+			if type and type:len() < 4 then type = nil end
 			-- print( "UnitAura", unit, i, tostring( name ), tostring( type ) )
-			if ( canSteal and stealable ) or ( canPurge and type == "Magic" ) or ( canTranq and enrageEffects[ id ] ) or ( canShatter and invulnEffects[ id ] ) then
+
+			scanIndex = i
+			if canTranq and not type and enrageEffects[ id ] then
+				type = "Enrage"
+			end
+			scanIndex = nil
+
+			if canShatter and not type and invulnEffects[ id ] then
+				type = "Invulnerability"
+			end
+
+			if ( canSteal and stealable ) or ( canPurge and type == "Magic" ) or ( type == "Enrage" ) or ( type == "Invulnerability" ) then
 				debuffType = type
 				break
 			end
+
 			i = i + 1
 		end
+
+		scanUnit = nil
 	end
 
 	if self.debuffType == debuffType then return end
