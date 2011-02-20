@@ -624,7 +624,7 @@ ns.Spawn = function(self, unit, isSingle)
 		self:Tag( self.Name, "[unitcolor][name]" )
 	end
 
-	if unit == "targettarget" or unit == "focustarget" or unit == "party" or unit == "partypet" or unit == "boss" then
+	if unit == "targettarget" or unit == "focustarget" or unit == "party" or unit == "boss" then
 		self.Name = ns.CreateFontString( self.overlay, 20, "LEFT" )
 		self.Name:SetPoint( "BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4 )
 		self.Name:SetPoint( "BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4 )
