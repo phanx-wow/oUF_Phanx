@@ -8,6 +8,8 @@
 	<Script file="Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua"/>
 	<Script file="Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua"/>
 	<Script file="Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua"/>
+	<Script file="Libs\PhanxConfig-Header\PhanxConfig-Header.lua"/>
+	<Script file="Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua"/>
 	<Script file="Libs\PhanxConfig-ScrollingDropdown\PhanxConfig-ScrollingDropdown.lua"/>
 	<Script file="Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua"/>
 
