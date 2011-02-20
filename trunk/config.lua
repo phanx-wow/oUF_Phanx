@@ -558,17 +558,17 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 
 	do
 		local function OnClick( self )
-			local v = self.value
-			db.healthColorMode = v
-			healthColorMode:SetValue( v, self.text )
+			local value = self.value
+			db.healthColorMode = value
+			healthColorMode:SetValue( value, healthColorModes[ value ] )
 			for _, frame in ipairs( ns.objects ) do
 				if frame:IsShown() then
 					local hp = frame.Health
 					if type( hp ) == "table" then
-						hp.colorClass = v == "CLASS"
-						hp.colorReaction = v == "CLASS"
-						hp.colorSmooth = v == "HEALTH"
-						if v == "CUSTOM" then
+						hp.colorClass = value == "CLASS"
+						hp.colorReaction = value == "CLASS"
+						hp.colorSmooth = value == "HEALTH"
+						if value == "CUSTOM" then
 							local mu = hp.bg.multiplier
 							local r, g, b = unpack( db.healthColor )
 							hp:SetStatusBarColor( r, g, b )
@@ -579,7 +579,7 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 					end
 				end
 			end
-			if v == "CUSTOM" then
+			if value == "CUSTOM" then
 				healthColor:Show()
 			else
 				healthColor:Hide()
@@ -655,7 +655,7 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 		local function OnClick( self )
 			local value = self.value
 			db.powerColorMode = value
-			powerColorMode:SetValue( value, self.text )
+			powerColorMode:SetValue( value, powerColorModes[ value ] )
 			for _, frame in ipairs( ns.objects ) do
 				if frame:IsShown() then
 					local pp = frame.Power
