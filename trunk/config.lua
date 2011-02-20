@@ -22,7 +22,7 @@ ns.uconfig = {
 		castbar = true,
 	},
 	pet = {
-		point = "RIGHT player LEFT -10 0",
+		point = "RIGHT player LEFT -12 0",
 		power = true,
 		width = 0.5,
 		castbar = true,
@@ -33,7 +33,7 @@ ns.uconfig = {
 		castbar = true,
 	},
 	targettarget = {
-		point = "LEFT target RIGHT 10 0",
+		point = "LEFT target RIGHT 12 0",
 		width = 0.5,
 	},
 	focus = {
@@ -41,7 +41,7 @@ ns.uconfig = {
 		power = true,
 	},
 	focustarget = {
-		point = "LEFT focus RIGHT 10 0",
+		point = "LEFT focus RIGHT 12 0",
 		width = 0.5,
 	},
 	party = {
@@ -52,29 +52,29 @@ ns.uconfig = {
 		visible = "party",
 	},
 	partypet = {
-		point = "TOPLEFT party TOPRIGHT 10 0",
-		width = 0.225,
+		point = "TOPLEFT party TOPRIGHT 12 0",
+		width = 0.25,
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "useOwnerUnit", true, "unitsuffix", "pet" },
 		visible = "party",
 	},
 	boss1 = {
-		point = "TOPRIGHT Minimap BOTTOMRIGHT 0 -50",
-		width = 0.77,
+		point = "TOPRIGHT Minimap BOTTOMRIGHT 1 -50",
+		width = 0.8,
 		power = true,
 	},
 	boss2 = {
 		point = "TOPRIGHT boss1 BOTTOMRIGHT 0 -25",
-		width = 0.77,
+		width = 0.8,
 		power = true,
 	},
 	boss3 = {
 		point = "TOPRIGHT boss2 BOTTOMRIGHT 0 -25",
-		width = 0.77,
+		width = 0.8,
 		power = true,
 	},
 	boss4 = {
 		point = "TOPRIGHT boss3 BOTTOMRIGHT 0 -25",
-		width = 0.77,
+		width = 0.8,
 		power = true,
 	},
 }
