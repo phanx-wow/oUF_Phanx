@@ -73,7 +73,7 @@ do
 	end
 
 	setmetatable( enrageEffects, { __index = function( enrageEffects, id )
-		if not scanUnit or not scanIndex or not type( id ) == "number" then return end
+		if not scanUnit or not scanIndex or type( id ) ~= "number" then return end
 
 		local result, name = IsEnrageEffect( scanUnit, scanIndex )
 		if result then
