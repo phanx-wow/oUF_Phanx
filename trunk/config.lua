@@ -138,8 +138,8 @@ end
 
 ns.loadFuncs = {}
 
-ns.loader = CreateFrame( "Frame" )
-ns.loader:RegisterEvent( "ADDON_LOADED" )
+ns.loader = CreateFrame("Frame")
+ns.loader:RegisterEvent("ADDON_LOADED")
 ns.loader:SetScript( "OnEvent", function( self, event, addon )
 	if addon ~= "oUF_Phanx" then return end
 
@@ -206,13 +206,11 @@ for k, v in pairs( ns.L ) do -- clean up missing translations
 	end
 end
 
+local CreateOptionsPanel = LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel
+
 ------------------------------------------------------------------------
 
-ns.optionsPanel = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
-ns.optionsPanel.name = "oUF Phanx"
-ns.optionsPanel:Hide()
-
-ns.optionsPanel:SetScript( "OnShow", function( self )
+ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 
 	SharedMedia = LibStub( "LibSharedMedia-3.0", true )
 	if SharedMedia then
@@ -221,12 +219,12 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 		SharedMedia:Register( "font", "Expressway", [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]] )
 		SharedMedia:Register( "statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]] )
 
-		for i, v in pairs( SharedMedia:List( "font" ) ) do
+		for i, v in pairs( SharedMedia:List("font") ) do
 			tinsert( ns.fontList, v )
 		end
 		table.sort( ns.fontList )
 
-		for i, v in pairs( SharedMedia:List( "statusbar" ) ) do
+		for i, v in pairs( SharedMedia:List("statusbar") ) do
 			tinsert( ns.statusbarList, v )
 		end
 		table.sort( ns.statusbarList )
@@ -234,13 +232,13 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 		SharedMedia.RegisterCallback( "oUF_Phanx", "LibSharedMedia_Registered", function( type )
 			if type == "font" then
 				wipe( ns.fontList )
-				for i, v in pairs( SharedMedia:List( "font" ) ) do
+				for i, v in pairs( SharedMedia:List("font") ) do
 					tinsert( ns.fontList, v )
 				end
 				table.sort( ns.fontList )
 			elseif type == "statusbar" then
 				wipe( ns.statusbarList )
-				for i, v in pairs( SharedMedia:List( "statusbar" ) ) do
+				for i, v in pairs( SharedMedia:List("statusbar") ) do
 					tinsert( ns.statusbarList, v )
 				end
 				table.sort( ns.statusbarList )
@@ -261,33 +259,21 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	local db = ns.config
 	local L = ns.L
 
-	self.CreateCheckbox = LibStub( "PhanxConfig-Checkbox" ).CreateCheckbox
-	self.CreateColorPicker = LibStub( "PhanxConfig-ColorPicker" ).CreateColorPicker
-	self.CreateDropdown = LibStub( "PhanxConfig-Dropdown" ).CreateDropdown
-	self.CreateScrollingDropdown = LibStub( "PhanxConfig-ScrollingDropdown" ).CreateScrollingDropdown
-	self.CreateSlider = LibStub( "PhanxConfig-Slider" ).CreateSlider
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+	local CreateColorPicker = LibStub("PhanxConfig-ColorPicker").CreateColorPicker
+	local CreateDropdown = LibStub("PhanxConfig-Dropdown").CreateDropdown
+	local CreateScrollingDropdown = LibStub("PhanxConfig-ScrollingDropdown").CreateScrollingDropdown
+	local CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
 
 	--------------------------------------------------------------------
 
-	local title = self:CreateFontString( nil, "ARTWORK", "GameFontNormalLarge" )
-	title:SetPoint( "TOPLEFT", 16, -16 )
-	title:SetPoint( "TOPRIGHT", -16, -16 )
-	title:SetJustifyH( "LEFT" )
-	title:SetText( self.name )
-
-	local notes = self:CreateFontString( nil, "ARTWORK", "GameFontHighlightSmall" )
-	notes:SetPoint( "TOPLEFT", title, "BOTTOMLEFT", 0, -8 )
-	notes:SetPoint( "TOPRIGHT", title, "BOTTOMRIGHT", 0, -8 )
-	notes:SetHeight( 32 )
-	notes:SetJustifyH( "LEFT" )
-	notes:SetJustifyV( "TOP" )
-	notes:SetNonSpaceWrap( true )
-	notes:SetText( L["oUF_Phanx is a layout for Haste's oUF framework. Use this panel to configure some basic options for this layout."] )
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader( self, self.name,
+		L["oUF_Phanx is a layout for Haste's oUF framework. Use this panel to configure some basic options for this layout."] )
 
 	--------------------------------------------------------------------
 
-	local statusbar = self:CreateScrollingDropdown( L["Texture"], ns.statusbarList )
-	statusbar.desc = L["Select a texture for health, power, and other bars."]
+	local statusbar = CreateScrollingDropdown( self, L["Texture"], ns.statusbarList,
+		L["Select a texture for health, power, and other bars."] )
 	statusbar:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
 	statusbar:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 )
 	statusbar.valueText.bg = statusbar:CreateTexture( nil, "ARTWORK" )
@@ -305,7 +291,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	end
 
 	do
-		local button_OnClick = statusbar.button:GetScript( "OnClick" )
+		local button_OnClick = statusbar.button:GetScript("OnClick")
 		statusbar.button:SetScript( "OnClick", function( self )
 			button_OnClick( self )
 			statusbar.dropdown.list:Hide()
@@ -340,13 +326,13 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 				statusbar.dropdown.list:SetHeight( statusbar.dropdown.list:GetHeight() + ( numButtons * 1 ) )
 			end
 
-			local OnShow = statusbar.dropdown.list:GetScript( "OnShow" )
+			local OnShow = statusbar.dropdown.list:GetScript("OnShow")
 			statusbar.dropdown.list:SetScript( "OnShow", function( self )
 				OnShow( self )
 				SetButtonBackgroundTextures( self )
 			end )
 
-			local OnVerticalScroll = statusbar.dropdown.list.scrollFrame:GetScript( "OnVerticalScroll" )
+			local OnVerticalScroll = statusbar.dropdown.list.scrollFrame:GetScript("OnVerticalScroll")
 			statusbar.dropdown.list.scrollFrame:SetScript( "OnVerticalScroll", function( self, delta )
 				OnVerticalScroll( self, delta )
 				SetButtonBackgroundTextures( self )
@@ -359,8 +345,8 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local font = self:CreateScrollingDropdown( L["Font"], ns.fontList )
-	font.desc = L["Select a typeface for text on the frames."]
+	local font = CreateScrollingDropdown( self, L["Font"], ns.fontList,
+		L["Select a typeface for text on the frames."] )
 	font:SetPoint( "TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12 )
 	font:SetPoint( "TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12 )
 
@@ -374,7 +360,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	end
 
 	do
-		local button_OnClick = font.button:GetScript( "OnClick" )
+		local button_OnClick = font.button:GetScript("OnClick")
 		font.button:SetScript( "OnClick", function( self )
 			button_OnClick( self )
 			font.dropdown.list:Hide()
@@ -389,13 +375,13 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 				end
 			end
 
-			local OnShow = font.dropdown.list:GetScript( "OnShow" )
+			local OnShow = font.dropdown.list:GetScript("OnShow")
 			font.dropdown.list:SetScript( "OnShow", function( self )
 				OnShow( self )
 				SetButtonFonts( self )
 			end )
 
-			local OnVerticalScroll = font.dropdown.list.scrollFrame:GetScript( "OnVerticalScroll" )
+			local OnVerticalScroll = font.dropdown.list.scrollFrame:GetScript("OnVerticalScroll")
 			font.dropdown.list.scrollFrame:SetScript( "OnVerticalScroll", function( self, delta )
 				OnVerticalScroll( self, delta )
 				SetButtonFonts( self )
@@ -429,7 +415,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 		local info = {}
 
-		outline = self:CreateDropdown( L["Font Outline"], function()
+		outline = CreateDropdown( self, L["Font Outline"], function()
 			local selected = db.fontOutline
 
 			info.text = L["None"]
@@ -457,7 +443,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local borderSize = self:CreateSlider( L["Border Size"], 8, 24, 1 )
+	local borderSize = CreateSlider( self, L["Border Size"], 8, 24, 1 )
 	borderSize.desc = L["Change the size of the frame borders."]
 	borderSize:SetPoint( "TOPLEFT", outline, "BOTTOMLEFT", -2, -12 )
 	borderSize:SetPoint( "TOPRIGHT", outline, "BOTTOMRIGHT", 4, -12 )
@@ -473,7 +459,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local dispelFilter = self:CreateCheckbox( L["Filter debuff highlight"] )
+	local dispelFilter = CreateCheckbox( self, L["Filter debuff highlight"] )
 	dispelFilter.desc = L["Show the debuff highlight only for debuffs you can dispel."]
 	dispelFilter:SetPoint( "TOPLEFT", notes, "BOTTOM", 12, -24 )
 	dispelFilter.OnClick = function( self, checked )
@@ -482,7 +468,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 			if frame.DispelHighlight then
 				frame.DispelHighlightFilter = checked
 				if frame:IsShown() then
-					frame:GetScript( "OnEvent" )( frame, "UNIT_AURA", frame.unit )
+					frame:GetScript("OnEvent")( frame, "UNIT_AURA", frame.unit )
 				end
 			end
 		end
@@ -490,7 +476,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local healFilter = self:CreateCheckbox( L["Ignore own heals"] )
+	local healFilter = CreateCheckbox( self, L["Ignore own heals"] )
 	healFilter.desc = L["Show only incoming heals cast by other players."]
 	healFilter:SetPoint( "TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -8 )
 
@@ -505,7 +491,7 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local threatLevels = self:CreateCheckbox( L["Show threat levels"] )
+	local threatLevels = CreateCheckbox( self, L["Show threat levels"] )
 	threatLevels.desc = L["Show threat levels instead of binary aggro status."]
 	threatLevels:SetPoint( "TOPLEFT", healFilter, "BOTTOMLEFT", 0, -8 )
 
@@ -521,13 +507,13 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 	--------------------------------------------------------------------
 
 	self.refresh = function()
-		for k, v in pairs( SharedMedia:HashTable( "statusbar" ) ) do
-			if v == db.statusbar or v:match( "([^\\]+)$" ) == db.statusbar:match( "([^\\]+)$" ) then
+		for k, v in pairs( SharedMedia:HashTable("statusbar") ) do
+			if v == db.statusbar or v:match("([^\\]+)$") == db.statusbar:match("([^\\]+)$") then
 				statusbar:SetValue( k )
 			end
 		end
-		for k, v in pairs( SharedMedia:HashTable( "font" ) ) do
-			if v == db.font or v:lower():match( "([^\\]+)%.ttf$" ) == db.font:lower():match( "([^\\]+)%.ttf$" ) then
+		for k, v in pairs( SharedMedia:HashTable("font") ) do
+			if v == db.font or v:lower():match("([^\\]+)%.ttf$") == db.font:lower():match("([^\\]+)%.ttf$") then
 				font:SetValue( k )
 			end
 		end
@@ -537,45 +523,23 @@ ns.optionsPanel:SetScript( "OnShow", function( self )
 		healFilter:SetChecked( db.ignoreOwnHeals )
 		threatLevels:SetChecked( db.threatLevels )
 	end
-
-	self.refresh()
-	self:SetScript( "OnShow", nil )
 end )
-
-InterfaceOptions_AddCategory( ns.optionsPanel )
 
 ------------------------------------------------------------------------
 
-ns.colorsPanel = CreateFrame( "Frame", nil, InterfaceOptionsFramePanelContainer )
-ns.colorsPanel.parent = ns.optionsPanel.name
-ns.colorsPanel.name = ns.L["Colors"]
-ns.colorsPanel:Hide()
-
-ns.colorsPanel:SetScript( "OnShow", function( self )
+ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, function( self )
 	local db = ns.config
 	local L = ns.L
 
-	self.CreateCheckbox = LibStub( "PhanxConfig-Checkbox" ).CreateCheckbox
-	self.CreateColorPicker = LibStub( "PhanxConfig-ColorPicker" ).CreateColorPicker
-	self.CreateDropdown = LibStub( "PhanxConfig-Dropdown" ).CreateDropdown
-	self.CreateSlider = LibStub( "PhanxConfig-Slider" ).CreateSlider
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
+	local CreateColorPicker = LibStub("PhanxConfig-ColorPicker").CreateColorPicker
+	local CreateDropdown = LibStub("PhanxConfig-Dropdown").CreateDropdown
+	local CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
 
 	--------------------------------------------------------------------
 
-	local title = self:CreateFontString( nil, "ARTWORK", "GameFontNormalLarge" )
-	title:SetPoint( "TOPLEFT", 16, -16 )
-	title:SetPoint( "TOPRIGHT", -16, -16 )
-	title:SetJustifyH( "LEFT" )
-	title:SetText( self.name )
-
-	local notes = self:CreateFontString( nil, "ARTWORK", "GameFontHighlightSmall" )
-	notes:SetPoint( "TOPLEFT", title, "BOTTOMLEFT", 0, -8 )
-	notes:SetPoint( "TOPRIGHT", title, "BOTTOMRIGHT", 0, -8 )
-	notes:SetHeight( 20 )
-	notes:SetJustifyH( "LEFT" )
-	notes:SetJustifyV( "TOP" )
-	notes:SetNonSpaceWrap( true )
-	notes:SetText( L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] )
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader( self, self.name,
+		L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] )
 
 	--------------------------------------------------------------------
 
@@ -587,7 +551,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 		["CUSTOM"] = L["Custom"],
 	}
 
-	local healthColorMode = self:CreateDropdown( L["Health color mode"] )
+	local healthColorMode = CreateDropdown( self, L["Health color mode"] )
 	healthColorMode.desc = L["Change how health bars are colored."]
 	healthColorMode:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
 	healthColorMode:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 )
@@ -648,7 +612,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	healthColor = self:CreateColorPicker( L["Health bar color"] )
+	healthColor = CreateColorPicker( self, L["Health bar color"] )
 	healthColor.desc = L["Change the health bar color."]
 	healthColor:SetPoint( "BOTTOMLEFT", healthColorMode, "BOTTOMRIGHT", 16, 4 )
 
@@ -682,7 +646,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 		["CUSTOM"] = L["Custom"],
 	}
 
-	local powerColorMode = self:CreateDropdown( L["Power color mode"] )
+	local powerColorMode = CreateDropdown( self, L["Power color mode"] )
 	powerColorMode.desc = L["Change how power bars are colored."]
 	powerColorMode:SetPoint( "TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12 )
 	powerColorMode:SetPoint( "TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12 )
@@ -743,7 +707,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	powerColor = self:CreateColorPicker( L["Health bar color"] )
+	powerColor = CreateColorPicker( self, L["Health bar color"] )
 	powerColor.desc = L["Change the health bar color."]
 	powerColor:SetPoint( "BOTTOMLEFT", powerColorMode, "BOTTOMRIGHT", 16, 4 )
 
@@ -765,7 +729,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local bgColorIntensity = self:CreateSlider( L["Background intensity"], 0, 2, 0.1, true )
+	local bgColorIntensity = CreateSlider( self, L["Background intensity"], 0, 2, 0.1, true )
 	bgColorIntensity.desc = L["Change the brightness of the health bar background color, relative to the foreground color."]
 	bgColorIntensity:SetPoint( "TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -16 )
 	bgColorIntensity:SetPoint( "TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -16 )
@@ -806,7 +770,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 
 	--------------------------------------------------------------------
 
-	local borderColor = self:CreateColorPicker( L["Border color"] )
+	local borderColor = CreateColorPicker( self, L["Border color"] )
 	borderColor.desc = L["Change the default frame border color."]
 	borderColor:SetPoint( "BOTTOMLEFT", bgColorIntensity, "BOTTOMRIGHT", 16, 12 )
 
@@ -848,12 +812,7 @@ ns.colorsPanel:SetScript( "OnShow", function( self )
 		bgColorIntensity:SetValue( db.bgColorIntensity )
 		borderColor:SetColor( unpack( db.borderColor ) )
 	end
-
-	self.refresh()
-	self:SetScript( "OnShow", nil )
 end )
-
-InterfaceOptions_AddCategory( ns.colorsPanel )
 
 ------------------------------------------------------------------------
 
@@ -867,6 +826,5 @@ end
 SLASH_OUFPHANX1 = "/pouf"
 
 SlashCmdList.OUFPHANX = function()
-	InterfaceOptionsFrame_OpenToCategory( ns.colorsPanel )
 	InterfaceOptionsFrame_OpenToCategory( ns.optionsPanel )
 end

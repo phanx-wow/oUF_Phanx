@@ -1,5 +1,5 @@
 ## Interface: 40000
-## Version: 4.0.3.wowi:revision
+## Version: 4.0.6.wowi:revision
 
 ## Title: oUF Phanx
 ## Notes: An oUF layout.
