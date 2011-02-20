@@ -466,7 +466,9 @@ ns.Spawn = function(self, unit, isSingle)
 	local uconfig = ns.uconfig[ unit ]
 	self.spawnunit = unit
 
-	-- print("Spawn", self:GetName(), unit)
+	unit = unit:gsub( "%d", "" ) -- turn "boss2" into "boss" for example
+
+	-- print( "Spawn", self:GetName(), unit )
 	tinsert( ns.objects, self )
 
 	self.mouseovers = { }
@@ -548,8 +550,8 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Power bar and text --
 	------------------------
 
-	if ns.uconfig[ unit ].power then
-		self.Power = ns.CreateStatusBar(self, ( ns.uconfig[ unit ].width or 1 ) > 0.75 and 16, "LEFT", true )
+	if uconfig.power then
+		self.Power = ns.CreateStatusBar(self, ( uconfig.width or 1 ) > 0.75 and 16, "LEFT", true )
 		self.Power:SetFrameLevel( self.Health:GetFrameLevel() + 2 )
 		self.Power:SetPoint( "BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1 )
 		self.Power:SetPoint( "BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1 )
@@ -622,7 +624,7 @@ ns.Spawn = function(self, unit, isSingle)
 		self:Tag( self.Name, "[unitcolor][name]" )
 	end
 
-	if unit == "targettarget" or unit == "focustarget" or unit == "party" or unit == "partypet" then
+	if unit == "targettarget" or unit == "focustarget" or unit == "party" or unit == "partypet" or unit == "boss" then
 		self.Name = ns.CreateFontString( self.overlay, 20, "LEFT" )
 		self.Name:SetPoint( "BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4 )
 		self.Name:SetPoint( "BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4 )

@@ -45,7 +45,7 @@ ns.uconfig = {
 		width = 0.5,
 	},
 	party = {
-		point = "TOPLEFT targettarget BOTTOMRIGHT 110 250",
+		point = "TOPLEFT boss4 BOTTOMLEFT 0 -73",
 		width = 0.5,
 		power = true,
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25 },
@@ -53,28 +53,28 @@ ns.uconfig = {
 	},
 	partypet = {
 		point = "TOPLEFT party TOPRIGHT 10 0",
-		width = 0.25,
+		width = 0.225,
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "useOwnerUnit", true, "unitsuffix", "pet" },
 		visible = "party",
 	},
 	boss1 = {
-		point = "TOPRIGHT Minimap BOTTOMRIGHT 0 -30",
-		width = 0.5,
+		point = "TOPRIGHT Minimap BOTTOMRIGHT 0 -50",
+		width = 0.77,
 		power = true,
 	},
 	boss2 = {
-		point = "TOPRIGHT boss1 BOTTOMRIGHT 0 -10",
-		width = 0.5,
+		point = "TOPRIGHT boss1 BOTTOMRIGHT 0 -25",
+		width = 0.77,
 		power = true,
 	},
 	boss3 = {
-		point = "TOPRIGHT boss2 BOTTOMRIGHT 0 -10",
-		width = 0.5,
+		point = "TOPRIGHT boss2 BOTTOMRIGHT 0 -25",
+		width = 0.77,
 		power = true,
 	},
 	boss4 = {
-		point = "TOPRIGHT boss3 BOTTOMRIGHT 0 -10",
-		width = 0.5,
+		point = "TOPRIGHT boss3 BOTTOMRIGHT 0 -25",
+		width = 0.77,
 		power = true,
 	},
 }
