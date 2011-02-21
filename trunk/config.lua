@@ -58,7 +58,7 @@ ns.uconfig = {
 		visible = "party",
 	},
 	boss1 = {
-		point = string.format( "TOPRIGHT UIParent TOPRIGHT -%d -%d", 30 - 1, 30 + Minimap:GetHeight() + 50 ),
+		point = "TOPRIGHT UIParent TOPRIGHT -29 -255",
 		width = 0.8,
 		power = true,
 	},
@@ -170,6 +170,8 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 
 		borderColor = { 0.2, 0.2, 0.2 },
 		borderSize = 15,
+
+		useEclipseBar = true,
 	}
 
 	PoUFDB = PoUFDB or {}
