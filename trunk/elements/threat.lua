@@ -1,12 +1,13 @@
 --[[--------------------------------------------------------------------
 	oUF_ThreatHighlight
 	Highlights oUF frames by threat level.
+	Highlights oUF frames by threat level.
 
 	You may embed this module in your own layout, but please do not
 	distribute it as a standalone module.
 
 	Health bar color highlight:
-		self.ThreatHighlight = true -- NOT CURRENTLY WORKING!
+		self.ThreatHighlight = true
 
 	Colored texture highlight:
 		self.ThreatHighlight = UIOBJECT -- texture, fontstring, etc.
@@ -21,9 +22,19 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 if not oUF then return end
 
---[[
 local unitThreatStatus = { }
 
+local function health_SetStatusBarColor( bar, r, g, b, a, override )
+	if override then return end
+
+	local status = unitThreatStatus[ unit ]
+	if not status then return end
+
+	local r, g, b = GetThreatStatusColor( status )
+	bar:SetStatusBarColor( r, g, b, nil, true )
+end
+
+--[[
 local function applyThreatHighlight( bar, unit, status )
 	local status = unitThreatStatus[ unit ]
 	if status then
@@ -41,19 +52,8 @@ local function Update( self, event, unit )
 
 	local threat = self.ThreatHighlight
 	if threat.Override then
-		threat.Override( frame, unit, ( status and status > 0 ) and status or 0 )
---[[
-	elseif threat.colorHealthBar then
-		unitThreatStatus[ unit ] = status
-		if status and status > 0 then
-			applyThreatHighlight( self.Health, unit )
-		else
-			local health = self.Health
-			health:SetStatusBarColor( unpack( health.prethreat_color ) )
-			health:ForceUpdate()
-		end
--]]
-	else
+		threat.Override( self, unit, ( status and status > 0 ) and status or 0 )
+	elseif threat.SetVertexColor then
 		if status and status > 0 then
 			if threat.SetVertexColor then
 				local r, g, b = GetThreatStatusColor( status )
@@ -63,6 +63,17 @@ local function Update( self, event, unit )
 		else
 			threat:Hide()
 		end
+--[[
+	else
+		unitThreatStatus[ unit ] = status
+		if status and status > 0 then
+			applyThreatHighlight( self.Health, unit )
+		else
+			local health = self.Health
+			health:SetStatusBarColor( unpack( health.prethreat_color ) )
+			health:ForceUpdate()
+		end
+-]]
 	end
 end
 
@@ -87,8 +98,9 @@ local function Enable( self )
 		if not threat:GetTexture() then
 			threat:SetTexture( "Interface\\QuestFrame\\UI-QuestTitleHighlight" )
 		end
+	elseif not threat.SetVertexColor and not threat.Override then
+		hooksecurefunc( self.Health, "SetStatusBarColor", health_SetStatusBarColor )
 --[[
-	elseif threat.colorHealthBar and not threat.Override then
 		local r, g, b = self.Health:GetStatusBarColor()
 		self.Health.prethreat_color = { r, g, b }
 
@@ -126,7 +138,7 @@ local function Disable( self )
 
 		health:ForceUpdate()
 --]]
-	else
+	elseif threat.SetVertexColor then
 		threat:Hide()
 	end
 end

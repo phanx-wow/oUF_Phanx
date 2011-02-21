@@ -58,7 +58,7 @@ ns.uconfig = {
 		visible = "party",
 	},
 	boss1 = {
-		point = "TOPRIGHT Minimap BOTTOMRIGHT 1 -50",
+		point = string.format( "TOPRIGHT UIParent TOPRIGHT -%d -%d", 30 - 1, 30 + Minimap:GetHeight() + 50 ),
 		width = 0.8,
 		power = true,
 	},
