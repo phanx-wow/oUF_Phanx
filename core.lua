@@ -857,7 +857,7 @@ ns.Spawn = function(self, unit, isSingle)
 	-----------------
 	-- Eclipse bar --
 	-----------------
-
+--[[
 	if unit == "player" and playerClass == "DRUID" then
 		local mu = config.bgColorIntensity
 
@@ -898,7 +898,7 @@ ns.Spawn = function(self, unit, isSingle)
 			tex:SetParent( solarBar )
 		end
 	end
-
+--]]
 	------------------------------
 	-- Cast bar, icon, and text --
 	------------------------------
@@ -997,7 +997,9 @@ ns.Spawn = function(self, unit, isSingle)
 	-------------------------------
 
 	self.threatLevel = 0
-	self.ThreatHighlight = ns.UpdateThreatHighlight
+	self.ThreatHighlight = {
+		Override = ns.UpdateThreatHighlight
+	}
 
 	--------------------------------
 	-- Element: Resurrection text --

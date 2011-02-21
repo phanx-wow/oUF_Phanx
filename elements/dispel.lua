@@ -214,8 +214,8 @@ f:SetScript( "OnEvent", function( self, event )
 			canDispel.Magic = ( select( 5, GetTalentInfo( 1, 14 ) ) or 0 ) >= 1 -- Sacred Cleansing
 		end
 	elseif class == "PRIEST" then
-		canDispel.Disease = CheckSpell( 528 ) -- Cure Disease
-		canDispel.Magic = CheckSpell( 527 ) -- Dispel Magic
+		canDispel.Disease = IsSpellKnown( 528 ) -- Cure Disease
+		canDispel.Magic = IsSpellKnown( 527 ) -- Dispel Magic
 		canPurge = canDispel.Magic
 	elseif class == "ROGUE" then
 		canTranq = IsSpellKnown( 5938 ) -- Shiv
