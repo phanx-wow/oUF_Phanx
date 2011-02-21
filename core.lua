@@ -857,8 +857,8 @@ ns.Spawn = function(self, unit, isSingle)
 	-----------------
 	-- Eclipse bar --
 	-----------------
---[[
-	if unit == "player" and playerClass == "DRUID" then
+
+	if unit == "player" and playerClass == "DRUID" and config.useEclipseBar then
 		local mu = config.bgColorIntensity
 
 		local eclipseBar = CreateFrame( "Frame", nil, self )
@@ -898,7 +898,7 @@ ns.Spawn = function(self, unit, isSingle)
 			tex:SetParent( solarBar )
 		end
 	end
---]]
+
 	------------------------------
 	-- Cast bar, icon, and text --
 	------------------------------
