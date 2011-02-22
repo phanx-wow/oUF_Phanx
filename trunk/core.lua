@@ -349,12 +349,15 @@ end
 ns.UpdateDispelHighlight = function(self, unit, debuffType, canDispel)
 	-- print("UpdateDispelHighlight", unit, debuffType, canDispel)
 
+	self.debuffType = debuffType
+	self.debuffDispellable = canDispel
 	self:UpdateBorder()
 end
 
 ------------------------------------------------------------------------
 
 ns.UpdateThreatHighlight = function(self, unit, status)
+	if not status then status = 0 end
 	-- print("UpdateThreatHighlight", unit, status)
 
 	if not config.threatLevels then
@@ -1002,9 +1005,7 @@ ns.Spawn = function(self, unit, isSingle)
 	-------------------------------
 
 	self.threatLevel = 0
-	self.ThreatHighlight = {
-		Override = ns.UpdateThreatHighlight
-	}
+	self.ThreatHighlight = ns.UpdateThreatHighlight
 
 	--------------------------------
 	-- Element: Resurrection text --

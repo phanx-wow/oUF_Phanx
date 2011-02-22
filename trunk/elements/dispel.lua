@@ -10,12 +10,13 @@
 	distribute it as a standalone plugin.
 
 	To enable:
-		frame.DispelHighlight = true
+		frame.DispelHighlight = frame.Health:CreateTexture( nil, "OVERLAY" )
+		frame.DispelHighlight:SetAllPoints( frame.Health:GetStatusBarTexture() )
 
 	To highlight only debuffs you can dispel:
-		frame.DispelHighlightFilter = true
+		frame.DispelHighlight.filter = true
 
-	Advanced usage:
+	Advanced alternate usage:
 		frame.DispelHighlight = function( frame, event, unit, debuffType, canDispel )
 			-- debuffType (string or nil) - type of highest priority debuff, nil if no debuffs
 			-- canDispel  (boolean) - whether the player can dispel the debuff
@@ -88,12 +89,7 @@ end
 
 ------------------------------------------------------------------------
 
-local function applyDispelHighlight( self, unit )
-	local debuffType = self.debuffType
-	if debuffType then
-		self:SetStatusBarColor( unpack( colors[ debuffType ] ) )
-	end
-end
+local debuffTypeCache = { }
 
 local function Update( self, event, unit )
 	if self.unit ~= unit then return end
@@ -144,41 +140,70 @@ local function Update( self, event, unit )
 		scanUnit = nil
 	end
 
-	if self.debuffType == debuffType then return end
-	-- print( "UpdateDispelHighlight", unit, tostring( self.debuffType ), "==>", tostring( debuffType ) )
+	if debuffTypeCache[ unit ] == debuffType then return end
+	-- print( "UpdateDispelHighlight", unit, tostring( debuffTypeCache[ unit ] ), "==>", tostring( debuffType ) )
+	debuffTypeCache[ unit ] = debuffType
 
-	self.debuffType = debuffType
-	self.debuffDispellable = debuffType and canDispel[ debuffType ]
+	local element = self.DispelHighlight
+	local dispellable = debuffType and canDispel[ debuffType ]
 
-	if type( self.DispelHighlight ) == "function" then
-		self:DispelHighlight( unit, debuffType, canDispel[ debuffType ] )
-	elseif debuffType and ( canDispel[ debuffType ] or not self.DispelHighlightFilter ) then
-		applyDispelHighlight( self.Health, unit )
+	if element.Override then
+		element.Override( self, unit, debuffType, dispellable )
+	elseif debuffType and ( dispellable or not element.filter ) then
+		if element.SetVertexColor then
+			element:SetVertexColor( unpack( colors[ debuffType ] ) )
+		end
+		element:Show()
+	else
+		element:Hide()
 	end
 end
 
 ------------------------------------------------------------------------
 
+local ForceUpdate = function( element )
+	return Update( element.__owner, "ForceUpdate", element.__owner.unit )
+end
+
 local function Enable( self )
-	if not self.DispelHighlight or ( self.DispelHighlightFilter and class == "DEATHKNIGHT" ) then return end
+	local element = self.DispelHighlight
+	if not element then return end
+
+	if type( element ) == "function" then
+		self.DispelHighlight = {
+			Override = element
+		}
+	end
+
+	if type( element ) ~= "table"
+	or ( not element.Override and not element.Show )
+	or ( element.filter and class == "DEATHKNIGHT" ) then
+		self.DispelHighlight = nil
+		return
+	end
+
+	element.__owner = self
+	element.ForceUpdate = ForceUpdate
 
 	self:RegisterEvent( "UNIT_AURA", Update )
 
-	if type( self.DispelHighlight ) ~= "function" then
-		local o = self.Health.PostUpdate
-		self.Health.PostUpdate = function( ... )
-			if o then o( ... ) end
-			applyDispelHighlight( ... )
-		end
+	if element.GetTexture and not element:GetTexture() then
+		element:SetTexture( [[Interface\QuestFrame\UI-QuestTitleHighlight]] )
 	end
 
 	return true
 end
 
 local function Disable( self )
-	if not self.DispelHighlight or ( self.DispelHighlightFilter and class == "DEATHKNIGHT" ) then return end
+	if not self.DispelHighlight then return end
 
 	self:UnregisterEvent( "UNIT_AURA", Update )
+
+	if element.Override then
+		element.Override( self, self.unit )
+	else
+		element:Hide()
+	end
 end
 
 oUF:AddElement( "DispelHighlight", Update, Enable, Disable )
