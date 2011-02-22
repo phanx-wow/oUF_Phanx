@@ -703,6 +703,6 @@ ns.CustomAuraFilters = {
 		local v = auras[ spellID ]
 		return v and v < 4
 	end,
-end
+}
 
 ns.AuraList = auras

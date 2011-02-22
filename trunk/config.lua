@@ -179,7 +179,11 @@ ns.SetAllStatusBarTextures = function( file )
 	if not file then file = ns.config.statusbar end
 
 	for _, v in ipairs( ns.statusbars ) do
-		v:SetStatusBarTexture( file )
+		if v.SetStatusBarTexture then
+			v:SetStatusBarTexture( file )
+		else
+			v:SetTexture( file )
+		end
 		if v.bg then
 			v.bg:SetTexture( file )
 		end
@@ -200,7 +204,7 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 	local defaults = {
 		width = 225,
 		height = 30,
-		powerHeight = 1/5,				-- how much of the frame's height should be occupied by the power bar
+		powerHeight = 0.2,				-- how much of the frame's height should be occupied by the power bar
 
 		backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
 		backdropColor = { 32/256, 32/256, 32/256, 1 },
@@ -214,6 +218,9 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		ignoreOwnHeals = false,			-- only show incoming heals from other players
 		threatLevels = true,			-- show threat levels instead of binary aggro
 
+		eclipseBar = true,				-- show an eclipse bar for druids
+		eclipseBarIcons = false,		-- show animated icons on the eclipse bar
+
 		healthColor = { 0.2, 0.2, 0.2 },
 		healthColorMode = "CUSTOM",
 
@@ -224,8 +231,6 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 
 		borderColor = { 0.2, 0.2, 0.2 },
 		borderSize = 12,
-
-		eclipseBar = true,
 	}
 
 	PoUFDB = PoUFDB or {}
@@ -575,7 +580,8 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 	local eclipseBar, eclipseBarIcons
 	if select( 2, UnitClass("player") ) == "DRUID" then
 		eclipseBar = CreateCheckbox( self, L["Show eclipse bar"],
-			L["IMPORTANT:\nThis option will not take effect until the next time you log in or reload your UI."] )
+			L["Show an eclipse bar above the player frame."]
+			.. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."] )
 		eclipseBar:SetPoint( "TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -24 )
 		eclipseBar.OnClick = function( self, checked )
 			db.eclipseBar = checked
@@ -587,7 +593,8 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 		end
 
 		eclipseBarIcons = CreateCheckbox( self, L["Show eclipse bar icons"],
-			L["Show the animating moon and sun icons on either end of the eclipse bar."] .. "\n\n" .. L["IMPORTANT:\nThis option will not take effect until the next time you log in or reload your UI."] )
+			L["Show animated moon and sun icons on either end of the eclipse bar."]
+			.. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."] )
 		eclipseBarIcons:SetPoint( "TOPLEFT", eclipseBar, "BOTTOMLEFT", 0, -8 )
 		eclipseBarIcons.OnClick = function( self, checked )
 			db.eclipseBarIcons = checked
