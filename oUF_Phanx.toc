@@ -1,7 +1,7 @@
 ## Interface: 40000
 ## Version: 4.0.6.wowi:revision
 
-## Title: oUF Phanx
+## Title: oUF: Phanx
 ## Notes: An oUF layout.
 ## Author: Phanx, Akkorian
 ## X-Email: akkorian@hotmail.com
@@ -29,6 +29,7 @@ config.lua
 
 auras.lua
 border.lua
+eclipsebar.lua
 playerstate.lua
 tags.lua
 

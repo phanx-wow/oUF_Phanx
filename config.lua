@@ -225,7 +225,7 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		borderColor = { 0.2, 0.2, 0.2 },
 		borderSize = 12,
 
-		useEclipseBar = true,
+		eclipseBar = true,
 	}
 
 	PoUFDB = PoUFDB or {}
@@ -570,6 +570,30 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 
 	--------------------------------------------------------------------
 
+	local eclipseBar, eclipseBarIcons
+	if select( 2, UnitClass("player") ) == "DRUID" then
+		eclipseBar = CreateCheckbox( self, L["Show eclipse bar"],
+			L["IMPORTANT:\nThis option will not take effect until the next time you log in or reload your UI."] )
+		eclipseBar:SetPoint( "TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -24 )
+		eclipseBar.OnClick = function( self, checked )
+			db.eclipseBar = checked
+			if checked then
+				eclipseBarIcons:Enable()
+			else
+				eclipseBarIcons:Disable()
+			end
+		end
+
+		eclipseBarIcons = CreateCheckbox( self, L["Show eclipse bar icons"],
+			L["Show the animating moon and sun icons on either end of the eclipse bar."] .. "\n\n" .. L["IMPORTANT:\nThis option will not take effect until the next time you log in or reload your UI."] )
+		eclipseBarIcons:SetPoint( "TOPLEFT", eclipseBar, "BOTTOMLEFT", 0, -8 )
+		eclipseBarIcons.OnClick = function( self, checked )
+			db.eclipseBarIcons = checked
+		end
+	end
+
+	--------------------------------------------------------------------
+
 	self.refresh = function()
 		for k, v in pairs( SharedMedia:HashTable("statusbar") ) do
 			if v == db.statusbar or v:match("([^\\]+)$") == db.statusbar:match("([^\\]+)$") then
@@ -586,6 +610,15 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 		dispelFilter:SetChecked( db.dispelFilter )
 		healFilter:SetChecked( db.ignoreOwnHeals )
 		threatLevels:SetChecked( db.threatLevels )
+		if eclipseBar then
+			eclipseBar:SetChecked( db.eclipseBar )
+			eclipseBarIcons:SetChecked( db.eclipseBarIcons )
+			if db.eclipseBar then
+				eclipseBarIcons:Enable()
+			else
+				eclipseBarIcons:Disable()
+			end
+		end
 	end
 end )
 

@@ -686,16 +686,23 @@ local filters = {
 	[4] = function( self, unit, caster ) return unit == "player" and not self.__owner.isGroupFrame end,
 }
 
-ns.CustomAuraFilter = function( self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID )
-	local v = auras[ spellID ]
-
-	-- print( "CustomAuraFilter", unit, caster, name, spellID, v )
-
-	if v and filters[ v ] then
-		return filters[ v ]( self, unit, caster )
-	else
-		return ( not caster or caster == unit ) and UnitCanAttack( unit, "player" ) and not UnitPlayerControlled( unit )
-	end
+ns.CustomAuraFilters = {
+	player = function( self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID )
+		return auras[ spellID ]
+	end,
+	target = function( self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID )
+		local v = auras[ spellID ]
+		-- print( "CustomAuraFilter", unit, caster, name, spellID, v )
+		if v and filters[ v ] then
+			return filters[ v ]( self, unit, caster )
+		else
+			return ( not caster or caster == unit ) and UnitCanAttack( unit, "player" ) and not UnitPlayerControlled( unit )
+		end
+	end,
+	party = function( self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID )
+		local v = auras[ spellID ]
+		return v and v < 4
+	end,
 end
 
 ns.AuraList = auras
