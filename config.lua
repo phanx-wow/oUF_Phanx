@@ -257,18 +257,20 @@ end )
 
 ns.fontList, ns.statusbarList = {}, {}
 
+if ns.L then
+	for k, v in pairs( ns.L ) do -- clean up missing translations
+		if v == "" then
+			ns.L[ k ] = k
+		end
+	end
+end
+
 ns.L = setmetatable( ns.L or {}, { __index = function( t, k )
 	if k == nil then return "" end
 	local v = tostring( k )
 	t[ k ] = v
 	return v
 end } )
-
-for k, v in pairs( ns.L ) do -- clean up missing translations
-	if v == "" then
-		ns.L[ k ] = k
-	end
-end
 
 local CreateOptionsPanel = LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel
 
