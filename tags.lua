@@ -97,8 +97,10 @@ end
 
 oUF.TagEvents["holypower"] = "UNIT_POWER"
 oUF.Tags["holypower"] = function(unit)
-	local holypower = UnitPower(unit, SPELL_POWER_HOLY_POWER)
-	return holypower > 0 and holypower
+	if unit == "player" then
+		local holypower = UnitPower(unit, SPELL_POWER_HOLY_POWER)
+		return holypower > 0 and holypower
+	end
 end
 
 local EVANGELISM = GetSpellInfo(81661) -- 81660 for rank 1
@@ -124,6 +126,15 @@ end
 
 oUF.TagEvents["soulshards"] = "UNIT_POWER"
 oUF.Tags["soulshards"] = function(unit)
-	local soulshards = UnitPower(unit, SPELL_POWER_SOUL_SHARDS)
-	return soulshards > 0 and soulshards
+	if unit == "player" then
+		local soulshards = UnitPower(unit, SPELL_POWER_SOUL_SHARDS)
+		return soulshards > 0 and soulshards
+	end
+end
+
+oUF.TagEvents["feralmana"] = "UNIT_POWER UNIT_MAXPOWER"
+oUF.Tags["feralmana"]  = function(unit)
+	if unit == "player" then
+		return UnitPower("player", SPELL_POWER_MANA)
+	end
 end
