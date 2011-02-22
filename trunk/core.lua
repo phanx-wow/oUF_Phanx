@@ -1015,6 +1015,81 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Resurrection:SetPoint( "CENTER", self.Health )
 	end
 
+	---------------------------------
+	-- Plugin: oUF_boring_totembar --
+	---------------------------------
+
+	if IsAddOnLoaded( "oUF_boring_totembar" ) and unit == "player" and class == "SHAMAN" then
+		local totemBar = CreateFrame( "Frame", nil, self )
+		totemBar:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
+		totemBar:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
+		totemBar:SetHeight( ( config.height * ( 1 - config.powerHeight ) ) / 2 )
+
+		totemBar.Destroy = true
+		totemBar.UpdateColors = true
+
+		for i = 1, 4 do
+			local totem = ns.CreateStatusBar( totemBar, 14, "CENTER" )
+			totem:SetWidth( ( totemBar:GetWidth() / 4 ) - totemBar:GetHeight() )
+			if i > 1 then
+				totem:SetPoint( "TOPLEFT", totemBar[ i - 1 ], "TOPRIGHT" )
+				totem:SetPoint( "BOTTOMLEFT", totemBar[ i - 1 ], "BOTTOMRIGHT" )
+			else
+				totem:SetPoint( "TOPLEFT" )
+				totem:SetPoint( "BOTTOMLEFT" )
+			end
+
+			local icon = totem:CreateTexture( nil, "ARTWORK" )
+			icon:SetPoint( "TOPRIGHT", totem, "TOPLEFT" )
+			icon:SetPoint( "BOTTOMRIGHT", totem, "BOTTOMRIGHT" )
+			icon:SetPoint( totemBar:GetHeight() )
+			totem.Icon = icon
+
+			totem.bg.multiplier = config.bgColorIntensity
+			totem.StatusBar = totem
+			totem.Time = totem.value
+		end
+	end
+
+	--------------------------------
+	-- Plugin: oUF_CombatFeedback --
+	--------------------------------
+
+	if IsAddOnLoaded( "oUF_CombatFeedback" ) and not unit:match( "^(.+)target$" ) then
+		self.CombatFeedbackText = ns.CreateFontString( self.overlay, 24, "CENTER" )
+		self.CombatFeedbackText:SetPoint( "CENTER" )
+	end
+
+	---------------------------
+	-- Plugin: oUF_DruidMana --
+	---------------------------
+
+	if IsAddOnLoaded( "oUF_DruidMana" ) and unit == "player" and class == "DRUID" then
+		local feralMana = ns.CreateStatusBar( self, 16, "CENTER" )
+		feralMana:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
+		feralMana:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
+		feralMana:SetHeight( ( config.height * ( 1 - config.powerHeight ) ) / 2 )
+
+		local feralManaText = feralMana.value
+		feralManaText:SetPoint( "CENTER" )
+		feralManaText:Hide()
+		self:Tag( "[feralmana]", feralManaText )
+		table.insert( self.mouseovers, feralManaText )
+
+		feralMana.bg.multiplier = config.bgColorIntensity
+
+		feralMana.ManaBar = feralMana
+
+		feralMana.PostUpdatePower = function( self, unit )
+			local r, g, b = unpack( oUF.colors.power.MANA )
+			local mu = self.bg.multiplier
+			self:SetStatusBarColor( r, g, b )
+			self.bg:SetVertexColor( r * mu, g * mu, b * mu )
+		end
+
+		self.DruidMana = feralMana
+	end
+
 	------------------------
 	-- Plugin: oUF_Smooth --
 	------------------------
@@ -1025,6 +1100,18 @@ ns.Spawn = function(self, unit, isSingle)
 			self.Power.Smooth = true
 		end
 	end
+
+	----------------------------
+	-- Plugin: oUF_SpellRange --
+	----------------------------
+
+	if IsAddOnEnabled( "oUF_SpellRange" ) and not self.Range then
+		self.SpellRange = {
+			insideAlpha = 1,
+			outsideAlpha = 0.5,
+		}
+	end
+
 end
 
 ------------------------------------------------------------------------
