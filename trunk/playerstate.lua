@@ -8,10 +8,15 @@
 	http://wow.curse.com/downloads/wow-addons/details/ouf-phanx.aspx
 ----------------------------------------------------------------------]]
 
-local _, ns = ...
-
 local playerClass = select(2, UnitClass("player"))
-if playerClass == "HUNTER" or playerClass == "MAGE" or playerClass == "ROGUE" or playerClass == "WARLOCK" then return end
+if playerClass == "HUNTER"
+or playerClass == "MAGE"
+or playerClass == "ROGUE"
+or playerClass == "WARLOCK" then
+	return
+end
+
+local _, ns = ...
 
 ns.eventFrame = CreateFrame("Frame")
 ns.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
