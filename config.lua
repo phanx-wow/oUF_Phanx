@@ -209,9 +209,9 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
 		backdropColor = { 32/256, 32/256, 32/256, 1 },
 
-		statusbar = [[Interface\AddOns\oUF_Phanx\media\Statusbar-Neal]],
+		statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
 
-		font = [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]],
+		font = [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]],
 		fontOutline = "OUTLINE",
 
 		dispelFilter = true,			-- only highlight the frame for debuffs you can dispel
@@ -285,10 +285,10 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 
 	SharedMedia = LibStub( "LibSharedMedia-3.0", true )
 	if SharedMedia then
-		SharedMedia:Register( "font", "Andika", [[Interface\AddOns\oUF_Phanx\media\AndikaBasic-Custom.ttf]] )
-		SharedMedia:Register( "font", "Droid Serif", [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]] )
+		-- SharedMedia:Register( "font", "Andika", [[Interface\AddOns\oUF_Phanx\media\AndikaBasic-Custom.ttf]] )
+		-- SharedMedia:Register( "font", "Droid Serif", [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]] )
 		SharedMedia:Register( "font", "Expressway", [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]] )
-		SharedMedia:Register( "statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Statusbar-Neal]] )
+		SharedMedia:Register( "statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]] )
 
 		for i, v in pairs( SharedMedia:List("font") ) do
 			tinsert( ns.fontList, v )
