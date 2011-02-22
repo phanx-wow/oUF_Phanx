@@ -8,9 +8,9 @@
 
 	Usage:
 		frame.Resurrection = frame.Health:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		frame.Resurrection:SetPoint("CENTER", frame)
+		frame.Resurrection:SetPoint("CENTER")
 
-	Advanced Usage:
+	Options:
 		frame.Resurrection.ignoreSoulstone = true
 ----------------------------------------------------------------------]]
 
@@ -27,49 +27,74 @@ local text = {
 	SOULSTONE = "|cffff00ffSS|r",
 }
 
-local resStatus = { }
+------------------------------------------------------------------------
+
 local resTarget = { }
+local statusForName = { }
+local statusForUnit = { }
 
-local Update = function(self, event, unit)
-	if not unit then return end -- frame currently not used (party/partypet)
+local function UNIT_HEALTH( self, event, unit )
+	if unit ~= self.unit then return end
 
-	local name, realm = UnitName(unit)
-	if realm and realm ~= "" then
-		name = ("%s-%s"):format(name, realm)
-	end
-
-	local status = resStatus[name]
-	self.resStatus = status
-
-	if status ~= "SOULSTONE" or not self.Resurrection.ignoreSoulstone then
-		self.Resurrection:SetText(status and text[status])
+	if statusForUnit[ unit ] and not UnitIsDead( unit ) then
+		local name, realm = UnitName( unit )
+		if realm and realm ~= "" then
+			name = ( "%s-%s" ):format( name, realm )
+		end
+		statusForName[ name ] = nil
+		self.Resurrection:SetText( nil )
+		self:UnregisterEvent( "UNIT_HEALTH", UNIT_HEALTH )
 	end
 end
 
-local Enable = function(self)
-	if not self.Resurrection then return end
+local Update = function( self, event, unit )
+	if not unit then return end -- frame currently not used (party/partypet)
 
-	self.Health.parent = self
-
-	local o = self.Health.PostUpdate
-	self.Health.PostUpdate = function(self, unit, min, max)
-		if o then
-			o(self, unit, min, max)
-		end
-		if min > 0 and self.parent.resStatus then
-			local name, realm = UnitName(unit)
-			if realm and realm ~= "" then
-				name = ("%s-%s"):format(name, realm)
-			end
-			resStatus[name] = nil
-			self.parent.Resurrection:SetText(nil)
-		end
+	local name, realm = UnitName( unit )
+	if realm and realm ~= "" then
+		name = ("%s-%s"):format( name, realm )
 	end
+
+	local status = statusForName[ name ]
+	local element = self.Resurrection
+
+	if status ~= "SOULSTONE" or not element.ignoreSoulstone then
+		element:SetText( status and text[ status ] )
+	end
+
+	if element.PostUpdate then
+		element:PostUpdate( unit, status, status and text[ status ] )
+	end
+
+	self:RegisterEvent( "UNIT_HEALTH", UNIT_HEALTH )
+end
+
+local ForceUpdate = function( element )
+	return Update( element.__owner, "ForceUpdate", element.__owner.unit )
+end
+
+------------------------------------------------------------------------
+
+local Enable = function( self )
+	local element = self.Resurrection
+	if not element or not element.SetText then return end
+
+	element.__owner = self
+	element.ForceUpdate = ForceUpdate
 
 	return true
 end
 
-oUF:AddElement("Resurrection", Update, Enable, Disable)
+local Disable = function( self )
+	local element = self.Resurrection
+	if not element or not element.SetText then return end
+
+	return true
+end
+
+oUF:AddElement( "Resurrection", Update, Enable, Disable )
+
+------------------------------------------------------------------------
 
 local UpdateAll = function(event)
 	for _, frame in ipairs(oUF.objects) do
