@@ -298,6 +298,50 @@ end
 
 ------------------------------------------------------------------------
 
+ns.EclipseBar_PostUpdatePower = function(self, unit)
+	local bar = self.EclipseBar
+	if not bar then return end
+
+	local direction = GetEclipseDirection()
+	if direction == "sun" then
+		local cur = UnitPower(unit, SPELL_POWER_ECLIPSE)
+		local max = UnitPowerMax(unit, SPELL_POWER_ECLIPSE)
+		bar.Arrow:ClearAllPoints()
+		bar.Arrow:SetParent( lunarBar )
+		bar.Arrow:SetPoint( "RIGHT", bar, "LEFT", cur / max * bar:GetWidth(), 0 )
+		bar.Arrow:SetTexCoord( 0, 1, 0, 1 )
+		bar.Arrow:Show()
+	elseif direction == "moon" then
+		local cur = UnitPower(unit, SPELL_POWER_ECLIPSE)
+		local max = UnitPowerMax(unit, SPELL_POWER_ECLIPSE)
+		bar.Arrow:ClearAllPoints()
+		bar.Arrow:SetParent( solarBar )
+		bar.Arrow:SetPoint( "LEFT", bar, "RIGHT", -cur / max * bar:GetWidth(), 0 )
+		bar.Arrow:SetTexCoord( 1, 0, 1, 0 )
+		bar.Arrow:Show()
+	else
+		bar.Arrow:Hide()
+	end
+end
+
+ns.EclipseBar_PostUnitAura = function(self, unit)
+	local bar = self.EclipseBar
+	if not bar then return end
+
+	if bar.hasLunarEclipse then
+		bar.lunarBar:SetAlpha( 1 )
+		bar.solarBar:SetAlpha( 0.5 )
+	elseif bar.hasSolarEclipse then
+		bar.lunarBar:SetAlpha( 0.5 )
+		bar.solarBar:SetAlpha( 1 )
+	else
+		bar.lunarBar:SetAlpha( 1 )
+		bar.solarBar:SetAlpha( 1 )
+	end
+end
+
+------------------------------------------------------------------------
+
 ns.PostCastStart = function(self, unit, name, rank, castid)
 	local r, g, b
 	if UnitIsUnit(unit, "player") then
@@ -768,19 +812,19 @@ ns.Spawn = function(self, unit, isSingle)
 		local GAP = 6
 
 		self.Buffs = CreateFrame( "Frame", nil, self )
-		self.Buffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 2, 24 )
-		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", -2, 24 )
+		self.Buffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 24 )
+		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 24 )
 		self.Buffs:SetHeight( config.height )
 
 		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "UP"
 		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
-		self.Buffs["num"] = floor( ( config.width - 4 + GAP ) / ( config.height + GAP ) )
+		self.Buffs["num"] = floor( ( config.width + GAP ) / ( config.height + GAP ) )
 		self.Buffs["size"] = config.height
 		self.Buffs["spacing-x"] = GAP
 		self.Buffs["spacing-y"] = GAP
 
-		self.Buffs.CustomFilter   = ns.CustomAuraFilter
+		-- self.Buffs.CustomFilter   = ns.CustomAuraFilter
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
@@ -809,12 +853,32 @@ ns.Spawn = function(self, unit, isSingle)
 	elseif unit == "target" then
 		local GAP = 6
 
-		local MAX_ICONS = floor( ( config.width - 4 + GAP ) / ( config.height + GAP ) ) - 1
+		local MAX_ICONS = floor( ( config.width + GAP ) / ( config.height + GAP ) ) - 1
 		local NUM_BUFFS = math.max( 1, floor( MAX_ICONS * 0.2 ) )
 		local NUM_DEBUFFS = math.min( MAX_ICONS - 1, floor( MAX_ICONS * 0.8 ) )
 
+		self.Buffs = CreateFrame( "Frame", nil, self )
+		self.Buffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 2, 24 )
+		self.Buffs:SetWidth( ( config.height * NUM_BUFFS ) + ( GAP * ( NUM_BUFFS - 1 ) ) )
+		self.Buffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
+
+		self.Buffs["growth-x"] = "LEFT"
+		self.Buffs["growth-y"] = "UP"
+		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
+		self.Buffs["num"] = NUM_BUFFS
+		self.Buffs["showType"] = false
+		self.Buffs["size"] = config.height
+		self.Buffs["spacing-x"] = GAP
+		self.Buffs["spacing-y"] = GAP * 2
+
+		-- self.Buffs.CustomFilter   = ns.CustomAuraFilter
+		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+
+		self.Buffs.parent = self
+
 		self.Debuffs = CreateFrame( "Frame", nil, self )
-		self.Debuffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 2, 24 )
+		self.Debuffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 24 )
 		self.Debuffs:SetWidth( ( config.height * NUM_DEBUFFS ) + ( GAP * ( NUM_DEBUFFS - 1 ) ) )
 		self.Debuffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
 
@@ -832,26 +896,6 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
 		self.Debuffs.parent = self
-
-		self.Buffs = CreateFrame( "Frame", nil, self )
-		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", -2, 24 )
-		self.Buffs:SetWidth( ( config.height * NUM_BUFFS ) + ( GAP * ( NUM_BUFFS - 1 ) ) )
-		self.Buffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
-
-		self.Buffs["growth-x"] = "LEFT"
-		self.Buffs["growth-y"] = "UP"
-		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
-		self.Buffs["num"] = NUM_BUFFS
-		self.Buffs["showType"] = false
-		self.Buffs["size"] = config.height
-		self.Buffs["spacing-x"] = GAP
-		self.Buffs["spacing-y"] = GAP * 2
-
-		self.Buffs.CustomFilter   = ns.CustomAuraFilter
-		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
-
-		self.Buffs.parent = self
 	end
 
 	-----------------
@@ -862,9 +906,10 @@ ns.Spawn = function(self, unit, isSingle)
 		local mu = config.bgColorIntensity
 
 		local eclipseBar = CreateFrame( "Frame", nil, self )
-		eclipseBar:SetPoint( "TOPLEFT", self, "BOTTOMLEFT", 0, -10 )
-		eclipseBar:SetPoint( "TOPRIGHT", self, "BOTTOMRIGHT", 0, -10 )
-		eclipseBar:SetHeight( config.height * ( 1 - config.powerHeight ) )
+		eclipseBar:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
+		eclipseBar:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
+		eclipseBar:SetHeight( ( config.height * ( 1 - config.powerHeight ) ) / 2 )
+		self.EclipseBar = eclipseBar
 
 		local lunarBar = ns.CreateStatusBar( eclipseBar )
 		lunarBar:SetPoint( "TOPLEFT", eclipseBar, "TOPLEFT", 0, 0 )
@@ -888,12 +933,20 @@ ns.Spawn = function(self, unit, isSingle)
 		eclipseBarText:Hide()
 		eclipseBar.Text = eclipseBarText
 
+		local eclipseBarArrow = eclipseBar:CreateTexture( nil, "OVERLAY" )
+		eclipseBarArrow:SetSize( lunarBar:GetHeight(), lunarBar:GetHeight() )
+		eclipseBarArrow:SetTexture( [[Interface\AddOns\oUF_Phanx\media\EclipseBarArrow]] )
+		eclipseBar.Arrow = eclipseBarArrow
+
 		self:Tag( eclipseBarText, "[pereclipse]%" )
 		table.insert( self.mouseovers, eclipseBarText )
 
-		self.EclipseBar = eclipseBar
+		eclipseBar.PostUpdatePower = ns.EclipseBar_PostUpdatePower
+		eclipseBar.PostUnitAura = ns.EclipseBar_PostUnitAura
 
 		ns.CreateBorder( eclipseBar )
+		eclipseBar.BorderTextures[7]:Hide()
+		eclipseBar.BorderTextures[8]:Hide()
 		for i, tex in ipairs( eclipseBar.BorderTextures ) do
 			tex:SetParent( solarBar )
 		end

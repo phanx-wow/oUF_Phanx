@@ -57,6 +57,9 @@ ns.uconfig = {
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "useOwnerUnit", true, "unitsuffix", "pet" },
 		visible = "party",
 	},
+	-------------
+	--	Bosses --
+	-------------
 	boss1 = {
 		point = "TOPRIGHT UIParent TOPRIGHT -29 -255",
 		width = 0.8,
@@ -76,6 +79,57 @@ ns.uconfig = {
 		point = "TOPRIGHT boss3 BOTTOMRIGHT 0 -25",
 		width = 0.8,
 		power = true,
+	},
+	-----------------------
+	--	Arena Oppnonents --
+	-----------------------
+	arena1 = {
+		point = "TOPRIGHT UIParent TOPRIGHT -29 -255",
+		width = 0.5,
+		power = true,
+	},
+	arena2 = {
+		point = "TOPRIGHT arena1 BOTTOMRIGHT 0 -25",
+		width = 0.5,
+		power = true,
+	},
+	arena3 = {
+		point = "TOPRIGHT arena2 BOTTOMRIGHT 0 -25",
+		width = 0.5,
+		power = true,
+	},
+	arena4 = {
+		point = "TOPRIGHT arena3 BOTTOMRIGHT 0 -25",
+		width = 0.5,
+		power = true,
+	},
+	arena5 = {
+		point = "TOPRIGHT arena4 BOTTOMRIGHT 0 -25",
+		width = 0.5,
+		power = true,
+	},
+	----------------------------
+	--	Arena Opponents' Pets --
+	----------------------------
+	arenapet1 = {
+		point = "RIGHT arena1 LEFT 10 0",
+		width = 0.25,
+	},
+	arenapet2 = {
+		point = "RIGHT arena2 LEFT 10 0",
+		width = 0.25,
+	},
+	arenapet3 = {
+		point = "RIGHT arena3 LEFT 10 0",
+		width = 0.25,
+	},
+	arenapet4 = {
+		point = "RIGHT arena4 LEFT 10 0",
+		width = 0.25,
+	},
+	arenapet5 = {
+		point = "RIGHT arena5 LEFT 10 0",
+		width = 0.25,
 	},
 }
 
@@ -151,7 +205,7 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
 		backdropColor = { 32/256, 32/256, 32/256, 1 },
 
-		statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
+		statusbar = [[Interface\AddOns\oUF_Phanx\media\Statusbar-Neal]],
 
 		font = [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]],
 		fontOutline = "OUTLINE",
@@ -169,7 +223,7 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		bgColorIntensity = 1.5,
 
 		borderColor = { 0.2, 0.2, 0.2 },
-		borderSize = 15,
+		borderSize = 12,
 
 		useEclipseBar = true,
 	}
@@ -181,6 +235,14 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		end
 	end
 	ns.config = PoUFDB
+
+	if PoUFDB.borderSize == 15 and not PoUFDB.borderSizeUpdated then
+		PoUFDB.borderSize = 12
+		PoUFDB.borderSizeUpdated = true
+	end
+	if PoUFDB.statusbar == [[Interface\AddOns\oUF_Phanx\Media\Neal]] then
+		PoUFDB.statusbar = defaults.statusbar
+	end
 
 	for i, f in ipairs( ns.loadFuncs ) do f() end
 	ns.loadFuncs = nil
@@ -219,7 +281,7 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 		SharedMedia:Register( "font", "Andika", [[Interface\AddOns\oUF_Phanx\media\AndikaBasic-Custom.ttf]] )
 		SharedMedia:Register( "font", "Droid Serif", [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]] )
 		SharedMedia:Register( "font", "Expressway", [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]] )
-		SharedMedia:Register( "statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]] )
+		SharedMedia:Register( "statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Statusbar-Neal]] )
 
 		for i, v in pairs( SharedMedia:List("font") ) do
 			tinsert( ns.fontList, v )
@@ -827,6 +889,14 @@ end
 
 SLASH_OUFPHANX1 = "/pouf"
 
-SlashCmdList.OUFPHANX = function()
-	InterfaceOptionsFrame_OpenToCategory( ns.optionsPanel )
+local testMode
+SlashCmdList.OUFPHANX = function(cmd)
+	if cmd == "test" then
+		testMode = not testMode
+		if testMode then
+		else
+		end
+	else
+		InterfaceOptionsFrame_OpenToCategory( ns.optionsPanel )
+	end
 end
