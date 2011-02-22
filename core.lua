@@ -374,11 +374,22 @@ ns.UnitFrame_OnEnter = function(self)
 	if self.__owner then
 		self = self.__owner
 	end
+
 	if IsShiftKeyDown() or not UnitAffectingCombat("player") then
-		UnitFrame_OnEnter(self)
+		local noobTips = SHOW_NEWBIE_TIPS == "1"
+		if noobTips and self.unit == "player" then
+			GameTooltip_SetDefaultAnchor( GameTooltip, self )
+			GameTooltip_AddNewbieTip( self, PARTY_OPTIONS_LABEL, 1, 1, 1, NEWBIE_TOOLTIP_PARTYOPTIONS )
+		elseif noobTips and self.unit == "target" and UnitPlayerControlled( "target" ) and not UnitIsUnit( "target", "player" ) and not UnitIsUnit( "target", "pet" ) then
+			GameTooltip_SetDefaultAnchor( GameTooltip, self )
+			GameTooltip_AddNewbieTip( self, PLAYER_OPTIONS_LABEL, 1, 1, 1, NEWBIE_TOOLTIP_PLAYEROPTIONS )
+		else
+			UnitFrame_OnEnter( self )
+		end
 	end
+
 	self.isMouseOver = true
-	for _, element in ipairs(self.mouseovers) do
+	for _, element in ipairs( self.mouseovers ) do
 		if element.ForceUpdate then
 			element:ForceUpdate()
 		else
@@ -391,7 +402,9 @@ ns.UnitFrame_OnLeave = function(self)
 	if self.__owner then
 		self = self.__owner
 	end
+
 	UnitFrame_OnLeave(self)
+
 	self.isMouseOver = nil
 	for _, element in ipairs(self.mouseovers) do
 		if element.ForceUpdate then
@@ -864,15 +877,22 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Eclipse bar --
 	-----------------
 
-	if unit == "player" and playerClass == "DRUID" and config.useEclipseBar then
-		local eclipseBar = ns.CreateEclipseBar( self, config.texture, config.useEclipseBarIcons )
+	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
+		local eclipseBar = ns.CreateEclipseBar( self, config.statusbar, config.eclipseBarIcons )
 		eclipseBar:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
 		eclipseBar:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
 		eclipseBar:SetHeight( ( config.height * ( 1 - config.powerHeight ) ) / 2 )
 
-		eclipseBar.value:Hide()
-		self:Tag( eclipseBar.value, "[pereclipse]%" )
-		table.insert( self.mouseovers, eclipseBar.value )
+		table.insert( ns.statusbars, eclipseBar.bg )
+		table.insert( ns.statusbars, eclipseBar.lunarBG )
+		table.insert( ns.statusbars, eclipseBar.solarBG )
+
+		local eclipseText = ns.CreateFontString( eclipseBar, 16, "CENTER" )
+		eclipseText:SetPoint( "CENTER", eclipseBar, "CENTER", 0, 1 )
+		eclipseText:Hide()
+		self:Tag( eclipseText, "[pereclipse]%" )
+		table.insert( self.mouseovers, eclipseText )
+		eclipseBar.value = eclipseText
 
 		ns.CreateBorder( eclipseBar )
 		eclipseBar.BorderTextures[7]:Hide()
@@ -881,7 +901,7 @@ ns.Spawn = function(self, unit, isSingle)
 		eclipseBar:SetScript( "OnEnter", ns.UnitFrame_OnEnter )
 		eclipseBar:SetScript( "OnLeave", ns.UnitFrame_OnLeave )
 
-		self.eclipseBar = eclipseBar
+		self.EclipseBar = eclipseBar
 	end
 
 	------------------------------

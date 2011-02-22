@@ -19,13 +19,12 @@
 
 core.xml
 
+locales\es.lua
+
 elements\afk.lua
 elements\dispel.lua
 elements\resurrections.lua
 elements\threat.lua
-
-localization.lua
-config.lua
 
 auras.lua
 border.lua
@@ -33,4 +32,5 @@ eclipsebar.lua
 playerstate.lua
 tags.lua
 
+config.lua
 core.lua

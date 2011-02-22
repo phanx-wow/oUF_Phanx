@@ -1,6 +1,8 @@
-ns.EclipseBar_PostUpdatePower = function(self, unit)
-	local cur = UnitPower(unit, SPELL_POWER_ECLIPSE)
-	local max = UnitPowerMax(unit, SPELL_POWER_ECLIPSE)
+local _, ns = ...
+
+local EclipseBar_PostUpdatePower = function( self, unit )
+	local cur = UnitPower( unit, SPELL_POWER_ECLIPSE )
+	local max = UnitPowerMax( unit, SPELL_POWER_ECLIPSE )
 
 	local direction = GetEclipseDirection()
 	self.directionArrow:SetTexCoord( unpack( ECLIPSE_MARKER_COORDS[ direction ] ) )
@@ -15,7 +17,7 @@ ns.EclipseBar_PostUpdatePower = function(self, unit)
 	end
 end
 
-ns.EclipseBar_PostUnitAura = function(self, unit)
+local EclipseBar_PostUnitAura = function( self, unit )
 	local hasLunarEclipse, hasSolarEclipse = self.hasLunarEclipse, self.hasSolarEclipse
 
 	if hasLunarEclipse then
@@ -92,8 +94,14 @@ ns.EclipseBar_PostUnitAura = function(self, unit)
 end
 
 local eclipseBar
-ns.CreateEclipseBar( self, texture, useEclipseBarIcons )
-	if eclipseBar then return eclipseBar end
+ns.CreateEclipseBar = function( self, texture, useEclipseBarIcons )
+	if eclipseBar then
+		eclipseBar:SetParent( self )
+		if eclipseBar.glow then
+			EclipseBarFrame:SetParent( self )
+		end
+		return eclipseBar
+	end
 
 	eclipseBar = CreateFrame( "Frame", nil, self )
 
@@ -117,16 +125,11 @@ ns.CreateEclipseBar( self, texture, useEclipseBarIcons )
 	solarBG:SetVertexColor( 1, 0.8, 0 )
 	eclipseBar.solarBG = solarBG
 
-	local arrowSize = eclipseBar:GetHeight() * 2
 	local eclipseArrow = eclipseBar:CreateTexture( nil, "OVERLAY" )
-	eclipseArrow:SetSize( arrowSize, arrowSize )
+	eclipseArrow:SetSize( 24, 24 )
 	eclipseArrow:SetTexture( [[Interface\PlayerFrame\UI-DruidEclipse]] )
 	eclipseArrow:SetBlendMode( "ADD" )
 	eclipseBar.directionArrow = eclipseArrow
-
-	local eclipseText = ns.CreateFontString( eclipseBar, 16, "CENTER" )
-	eclipseText:SetPoint( "CENTER", eclipseBar, "CENTER", 0, 1 )
-	eclipseBar.value = eclipseText
 
 	if useEclipseBarIcons then
 		local moon = EclipseBarFrame.moon
@@ -173,18 +176,19 @@ ns.CreateEclipseBar( self, texture, useEclipseBarIcons )
 		EclipseBarFrame:SetScript( "OnEvent", nil )
 		EclipseBarFrame:SetScript( "OnUpdate", nil )
 		EclipseBarFrame:Show()
+
 		EclipseBarFrameBar:SetTexture("")
+		EclipseBarFrameMarker:SetTexture("")
 		EclipseBarFrameMoonBar:SetTexture("")
 		EclipseBarFrameSunBar:SetTexture("")
-		EclipseBarFrameMarker:SetTexture("")
 
 		EclipseBarFrame.hasLunarEclipse = false
 		EclipseBarFrame.hasSolarEclipse = false
 	end
 
-	eclipseBar.PostDirectionChange = ns.EclipseBar_PostUnitAura
-	eclipseBar.PostUnitAura = ns.EclipseBar_PostUnitAura
-	eclipseBar.PostUpdatePower = ns.EclipseBar_PostUpdatePower
+	eclipseBar.PostDirectionChange = EclipseBar_PostUnitAura
+	eclipseBar.PostUnitAura = EclipseBar_PostUnitAura
+	eclipseBar.PostUpdatePower = EclipseBar_PostUpdatePower
 
 	return eclipseBar
 end
