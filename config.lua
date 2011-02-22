@@ -240,7 +240,7 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		PoUFDB.borderSize = 12
 		PoUFDB.borderSizeUpdated = true
 	end
-	if PoUFDB.statusbar == [[Interface\AddOns\oUF_Phanx\Media\Neal]] then
+	if PoUFDB.statusbar == [[Interface\AddOns\oUF_Phanx\media\Neal]] then
 		PoUFDB.statusbar = defaults.statusbar
 	end
 
