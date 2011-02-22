@@ -38,15 +38,17 @@ oUF.Tags["powercolor"] = function(unit)
 end
 
 oUF.TagEvents["combaticon"] = "PLAYER_REGEN_DISABLED PLAYER_REGEN_ENABLED"
+oUF.UnitlessTagEvents["PLAYER_REGEN_DISABLED"] = true
+oUF.UnitlessTagEvents["PLAYER_REGEN_ENABLED"] = true
 oUF.Tags["combaticon"] = function(unit)
 	if unit == "player" and UnitAffectingCombat("player") then
 		return [[|TInterface\CharacterFrame\UI-StateIcon:0:0:0:0:64:64:37:58:5:26|t]]
 	end
 end
-oUF.UnitlessTagEvents["PLAYER_REGEN_DISABLED"] = true
-oUF.UnitlessTagEvents["PLAYER_REGEN_ENABLED"] = true
 
 oUF.TagEvents["leadericon"] = "PARTY_LEADER_CHANGED PARTY_MEMBERS_CHANGED"
+oUF.UnitlessTagEvents["PARTY_LEADER_CHANGED"] = true
+oUF.UnitlessTagEvents["PARTY_MEMBERS_CHANGED"] = true
 oUF.Tags["leadericon"] = function(unit)
 	if UnitIsPartyLeader(unit) then
 		return [[|TInterface\GroupFrame\UI-Group-LeaderIcon:0|t]]
@@ -56,6 +58,8 @@ oUF.Tags["leadericon"] = function(unit)
 end
 
 oUF.TagEvents["mastericon"] = "PARTY_LOOT_METHOD_CHANGED PARTY_MEMBERS_CHANGED"
+oUF.UnitlessTagEvents["PARTY_LOOT_METHOD_CHANGED"] = true
+oUF.UnitlessTagEvents["PARTY_MEMBERS_CHANGED"] = true
 oUF.Tags["mastericon"] = function(unit)
 	local method, pid, rid = GetLootMethod()
 	if method ~= "master" then return end
@@ -75,6 +79,7 @@ oUF.Tags["mastericon"] = function(unit)
 end
 
 oUF.TagEvents["restingicon"] = "PLAYER_UPDATE_RESTING"
+oUF.UnitlessTagEvents["PLAYER_UPDATE_RESTING"] = true
 oUF.Tags["restingicon"] = function(unit)
 	if unit == "player" and IsResting() then
 		return [[|TInterface\CharacterFrame\UI-StateIcon:0:0:0:-6:64:64:28:6:6:28|t]]
@@ -116,7 +121,6 @@ oUF.Tags["shadoworbs"] = function(unit)
 		return name and count
 	end
 end
-
 
 oUF.TagEvents["soulshards"] = "UNIT_POWER"
 oUF.Tags["soulshards"] = function(unit)
