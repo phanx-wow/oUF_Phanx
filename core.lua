@@ -1129,7 +1129,7 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Plugin: oUF_DruidMana --
 	---------------------------
 
-	if IsAddOnLoaded( "oUF_DruidMana" ) and unit == "player" and class == "DRUID" then
+	if IsAddOnLoaded( "oUF_DruidMana" ) and unit == "player" and playerClass == "DRUID" then
 		local feralMana = ns.CreateStatusBar( self, 16, "CENTER" )
 		feralMana:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
 		feralMana:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
@@ -1138,12 +1138,12 @@ ns.Spawn = function(self, unit, isSingle)
 		self.DruidMana = feralMana
 
 		local feralManaText = feralMana.value
-		feralManaText:SetPoint( "CENTER" )
+		feralManaText:SetPoint( "CENTER", 0, 1 )
 		feralManaText:Hide()
-		self:Tag( "[feralmana]", feralManaText )
+		self:Tag( feralManaText, "[feralmana]" )
 		table.insert( self.mouseovers, feralManaText )
 
-		feralMana.bg.multiplier = config.bgColorIntensity
+		feralMana.bg.multiplier = 1 / config.bgColorIntensity
 
 		feralMana.PostUpdatePower = function( self, unit )
 			local r, g, b = unpack( oUF.colors.power.MANA )
@@ -1151,6 +1151,8 @@ ns.Spawn = function(self, unit, isSingle)
 			self:SetStatusBarColor( r, g, b )
 			self.bg:SetVertexColor( r * mu, g * mu, b * mu )
 		end
+
+		ns.CreateBorder( feralMana )
 	end
 
 	------------------------
