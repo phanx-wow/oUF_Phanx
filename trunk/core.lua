@@ -213,6 +213,14 @@ end
 
 ------------------------------------------------------------------------
 
+ns.PostUpdateHappiness = function( self, unit, happiness )
+	if happiness == 3 then
+		return self:Hide()
+	end
+end
+
+------------------------------------------------------------------------
+
 local AuraIconCD_OnShow = function(cd)
 	local button = cd:GetParent()
 	button:SetBorderParent(cd)
@@ -522,85 +530,91 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Health bar and text --
 	-------------------------
 
-	self.Health = ns.CreateStatusBar( self, 24, "RIGHT", true )
-	self.Health:SetPoint( "TOPLEFT", self, "TOPLEFT", 1, -2 )
-	self.Health:SetPoint( "TOPRIGHT", self, "TOPRIGHT", -1, -2 )
-	self.Health:SetPoint( "BOTTOM", self, "BOTTOM", 0, 0 )
+	local health
+	health = ns.CreateStatusBar( self, 24, "RIGHT", true )
+	health:SetPoint( "TOPLEFT", self, "TOPLEFT", 1, -2 )
+	health:SetPoint( "TOPRIGHT", self, "TOPRIGHT", -1, -2 )
+	health:SetPoint( "BOTTOM", self, "BOTTOM", 0, 0 )
+	self.Health = health
 
-	self.Health:GetStatusBarTexture():SetDrawLayer( "ARTWORK" )
-	self.Health.value:SetPoint( "BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, config.height * config.powerHeight - 2 )
+	health:GetStatusBarTexture():SetDrawLayer( "ARTWORK" )
+	health.value:SetPoint( "BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, config.height * config.powerHeight - 2 )
 
-	self.Health.colorClass = config.healthColorMode == "CLASS"
-	self.Health.colorReaction = config.healthColorMode == "CLASS"
-	self.Health.colorSmooth = config.healthColorMode == "HEALTH"
+	local healthColorMode = config.healthColorMode
+	health.colorClass = healthColorMode == "CLASS"
+	health.colorReaction = healthColorMode == "CLASS"
+	health.colorSmooth = healthColorMode == "HEALTH"
 
-	self.Health.bg.multiplier = config.bgColorIntensity
+	health.bg.multiplier = config.bgColorIntensity
 
-	if config.healthColorMode == "CUSTOM" then
+	if healthColorMode == "CUSTOM" then
 		local mu = config.bgColorIntensity
 		local r, g, b = unpack( config.healthColor )
-		self.Health:SetStatusBarColor( r, g, b )
-		self.Health.bg:SetVertexColor( r * mu, g * mu, b * mu )
+		health:SetStatusBarColor( r, g, b )
+		health.bg:SetVertexColor( r * mu, g * mu, b * mu )
 	end
 
-	self.Health.PostUpdate = ns.PostUpdateHealth
-	tinsert(self.mouseovers, self.Health)
+	health.PostUpdate = ns.PostUpdateHealth
+	tinsert(self.mouseovers, health)
 
 	---------------------------
 	-- Predicted healing bar --
 	---------------------------
 
-	self.HealPrediction = ns.CreateStatusBar( self )
-	self.HealPrediction:SetAllPoints( self.Health )
-	self.HealPrediction:SetAlpha( 0.25 )
-	self.HealPrediction:SetStatusBarColor( 0, 1, 0 )
-	self.HealPrediction:Hide()
+	local heals = ns.CreateStatusBar( self )
+	heals:SetAllPoints( self.Health )
+	heals:SetAlpha( 0.25 )
+	heals:SetStatusBarColor( 0, 1, 0 )
+	heals:Hide()
+	self.HealPrediction = heals
 
-	self.HealPrediction:SetFrameLevel( self.Health:GetFrameLevel() )
+	heals:SetFrameLevel( self.Health:GetFrameLevel() )
 
-	self.HealPrediction.bg:ClearAllPoints()
-	self.HealPrediction.bg:SetTexture( "" )
-	self.HealPrediction.bg:Hide()
-	self.HealPrediction.bg = nil
+	heals.bg:ClearAllPoints()
+	heals.bg:SetTexture( "" )
+	heals.bg:Hide()
+	heals.bg = nil
 
-	self.HealPrediction.ignoreSelf = config.ignoreOwnHeals
-	self.HealPrediction.maxOverflow = 1
+	heals.ignoreSelf = config.ignoreOwnHeals
+	heals.maxOverflow = 1
 
-	self.HealPrediction.Override = ns.UpdateIncomingHeals
+	heals.Override = ns.UpdateIncomingHeals
 
 	------------------------
 	-- Power bar and text --
 	------------------------
 
 	if uconfig.power then
-		self.Power = ns.CreateStatusBar(self, ( uconfig.width or 1 ) > 0.75 and 16, "LEFT", true )
-		self.Power:SetFrameLevel( self.Health:GetFrameLevel() + 2 )
-		self.Power:SetPoint( "BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1 )
-		self.Power:SetPoint( "BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1 )
-		self.Power:SetHeight( config.height * config.powerHeight )
+		local power = ns.CreateStatusBar(self, ( uconfig.width or 1 ) > 0.75 and 16, "LEFT", true )
+		power:SetFrameLevel( self.Health:GetFrameLevel() + 2 )
+		power:SetPoint( "BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1 )
+		power:SetPoint( "BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1 )
+		power:SetHeight( config.height * config.powerHeight )
+		self.Power = power
 
-		if self.Power.value then
-			self.Power.value:SetPoint( "BOTTOMLEFT", self, "BOTTOMLEFT", 4, config.height * config.powerHeight - 2 )
-			self.Power.value:SetPoint( "BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -8, 0 )
+		if power.value then
+			power.value:SetPoint( "BOTTOMLEFT", self, "BOTTOMLEFT", 4, config.height * config.powerHeight - 2 )
+			power.value:SetPoint( "BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -8, 0 )
 
-			tinsert( self.mouseovers, self.Power )
+			tinsert( self.mouseovers, power )
 		end
 
-		self.Power.colorClass = config.powerColorMode == "CLASS"
-		self.Power.colorReaction = config.powerColorMode == "CLASS"
-		self.Power.colorPower = config.powerColorMode == "POWER"
+		local powerColorMode = config.powerColorMode
+		power.colorClass = powerColorMode == "CLASS"
+		power.colorReaction = powerColorMode == "CLASS"
+		power.colorPower = powerColorMode == "POWER"
 
-		self.Power.bg.multiplier = 1 / config.bgColorIntensity
+		power.bg.multiplier = 1 / config.bgColorIntensity
 
-		if config.powerColorMode == "CUSTOM" then
+		if powerColorMode == "CUSTOM" then
 			local mu = config.bgColorIntensity
 			local r, g, b = unpack( config.powerColor )
-			self.Power:SetStatusBarColor( r, g, b )
-			self.Power.bg:SetVertexColor( r / mu, g / mu, b / mu )
+			power:SetStatusBarColor( r, g, b )
+			power.bg:SetVertexColor( r / mu, g / mu, b / mu )
 		end
 
-		self.Power.frequentUpdates = unit == "player"
-		self.Power.PostUpdate = ns.PostUpdatePower
+		power.frequentUpdates = unit == "player"
+		power.PostUpdate = ns.PostUpdatePower
 	end
 
 	-----------------------------------------------------------
@@ -611,7 +625,7 @@ ns.Spawn = function(self, unit, isSingle)
 	self.overlay:SetAllPoints( self )
 	self.overlay:SetFrameLevel( self.Health:GetFrameLevel() + ( self.Power and 3 or 2 ) )
 
-	self.Health.value:SetParent( self.overlay )
+	health.value:SetParent( self.overlay )
 
 	--------------------------
 	-- Element: Threat text -- NOT YET IMPLEMENTED
@@ -661,9 +675,11 @@ ns.Spawn = function(self, unit, isSingle)
 	if unit == "player" and playerClass == "WARLOCK" then
 		self.SoulShards = { }
 		for i = 1, 3 do
-			self.SoulShards[ i ] = self.overlay:CreateTexture( nil, "OVERLAY" )
-			self.SoulShards[ i ]:SetTexture( [[Interface\PlayerFrame\UI-WarlockShard]] )
-			self.SoulShards[ i ]:SetTexCoord( 2/128, 16/128, 2/64, 27/64 )
+			local shard = self.overlay:CreateTexture( nil, "OVERLAY" )
+			shard:SetTexture( [[Interface\PlayerFrame\UI-WarlockShard]] )
+			shard:SetTexCoord( 2/128, 16/128, 2/64, 27/64 )
+			shard:SetSize( 24, 24 )
+			self.SoulShards[ i ] = shard
 		end
 		self.SoulShards[2]:SetPoint( "CENTER", self, "BOTTOM", 0, 0 )
 		self.SoulShards[1]:SetPoint( "RIGHT", self.SoulShards[2], "LEFT", 0, 0 )
@@ -720,12 +736,17 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Combat = self.overlay:CreateTexture( nil, "OVERLAY" )
 		self.Combat:SetPoint( "RIGHT", self.Health, "BOTTOMRIGHT", 0, -2 )
 		self.Combat:SetSize( 24, 24 )
-
 	elseif unit == "party" or unit == "target" then
 		self.Status = ns.CreateFontString( self.overlay, 16, "RIGHT" )
 		self.Status:SetPoint( "RIGHT", self.Health, "BOTTOMRIGHT", -2, 0 )
 
 		self:Tag( self.Status, "[mastericon][leadericon]" )
+	elseif unit == "pet" then
+		self.Happiness = self.overlay:CreateTexture( nil, "OVERLAY" )
+		self.Happiness:SetPoint( "RIGHT", self, "LEFT", -8, 0 )
+		self.Happiness:SetSize( 24, 24 )
+
+		self.Happiness.PostUpdate = ns.PostUpdateHappiness
 	end
 
 	----------------
@@ -1020,35 +1041,77 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Plugin: oUF_boring_totembar --
 	---------------------------------
 
-	if IsAddOnLoaded( "oUF_boring_totembar" ) and unit == "player" and class == "SHAMAN" then
+	if IsAddOnLoaded( "oUF_boring_totembar" ) and unit == "player" and playerClass == "SHAMAN" then
+		local totemSize = ( config.height * ( 1 - config.powerHeight ) ) / 2
+
 		local totemBar = CreateFrame( "Frame", nil, self )
 		totemBar:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
 		totemBar:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
-		totemBar:SetHeight( ( config.height * ( 1 - config.powerHeight ) ) / 2 )
+		totemBar:SetHeight( totemSize )
+		self.TotemBar = totemBar
 
 		totemBar.Destroy = true
 		totemBar.UpdateColors = true
 
+		for _, color in ipairs( oUF.colors.totems ) do
+			for i, value in ipairs( color ) do
+				color[ i ] = value * 1.5
+			end
+		end
+
+		ns.CreateBorder( totemBar, config.borderSize )
+		local function UpdateBorderParent( self )
+			for i = 4, 1, -1 do
+				if totemBar[ i ]:IsShown() then
+					for _, tex in ipairs( totemBar.BorderTextures ) do
+						tex:SetParent( self )
+					end
+					return
+				end
+			end
+			for _, tex in ipairs( totemBar.BorderTextures ) do
+				tex:SetParent( totemBar )
+			end
+		end
+
 		for i = 1, 4 do
 			local totem = ns.CreateStatusBar( totemBar, 14, "CENTER" )
-			totem:SetWidth( ( totemBar:GetWidth() / 4 ) - totemBar:GetHeight() )
+			totem:SetWidth( ( self:GetWidth() / 4 ) - totemBar:GetHeight() )
 			if i > 1 then
-				totem:SetPoint( "TOPLEFT", totemBar[ i - 1 ], "TOPRIGHT" )
-				totem:SetPoint( "BOTTOMLEFT", totemBar[ i - 1 ], "BOTTOMRIGHT" )
+				totem:SetPoint( "TOPLEFT", totemBar[ i - 1 ], "TOPRIGHT", totemSize, 0 )
+				totem:SetPoint( "BOTTOMLEFT", totemBar[ i - 1 ], "BOTTOMRIGHT", totemSize, 0 )
 			else
-				totem:SetPoint( "TOPLEFT" )
-				totem:SetPoint( "BOTTOMLEFT" )
+				totem:SetPoint( "TOPLEFT", totemSize, 0 )
+				totem:SetPoint( "BOTTOMLEFT", totemSize, 0 )
 			end
 
-			local icon = totem:CreateTexture( nil, "ARTWORK" )
+			local icon = totem:CreateTexture( nil, "BACKGROUND" )
 			icon:SetPoint( "TOPRIGHT", totem, "TOPLEFT" )
 			icon:SetPoint( "BOTTOMRIGHT", totem, "BOTTOMRIGHT" )
-			icon:SetPoint( totemBar:GetHeight() )
+			icon:SetWidth( totemSize )
+			icon:SetTexCoord( 0.06, 0.94, 0.06, 0.94 )
 			totem.Icon = icon
 
-			totem.bg.multiplier = config.bgColorIntensity
+			local bg = totem.bg
+			bg:SetParent( totemBar )
+			bg:SetDrawLayer( "BACKGROUND" )
+			bg:SetPoint( "TOPLEFT", totem, "TOPLEFT", -totemSize, 0 )
+			bg:SetPoint( "BOTTOMRIGHT", totem )
+			bg:Show()
+
+			local r, g, b = unpack( oUF.colors.totems[ SHAMAN_TOTEM_PRIORITIES[ i ] ] )
+			local mu = 1 / config.bgColorIntensity
+			bg:SetVertexColor( r * mu, g * mu, b * mu )
+			bg.multiplier = mu
+
+			totemBar[ i ] = totem
 			totem.StatusBar = totem
+
 			totem.Time = totem.value
+			totem.Time:SetPoint( "CENTER", 0, 1 )
+
+			totem:HookScript( "OnShow", UpdateBorderParent )
+			totem:HookScript( "OnHide", UpdateBorderParent )
 		end
 	end
 
@@ -1057,8 +1120,9 @@ ns.Spawn = function(self, unit, isSingle)
 	--------------------------------
 
 	if IsAddOnLoaded( "oUF_CombatFeedback" ) and not unit:match( "^(.+)target$" ) then
-		self.CombatFeedbackText = ns.CreateFontString( self.overlay, 24, "CENTER" )
-		self.CombatFeedbackText:SetPoint( "CENTER" )
+		local cft = ns.CreateFontString( self.overlay, 24, "CENTER" )
+		cft:SetPoint( "CENTER", 0, 1 )
+		self.CombatFeedbackText = cft
 	end
 
 	---------------------------
@@ -1070,6 +1134,8 @@ ns.Spawn = function(self, unit, isSingle)
 		feralMana:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
 		feralMana:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
 		feralMana:SetHeight( ( config.height * ( 1 - config.powerHeight ) ) / 2 )
+		feralMana.ManaBar = feralMana
+		self.DruidMana = feralMana
 
 		local feralManaText = feralMana.value
 		feralManaText:SetPoint( "CENTER" )
@@ -1079,16 +1145,12 @@ ns.Spawn = function(self, unit, isSingle)
 
 		feralMana.bg.multiplier = config.bgColorIntensity
 
-		feralMana.ManaBar = feralMana
-
 		feralMana.PostUpdatePower = function( self, unit )
 			local r, g, b = unpack( oUF.colors.power.MANA )
 			local mu = self.bg.multiplier
 			self:SetStatusBarColor( r, g, b )
 			self.bg:SetVertexColor( r * mu, g * mu, b * mu )
 		end
-
-		self.DruidMana = feralMana
 	end
 
 	------------------------
@@ -1106,7 +1168,7 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Plugin: oUF_SpellRange --
 	----------------------------
 
-	if IsAddOnEnabled( "oUF_SpellRange" ) and not self.Range then
+	if IsAddOnLoaded( "oUF_SpellRange" ) and not self.Range then
 		self.SpellRange = {
 			insideAlpha = 1,
 			outsideAlpha = 0.5,
