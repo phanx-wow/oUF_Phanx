@@ -19,7 +19,7 @@ ns.CreateBorder = function(self, size, offset)
 
 	for i = 1, 8 do
 		t[i] = self:CreateTexture(nil, "ARTWORK")
-		t[i]:SetTexture([[Interface\AddOns\oUF_Phanx\media\Border-SimpleSquare]])
+		t[i]:SetTexture([[Interface\AddOns\oUF_Phanx\media\SimpleSquare]])
 	end
 
 	t[1].name = "TOPLEFT"
