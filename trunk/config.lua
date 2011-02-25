@@ -249,40 +249,6 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		PoUFDB.statusbar = defaults.statusbar
 	end
 
-	for i, f in ipairs( ns.loadFuncs ) do f() end
-	ns.loadFuncs = nil
-
-	self:UnregisterAllEvents()
-	self:SetScript( "OnEvent", nil )
-end )
-
-------------------------------------------------------------------------
---	Options panel
-------------------------------------------------------------------------
-
-ns.fontList, ns.statusbarList = {}, {}
-
-if ns.L then
-	for k, v in pairs( ns.L ) do -- clean up missing translations
-		if v == "" then
-			ns.L[ k ] = k
-		end
-	end
-end
-
-ns.L = setmetatable( ns.L or {}, { __index = function( t, k )
-	if k == nil then return "" end
-	local v = tostring( k )
-	t[ k ] = v
-	return v
-end } )
-
-local CreateOptionsPanel = LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel
-
-------------------------------------------------------------------------
-
-ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
-
 	SharedMedia = LibStub( "LibSharedMedia-3.0", true )
 	if SharedMedia then
 		-- SharedMedia:Register( "font", "Andika", [[Interface\AddOns\oUF_Phanx\media\AndikaBasic-Custom.ttf]] )
@@ -325,7 +291,39 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 		end )
 	end
 
-	--------------------------------------------------------------------
+	for i, f in ipairs( ns.loadFuncs ) do f() end
+	ns.loadFuncs = nil
+
+	self:UnregisterAllEvents()
+	self:SetScript( "OnEvent", nil )
+end )
+
+------------------------------------------------------------------------
+--	Options panel
+------------------------------------------------------------------------
+
+ns.fontList, ns.statusbarList = {}, {}
+
+if ns.L then
+	for k, v in pairs( ns.L ) do -- clean up missing translations
+		if v == "" then
+			ns.L[ k ] = k
+		end
+	end
+end
+
+ns.L = setmetatable( ns.L or {}, { __index = function( t, k )
+	if k == nil then return "" end
+	local v = tostring( k )
+	t[ k ] = v
+	return v
+end } )
+
+local CreateOptionsPanel = LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel
+
+------------------------------------------------------------------------
+
+ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 
 	local db = ns.config
 	local L = ns.L
