@@ -84,27 +84,27 @@ ns.uconfig = {
 	--	Arena Oppnonents --
 	-----------------------
 	arena1 = {
-		point = "TOPRIGHT UIParent TOPRIGHT -29 -255",
+		point = "TOPLEFT boss1 TOPLEFT 0 0",
 		width = 0.5,
 		power = true,
 	},
 	arena2 = {
-		point = "TOPRIGHT arena1 BOTTOMRIGHT 0 -25",
+		point = "TOPRIGHT arena1 BOTTOMRIGHT 0 -16",
 		width = 0.5,
 		power = true,
 	},
 	arena3 = {
-		point = "TOPRIGHT arena2 BOTTOMRIGHT 0 -25",
+		point = "TOPRIGHT arena2 BOTTOMRIGHT 0 -16",
 		width = 0.5,
 		power = true,
 	},
 	arena4 = {
-		point = "TOPRIGHT arena3 BOTTOMRIGHT 0 -25",
+		point = "TOPRIGHT arena3 BOTTOMRIGHT 0 -16",
 		width = 0.5,
 		power = true,
 	},
 	arena5 = {
-		point = "TOPRIGHT arena4 BOTTOMRIGHT 0 -25",
+		point = "TOPRIGHT arena4 BOTTOMRIGHT 0 -16",
 		width = 0.5,
 		power = true,
 	},
@@ -112,23 +112,23 @@ ns.uconfig = {
 	--	Arena Opponents' Pets --
 	----------------------------
 	arenapet1 = {
-		point = "RIGHT arena1 LEFT 10 0",
+		point = "LEFT arena1 RIGHT 10 0",
 		width = 0.25,
 	},
 	arenapet2 = {
-		point = "RIGHT arena2 LEFT 10 0",
+		point = "LEFT arena2 RIGHT 10 0",
 		width = 0.25,
 	},
 	arenapet3 = {
-		point = "RIGHT arena3 LEFT 10 0",
+		point = "LEFT arena3 RIGHT 10 0",
 		width = 0.25,
 	},
 	arenapet4 = {
-		point = "RIGHT arena4 LEFT 10 0",
+		point = "LEFT arena4 RIGHT 10 0",
 		width = 0.25,
 	},
 	arenapet5 = {
-		point = "RIGHT arena5 LEFT 10 0",
+		point = "LEFT arena5 RIGHT 10 0",
 		width = 0.25,
 	},
 }

@@ -658,9 +658,7 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Name:SetPoint( "BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4 )
 
 		self:Tag( self.Name, "[unitcolor][name]" )
-	end
-
-	if unit == "targettarget" or unit == "focustarget" or unit == "party" or unit == "boss" then
+	elseif unit ~= "player" and not unit:match("pet") then
 		self.Name = ns.CreateFontString( self.overlay, 20, "LEFT" )
 		self.Name:SetPoint( "BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4 )
 		self.Name:SetPoint( "BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4 )
