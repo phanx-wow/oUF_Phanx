@@ -854,28 +854,8 @@ ns.Spawn = function(self, unit, isSingle)
 		local NUM_BUFFS = math.max( 1, floor( MAX_ICONS * 0.2 ) )
 		local NUM_DEBUFFS = math.min( MAX_ICONS - 1, floor( MAX_ICONS * 0.8 ) )
 
-		self.Buffs = CreateFrame( "Frame", nil, self )
-		self.Buffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 2, 24 )
-		self.Buffs:SetWidth( ( config.height * NUM_BUFFS ) + ( GAP * ( NUM_BUFFS - 1 ) ) )
-		self.Buffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
-
-		self.Buffs["growth-x"] = "LEFT"
-		self.Buffs["growth-y"] = "UP"
-		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
-		self.Buffs["num"] = NUM_BUFFS
-		self.Buffs["showType"] = false
-		self.Buffs["size"] = config.height
-		self.Buffs["spacing-x"] = GAP
-		self.Buffs["spacing-y"] = GAP * 2
-
-		self.Buffs.CustomFilter   = ns.CustomAuraFilters.target
-		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
-
-		self.Buffs.parent = self
-
 		self.Debuffs = CreateFrame( "Frame", nil, self )
-		self.Debuffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 24 )
+		self.Debuffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 24 )
 		self.Debuffs:SetWidth( ( config.height * NUM_DEBUFFS ) + ( GAP * ( NUM_DEBUFFS - 1 ) ) )
 		self.Debuffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
 
@@ -893,6 +873,26 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
 		self.Debuffs.parent = self
+
+		self.Buffs = CreateFrame( "Frame", nil, self )
+		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 2, 24 )
+		self.Buffs:SetWidth( ( config.height * NUM_BUFFS ) + ( GAP * ( NUM_BUFFS - 1 ) ) )
+		self.Buffs:SetHeight( ( config.height * 2 ) + ( GAP * 2 ) )
+
+		self.Buffs["growth-x"] = "LEFT"
+		self.Buffs["growth-y"] = "UP"
+		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
+		self.Buffs["num"] = NUM_BUFFS
+		self.Buffs["showType"] = false
+		self.Buffs["size"] = config.height
+		self.Buffs["spacing-x"] = GAP
+		self.Buffs["spacing-y"] = GAP * 2
+
+		self.Buffs.CustomFilter   = ns.CustomAuraFilters.target
+		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+
+		self.Buffs.parent = self
 	end
 
 	-----------------
