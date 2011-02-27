@@ -469,6 +469,8 @@ if playerClass == "PRIEST" then addAuras({
 	[89485] = 4, -- Inner Focus
 	[81292] = 4, -- Mind Melt [Rank 1]
 	[87160] = 4, -- Mind Melt [Rank 2]
+	[63731] = 4, -- Serendipity [Rank 1]
+	[63735] = 4, -- Serendipity [Rank 2]
 	[88688] = 4, -- Surge of Light
 
 	[6346]  = 1, -- Fear Ward
