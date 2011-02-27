@@ -530,8 +530,7 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Health bar and text --
 	-------------------------
 
-	local health
-	health = ns.CreateStatusBar( self, 24, "RIGHT", true )
+	local health = ns.CreateStatusBar( self, 24, "RIGHT", true )
 	health:SetPoint( "TOPLEFT", self, "TOPLEFT", 1, -2 )
 	health:SetPoint( "TOPRIGHT", self, "TOPRIGHT", -1, -2 )
 	health:SetPoint( "BOTTOM", self, "BOTTOM", 0, 0 )
@@ -545,13 +544,13 @@ ns.Spawn = function(self, unit, isSingle)
 	health.colorReaction = healthColorMode == "CLASS"
 	health.colorSmooth = healthColorMode == "HEALTH"
 
-	health.bg.multiplier = config.bgColorIntensity
+	local healthBG = config.healthBG
+	health.bg.multiplier = healthBG
 
 	if healthColorMode == "CUSTOM" then
-		local mu = config.bgColorIntensity
 		local r, g, b = unpack( config.healthColor )
 		health:SetStatusBarColor( r, g, b )
-		health.bg:SetVertexColor( r * mu, g * mu, b * mu )
+		health.bg:SetVertexColor( r * healthBG, g * healthBG, b * healthBG )
 	end
 
 	health.PostUpdate = ns.PostUpdateHealth
@@ -604,13 +603,13 @@ ns.Spawn = function(self, unit, isSingle)
 		power.colorReaction = powerColorMode == "CLASS"
 		power.colorPower = powerColorMode == "POWER"
 
-		power.bg.multiplier = 1 / config.bgColorIntensity
+		local powerBG = config.powerBG
+		power.bg.multiplier = powerBG
 
 		if powerColorMode == "CUSTOM" then
-			local mu = config.bgColorIntensity
 			local r, g, b = unpack( config.powerColor )
 			power:SetStatusBarColor( r, g, b )
-			power.bg:SetVertexColor( r / mu, g / mu, b / mu )
+			power.bg:SetVertexColor( r / powerBG, g / powerBG, b / powerBG )
 		end
 
 		power.frequentUpdates = unit == "player"
@@ -1098,7 +1097,7 @@ ns.Spawn = function(self, unit, isSingle)
 			bg:Show()
 
 			local r, g, b = unpack( oUF.colors.totems[ SHAMAN_TOTEM_PRIORITIES[ i ] ] )
-			local mu = 1 / config.bgColorIntensity
+			local mu = config.powerBG
 			bg:SetVertexColor( r * mu, g * mu, b * mu )
 			bg.multiplier = mu
 
@@ -1141,13 +1140,13 @@ ns.Spawn = function(self, unit, isSingle)
 		self:Tag( feralManaText, "[feralmana]" )
 		table.insert( self.mouseovers, feralManaText )
 
-		feralMana.bg.multiplier = 1 / config.bgColorIntensity
+		local feralManaBG = config.powerBG
+		feralMana.bg.multiplier = feralManaBG
 
 		feralMana.PostUpdatePower = function( self, unit )
 			local r, g, b = unpack( oUF.colors.power.MANA )
-			local mu = self.bg.multiplier
 			self:SetStatusBarColor( r, g, b )
-			self.bg:SetVertexColor( r * mu, g * mu, b * mu )
+			self.bg:SetVertexColor( r * feralManaBG, g * feralManaBG, b * feralManaBG )
 		end
 
 		ns.CreateBorder( feralMana )

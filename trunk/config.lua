@@ -223,11 +223,11 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 
 		healthColor = { 0.2, 0.2, 0.2 },
 		healthColorMode = "CUSTOM",
+		healthBG = 1.8,
 
 		powerColor = { 0.8, 0.8, 0.8 },
 		powerColorMode = "CLASS",
-
-		bgColorIntensity = 1.5,
+		powerBG = 0.2,
 
 		borderColor = { 0.2, 0.2, 0.2 },
 		borderSize = 12,
@@ -241,12 +241,10 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 	end
 	ns.config = PoUFDB
 
-	if PoUFDB.borderSize == 15 and not PoUFDB.borderSizeUpdated then
-		PoUFDB.borderSize = 12
-		PoUFDB.borderSizeUpdated = true
-	end
-	if PoUFDB.statusbar == [[Interface\AddOns\oUF_Phanx\media\Neal]] then
-		PoUFDB.statusbar = defaults.statusbar
+	if PoUFDB.bgColorIntensity then
+		PoUFDB.healthBG = PoUFDB.bgColorIntensity
+		PoUFDB.powerBG = 1 / PoUFDB.bgColorIntensity
+		PoUFDB.bgColorIntensity = nil
 	end
 
 	SharedMedia = LibStub( "LibSharedMedia-3.0", true )
@@ -613,10 +611,13 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 			end
 		end
 		outline:SetValue( db.fontOutline, outlines[ db.fontOutline ] )
+
 		borderSize:SetValue( db.borderSize )
+
 		dispelFilter:SetChecked( db.dispelFilter )
 		healFilter:SetChecked( db.ignoreOwnHeals )
 		threatLevels:SetChecked( db.threatLevels )
+
 		if eclipseBar then
 			eclipseBar:SetChecked( db.eclipseBar )
 			eclipseBarIcons:SetChecked( db.eclipseBarIcons )
@@ -666,20 +667,18 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 			db.healthColorMode = value
 			healthColorMode:SetValue( value, healthColorModes[ value ] )
 			for _, frame in ipairs( ns.objects ) do
-				if frame:IsShown() then
-					local hp = frame.Health
-					if type( hp ) == "table" then
-						hp.colorClass = value == "CLASS"
-						hp.colorReaction = value == "CLASS"
-						hp.colorSmooth = value == "HEALTH"
-						if value == "CUSTOM" then
-							local mu = hp.bg.multiplier
-							local r, g, b = unpack( db.healthColor )
-							hp:SetStatusBarColor( r, g, b )
-							hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
-						else
-							hp:ForceUpdate()
-						end
+				local health = frame.Health
+				if type( health ) == "table" then
+					health.colorClass = value == "CLASS"
+					health.colorReaction = value == "CLASS"
+					health.colorSmooth = value == "HEALTH"
+					if value == "CUSTOM" then
+						local mu = health.bg.multiplier
+						local r, g, b = unpack( db.healthColor )
+						health:SetStatusBarColor( r, g, b )
+						health.bg:SetVertexColor( r * mu, g * mu, b * mu )
+					elseif frame:IsShown() then
+						health:ForceUpdate()
 					end
 				end
 			end
@@ -729,15 +728,40 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 		db.healthColor[2] = g
 		db.healthColor[3] = b
 		for _, frame in ipairs( ns.objects ) do
-			if frame:IsShown() then
-				local hp = frame.Health
-				if type( hp ) == "table" then
-					local mu = hp.bg.multiplier
-					hp:SetStatusBarColor( r, g, b )
-					hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+			local hp = frame.Health
+			if type( hp ) == "table" then
+				local mu = hp.bg.multiplier
+				hp:SetStatusBarColor( r, g, b )
+				hp.bg:SetVertexColor( r * mu, g * mu, b * mu )
+			end
+		end
+	end
+
+	--------------------------------------------------------------------
+
+	local healthBG = CreateSlider( self, L["Health background intensity"], 0, 3, 0.05, true )
+	healthBG.desc = L["Change the brightness of the health bar background color, relative to the foreground color."]
+	healthBG:SetPoint( "TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12 )
+	healthBG:SetPoint( "TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12 )
+
+	healthBG.OnValueChanged = function( self, value )
+		value = math.floor( value * 100 + 0.5 ) / 100
+		db.healthBG = value
+		local custom = db.healthColorMode == "CUSTOM"
+		for _, frame in ipairs( ns.objects ) do
+			local health = frame.Health
+			if health then
+				health.bg.multiplier = value
+				if custom then
+					local r, g, b = unpack( db.healthColor )
+					health:SetStatusBarColor( r, g, b )
+					health.bg:SetVertexColor( r * value, g * value, b * value )
+				elseif frame:IsShown() then
+					health:ForceUpdate( frame.unit )
 				end
 			end
 		end
+		return value
 	end
 
 	--------------------------------------------------------------------
@@ -752,8 +776,8 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 
 	local powerColorMode = CreateDropdown( self, L["Power color mode"] )
 	powerColorMode.desc = L["Change how power bars are colored."]
-	powerColorMode:SetPoint( "TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12 )
-	powerColorMode:SetPoint( "TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12 )
+	powerColorMode:SetPoint( "TOPLEFT", healthBG, "BOTTOMLEFT", 0, -12 )
+	powerColorMode:SetPoint( "TOPRIGHT", healthBG, "BOTTOMRIGHT", 0, -12 )
 
 	do
 		local function OnClick( self )
@@ -761,20 +785,18 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 			db.powerColorMode = value
 			powerColorMode:SetValue( value, powerColorModes[ value ] )
 			for _, frame in ipairs( ns.objects ) do
-				if frame:IsShown() then
-					local pp = frame.Power
-					if type( pp ) == "table" then
-						pp.colorClass = value == "CLASS"
-						pp.colorReaction = value == "CLASS"
-						pp.colorPower = value == "POWER"
-						if value == "CUSTOM" then
-							local mu = pp.bg.multiplier
-							local r, g, b = unpack( db.powerColor )
-							pp:SetStatusBarColor( r, g, b )
-							pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
-						else
-							pp:ForceUpdate()
-						end
+				local power = frame.Power
+				if type( power ) == "table" then
+					power.colorClass = value == "CLASS"
+					power.colorReaction = value == "CLASS"
+					power.colorPower = value == "POWER"
+					if value == "CUSTOM" then
+						local mu = power.bg.multiplier
+						local r, g, b = unpack( db.powerColor )
+						power:SetStatusBarColor( r, g, b )
+						power.bg:SetVertexColor( r * mu, g * mu, b * mu )
+					elseif frame:IsShown() then
+						power:ForceUpdate()
 					end
 				end
 			end
@@ -820,52 +842,51 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 		db.powerColor[2] = g
 		db.powerColor[3] = b
 		for _, frame in ipairs( ns.objects ) do
-			if frame:IsShown() then
-				local pp = frame.Power
-				if type( pp ) == "table" then
-					local mu = pp.bg.multiplier
-					pp:SetStatusBarColor( r, g, b )
-					pp.bg:SetVertexColor( r * mu, g * mu, b * mu )
-				end
+			local power = frame.Power
+			if type( power ) == "table" then
+				local mu = power.bg.multiplier
+				power:SetStatusBarColor( r, g, b )
+				power.bg:SetVertexColor( r * mu, g * mu, b * mu )
 			end
 		end
 	end
 
 	--------------------------------------------------------------------
 
-	local bgColorIntensity = CreateSlider( self, L["Background intensity"], 0, 2, 0.1, true )
-	bgColorIntensity.desc = L["Change the brightness of the health bar background color, relative to the foreground color."]
-	bgColorIntensity:SetPoint( "TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -16 )
-	bgColorIntensity:SetPoint( "TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -16 )
+	local powerBG = CreateSlider( self, L["Power background intensity"], 0, 3, 0.05, true )
+	powerBG.desc = L["Change the brightness of the power bar background color, relative to the foreground color."]
+	powerBG:SetPoint( "TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -12 )
+	powerBG:SetPoint( "TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -12 )
 
-	bgColorIntensity.OnValueChanged = function( self, value )
+	powerBG.OnValueChanged = function( self, value )
 		value = math.floor( value * 100 + 0.5 ) / 100
-		db.bgColorIntensity = value
-		local healthCustom = db.healthColorMode == "CUSTOM"
-		local powerCustom = db.powerColorMode == "CUSTOM"
+		db.powerBG = value
+		local custom = db.powerColorMode == "CUSTOM"
 		for _, frame in ipairs( ns.objects ) do
-			if frame:IsShown() then
-				local hp = frame.Health
-				if type( hp ) == "table" then
-					hp.bg.multiplier = value
-					if healthCustom then
-						local r, g, b = unpack( db.healthColor )
-						hp:SetStatusBarColor( r, g, b )
-						hp.bg:SetVertexColor( r * value, g * value, b * value )
-					else
-						hp:ForceUpdate()
-					end
+			local power = frame.Power
+			if power then
+				power.bg.multiplier = value
+				if custom then
+					local r, g, b = unpack( db.powerColor )
+					power:SetStatusBarColor( r, g, b )
+					power.bg:SetVertexColor( r * value, g * value, b * value )
+				elseif frame:IsShown() then
+					power:ForceUpdate()
 				end
-				local pp = frame.Power
-				if type( pp ) == "table" then
-					pp.bg.multiplier = value
-					if powerCustom then
-						local r, g, b = unpack( db.powerColor )
-						pp:SetStatusBarColor( r, g, b )
-						pp.bg:SetVertexColor( r * value, g * value, b * value )
-					else
-						pp:ForceUpdate()
-					end
+			end
+			local druidMana = frame.DruidMana
+			if druidMana then
+				local r, g, b = unpack( oUF.colors.power.MANA )
+				druidMana.bg.multiplier = value
+				druidMana:PostUpdatePower( frame.unit )
+			end
+			local totemBar = frame.TotemBar
+			if totemBar then
+				for i = 1, 4 do
+					local bg = totemBar[ i ].bg
+					local r, g, b = unpack( oUF.colors.totems[ SHAMAN_TOTEM_PRIORITIES[ i ] ] )
+					bg:SetVertexColor( r * value, g * value, b * value )
+					bg.multiplier = value
 				end
 			end
 		end
@@ -876,7 +897,7 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 
 	local borderColor = CreateColorPicker( self, L["Border color"] )
 	borderColor.desc = L["Change the default frame border color."]
-	borderColor:SetPoint( "BOTTOMLEFT", bgColorIntensity, "BOTTOMRIGHT", 16, 12 )
+	borderColor:SetPoint( "TOPLEFT", powerBG, "BOTTOMLEFT", 4, -16 )
 
 	borderColor.GetColor = function()
 		return unpack( db.borderColor )
@@ -906,6 +927,8 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 		else
 			healthColor:Hide()
 		end
+		healthBG:SetValue( db.healthBG )
+
 		powerColorMode:SetValue( db.powerColorMode, powerColorModes[ db.powerColorMode ] )
 		powerColor:SetColor( unpack( db.powerColor ) )
 		if db.powerColorMode == "CUSTOM" then
@@ -913,7 +936,8 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 		else
 			powerColor:Hide()
 		end
-		bgColorIntensity:SetValue( db.bgColorIntensity )
+		powerBG:SetValue( db.powerBG )
+
 		borderColor:SetColor( unpack( db.borderColor ) )
 	end
 end )
