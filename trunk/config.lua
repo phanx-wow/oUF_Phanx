@@ -343,17 +343,19 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 		L["Select a texture for health, power, and other bars."] )
 	statusbar:SetPoint( "TOPLEFT", notes, "BOTTOMLEFT", 0, -12 )
 	statusbar:SetPoint( "TOPRIGHT", notes, "BOTTOM", -8, -12 )
-	statusbar.valueText.bg = statusbar:CreateTexture( nil, "ARTWORK" )
-	statusbar.valueText.bg:SetPoint( "RIGHT", statusbar.valueText, 4, -1 )
-	statusbar.valueText.bg:SetPoint( "LEFT", statusbar.valueText, -4, -1 )
-	statusbar.valueText.bg:SetHeight( 16 )
-	statusbar.valueText.bg:SetVertexColor( 0.4, 0.4, 0.4 )
+
+	local valueBG = statusbar.dropdown:CreateTexture( nil, "OVERLAY" )
+	valueBG:SetPoint("LEFT", statusbar.valueText, -2, 1)
+	valueBG:SetPoint("RIGHT", statusbar.valueText, 5, 1)
+	valueBG:SetHeight( 15 )
+	valueBG:SetVertexColor( 0.35, 0.35, 0.35 )
+	statusbar.valueBG = valueBG
 
 	statusbar.OnValueChanged = function( self, value )
 		local file = SharedMedia:Fetch( "statusbar", value )
 		if db.statusbar == file then return end
+		valueBG:SetTexture( file )
 		db.statusbar = file
-		self.valueText.bg:SetTexture( file )
 		ns.SetAllStatusBarTextures()
 	end
 
@@ -363,12 +365,13 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 			button_OnClick( self )
 			statusbar.dropdown.list:Hide()
 
-			local function getButtonBackground( self )
+			local function GetButtonBackground( self )
 				if not self.bg then
-					self.bg = self:CreateTexture( nil, "BACKGROUND" )
-					self.bg:SetPoint( "TOPLEFT", -3, 0 )
-					self.bg:SetPoint( "BOTTOMRIGHT", 3, 0 )
-					self.bg:SetVertexColor( 0.35, 0.35, 0.35 )
+					local bg = self:CreateTexture( nil, "BACKGROUND" )
+					bg:SetPoint( "TOPLEFT", -3, 0 )
+					bg:SetPoint( "BOTTOMRIGHT", 3, 0 )
+					bg:SetVertexColor( 0.35, 0.35, 0.35 )
+					self.bg = bg
 				end
 				return self.bg
 			end
@@ -382,14 +385,13 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 						button:SetPoint( "TOPLEFT", buttons[ i - 1 ], "BOTTOMLEFT", 0, -1 )
 					end
 					if button.value and button:IsShown() then
-						local bg = getButtonBackground( button )
+						local bg = button.bg or GetButtonBackground( button )
 						bg:SetTexture( SharedMedia:Fetch( "statusbar", button.value ) )
 						local ff, fs = button.label:GetFont()
 						button.label:SetFont( ff, fs, "OUTLINE" )
 						numButtons = numButtons + 1
 					end
 				end
-
 				statusbar.dropdown.list:SetHeight( statusbar.dropdown.list:GetHeight() + ( numButtons * 1 ) )
 			end
 
@@ -603,11 +605,14 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 		for k, v in pairs( SharedMedia:HashTable("statusbar") ) do
 			if v == db.statusbar or v:match("([^\\]+)$") == db.statusbar:match("([^\\]+)$") then
 				statusbar:SetValue( k )
+				statusbar.valueBG:SetTexture( v )
 			end
 		end
 		for k, v in pairs( SharedMedia:HashTable("font") ) do
 			if v == db.font or v:lower():match("([^\\]+)%.ttf$") == db.font:lower():match("([^\\]+)%.ttf$") then
 				font:SetValue( k )
+				local _, height, flags = font.valueText:GetFont()
+				font.valueText:SetFont( v, height, flags )
 			end
 		end
 		outline:SetValue( db.fontOutline, outlines[ db.fontOutline ] )
