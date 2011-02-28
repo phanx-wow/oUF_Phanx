@@ -21,7 +21,7 @@ if not oUF then return end
 local ResComm = LibStub and LibStub("LibResComm-1.0", true)
 if not ResComm then return end
 
-local text = {
+local displayText = {
 	CASTING = "|cffffff00RES|r",
 	FINISHED = "|cff00ff00RES|r",
 	SOULSTONE = "|cffff00ffSS|r",
@@ -30,18 +30,17 @@ local text = {
 ------------------------------------------------------------------------
 
 local resTarget = { }
-local statusForName = { }
-local statusForUnit = { }
+local resStatus = { }
+local unitName = { }
 
-local function UNIT_HEALTH( self, event, unit )
+local UNIT_HEALTH
+function UNIT_HEALTH( self, event, unit )
 	if unit ~= self.unit then return end
 
-	if statusForUnit[ unit ] and not UnitIsDead( unit ) then
-		local name, realm = UnitName( unit )
-		if realm and realm ~= "" then
-			name = ( "%s-%s" ):format( name, realm )
-		end
-		statusForName[ name ] = nil
+	local name = unitName[ unit ]
+	if name and not UnitIsDead( unit ) then
+		unitName[ unit ] = nil
+		resStatus[ name ] = nil
 		self.Resurrection:SetText( nil )
 		self:UnregisterEvent( "UNIT_HEALTH", UNIT_HEALTH )
 	end
@@ -49,21 +48,24 @@ end
 
 local Update = function( self, event, unit )
 	if not unit then return end -- frame currently not used (party/partypet)
+	print( "Resurrection Update", unit )
+	local element = self.Resurrection
 
 	local name, realm = UnitName( unit )
 	if realm and realm ~= "" then
 		name = ("%s-%s"):format( name, realm )
 	end
+	unitName[ unit ] = name
 
-	local status = statusForName[ name ]
-	local element = self.Resurrection
+	local status = resStatus[ name ]
+	local text = status and displayText[ status ]
 
 	if status ~= "SOULSTONE" or not element.ignoreSoulstone then
-		element:SetText( status and text[ status ] )
+		element:SetText( text )
 	end
 
 	if element.PostUpdate then
-		element:PostUpdate( unit, status, status and text[ status ] )
+		element:PostUpdate( unit, status, text )
 	end
 
 	self:RegisterEvent( "UNIT_HEALTH", UNIT_HEALTH )
@@ -88,6 +90,8 @@ end
 local Disable = function( self )
 	local element = self.Resurrection
 	if not element or not element.SetText then return end
+
+	element:Hide()
 
 	return true
 end
