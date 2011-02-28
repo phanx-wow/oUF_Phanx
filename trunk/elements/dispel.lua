@@ -31,19 +31,22 @@ if select( 4, GetAddOnInfo( "oUF_DebuffHighlight" ) ) then return end
 
 local class = select( 2, UnitClass( "player" ) )
 
-local colors = { ["Enrage"] = { 0.8, 0.2, 0 } }
-oUF.colors.debuff = colors
+local colors = {
+	["Enrage"] = { 0.8, 0.2, 0 }
+}
 for type, color in pairs( DebuffTypeColor ) do
 	colors[ type ] = { color.r, color.g, color.b }
 end
+oUF.colors.debuff = colors
 
 local enrageEffects = { }
 local invulnEffects = { [642] = true, [1022] = true, [45438] = true, }
 
-local canDispel, canPurge, canShatter, canSteal, canTranq = { }
-local dispelPriority = { Curse = 3, Disease = 1, Magic = 4, Poison = 2 }
+------------------------------------------------------------------------
 
+local canDispel, canPurge, canShatter, canSteal, canTranq = { }
 local defaultPriority = { Curse = 2, Disease = 4, Magic = 1, Poison = 3 }
+local dispelPriority = { Curse = 3, Disease = 1, Magic = 4, Poison = 2 }
 local prioritySort = function( a, b ) return dispelPriority[ a ] > dispelPriority[ b ] end
 
 ------------------------------------------------------------------------
@@ -69,13 +72,13 @@ do
 		scanTooltip:SetUnitBuff( unit, index )
 		local name = scanTooltip.left:GetText()
 		local type = scanTooltip.right:GetText()
+		print( "Scanning", unit, index, type or "Unknown", "buff", name or "Unknown" )
 		scanTooltip:Hide()
-		return type == "Enrage", name
+		return ( type == "Enrage" ), name
 	end
 
 	setmetatable( enrageEffects, { __index = function( enrageEffects, id )
 		if not scanUnit or not scanIndex or type( id ) ~= "number" then return end
-
 		local result, name = IsEnrageEffect( scanUnit, scanIndex )
 		if result then
 			print( "Found enrage effect", id, name )
@@ -93,18 +96,18 @@ local debuffTypeCache = { }
 
 local function Update( self, event, unit )
 	if self.unit ~= unit then return end
-	-- print( "DispelHighlight Update", event, unit )
+	 print( "DispelHighlight Update", event, unit )
 
 	local debuffType
 
 	if UnitCanAssist( "player", unit ) then
 		local i = 1
 		while true do
-			local name, _, _, _, type = UnitAura( unit, i, "HARMFUL" )
+			local name, _, _, _, type = UnitDebuff( unit, i )
 			if not name then break end
-			-- print( "UnitAura", unit, i, tostring( name ), tostring( type ) )
+			print( "UnitDebuff", unit, i, tostring( name ), tostring( type ) )
 			if type and ( not debuffType or dispelPriority[ type ] > dispelPriority[ debuffType ] ) then
-				-- print( "debuffType", type )
+				print( "debuffType", type )
 				debuffType = type
 			end
 			i = i + 1
@@ -114,10 +117,10 @@ local function Update( self, event, unit )
 
 		local i = 1
 		while true do
-			local name, _, _, _, type, _, _, _, stealable, _, id = UnitAura( unit, i, "HELPFUL" )
+			local name, _, _, _, type, _, _, _, stealable, _, id = UnitBuff( unit, i )
 			if not name then break end
 			if type and type:len() < 4 then type = nil end
-			-- print( "UnitAura", unit, i, tostring( name ), tostring( type ) )
+			print( "UnitBuff", unit, i, tostring( name ), tostring( type ) )
 
 			scanIndex = i
 			if canTranq and not type and enrageEffects[ id ] then
@@ -130,6 +133,7 @@ local function Update( self, event, unit )
 			end
 
 			if ( canSteal and stealable ) or ( canPurge and type == "Magic" ) or ( type == "Enrage" ) or ( type == "Invulnerability" ) then
+				print( "debuffType", type )
 				debuffType = type
 				break
 			end
@@ -141,7 +145,7 @@ local function Update( self, event, unit )
 	end
 
 	if debuffTypeCache[ unit ] == debuffType then return end
-	-- print( "UpdateDispelHighlight", unit, tostring( debuffTypeCache[ unit ] ), "==>", tostring( debuffType ) )
+	print( "UpdateDispelHighlight", unit, tostring( debuffTypeCache[ unit ] ), "==>", tostring( debuffType ) )
 	debuffTypeCache[ unit ] = debuffType
 
 	local element = self.DispelHighlight
@@ -175,9 +179,7 @@ local function Enable( self )
 		}
 	end
 
-	if type( element ) ~= "table"
-	or ( not element.Override and not element.Show )
-	or ( element.filter and class == "DEATHKNIGHT" ) then
+	if type( element ) ~= "table" or ( not element.Override and not element.Show ) or ( element.filter and class == "DEATHKNIGHT" ) then
 		self.DispelHighlight = nil
 		return
 	end
@@ -214,10 +216,15 @@ local f = CreateFrame( "Frame" )
 f:RegisterEvent( "PLAYER_TALENT_UPDATE" )
 f:RegisterEvent( "SPELLS_CHANGED" )
 f:SetScript( "OnEvent", function( self, event )
-	PoUFDB.enrageEffects = PoUFDB.enrageEffects or { }
-	for id in pairs( PoUFDB.enrageEffects ) do
-		enrageEffects[ id ] = true
+	if not self.initialized then
+		PoUFDB.enrageEffects = PoUFDB.enrageEffects or { }
+		for id in pairs( PoUFDB.enrageEffects ) do
+			enrageEffects[ id ] = true
+		end
+		self.initialized = true
 	end
+
+	print( "DispelHighlight", event, "Checking capabilities..." )
 
 	if class == "DRUID" then
 		if IsSpellKnown( 2782 ) then -- Remove Corruption
@@ -258,13 +265,16 @@ f:SetScript( "OnEvent", function( self, event )
 		canShatter = IsSpellKnown( 64382 ) -- Shattering Throw
 	end
 
+	canDispel.Curse, canDispel.Disease, canDispel.Magic, canDispel.Poison = true, true, true, true
+	canPurge, canShatter, canSteal, canTranq = true, true, true, true
+
 	wipe( dispelPriority )
 	for type, priority in pairs( defaultPriority ) do
 		dispelPriority[ 1 + #dispelPriority ] = type
 		dispelPriority[type] = ( canDispel[ type ] and 10 or 5 ) - priority
 	end
 	table.sort( dispelPriority, prioritySort )
---[[
+
 	for i, v in ipairs( dispelPriority ) do
 		print( "Can dispel " .. v .. "?", canDispel[ v ] and "YES" or "NO" )
 	end
@@ -272,7 +282,7 @@ f:SetScript( "OnEvent", function( self, event )
 	print( "Can shatter?", canShatter and "YES" or "NO" )
 	print( "Can steal?", canSteal and "YES" or "NO" )
 	print( "Can tranquilize?", canTranq and "YES" or "NO" )
-]]
+
 	for i, object in ipairs( oUF.objects ) do
 		if object.DispelHighlight and object:IsShown() then
 			Update( object, event, object.unit )
