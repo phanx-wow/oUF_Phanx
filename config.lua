@@ -249,9 +249,8 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 
 	SharedMedia = LibStub( "LibSharedMedia-3.0", true )
 	if SharedMedia then
-		-- SharedMedia:Register( "font", "Andika", [[Interface\AddOns\oUF_Phanx\media\AndikaBasic-Custom.ttf]] )
-		-- SharedMedia:Register( "font", "Droid Serif", [[Interface\AddOns\oUF_Phanx\media\DroidSerif-Regular.ttf]] )
 		SharedMedia:Register( "font", "Expressway", [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]] )
+		SharedMedia:Register( "font", "PT Serif", [[Interface\AddOns\oUF_Phanx\media\PTSerif-Regular.ttf]] )
 		SharedMedia:Register( "statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]] )
 
 		for i, v in pairs( SharedMedia:List("font") ) do

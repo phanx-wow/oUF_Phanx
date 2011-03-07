@@ -1,10 +1,9 @@
-Copyright (c) 2004-2008, SIL International (http://scripts.sil.org), 
-with Reserved Font Names 'Andika' and 'SIL'.
+Copyright (c) 2010, ParaType Ltd. (http://www.paratype.com/public),
+with Reserved Font Names "PT Sans", "PT Serif" and "ParaType".
 
-This Font Software is licensed under the SIL Open Font License, Version 1.1.
-This license is copied below, and is also available with a FAQ at:
+This Font Software is licensed under the Open Font License, Version 1.1 
+This license is copied below, and is also available with a FAQ at: 
 http://scripts.sil.org/OFL
-
 
 -----------------------------------------------------------
 SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
