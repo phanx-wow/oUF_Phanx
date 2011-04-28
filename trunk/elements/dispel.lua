@@ -77,7 +77,7 @@ do
 		scanTooltip:SetUnitBuff( unit, index )
 		local name = scanTooltip.left:GetText()
 		local type = scanTooltip.right:GetText()
-		print( "Scanning", unit, index, type or "Unknown", "buff", name or "Unknown" )
+		-- print( "Scanning", unit, index, type or "Unknown", "buff", name or "Unknown" )
 		scanTooltip:Hide()
 		return ( type == "Enrage" ), name
 	end
@@ -86,7 +86,7 @@ do
 		if not scanUnit or not scanIndex or type( id ) ~= "number" then return end
 		local result, name = IsEnrageEffect( scanUnit, scanIndex )
 		if result then
-			print( "Found enrage effect", id, name )
+			-- print( "Found enrage effect", id, name )
 			PoUFDB.enrageEffects = PoUFDB.enrageEffects or { }
 			PoUFDB.enrageEffects[ id ] = name
 		end
@@ -110,9 +110,9 @@ local function Update( self, event, unit )
 		while true do
 			local name, _, _, _, type = UnitDebuff( unit, i )
 			if not name then break end
-			print( "UnitDebuff", unit, i, tostring( name ), tostring( type ) )
+			-- print( "UnitDebuff", unit, i, tostring( name ), tostring( type ) )
 			if type and ( not debuffType or dispelPriority[ type ] > dispelPriority[ debuffType ] ) then
-				print( "debuffType", type )
+				-- print( "debuffType", type )
 				debuffType = type
 				dispellable = canDispel[ type ]
 			end
@@ -126,7 +126,7 @@ local function Update( self, event, unit )
 			local name, _, _, _, type, _, _, _, stealable, _, id = UnitBuff( unit, i )
 			if not name then break end
 			if type and type:len() < 4 then type = nil end
-			print( "UnitBuff", unit, i, tostring( name ), tostring( type ) )
+			-- print( "UnitBuff", unit, i, tostring( name ), tostring( type ) )
 
 			scanIndex = i
 			if not type and enrageEffects[ id ] then
@@ -139,7 +139,7 @@ local function Update( self, event, unit )
 			end
 
 			if ( canSteal and stealable ) or ( canPurge and type == "Magic" ) or ( canTranq and type == "Enrage" ) or ( type == "Invulnerability" ) then
-				print( "debuffType", type )
+				-- print( "debuffType", type )
 				debuffType = type
 				dispellable = true
 				break
