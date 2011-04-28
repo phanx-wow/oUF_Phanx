@@ -48,7 +48,7 @@ end
 
 local Update = function( self, event, unit )
 	if not unit then return end -- frame doesn't currently have a unit (eg. nonexistent party member)
-	print( "Resurrection Update", unit )
+	-- print( "Resurrection Update", unit )
 	local element = self.Resurrection
 
 	local name, realm = UnitName( unit )
