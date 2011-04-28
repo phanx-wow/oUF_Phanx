@@ -100,8 +100,6 @@ ns.PostUpdateHealth = function(self, unit, cur, max)
 	if UnitIsPlayer(unit) then
 		local _, class = UnitClass(unit)
 		color = colors.class[class]
-	elseif UnitIsUnit(unit, "pet") and GetPetHappiness() then
-		color = colors.happiness[GetPetHappiness()]
 	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
 		color = colors.tapped
 	elseif UnitIsEnemy(unit, "player") then
@@ -208,14 +206,6 @@ ns.PostUpdatePower = function(self, unit, cur, max)
 		self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
 	else
 		self.value:SetText(nil)
-	end
-end
-
-------------------------------------------------------------------------
-
-ns.PostUpdateHappiness = function( self, unit, happiness )
-	if happiness == 3 then
-		return self:Hide()
 	end
 end
 
@@ -739,12 +729,6 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Status:SetPoint( "RIGHT", self.Health, "BOTTOMRIGHT", -2, 0 )
 
 		self:Tag( self.Status, "[mastericon][leadericon]" )
-	elseif unit == "pet" then
-		self.Happiness = self.overlay:CreateTexture( nil, "OVERLAY" )
-		self.Happiness:SetPoint( "RIGHT", self, "LEFT", -8, 0 )
-		self.Happiness:SetSize( 24, 24 )
-
-		self.Happiness.PostUpdate = ns.PostUpdateHappiness
 	end
 
 	----------------
