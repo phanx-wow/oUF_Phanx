@@ -18,8 +18,6 @@ oUF.Tags["unitcolor"] = function(unit)
 	elseif UnitIsPlayer(unit) then
 		local _, class = UnitClass(unit)
 		color = oUF.colors.class[class]
-	elseif UnitIsUnit(unit, "pet") and GetPetHappiness() then
-		color = oUF.colors.happiness[GetPetHappiness()]
 	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
 		color = oUF.colors.tapped
 	elseif UnitIsEnemy(unit, "player") then
