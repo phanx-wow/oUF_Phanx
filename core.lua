@@ -45,19 +45,19 @@ ns.UpdateBorder = function(self)
 
 	local color
 	if debuff and dispellable then
-		print(self.unit, "has dispellable debuff:", debuff)
+		-- print(self.unit, "has dispellable debuff:", debuff)
 		color = colors.debuff[debuff]
 	elseif threat and threat > 1 then
-		print(self.unit, "has aggro:", threat)
+		-- print(self.unit, "has aggro:", threat)
 		color = colors.threat[threat]
 	elseif debuff and not config.dispelFilter then
-		print(self.unit, "has debuff:", debuff)
+		-- print(self.unit, "has debuff:", debuff)
 		color = colors.debuff[debuff]
 	elseif threat and threat > 0 then
-		print(self.unit, "has high threat")
+		-- print(self.unit, "has high threat")
 		color = colors.threat[threat]
 	else
-		print(self.unit, "is normal")
+		-- print(self.unit, "is normal")
 	end
 
 	if color then
