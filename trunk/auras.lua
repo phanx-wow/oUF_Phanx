@@ -511,6 +511,7 @@ if playerClass == "ROGUE" then addAuras({
 	[31224] = 4, -- Cloak of Shadows
 	[14177] = 4, -- Cold Blood
 	[84590] = 4, -- Deadly Momentum
+	[32645] = 4, -- Envenom
 	[5277]  = 4, -- Evasion
 	[73651] = 4, -- Recuperate
 	[5171]  = 4, -- Slice and Dice
