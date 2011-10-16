@@ -634,7 +634,7 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 		threatLevels:SetChecked( db.threatLevels )
 
 		if druidMana then
-			druidManaBar:SetChecked( db.druidMana )
+			druidMana:SetChecked( db.druidMana )
 		end
 
 		if eclipseBar then
