@@ -9,7 +9,7 @@
 ------------------------------------------------------------------------
 	esES | Español (Europa) | Spanish (Europe)
 	esMX | Español (América Latina) | Spanish (Latin America)
-	Last updated: 2001-02-22 by Akkorian <akkorian@hotmail.com>
+	Last updated: 2011-02-22 by Akkorian <akkorian@hotmail.com>
 ----------------------------------------------------------------------]]
 
 if not GetLocale():match( "^es" ) then return end
@@ -32,15 +32,17 @@ L["Border Size"] = "Tamaño de borde"
 L["Change the size of the frame borders."] = "Ajustar el tamaño para los bordes de los marcos."
 L["Border color"] = "Color de borde"
 L["Change the default frame border color."] = "Ajustar el color por defecto para los bordes de los marcos."
-L["Filter debuff highlight"] = "Resaltar sólo perjuicios disipables"
+L["Filter debuff highlight"] = "Sólo perjuicios disipables"
 L["Show the debuff highlight only for debuffs you can dispel."] = "Resaltar los marcos sólo para perjuicios que puedes eliminar."
 L["Ignore own heals"] = "Ignorar propias sanaciones"
 L["Show only incoming heals cast by other players."] = "Mostrar sólo las sanaciones en curso de lanzamiento por otros."
-L["Show threat levels"] = "Mostrar niveles de amenaza"
+L["Show threat levels"] = "Niveles de amenaza"
 L["Show threat levels instead of binary aggro status."] = "Mostrar los niveles de amenaza en lugar del sólo agro."
-L["Show eclipse bar"] = "Mostrar barra de eclipse"
+L["Show druid mana bar"] = "Barra de maná en formas"
+L["Show a mana bar while you are in Cat Form or Bear Form."] = "Mostrar una barra de maná debajo el marco de tu personaje cuando estás en forma felina o de oso."
+L["Show eclipse bar"] = "Barra de eclipse"
 L["Show an eclipse bar above the player frame."] = "Mostrar una barra de eclipse sobre el marco de tu personaje."
-L["Show eclipse bar icons"] = "Mostrar iconos de eclipse"
+L["Show eclipse bar icons"] = "Iconos de eclipse"
 L["Show animated moon and sun icons on either end of the eclipse bar."] = "Mostrar iconos animados en cada extremo de la barra de eclipse."
 L["This option will not take effect until the next time you log in or reload your UI."] = "Esta opción no tendrá efecto hasta la próxima vez que te conecte o vuelva a cargar la interfaz de usuario."
 

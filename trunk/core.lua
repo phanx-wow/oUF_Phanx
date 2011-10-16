@@ -37,6 +37,24 @@ end
 
 local si = ns.si
 
+ns.si_raw = function(value)
+	local absvalue = abs(value)
+
+	if absvalue >= 10000000 then
+		return "%.1fm", value / 1000000
+	elseif absvalue >= 1000000 then
+		return "%.2fm", value / 1000000
+	elseif absvalue >= 100000 then
+		return "%.0fk", value / 1000
+	elseif absvalue >= 1000 then
+		return "%.1fk", value / 1000
+	end
+
+	return "%d", value
+end
+
+local si_raw = ns.si_raw
+
 ------------------------------------------------------------------------
 
 ns.UpdateBorder = function(self)
@@ -879,9 +897,36 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Buffs.parent = self
 	end
 
-	-----------------
-	-- Eclipse bar --
-	-----------------
+	--------------------
+	-- Druid mana bar --
+	--------------------
+
+	if unit == "player" and playerClass == "DRUID" and config.druidMana then
+		local druidMana = ns.CreateStatusBar( self, 16, "CENTER" )
+		druidMana:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
+		druidMana:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
+		druidMana:SetHeight( ( config.height * ( 1 - config.powerHeight ) ) / 2 )
+		self.DruidMana = feralMana
+
+		local druidManaText = druidMana.value
+		druidManaText:SetPoint( "CENTER", 0, 1 )
+		druidManaText:Hide()
+	--	self:Tag( druidManaText, "[feralmana]" )
+		table.insert( self.mouseovers, druidManaText )
+
+		druidMana.colorPower = true
+		druidMana.bg.multiplier = config.powerBG
+
+		druidMana.PostUpdate = function( self, unit, cur, max )
+			self.value:SetFormattedText( si_raw( cur ) )
+		end
+
+		ns.CreateBorder( druidMana )
+	end
+
+	-----------------------
+	-- Druid eclipse bar --
+	-----------------------
 
 	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
 		local eclipseBar = ns.CreateEclipseBar( self, config.statusbar, config.eclipseBarIcons )
@@ -1105,36 +1150,6 @@ ns.Spawn = function(self, unit, isSingle)
 		local cft = ns.CreateFontString( self.overlay, 24, "CENTER" )
 		cft:SetPoint( "CENTER", 0, 1 )
 		self.CombatFeedbackText = cft
-	end
-
-	---------------------------
-	-- Plugin: oUF_DruidMana --
-	---------------------------
-
-	if IsAddOnLoaded( "oUF_DruidMana" ) and unit == "player" and playerClass == "DRUID" then
-		local feralMana = ns.CreateStatusBar( self, 16, "CENTER" )
-		feralMana:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
-		feralMana:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
-		feralMana:SetHeight( ( config.height * ( 1 - config.powerHeight ) ) / 2 )
-		feralMana.ManaBar = feralMana
-		self.DruidMana = feralMana
-
-		local feralManaText = feralMana.value
-		feralManaText:SetPoint( "CENTER", 0, 1 )
-		feralManaText:Hide()
-		self:Tag( feralManaText, "[feralmana]" )
-		table.insert( self.mouseovers, feralManaText )
-
-		local feralManaBG = config.powerBG
-		feralMana.bg.multiplier = feralManaBG
-
-		feralMana.PostUpdatePower = function( self, unit )
-			local r, g, b = unpack( oUF.colors.power.MANA )
-			self:SetStatusBarColor( r, g, b )
-			self.bg:SetVertexColor( r * feralManaBG, g * feralManaBG, b * feralManaBG )
-		end
-
-		ns.CreateBorder( feralMana )
 	end
 
 	------------------------
