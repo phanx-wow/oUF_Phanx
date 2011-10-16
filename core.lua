@@ -906,12 +906,11 @@ ns.Spawn = function(self, unit, isSingle)
 		druidMana:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 6 )
 		druidMana:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 6 )
 		druidMana:SetHeight( ( config.height * ( 1 - config.powerHeight ) ) / 2 )
-		self.DruidMana = feralMana
+		self.DruidMana = druidMana
 
 		local druidManaText = druidMana.value
 		druidManaText:SetPoint( "CENTER", 0, 1 )
 		druidManaText:Hide()
-	--	self:Tag( druidManaText, "[feralmana]" )
 		table.insert( self.mouseovers, druidManaText )
 
 		druidMana.colorPower = true
