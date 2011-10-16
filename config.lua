@@ -218,6 +218,7 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 		ignoreOwnHeals = false,			-- only show incoming heals from other players
 		threatLevels = true,			-- show threat levels instead of binary aggro
 
+		druidMana = false,				-- show a mana bar for druids while in feral forms
 		eclipseBar = true,				-- show an eclipse bar for druids
 		eclipseBarIcons = false,		-- show animated icons on the eclipse bar
 
@@ -576,12 +577,20 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 
 	--------------------------------------------------------------------
 
-	local eclipseBar, eclipseBarIcons
+	local druidMana, eclipseBar, eclipseBarIcons
 	if select( 2, UnitClass("player") ) == "DRUID" then
+		druidMana = CreateCheckbox( self, L["Show druid mana bar"],
+			L["Show a mana bar while you are in Bear Form or Cat Form."]
+			.. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."] )
+		druidMana:SetPoint( "TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -24 )
+		druidMana.OnClick = function( self, checked )
+			db.druidMana = checked
+		end
+	
 		eclipseBar = CreateCheckbox( self, L["Show eclipse bar"],
 			L["Show an eclipse bar above the player frame."]
 			.. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."] )
-		eclipseBar:SetPoint( "TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -24 )
+		eclipseBar:SetPoint( "TOPLEFT", druidMana, "BOTTOMLEFT", 0, -24 )
 		eclipseBar.OnClick = function( self, checked )
 			db.eclipseBar = checked
 			if checked then
@@ -623,6 +632,10 @@ ns.optionsPanel = CreateOptionsPanel( "oUF Phanx", nil, function( self )
 		dispelFilter:SetChecked( db.dispelFilter )
 		healFilter:SetChecked( db.ignoreOwnHeals )
 		threatLevels:SetChecked( db.threatLevels )
+
+		if druidMana then
+			druidManaBar:SetChecked( db.druidMana )
+		end
 
 		if eclipseBar then
 			eclipseBar:SetChecked( db.eclipseBar )
