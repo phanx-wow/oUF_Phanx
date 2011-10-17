@@ -71,6 +71,8 @@ local Disable = function(self)
 	if not self.AFK or not self.AFK.SetFormattedText then return end
 
 	self:UnregisterEvent("PLAYER_FLAGS_CHANGED", Update)
+
+	self.AFK:SetFormattedText("")
 end
 
 oUF:AddElement("AFK", Update, Enable, Disable)
