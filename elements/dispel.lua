@@ -179,13 +179,12 @@ local function Enable( self )
 	local element = self.DispelHighlight
 	if not element then return end
 
-	if type( element ) == "function" then
+	if type( element ) == "table" then
+		if ( element.filter and class == "DEATHKNIGHT" ) or ( not element.Override and not element.Show ) then return end
+	elseif type( element ) == "function" then
 		self.DispelHighlight = { Override = element }
 		element = self.DispelHighlight
-	end
-
-	if type( element ) ~= "table" or ( not element.Override and not element.Show ) or ( element.filter and class == "DEATHKNIGHT" ) then
-		self.DispelHighlight = nil
+	else
 		return
 	end
 
