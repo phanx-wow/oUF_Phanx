@@ -1,7 +1,6 @@
 --[[--------------------------------------------------------------------
 	oUF_DispelHighlight
 	by Phanx <addons@phanx.net>
-	Modified by Akkorian <akkorian@hotmail.com>
 	Highlights oUF frames by dispellable debuff type.
 	Originally based on oUF_DebuffHighlight by Ammo.
 	Some code adapted from LibDispellable-1.0 by Adirelle.

@@ -3,7 +3,7 @@
 
 ## Title: oUF: Phanx
 ## Notes: An oUF layout.
-## Author: Phanx, Akkorian
+## Author: Phanx
 ## X-Email: addons@phanx.net
 ## X-Copyright: Copyright © 2008–2011 Phanx
 ## X-License: Some rights reserved. See LICENSE.txt for details.
