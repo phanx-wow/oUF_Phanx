@@ -1,5 +1,5 @@
-## Interface: 40200
-## Version: 4.2.0.wowi:revision
+## Interface: 40300
+## Version: 4.3.0.wowi:revision
 
 ## Title: oUF: Phanx
 ## Notes: An oUF layout.
