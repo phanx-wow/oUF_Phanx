@@ -689,19 +689,24 @@ local filters = {
 }
 
 ns.CustomAuraFilters = {
-	player = function( self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID )
+	player = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura, isBossDebuff, value1, value2, value3 )
 		return auras[ spellID ]
 	end,
-	target = function( self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID )
+	target = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura, isBossDebuff, value1, value2, value3 )
 		local v = auras[ spellID ]
 		-- print( "CustomAuraFilter", unit, caster, name, spellID, v )
 		if v and filters[ v ] then
+			-- Specific filter.
 			return filters[ v ]( self, unit, caster )
+		elseif UnitCanAttack( unit, "player" ) and not UnitPlayerControlled( unit ) then
+			-- Hostile NPC. Show auras cast by the unit, or auras cast by the player's vehicle.
+			return not caster or caster == unit or UnitIsUnit( caster, "vehicle" )
 		else
-			return ( not caster or caster == unit ) and UnitCanAttack( unit, "player" ) and not UnitPlayerControlled( unit )
+			-- Friendly target or hostile player. Show boss debuffs.
+			return isBossDebuff
 		end
 	end,
-	party = function( self, unit, icon, name, rank, texture, count, dtype, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID )
+	party = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura, isBossDebuff, value1, value2, value3 )
 		local v = auras[ spellID ]
 		return v and v < 4
 	end,
