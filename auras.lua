@@ -689,10 +689,10 @@ local filters = {
 }
 
 ns.CustomAuraFilters = {
-	player = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura, isBossDebuff, value1, value2, value3 )
+	player = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 )
 		return auras[ spellID ]
 	end,
-	target = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura, isBossDebuff, value1, value2, value3 )
+	target = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 )
 		local v = auras[ spellID ]
 		-- print( "CustomAuraFilter", unit, caster, name, spellID, v )
 		if v and filters[ v ] then
@@ -706,7 +706,7 @@ ns.CustomAuraFilters = {
 			return isBossDebuff
 		end
 	end,
-	party = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId, canApplyAura, isBossDebuff, value1, value2, value3 )
+	party = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 )
 		local v = auras[ spellID ]
 		return v and v < 4
 	end,
