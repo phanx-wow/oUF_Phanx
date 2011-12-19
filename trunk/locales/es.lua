@@ -4,7 +4,7 @@
 	Written by Phanx <addons@phanx.net>
 	Copyright © 2007–2011. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-	http://wow.curse.com/downloads/wow-addons/details/ouf-phanx.aspx
+	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
 	esES | Español (Europa) | Spanish (Europe)
 	esMX | Español (América Latina) | Spanish (Latin America)
