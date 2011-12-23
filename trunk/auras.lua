@@ -689,20 +689,22 @@ local filters = {
 }
 
 ns.CustomAuraFilters = {
-	player = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 )
+	player = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 )
 		return auras[ spellID ]
 	end,
-	target = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 )
+	target = function( self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3 )
 		local v = auras[ spellID ]
-		-- print( "CustomAuraFilter", unit, caster, name, spellID, v )
+		-- print( "CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v )
 		if v and filters[ v ] then
 			-- Specific filter.
 			return filters[ v ]( self, unit, caster )
 		elseif UnitCanAttack( unit, "player" ) and not UnitPlayerControlled( unit ) then
 			-- Hostile NPC. Show auras cast by the unit, or auras cast by the player's vehicle.
+			-- print( "Hostile NPC" )
 			return not caster or caster == unit or UnitIsUnit( caster, "vehicle" )
 		else
 			-- Friendly target or hostile player. Show boss debuffs.
+			-- print( "Hostile player / friendly unit" )
 			return isBossDebuff
 		end
 	end,
