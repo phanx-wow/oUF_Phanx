@@ -1334,8 +1334,6 @@ oUF:Factory( function( oUF )
 			end
 		end
 
-		ns.CreateBorder( bar )
-
 		bar:SetParent( UIParent )
 		bar:SetWidth( 225 )
 		bar:SetHeight( config.height * ( 1 - config.powerHeight ) )
@@ -1348,8 +1346,8 @@ oUF:Factory( function( oUF )
 
 		bar.text = _G[ barname .. "Text" ]
 		bar.text:ClearAllPoints()
-		bar.text:SetPoint( "LEFT", bar, 4, 1 )
-		bar.text:SetFont( config.font, 16, "OUTLINE" )
+		bar.text:SetPoint( "LEFT", bar, 4, 0 )
+		bar.text:SetFont( config.font, 16, config.fontOutline )
 
 		bar.border = _G[ barname .. "Border" ]
 		bar.border:Hide()
@@ -1358,5 +1356,8 @@ oUF:Factory( function( oUF )
 		bar.bar:SetAllPoints( bar )
 		bar.bar:SetStatusBarTexture( config.statusbar )
 		bar.bar:SetAlpha( 0.8 )
+
+		ns.CreateBorder( bar, config.borderSize )
+		bar:SetBorderParent( bar.bar )
 	end
 end )
