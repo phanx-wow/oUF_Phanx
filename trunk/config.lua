@@ -172,6 +172,11 @@ ns.SetAllFonts = function( file, flag )
 		local _, size = v:GetFont()
 		v:SetFont( file, size, flag )
 	end
+
+	for i = 1, 3 do
+		local bar = _G["MirrorTimer" .. i]
+		bar.text:SetFont( file, size, flag )
+	end
 end
 
 ns.SetAllStatusBarTextures = function( file )
@@ -186,6 +191,12 @@ ns.SetAllStatusBarTextures = function( file )
 		if v.bg then
 			v.bg:SetTexture( file )
 		end
+	end
+
+	for i = 1, 3 do
+		local bar = _G["MirrorTimer" .. i]
+		bar.bg:SetTexture( file )
+		bar.bar:SetStatusBarTexture( file )
 	end
 end
 
@@ -854,6 +865,10 @@ ns.colorsPanel = CreateOptionsPanel( ns.L["Colors"], ns.optionsPanel.name, funct
 	powerColor = CreateColorPicker( self, L["Health bar color"] )
 	powerColor.desc = L["Change the health bar color."]
 	powerColor:SetPoint( "BOTTOMLEFT", powerColorMode, "BOTTOMRIGHT", 16, 4 )
+
+	powerColor.GetColor = function()
+		return unpack( db.powerColor )
+	end
 
 	powerColor.OnColorChanged = function( self, r, g, b )
 		db.powerColor[1] = r
