@@ -21,10 +21,11 @@ core.xml
 
 locales\es.lua
 
-elements\afk.lua
-elements\dispel.lua
-elements\resurrections.lua
-elements\threat.lua
+elements\AFK.lua
+elements\DispelHighlight.lua
+elements\PowerStack.lua
+elements\Resurrection.lua
+elements\ThreatHighlight.lua
 
 auras.lua
 border.lua

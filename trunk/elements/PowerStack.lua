@@ -10,25 +10,29 @@ if not oUF then return end
 
 local UnitBuff = UnitBuff
 
-local prev = 0
+local prev
 
 local Update = function(self, event, unit)
 	if unit ~= "player" then return end
 
 	local element = self.PowerStack
+	local max = #element
 
-	local _, _, _, count = UnitBuff("player", element.buffName)
+	local _, _, _, count = UnitBuff("player", element.buff)
 	if not count then count = 0 end
+
+	-- print("PowerStack: Update", event, unit, element.buff, count, max)
 
 	if count == prev then return end
 
 	if count == 0 then
-		for i = 1, #element do
+		for i = 1, max do
 			element[i]:Hide()
 		end
 	else
-		for i = 1, #element do
+		for i = 1, max do
 			local obj = element[i]
+			print(i, "Show")
 			obj:Show()
 			if i <= count then
 				obj:SetAlpha(1)
@@ -37,6 +41,8 @@ local Update = function(self, event, unit)
 			end
 		end
 	end
+
+	prev = count
 end
 
 local Path = function(self, ...)
@@ -56,11 +62,11 @@ local Enable = function(self)
 
 	self:RegisterEvent("UNIT_AURA", Path)
 
-	for i = 1, 5 do
-		local e = elements[i]
-		if e:IsObjectType("Texture") and not e:GetTexture() then
-			e:SetTexture([[Interface\ComboFrame\ComboPoint]])
-			e:SetTexCoord(0, 0.375, 0, 1)
+	for i = 1, #element do
+		local obj = element[i]
+		if obj:IsObjectType("Texture") and not obj:GetTexture() then
+			obj:SetTexture([[Interface\ComboFrame\ComboPoint]])
+			obj:SetTexCoord(0, 0.375, 0, 1)
 		end
 	end
 

@@ -238,26 +238,7 @@ ns.UpdateComboPoints = function(self, event, unit)
 		cp = GetComboPoints("player", "target")
 	end
 
-	local cpoints = self.CPoints
-	if cp == 0 then
-		for i = 1, MAX_COMBO_POINTS do
-			cpoints[i]:Hide()
-		end
-	else
-		for i = 1, MAX_COMBO_POINTS do
-			local orb = cpoints[i]
-			orb:Show()
-			if i <= cp then
-				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-				orb.bg:SetAlpha(1)
-				orb.fg:Show()
-			else
-				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
-				orb.bg:SetAlpha(0.5)
-				orb.fg:Hide()
-			end
-		end
-	end
+	ns.UpdateOrbs(self.CPoints, cp)
 end
 
 ------------------------------------------------------------------------
@@ -495,6 +476,8 @@ ns.CreateFontString = function(parent, size, justify)
 	return fs
 end
 
+------------------------------------------------------------------------
+
 ns.SetStatusBarValue = function(self, cur)
 	local min, max = self:GetMinMaxValues()
 	self:GetStatusBarTexture():SetTexCoord(0, (cur - min) / (max - min), 0, 1)
@@ -525,6 +508,8 @@ ns.CreateStatusBar = function(parent, size, justify, nohook)
 	return sb
 end
 
+------------------------------------------------------------------------
+
 ns.CreateOrbs = function(parent, num, size)
 	local orbs = {}
 	for i = 1, num do
@@ -539,9 +524,33 @@ ns.CreateOrbs = function(parent, num, size)
 		orb.fg:SetAllPoints(true)
 		orb.fg:SetTexture("Interface\\AddOns\\oUF_Phanx\\media\\OrbFG")
 
+		orb.id = i
 		orbs[i] = orb
 	end
 	return orbs
+end
+
+ns.UpdateOrbs = function(orbs, n)
+	local max = #orbs
+	if n == 0 then
+		for i = 1, max do
+			orbs[i]:Hide()
+		end
+	else
+		for i = 1, max do
+			local orb = orbs[i]
+			orb:Show()
+			if i <= n then
+				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+				orb.bg:SetAlpha(1)
+				orb.fg:Show()
+			else
+				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
+				orb.bg:SetAlpha(0.5)
+				orb.fg:Hide()
+			end
+		end
+	end
 end
 
 ------------------------------------------------------------------------
@@ -726,45 +735,6 @@ ns.Spawn = function(self, unit, isSingle)
 		self:Tag( self.Name, "[unitcolor][name]" )
 	end
 
-	------------------------------
-	-- Holy power / soul shards --
-	------------------------------
-
-	if unit == "player" and (playerClass == "PALADIN" or playerClass == "WARLOCK") then
-		local fgcolor = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
-		local max = playerClass == "WARLOCK" and SHARD_BAR_NUM_SHARDS or MAX_HOLY_POWER
-		local powerType = playerClass == "WARLOCK" and SPELL_POWER_SOUL_SHARDS or SPELL_POWER_HOLY_POWER
-
-		local SetAlpha = function(self, alpha)
-			if alpha == 1 then
-				self.bg:SetVertexColor(0.25, 0.25, 0.25)
-				self.bg:SetAlpha(1)
-				self.fg:Show()
-			else
-				local num = UnitPower("player", powerType)
-				self.bg:SetVertexColor(0.4, 0.4, 0.4)
-				self.bg:SetAlpha(num > 0 and 0.5 or 0)
-				self.fg:Hide()
-			end
-		end
-
-		local t = ns.CreateOrbs(self.overlay, max, 20)
-		for i = 1, max do
-			local orb = t[i]
-			if i == 1 then
-				orb:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, -5)
-			else
-				orb:SetPoint("BOTTOMRIGHT", t[i - 1], "BOTTOMLEFT", 2, 0)
-			end
-			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-			orb.fg:SetVertexColor(fgcolor.r, fgcolor.g, fgcolor.b)
-			orb.SetAlpha = SetAlpha
-		end
-
-		local element = playerClass == "WARLOCK" and "SoulShards" or "HolyPower"
-		self[element] = t
-	end
-
 	------------------
 	-- Combo points --
 	------------------
@@ -785,37 +755,83 @@ ns.Spawn = function(self, unit, isSingle)
 		self.CPoints.Override = ns.UpdateComboPoints
 	end
 
-	-----------------------
-	-- Combo points text --
-	-----------------------
+	------------------------------
+	-- Class-specific resources --
+	------------------------------
 
-	if unit == "target" then
---		self.ComboPointsText = ns.CreateFontString( self.overlay, 32, "RIGHT" )
---		self.ComboPointsText:SetPoint( "BOTTOMRIGHT", self.Health, "BOTTOMLEFT", -10, config.height * config.powerHeight - 6 )
---		self.ComboPointsText:SetTextColor( colors.class[ playerClass ][1], colors.class[ playerClass ][2], colors.class[ playerClass ][3] )
---		self:Tag( self.ComboPointsText, "[cpoints]" )
-	elseif unit == "player" then
+	if unit == "player" and (playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN" or playerClass == "WARLOCK") then
+		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
+
+		local element, max, buff, power
+		----------------
+		-- Holy power --
+		----------------
 		if playerClass == "PALADIN" then
---			self.HolyPowerText = ns.CreateFontString( self.overlay, 32, "LEFT" )
---			self.HolyPowerText:SetPoint( "BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6 )
---			self.HolyPowerText:SetTextColor( colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3] )
---			self:Tag( self.HolyPowerText, "[holypower]" )
+			element, max = "HolyPower", MAX_HOLY_POWER
+			power = SPELL_POWER_HOLY_POWER
+		----------------
+		-- Shadow Orb --
+		----------------
 		elseif playerClass == "PRIEST" then
-			self.ShadowOrbsText = ns.CreateFontString( self.overlay, 32, "LEFT" )
-			self.ShadowOrbsText:SetPoint( "BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6 )
-			self.ShadowOrbsText:SetTextColor( colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3] )
-			self:Tag( self.ShadowOrbsText, "[shadoworbs]" )
+			element, max = "PowerStack", 3
+			buff = GetSpellInfo(77487)
+		----------------------
+		-- Maelstrom Weapon --
+		----------------------
 		elseif playerClass == "SHAMAN" then
-			self.MaelstromText = ns.CreateFontString( self.overlay, 32, "LEFT" )
-			self.MaelstromText:SetPoint( "BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6 )
-			self.MaelstromText:SetTextColor( colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3] )
-			self:Tag( self.MaelstromText, "[maelstrom]" )
+			element, max = "PowerStack", 5
+			buff = GetSpellInfo(53817)
+		-----------------
+		-- Soul shards --
+		-----------------
 		elseif playerClass == "WARLOCK" then
---			self.SoulShardsText = ns.CreateFontString( self.overlay, 32, "LEFT" )
---			self.SoulShardsText:SetPoint( "BOTTOMLEFT", self.Health, "BOTTOMRIGHT", 10, config.height * config.powerHeight - 6 )
---			self.SoulShardsText:SetTextColor( colors.class[playerClass][1], colors.class[playerClass][2], colors.class[playerClass][3] )
---			self:Tag( self.SoulShardsText, "[soulshards]" )
+			element, max = "SoulShards", SHARD_BAR_NUM_SHARDS
+			power = SPELL_POWER_SOUL_SHARDS
 		end
+
+		local SetAlpha
+		if power then
+			SetAlpha = function(self, alpha)
+				if alpha == 1 then
+					self.bg:SetVertexColor(0.25, 0.25, 0.25)
+					self.bg:SetAlpha(1)
+					self.fg:Show()
+				else
+					local num = UnitPower("player", power)
+					self.bg:SetVertexColor(0.4, 0.4, 0.4)
+					self.bg:SetAlpha(num > 0 and 0.5 or 0)
+					self.fg:Hide()
+				end
+			end
+		else
+			SetAlpha = function(orb, alpha)
+				if alpha == 1 then
+					orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+					orb.bg:SetAlpha(1)
+					orb.fg:Show()
+				else
+					orb.bg:SetVertexColor(0.4, 0.4, 0.4)
+					orb.bg:SetAlpha(0.5)
+					orb.fg:Hide()
+				end
+			end
+		end
+
+		local t = ns.CreateOrbs(self.overlay, max, 20)
+		for i = 1, max do
+			local orb = t[i]
+			if i == 1 then
+				orb:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, -5)
+			else
+				orb:SetPoint("BOTTOMRIGHT", t[i - 1], "BOTTOMLEFT", 2, 0)
+			end
+			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+			orb.fg:SetVertexColor(color.r, color.g, color.b)
+			orb.SetAlpha = SetAlpha
+		end
+
+		t.buff = buff
+		self[element] = t
 	end
 
 	-----------------------
