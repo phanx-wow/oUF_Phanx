@@ -32,7 +32,6 @@ local Update = function(self, event, unit)
 	else
 		for i = 1, max do
 			local obj = element[i]
-			print(i, "Show")
 			obj:Show()
 			if i <= count then
 				obj:SetAlpha(1)
