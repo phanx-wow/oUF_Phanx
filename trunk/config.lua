@@ -175,6 +175,7 @@ ns.SetAllFonts = function( file, flag )
 
 	for i = 1, 3 do
 		local bar = _G["MirrorTimer" .. i]
+		local _, size = bar.text:GetFont()
 		bar.text:SetFont( file, size, flag )
 	end
 end
@@ -221,7 +222,7 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 
 		statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
 
-		font = [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]],
+		font = [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]],
 		fontOutline = "OUTLINE",
 
 		dispelFilter = true,			-- only highlight the frame for debuffs you can dispel
@@ -234,14 +235,14 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 
 		healthColor = { 0.2, 0.2, 0.2 },
 		healthColorMode = "CUSTOM",
-		healthBG = 1.8,
+		healthBG = 2,
 
 		powerColor = { 0.8, 0.8, 0.8 },
 		powerColorMode = "CLASS",
-		powerBG = 0.2,
+		powerBG = 0.25,
 
-		borderColor = { 0.2, 0.2, 0.2 },
-		borderSize = 12,
+		borderColor = { 0.3, 0.3, 0.3 },
+		borderSize = 16,
 	}
 
 	PoUFDB = PoUFDB or {}
@@ -260,8 +261,8 @@ ns.loader:SetScript( "OnEvent", function( self, event, addon )
 
 	SharedMedia = LibStub( "LibSharedMedia-3.0", true )
 	if SharedMedia then
-		SharedMedia:Register( "font", "Expressway", [[Interface\AddOns\oUF_Phanx\media\Expressway.ttf]] )
-		SharedMedia:Register( "font", "PT Serif", [[Interface\AddOns\oUF_Phanx\media\PTSerif-Regular.ttf]] )
+		SharedMedia:Register( "font", "PT Sans Bold", [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]] )
+		SharedMedia:Register( "font", "PT Serif", [[Interface\AddOns\oUF_Phanx\media\PTSerif.ttf]] )
 
 		SharedMedia:Register( "statusbar", "Blizzard Flat", [[Interface\BUTTONS\WHITE8X8]] )
 		SharedMedia:Register( "statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]] )

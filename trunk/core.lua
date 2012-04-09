@@ -1054,8 +1054,8 @@ ns.Spawn = function(self, unit, isSingle)
 		eclipseBar.value = eclipseText
 
 		ns.CreateBorder( eclipseBar )
-		eclipseBar.BorderTextures[7]:Hide()
-		eclipseBar.BorderTextures[8]:Hide()
+		eclipseBar.BorderTextures.LEFT:Hide()
+		eclipseBar.BorderTextures.RIGHT:Hide()
 
 		eclipseBar:SetScript( "OnEnter", ns.UnitFrame_OnEnter )
 		eclipseBar:SetScript( "OnLeave", ns.UnitFrame_OnLeave )
@@ -1104,15 +1104,15 @@ ns.Spawn = function(self, unit, isSingle)
 		end
 
 		local d = floor( config.borderSize / 2 + 0.5 ) - 2
-		self.Castbar.BorderTextures[1]:SetPoint( "TOPLEFT", self.Castbar.Icon, "TOPLEFT", -d, d )
-		self.Castbar.BorderTextures[4]:SetPoint( "BOTTOMLEFT", self.Castbar.Icon, "BOTTOMLEFT", -d, -d )
+		self.Castbar.BorderTextures.TOPLEFT:SetPoint( "TOPLEFT", self.Castbar.Icon, "TOPLEFT", -d, d )
+		self.Castbar.BorderTextures.BOTTOMLEFT:SetPoint( "BOTTOMLEFT", self.Castbar.Icon, "BOTTOMLEFT", -d, -d )
 
 		local o = self.Castbar.SetBorderSize
 		self.Castbar.SetBorderSize = function( self, size, offset )
 			o( self, size, offset )
 			local d = floor( size / 2 + 0.5 ) - 2
-			self.BorderTextures[1]:SetPoint( "TOPLEFT", self.Icon, "TOPLEFT", -d, d )
-			self.BorderTextures[4]:SetPoint( "BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d )
+			self.BorderTextures.TOPLEFT:SetPoint( "TOPLEFT", self.Icon, "TOPLEFT", -d, d )
+			self.BorderTextures.BOTTOMLEFT:SetPoint( "BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d )
 		end
 	end
 
