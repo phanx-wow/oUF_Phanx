@@ -11,39 +11,27 @@ local _, ns = ...
 
 ns.borderedObjects = { }
 
+local sections = { "TOPLEFT", "TOPRIGHT", "TOP", "BOTTOMLEFT", "BOTTOMRIGHT", "BOTTOM", "LEFT", "RIGHT" }
+
 ns.CreateBorder = function(self, size, offset)
 	if type(self) ~= "table" or not self.CreateTexture or self.BorderTextures then return end
 
 	local t = { }
 
-	for i = 1, 8 do
-		t[i] = self:CreateTexture(nil, "ARTWORK")
-		t[i]:SetTexture([[Interface\AddOns\oUF_Phanx\media\SimpleSquare]])
+	for i = 1, #sections do
+		local x = self:CreateTexture(nil, "ARTWORK")
+		x:SetTexture([[Interface\AddOns\oUF_Phanx\media\SimpleSquare]])
+		t[sections[i]] = x
 	end
 
-	t[1].name = "TOPLEFT"
-	t[1]:SetTexCoord(0, 1/3, 0, 1/3)
-
-	t[2].name = "TOPRIGHT"
-	t[2]:SetTexCoord(2/3, 1, 0, 1/3)
-
-	t[3].name = "TOP"
-	t[3]:SetTexCoord(1/3, 2/3, 0, 1/3)
-
-	t[4].name = "BOTTOMLEFT"
-	t[4]:SetTexCoord(0, 1/3, 2/3, 1)
-
-	t[5].name = "BOTTOMRIGHT"
-	t[5]:SetTexCoord(2/3, 1, 2/3, 1)
-
-	t[6].name = "BOTTOM"
-	t[6]:SetTexCoord(1/3, 2/3, 2/3, 1)
-
-	t[7].name = "LEFT"
-	t[7]:SetTexCoord(0, 1/3, 1/3, 2/3)
-
-	t[8].name = "RIGHT"
-	t[8]:SetTexCoord(2/3, 1, 1/3, 2/3)
+	t.TOPLEFT:SetTexCoord(0, 1/3, 0, 1/3)
+	t.TOPRIGHT:SetTexCoord(2/3, 1, 0, 1/3)
+	t.TOP:SetTexCoord(1/3, 2/3, 0, 1/3)
+	t.BOTTOMLEFT:SetTexCoord(0, 1/3, 2/3, 1)
+	t.BOTTOMRIGHT:SetTexCoord(2/3, 1, 2/3, 1)
+	t.BOTTOM:SetTexCoord(1/3, 2/3, 2/3, 1)
+	t.LEFT:SetTexCoord(0, 1/3, 1/3, 2/3)
+	t.RIGHT:SetTexCoord(2/3, 1, 1/3, 2/3)
 
 	self.BorderTextures = t
 
@@ -85,7 +73,7 @@ ns.SetBorderColor = function(self, r, g, b, a)
 		r, g, b = unpack(ns.config.borderColor)
 	end
 
-	for i, tex in ipairs(t) do
+	for pos, tex in pairs(t) do
 		tex:SetVertexColor(r, g, b)
 	end
 end
@@ -94,7 +82,7 @@ ns.SetBorderParent = function(self, parent)
 	local t = self.BorderTextures
 	if not t then return end
 
-	for i, tex in ipairs(t) do
+	for pos, tex in pairs(t) do
 		tex:SetParent(parent or self)
 	end
 end
@@ -109,27 +97,27 @@ ns.SetBorderSize = function(self, size, offset)
 
 	local d = offset or (floor(size / 2 + 0.5) - 2)
 
-	for i, tex in ipairs(t) do
+	for pos, tex in pairs(t) do
 		tex:SetSize(size, size)
 	end
 
-	t[1]:SetPoint("TOPLEFT", self, -d, d)
+	t.TOPLEFT:SetPoint("TOPLEFT", self, -d, d)
 
-	t[2]:SetPoint("TOPRIGHT", self, d, d)
+	t.TOPRIGHT:SetPoint("TOPRIGHT", self, d, d)
 
-	t[3]:SetPoint("LEFT", t[1], "TOPRIGHT")
-	t[3]:SetPoint("TOPRIGHT", t[2], "TOPLEFT")
+	t.TOP:SetPoint("TOPLEFT", t.TOPLEFT, "TOPRIGHT")
+	t.TOP:SetPoint("TOPRIGHT", t.TOPRIGHT, "TOPLEFT")
 
-	t[4]:SetPoint("BOTTOMLEFT", self, -d, -d)
+	t.BOTTOMLEFT:SetPoint("BOTTOMLEFT", self, -d, -d)
 
-	t[5]:SetPoint("BOTTOMRIGHT", self, d, -d)
+	t.BOTTOMRIGHT:SetPoint("BOTTOMRIGHT", self, d, -d)
 
-	t[6]:SetPoint("BOTTOMLEFT", t[4], "BOTTOMRIGHT")
-	t[6]:SetPoint("BOTTOMRIGHT", t[5], "BOTTOMLEFT")
+	t.BOTTOM:SetPoint("BOTTOMLEFT", t.BOTTOMLEFT, "BOTTOMRIGHT")
+	t.BOTTOM:SetPoint("BOTTOMRIGHT", t.BOTTOMRIGHT, "BOTTOMLEFT")
 
-	t[7]:SetPoint("TOPLEFT", t[1], "BOTTOMLEFT")
-	t[7]:SetPoint("BOTTOMLEFT", t[4], "TOPLEFT")
+	t.LEFT:SetPoint("TOPLEFT", t.TOPLEFT, "BOTTOMLEFT")
+	t.LEFT:SetPoint("BOTTOMLEFT", t.BOTTOMLEFT, "TOPLEFT")
 
-	t[8]:SetPoint("TOPRIGHT", t[2], "BOTTOMRIGHT")
-	t[8]:SetPoint("BOTTOMRIGHT", t[5], "TOPRIGHT")
+	t.RIGHT:SetPoint("TOPRIGHT", t.TOPRIGHT, "BOTTOMRIGHT")
+	t.RIGHT:SetPoint("BOTTOMRIGHT", t.BOTTOMRIGHT, "TOPRIGHT")
 end
