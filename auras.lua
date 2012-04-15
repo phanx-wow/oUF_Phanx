@@ -212,6 +212,8 @@ if playerClass == "DEATHKNIGHT" then
 	auras[81130] = 2 -- Scarlet Fever
 	auras[50536] = 2 -- Unholy Blight -- NEEDS CHECK
 
+	auras[91342] = 2 -- Shadow Infusion
+
 	auras[48707] = 4 -- Anti-Magic Shell
 	auras[81141] = 4 -- Blood Swarm <== Crimson Scourge
 	auras[49222] = 4 -- Bone Shield
@@ -677,6 +679,9 @@ ns.CustomAuraFilters = {
 	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3)
 		return auras[spellID]
 	end,
+	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3)
+		return aruas[spellID] < 3
+	end,
 	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3)
 		local v = auras[spellID]
 		-- print("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v)
@@ -690,7 +695,7 @@ ns.CustomAuraFilters = {
 		else
 			-- Friendly target or hostile player. Show boss debuffs, or auras cast by the player's vehicle.
 			-- print("Hostile player / friendly unit")
-			return isBossDebuff or UnitIsUnit(caster, "vehicle")
+			return isBossDebuff or caster and UnitIsUnit(caster, "vehicle")
 		end
 	end,
 	party = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3)
