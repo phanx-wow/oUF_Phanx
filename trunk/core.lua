@@ -1098,10 +1098,7 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Castbar.PostCastStart = ns.PostCastStart
 		self.Castbar.PostChannelStart = ns.PostChannelStart
 
-		ns.CreateBorder( self.Castbar )
-		for i, tex in ipairs( self.Castbar.BorderTextures ) do
-			tex:SetDrawLayer( "OVERLAY" )
-		end
+		ns.CreateBorder( self.Castbar, nil, nil, nil, "OVERLAY" )
 
 		local d = floor( config.borderSize / 2 + 0.5 ) - 2
 		self.Castbar.BorderTextures.TOPLEFT:SetPoint( "TOPLEFT", self.Castbar.Icon, "TOPLEFT", -d, d )
@@ -1373,7 +1370,6 @@ oUF:Factory( function( oUF )
 		bar.bar:SetStatusBarTexture( config.statusbar )
 		bar.bar:SetAlpha( 0.8 )
 
-		ns.CreateBorder( bar, config.borderSize )
-		bar:SetBorderParent( bar.bar )
+		ns.CreateBorder( bar, config.borderSize, nil, bar.bar, "OVERLAY" )
 	end
 end )

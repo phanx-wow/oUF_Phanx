@@ -13,13 +13,13 @@ ns.borderedObjects = { }
 
 local sections = { "TOPLEFT", "TOPRIGHT", "TOP", "BOTTOMLEFT", "BOTTOMRIGHT", "BOTTOM", "LEFT", "RIGHT" }
 
-ns.CreateBorder = function(self, size, offset)
+ns.CreateBorder = function(self, size, offset, parent, layer)
 	if type(self) ~= "table" or not self.CreateTexture or self.BorderTextures then return end
 
 	local t = { }
 
 	for i = 1, #sections do
-		local x = self:CreateTexture(nil, "ARTWORK")
+		local x = self:CreateTexture(nil, layer or "ARTWORK")
 		x:SetTexture([[Interface\AddOns\oUF_Phanx\media\SimpleSquare]])
 		t[sections[i]] = x
 	end
@@ -62,6 +62,7 @@ ns.CreateBorder = function(self, size, offset)
 	tinsert(ns.borderedObjects, self)
 
 	ns.SetBorderColor(self)
+	ns.SetBorderParent(self, parent)
 	ns.SetBorderSize(self, size, offset)
 end
 
@@ -75,6 +76,15 @@ ns.SetBorderColor = function(self, r, g, b, a)
 
 	for pos, tex in pairs(t) do
 		tex:SetVertexColor(r, g, b)
+	end
+end
+
+ns.SetBorderLayer = function(self, layer)
+	local t = self.BorderTextures
+	if not t then return end
+
+	for pos, tex in pairs(t) do
+		tex:SetDrawLayer(layer or "ARTWORK")
 	end
 end
 
