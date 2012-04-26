@@ -937,6 +937,27 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
 		self.Buffs.parent = self
+	elseif unit == "pet" then
+		local GAP = 6
+		
+		self.Buffs = CreateFrame( "Frame", nil, self )
+		self.Buffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 24 )
+		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 24 )
+		self.Buffs:SetHeight( config.height )
+		
+		self.Buffs["growth-x"] = "LEFT"
+		self.Buffs["growth-y"] = "UP"
+		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
+		self.Buffs["num"] = floor( ( config.width * uconfig.width + GAP ) / ( config.height + GAP ) )
+		self.Buffs["size"] = config.height
+		self.Buffs["spacing-x"] = GAP
+		self.Buffs["spacing-y"] = GAP
+
+		self.Buffs.CustomFilter   = ns.CustomAuraFilters.pet
+		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+
+		self.Buffs.parent = self
 	elseif unit == "party" then
 		local GAP = 6
 

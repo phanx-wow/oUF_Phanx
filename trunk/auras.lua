@@ -680,7 +680,7 @@ ns.CustomAuraFilters = {
 		return auras[spellID]
 	end,
 	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3)
-		return aruas[spellID] < 3
+		return caster and unitIsPlayer[caster] and auras[spellID] == 2
 	end,
 	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3)
 		local v = auras[spellID]
