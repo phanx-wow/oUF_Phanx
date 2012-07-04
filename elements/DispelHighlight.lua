@@ -61,7 +61,7 @@ do
 	local scanTooltip
 
 	local function CreateScanTooltip()
-		scanTooltip = CreateFrame( "GameTooltip" )
+		scanTooltip = CreateFrame( "GameTooltip", "pxScanningTooltip" )
 		scanTooltip.left, scanTooltip.right = scanTooltip:CreateFontString(), scanTooltip:CreateFontString()
 		scanTooltip.left:SetFontObject( GameFontNormal )
 		scanTooltip.right:SetFontObject( GameFontNormal )
