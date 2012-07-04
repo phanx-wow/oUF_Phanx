@@ -1,12 +1,12 @@
 ## Interface: 40300
-## Version: 4.3.0.wowi:revision
+## Version: 4.3.4.wowi:revision
 
 ## Title: oUF: Phanx
 ## Notes: An oUF layout.
 ## Author: Phanx
 ## X-Email: addons@phanx.net
-## X-Copyright: Copyright © 2008–2011 Phanx
-## X-License: Some rights reserved. See LICENSE.txt for details.
+## X-Copyright: Copyright © 2008–2012 Phanx
+## X-License: See LICENSE.txt for details.
 ## X-CompatibleLocales: deDE, enUS, esES, esMX, frFR, ptBR, koKR, ruRU, zhTW
 ## X-Localizations: enUS, esES, esMX
 ## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
@@ -19,7 +19,7 @@
 
 core.xml
 
-locales\es.lua
+locales\esES.lua
 
 elements\AFK.lua
 elements\DispelHighlight.lua

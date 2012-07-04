@@ -2,7 +2,7 @@
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
 	Written by Phanx <addons@phanx.net>
-	Copyright © 2007–2011. Some rights reserved. See LICENSE.txt for details.
+	Copyright © 2008–2012. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
@@ -939,12 +939,12 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Buffs.parent = self
 	elseif unit == "pet" then
 		local GAP = 6
-		
+
 		self.Buffs = CreateFrame( "Frame", nil, self )
 		self.Buffs:SetPoint( "BOTTOMLEFT", self, "TOPLEFT", 0, 24 )
 		self.Buffs:SetPoint( "BOTTOMRIGHT", self, "TOPRIGHT", 0, 24 )
 		self.Buffs:SetHeight( config.height )
-		
+
 		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "UP"
 		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"

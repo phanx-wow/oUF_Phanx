@@ -2,10 +2,16 @@
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
 	Written by Phanx <addons@phanx.net>
-	Copyright © 2007–2011. Some rights reserved. See LICENSE.txt for details.
+	Copyright © 2008–2011. Some rights reserved. See LICENSE.txt for details.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
-------------------------------------------------------------------------
+----------------------------------------------------------------------]]
+
+local PVP_MODE = false
+	-- Enabling this will show PvP buffs and debuffs, and hide some
+	-- buffs and debuffs that are only really useful in PvE.
+
+--[[--------------------------------------------------------------------
 	Values:
 	1 = by anyone on anyone
 	2 = by player on anyone
@@ -140,7 +146,7 @@ end
 ------------------------------------------------------------------------
 --	Disarmed
 
-if playerClass == "" then
+if PVP_MODE then
 	auras[50541] = 1 -- Clench (hunter scorpid)
 	auras[676]   = 1 -- Disarm (warrior)
 	auras[51722] = 1 -- Dismantle (rogue)
@@ -151,7 +157,7 @@ end
 ------------------------------------------------------------------------
 --	Silenced
 
-if playerClass == "" then
+if PVP_MODE then
 	auras[25046] = 1 -- Arcane Torrent (blood elf)
 	auras[31935] = 1 -- Avenger's Shield (paladin)
 	auras[1330]  = 1 -- Garrote - Silence (rogue)
@@ -169,7 +175,7 @@ end
 ------------------------------------------------------------------------
 --	Spell-locked
 
-if playerClass == "" then
+if PVP_MODE then
 	auras[2139]  = 1 -- Counterspell (mage)
 	auras[1766]  = 1 -- Kick (rogue)
 	auras[47528] = 1 -- Mind Freeze (death knight)
@@ -185,7 +191,7 @@ end
 ------------------------------------------------------------------------
 --	Taunted
 
-if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
+if not PVP_MODE and (playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "PALADIN" or playerClass == "WARRIOR") then
 	auras[5209]  = 1 -- Challenging Roar
 	auras[1161]  = 1 -- Challenging Shout
 	auras[56222] = 1 -- Dark Command
@@ -513,7 +519,9 @@ if playerClass == "SHAMAN" then
 	auras[8042]  = 2 -- Earth Shock
 	auras[3600]  = 1 -- Earthbind
 	auras[56425] = 1 -- Earth's Grasp -- NEEDS CHECK
+	auras[61882] = 2 -- Earthquake
 	auras[8050]  = 2 -- Flame Shock
+	auras[63685] = 2 -- Freeze [Frozen Power proc]
 	auras[8056]  = 2 -- Frost Shock
 	auras[8034]  = 2 -- Frostbrand Attack -- NEEDS CHECK
 	auras[89523] = 1 -- Grounding Totem [reflect]
@@ -522,18 +530,27 @@ if playerClass == "SHAMAN" then
 	auras[77661] = 1 -- Searing Flames
 	auras[39796] = 1 -- Stoneclaw Stun
 	auras[17364] = 2 -- Stormstrike
+	auras[73684] = 2 -- Unleash Earth
+	auras[73682] = 2 -- Unleash Frost
 
 	auras[16166] = 4 -- Elemental Mastery [instant cast]
 	auras[77800] = 4 -- Focused Insight
 	auras[65264] = 4 -- Lava Flows -- NEEDS CHECK
+	auras[77762] = 4 -- Lava Surge
 	auras[31616] = 4 -- Nature's Guardian
 	auras[16188] = 4 -- Nature's Swiftness
 	auras[30823] = 4 -- Shamanistic Rage
 	auras[79206] = 4 -- Spiritwalker's Grace
 	auras[53390] = 4 -- Tidal Waves
+	auras[73683] = 4 -- Unleash Flame
+	auras[73685] = 4 -- Unleash Life
+	auras[73681] = 4 -- Unleash Wind
 
+--	auras[16177] = 2 -- Ancestral Fortitude [Rank 1]
+--	auras[16236] = 2 -- Ancestral Fortitude [Rank 2]
 	auras[974]   = 2 -- Earth Shield
 	auras[61295] = 2 -- Riptide
+	auras[98007] = 1 -- Spirit Link Totem
 end
 
 ------------------------------------------------------------------------
