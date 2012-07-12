@@ -1,8 +1,8 @@
 ﻿oUF_Phanx
 =========
 
-* Written by Phanx <addons@phanx.net>
-* Copyright © 2008–2012 Phanx. Some rights reserved. See LICENSE.txt for details.
+* Copyright (c) 2008-2011 Phanx <addons@phanx.net>. All rights reserved.
+* See the accompanying README and LICENSE files for more information.
 * http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 * http://wow.curseforge.com/addons/ouf-phanx/
 
@@ -26,9 +26,6 @@ The oUF_Smooth plugin is supported, along with any other plugin which
 does not require explicit support from within a layout. If you’d like to
 see support for a specific plugin, post a feature request.
 
-Requires oUF 1.5.3 or higher:
-http://www.wowinterface.com/downloads/info9994-oUF.html
-
 
 Usage
 -----
@@ -45,27 +42,44 @@ editing this file, or your changes will have no effect.
 If you want to change something that doesn’t have an option to change,
 you will need to modify the layout’s code yourself, and I will *not*
 provide any support or assistance for this. If you need help modifying
-the code, post in the oUF forum on WoWInterface:
+the code, post a thread in the oUF forum on WoWInterface:
 
 http://www.wowinterface.com/forums/forumdisplay.php?f=87
+
+
+Dependencies
+------------
+
+Requires oUF 1.5.3 or higher:
+http://www.wowinterface.com/downloads/info9994-oUF.html
 
 
 Localization
 ------------
 
-oUF_Phanx is compatible with English, Deutsch, Español, Français,
-Português, Русский, 한국어, 简体中文, and 正體中文 game clients.
+Compatible with English, Deutsch, Español (EU), Español (AL), Français,
+Italiano, Português, Русский, 한국어, 简体中文, and 正體中文 game clients.
 
-oUF_Phanx is translated into English and Español. If you can provide
-translations for any locale, please contact me.
+Translated into English and Español.
+
+To add or update translations for any language, see the Localization tab
+on the CurseForge project page:
+
+http://wow.curseforge.com/addons/ouf-phanx/localization/
 
 
 Feedback
 --------
 
-To report a bug or request a feature, please use the ticket tracker on
-either download site. Use the comments page only for general questions
-and comments.
+Bugs, errors, or other problems:
+	Submit a bug report ticket on either download page.
 
-If you need to contact me privately, send me a private message on either
-download site, or email me at <addons@phanx.net>.
+Feature requests or other suggestions:
+	Submit a feature request ticket system on either download page.
+
+General questions or comments:
+	Post a comment on the WoWInterface download page.
+
+If you need to contact me privately for a reason other than those listed
+above, you can send me a private message on either download site, or
+email me at <addons@phanx.net>.

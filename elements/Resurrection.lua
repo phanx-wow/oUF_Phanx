@@ -1,5 +1,6 @@
 --[[--------------------------------------------------------------------
 	oUF_Resurrection
+	by Phanx <addons@phanx.net>
 	Adds resurrection status text to oUF frames.
 	Loosely based on GridStatusRes.
 

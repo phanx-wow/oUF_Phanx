@@ -1,22 +1,22 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Written by Phanx <addons@phanx.net>
-	Copyright © 2008–2012. Some rights reserved. See LICENSE.txt for details.
+	Copyright (c) 2008-2011 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
 
-ns.borderedObjects = { }
+ns.borderedObjects = {}
 
 local sections = { "TOPLEFT", "TOPRIGHT", "TOP", "BOTTOMLEFT", "BOTTOMRIGHT", "BOTTOM", "LEFT", "RIGHT" }
 
 ns.CreateBorder = function(self, size, offset, parent, layer)
 	if type(self) ~= "table" or not self.CreateTexture or self.BorderTextures then return end
 
-	local t = { }
+	local t = {}
 
 	for i = 1, #sections do
 		local x = self:CreateTexture(nil, layer or "ARTWORK")
