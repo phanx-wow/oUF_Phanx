@@ -1,8 +1,8 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Written by Phanx <addons@phanx.net>
-	Copyright © 2007–2011. Some rights reserved. See LICENSE.txt for details.
+	Copyright (c) 2008-2011 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------

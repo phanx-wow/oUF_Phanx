@@ -1,4 +1,4 @@
---[[
+--[[--------------------------------------------------------------------
 	oUF_PowerStack
 	by Phanx <addons@phanx.net>
 	Adds a graphical counter element for stacking self-buffs such as
@@ -43,7 +43,7 @@
 
 		The buff to track can be changed dynamically (for example, when
 		the player's spec changes) by the layout.
---]]
+----------------------------------------------------------------------]]
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
