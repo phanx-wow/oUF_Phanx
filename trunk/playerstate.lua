@@ -25,15 +25,15 @@ if playerClass == "DEATHKNIGHT" then
 
 	ns.eventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 	ns.eventFrame:SetScript("OnEvent", function()
-		ns.isTanking = GetPrimaryTalentTree() == 1 and GetShapeshiftForm() == 1
+		ns.isTanking = GetSpecialization() == 1 and GetShapeshiftForm() == 1
 	end)
 
 elseif playerClass == "DRUID" then
 
 	ns.eventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 	ns.eventFrame:SetScript("OnEvent", function()
-		ns.isHealing = GetPrimaryTalentTree() == 3
-		ns.isTanking = GetPrimaryTalentTree() == 2 and GetShapeshiftForm() == 1
+		ns.isHealing = GetSpecialization() == 4
+		ns.isTanking = GetSpecialization() == 3
 	end)
 
 elseif playerClass == "PALADIN" then
@@ -41,27 +41,27 @@ elseif playerClass == "PALADIN" then
 	local RighteousFury = GetSpellInfo(25780)
 	ns.eventFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 	ns.eventFrame:SetScript("OnEvent", function()
-		ns.isHealing = GetPrimaryTalentTree() == 1
+		ns.isHealing = GetSpecialization() == 1
 		ns.isTanking = UnitAura("player", RighteousFury, "HELPFUL")
 	end)
 
 elseif playerClass == "PRIEST" then
 
 	ns.eventFrame:SetScript("OnEvent", function()
-		ns.isHealing = GetPrimaryTalentTree() ~= 3
+		ns.isHealing = GetSpecialization() ~= 3
 	end)
 
 elseif playerClass == "SHAMAN" then
 
 	ns.eventFrame:SetScript("OnEvent", function(_, event)
-		ns.isHealing = GetPrimaryTalentTree() == 3
+		ns.isHealing = GetSpecialization() == 3
 	end)
 
 elseif playerClass == "WARRIOR" then
 
 	ns.eventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 	ns.eventFrame:SetScript("OnEvent", function()
-		ns.isTanking = GetPrimaryTalentTree() == 3 and GetShapeshiftForm() == 2
+		ns.isTanking = GetSpecialization() == 3 and GetShapeshiftForm() == 2
 	end)
 
 end

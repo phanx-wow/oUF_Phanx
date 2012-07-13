@@ -759,36 +759,45 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Class-specific resources --
 	------------------------------
 
-	if unit == "player" and (playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN" or playerClass == "WARLOCK") then
+	if unit == "player" and playerClass == "SHAMAN" then -- (playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN" or playerClass == "WARLOCK") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 
 		local element, max, buff, power
+--[[
+		---------
+		-- Chi --
+		---------
+		if playerClass == "MONK" then
+			element, max = "PowerStack", 4
+			power = SPELL_POWER_LIGHT_FORCE
 		----------------
 		-- Holy power --
 		----------------
-		if playerClass == "PALADIN" then
-			element, max = "HolyPower", MAX_HOLY_POWER
+		elseif playerClass == "PALADIN" then
+			element, max = "HolyPower", 3
 			power = SPELL_POWER_HOLY_POWER
 		----------------
 		-- Shadow Orb --
 		----------------
 		elseif playerClass == "PRIEST" then
 			element, max = "PowerStack", 3
-			buff = GetSpellInfo(77487)
+			power = SPELL_POWER_SHADOW_ORBS
 		----------------------
 		-- Maelstrom Weapon --
 		----------------------
 		elseif playerClass == "SHAMAN" then
+]]
 			element, max = "PowerStack", 5
 			buff = GetSpellInfo(53817)
+--[[
 		-----------------
 		-- Soul shards --
 		-----------------
 		elseif playerClass == "WARLOCK" then
-			element, max = "SoulShards", SHARD_BAR_NUM_SHARDS
+			element, max = "SoulShards", 3
 			power = SPELL_POWER_SOUL_SHARDS
 		end
-
+]]
 		local SetAlpha
 		if power then
 			SetAlpha = function(self, alpha)
