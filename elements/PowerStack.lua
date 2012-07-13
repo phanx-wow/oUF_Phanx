@@ -57,8 +57,13 @@ local Update = function(self, event, unit)
 	local element = self.PowerStack
 	local max = #element
 
-	local _, _, _, count = UnitBuff("player", element.buff)
-	if not count then count = 0 end
+	local count
+	if element.power then
+		count = UnitPower("player", element.power)
+	else
+		local _, _, _, stacks = UnitBuff("player", element.buff)
+		count = stacks or 0
+	end
 
 	-- print("PowerStack: Update", event, unit, element.buff, count, max)
 
