@@ -58,7 +58,7 @@ Localization
 ------------
 
 Compatible with English, Deutsch, Español (EU), Español (AL), Français,
-Italiano, Português, Русский, 한국어, 简体中文, and 正體中文 game clients.
+Italiano, Português, Русский, 한국어, 简体中文, and 繁體中文 game clients.
 
 Translated into English and Español.
 
