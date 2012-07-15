@@ -374,6 +374,14 @@ ns.PostChannelStart = function(self, unit, name, rank, text)
 	end
 end
 
+ns.CustomDelayText = function(self, duration)
+	self.Time:SetFormattedText("%.1f|cffff0000-%.1f|r", self.max - duration, self.delay)
+end
+
+ns.CustomTimeText = function(self, duration)
+	self.Time:SetFormattedText("%.1f", self.max - duration)
+end
+
 ------------------------------------------------------------------------
 
 ns.UpdateDispelHighlight = function(self, unit, debuffType, canDispel)
@@ -1127,6 +1135,8 @@ ns.Spawn = function(self, unit, isSingle)
 
 		self.Castbar.PostCastStart = ns.PostCastStart
 		self.Castbar.PostChannelStart = ns.PostChannelStart
+		self.Castbar.CustomDelayText = ns.CustomDelayText
+		self.Castbar.CustomTimeText = ns.CustomTimeText
 
 		ns.CreateBorder( self.Castbar, nil, nil, nil, "OVERLAY" )
 
