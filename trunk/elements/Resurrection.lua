@@ -35,50 +35,50 @@ local resStatus = { }
 local unitName = { }
 
 local UNIT_HEALTH
-function UNIT_HEALTH( self, event, unit )
+function UNIT_HEALTH(self, event, unit)
 	if unit ~= self.unit then return end
 
-	local name = unitName[ unit ]
-	if name and not UnitIsDead( unit ) then
-		unitName[ unit ] = nil
-		resStatus[ name ] = nil
-		self.Resurrection:SetText( nil )
-		self:UnregisterEvent( "UNIT_HEALTH", UNIT_HEALTH )
+	local name = unitName[unit]
+	if name and not UnitIsDead(unit) then
+		unitName[unit] = nil
+		resStatus[name] = nil
+		self.Resurrection:SetText(nil)
+		self:UnregisterEvent("UNIT_HEALTH", UNIT_HEALTH)
 	end
 end
 
-local Update = function( self, event, unit )
+local Update = function(self, event, unit)
 	if not unit then return end -- frame doesn't currently have a unit (eg. nonexistent party member)
-	-- print( "Resurrection Update", unit )
+	-- print("Resurrection Update", unit)
 	local element = self.Resurrection
 
-	local name, realm = UnitName( unit )
+	local name, realm = UnitName(unit)
 	if realm and realm ~= "" then
-		name = ("%s-%s"):format( name, realm )
+		name = ("%s-%s"):format(name, realm)
 	end
-	unitName[ unit ] = name
+	unitName[unit] = name
 
-	local status = resStatus[ name ]
-	local text = status and displayText[ status ]
+	local status = resStatus[name]
+	local text = status and displayText[status]
 
 	if status ~= "SOULSTONE" or not element.ignoreSoulstone then
-		element:SetText( text )
+		element:SetText(text)
 	end
 
 	if element.PostUpdate then
-		element:PostUpdate( unit, status, text )
+		element:PostUpdate(unit, status, text)
 	end
 
-	self:RegisterEvent( "UNIT_HEALTH", UNIT_HEALTH )
+	self:RegisterEvent("UNIT_HEALTH", UNIT_HEALTH)
 end
 
-local ForceUpdate = function( element )
-	return Update( element.__owner, "ForceUpdate", element.__owner.unit )
+local ForceUpdate = function(element)
+	return Update(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
 ------------------------------------------------------------------------
 
-local Enable = function( self )
+local Enable = function(self)
 	local element = self.Resurrection
 	if not element or not element.SetText then return end
 
@@ -88,7 +88,7 @@ local Enable = function( self )
 	return true
 end
 
-local Disable = function( self )
+local Disable = function(self)
 	local element = self.Resurrection
 	if not element or not element.SetText then return end
 
@@ -97,7 +97,7 @@ local Disable = function( self )
 	return true
 end
 
-oUF:AddElement( "Resurrection", Update, Enable, Disable )
+oUF:AddElement("Resurrection", Update, Enable, Disable)
 
 ------------------------------------------------------------------------
 
