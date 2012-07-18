@@ -26,10 +26,12 @@ elements\DispelHighlight.lua
 elements\PowerStack.lua
 elements\Resurrection.lua
 elements\ThreatHighlight.lua
+elements\WarlockPower.lua
 
 auras.lua
 border.lua
 eclipsebar.lua
+Orbs.lua
 playerstate.lua
 tags.lua
 

@@ -11,7 +11,7 @@ local _, ns = ...
 local Orbs, OrbStatusBar = {}, {}
 ns.Orbs = Orbs
 
---
+------------------------------------------------------------------------
 --	Create a new orb group.
 --
 function Orbs.Create(parent, num, size, orientation, reverse)
@@ -42,43 +42,76 @@ function Orbs.Create(parent, num, size, orientation, reverse)
 		orb.container = orbs
 		orbs[i] = orb
 	end
+	orbs.Hide = Orbs.Hide
+	orbs.Show = Orbs.Show
 	orbs.Update = Orbs.Update
 	return orbs
 end
 
---
+------------------------------------------------------------------------
 --	Update an orb group
 --
-function Orbs.Update = function(orbs, num, max)
-	local max = max or orbs.max or #orbs
+function Orbs.Update(orbs, num, max)
+	max = max or orbs.max or #orbs
+	--print("Orbs.Update", num, max)
 	if num == 0 or max == 0 then
 		for i = 1, #orbs do
 			orbs[i]:Hide()
 		end
 	else
+		--local full = num == max
 		for i = 1, #orbs do
 			local orb = orbs[i]
 			if i <= num then
-				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+				--print(i, "<= num", num)
+			--	if full then
+			--		orb.bg:SetVertexColor(1, 0.9, 0.25)
+			--	else
+					orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+			--	end
 				orb.bg:SetAlpha(1)
 				orb.fg:Show()
 				orb:Show()
 			elseif i <= max then
+				--print(i, "<= max", max)
 				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
 				orb.bg:SetAlpha(0.5)
 				orb.fg:Hide()
+				orb:Show()
 			else
+				--print(i, "Hide")
 				orb:Hide()
 			end
 		end
 	end
 end
 
-OrbStatusBar.GetValue(orb)
+------------------------------------------------------------------------
+--	Hide all the orbs
+--
+function Orbs:Hide()
+	for i = 1, #self do
+		self[i]:Hide()
+	end
+end
+
+------------------------------------------------------------------------
+--	Show all the orbs
+--
+function Orbs:Show()
+	for i = 1, #self do
+		self[i]:Show()
+	end
+end
+
+------------------------------------------------------------------------
+--	Update individual orbs as status bars
+--
+function OrbStatusBar.GetValue(orb)
 	return orb.value or orb.maxValue or 1
 end
 
-OrbStatusBar.SetValue(orb, value)
+function OrbStatusBar.SetValue(orb, value)
 	if value == orb.value then return end
 	local min, max = orb.minValue or 0, orb.maxValue or 1
 	local percent = (value - min) / (max - min)
@@ -115,7 +148,7 @@ OrbStatusBar.SetValue(orb, value)
 	orb.value = value
 end
 
-OrbStatusBar.SetMinMaxValues(orb, min, max)
+function OrbStatusBar.SetMinMaxValues(orb, min, max)
 	orb.minValue = min or 0
 	orb.maxValue = max or 1
 
@@ -124,10 +157,10 @@ OrbStatusBar.SetMinMaxValues(orb, min, max)
 	orb:SetValue(value)
 end
 
-OrbStatusBar.SetOrientation(orb, direction)
+function OrbStatusBar.SetOrientation(orb, direction)
 	orb.direction = direction or orb.direction
 end
 
-OrbStatusBar:SetReverseFill(reverse)
+function OrbStatusBar.SetReverseFill(orb, reverse)
 	orb.reverse = reverse
 end

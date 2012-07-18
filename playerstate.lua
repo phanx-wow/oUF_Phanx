@@ -32,8 +32,17 @@ elseif playerClass == "DRUID" then
 
 	ns.eventFrame:RegisterEvent("UPDATE_SHAPESHIFT_FORM")
 	ns.eventFrame:SetScript("OnEvent", function()
-		ns.isHealing = GetSpecialization() == 4
-		ns.isTanking = GetSpecialization() == 3
+		local spec = GetSpecialization()
+		ns.isHealing = spec == 4
+		ns.isTanking = spec == 3
+	end)
+
+elseif playerClass == "MONK" then
+
+	ns.eventFrame:SetScript("OnEvent", function()
+		local spec = GetSpecialization()
+		ns.isHealing = spec == 2
+		ns.isTanking = spec == 1
 	end)
 
 elseif playerClass == "PALADIN" then

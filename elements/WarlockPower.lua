@@ -1,41 +1,3 @@
---[[ Element: Shadow Orbs
- Toggles visibility of the players Shadow Orbs.
-
- Widget
-
- WarlockPower - An array consisting of three UI widgets.
-
- Notes
-
- The default shadow orbs texture will be applied to textures within the WarlockPower
- array that don't have a texture or color defined.
-
- Examples
-
-   local WarlockPower = {}
-   for index = 1, PRIEST_BAR_NUM_ORBS do
-      local Orb = self:CreateTexture(nil, 'BACKGROUND')
-
-      -- Position and size of the orb.
-      Orb:SetSize(14, 14)
-      Orb:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', index * Orb:GetWidth(), 0)
-
-      WarlockPower[index] = Orb
-   end
-
-   -- Register with oUF
-   self.WarlockPower = WarlockPower
-
- Hooks
-
- Override(self) - Used to completely override the internal update function.
-                  Removing the table key entry will make the element fall-back
-                  to its internal function again.
-]]
-
-local parent, ns = ...
-local oUF = ns.oUF
-
 local SPEC_WARLOCK_AFFLICTION = SPEC_WARLOCK_AFFLICTION
 local WARLOCK_SOULBURN = WARLOCK_SOULBURN
 local SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS
@@ -49,17 +11,30 @@ local WARLOCK_BURNING_EMBERS = WARLOCK_BURNING_EMBERS
 local SPELL_POWER_BURNING_EMBERS = SPELL_POWER_BURNING_EMBERS
 local MAX_POWER_PER_EMBER = MAX_POWER_PER_EMBER
 
-local Update = function(self, event, unit, powerType)
-	if self.unit ~= unit or (powerType and powerType ~= "SOUL_SHARDS" and powerType ~= "BURNING_EMBERS" and powerType ~= "DEMONIC_FURY") then return end
+local powerTypes = {
+	SOUL_SHARDS = true,
+	DEMONIC_FURY = true,
+	BURNING_EMBERS = true,
+	[SPEC_WARLOCK_AFFLICTION] = "SOUL_SHARDS",
+	[SPEC_WARLOCK_DEMONOLOGY] = "DEMONIC_FURY",
+	[SPEC_WARLOCK_DESTRUCTION] = "BURNING_EMBERS",
+}
 
+local Update = function(self, event, unit, powerType)
 	local element = self.WarlockPower
+	if self.unit ~= unit or (powerType and powerType ~= element.powerType) then return end
+
 	if element.PreUpdate then
 		element:PreUpdate()
 	end
 
 	if not powerType then
-		local _
-		_, powerType = UnitDisplayPower(unit)
+		print("finding power type for spec:", self.spec)
+		powerType = element.powerType
+	end
+	print("WarlockPower.Update", event, powerType, self.spec)
+	if not powerType then
+		return
 	end
 
 	local num, max
@@ -68,6 +43,7 @@ local Update = function(self, event, unit, powerType)
 	if powerType == "SOUL_SHARDS" then
 		num = UnitPower(unit, SPELL_POWER_SOUL_SHARDS)
 		max = UnitPowerMax(unit, SPELL_POWER_SOUL_SHARDS)
+		print(powerType, num, "/", max)
 
 		if element.SetValue then
 			element:SetMinMaxValues(0, max)
@@ -96,9 +72,10 @@ local Update = function(self, event, unit, powerType)
 		end
 
 	-- Demonology
-	elseif powerType = "DEMONIC_FURY" then
+	elseif powerType == "DEMONIC_FURY" then
 		num = UnitPower(unit, SPELL_POWER_DEMONIC_FURY)
 		max = UnitPowerMax(unit, SPELL_POWER_DEMONIC_FURY)
+		print(powerType, num, "/", max)
 
 		local activated
 		for i = 1, 40 do
@@ -141,6 +118,7 @@ local Update = function(self, event, unit, powerType)
 	elseif powerType == "BURNING_EMBERS" then
 		num = UnitPower(unit, SPELL_POWER_BURNING_EMBERS, true)
 		max = UnitPowerMax(unit, SPELL_POWER_BURNING_EMBERS, true)
+		print(powerType, num, "/", max)
 
 		local numWhole = math.floor(num / MAX_POWER_PER_EMBER)
 		local maxWhole = math.floor(max / MAX_POWER_PER_EMBER)
@@ -155,8 +133,9 @@ local Update = function(self, event, unit, powerType)
 					if ember.SetValue then
 						ember:SetValue(1)
 					end
-					ember[i]:SetAlpha(1)
-					element[i]:Show()
+					ember:SetAlpha(1)
+					ember.bg:SetVertexColor(1, 0.6, 0)
+					ember:Show()
 				elseif i == numWhole + 1 then
 					local partial = num % MAX_POWER_PER_EMBER
 					if ember.SetValue then
@@ -165,7 +144,8 @@ local Update = function(self, event, unit, powerType)
 					else
 						ember:SetAlpha(1 - (0.75 * partial))
 					end
-					ember[i]:Show()
+					ember.bg:SetVertexColor(0.4, 0.4, 0.4)
+					ember:Show()
 				else
 					ember:Hide()
 				end
@@ -180,6 +160,7 @@ end
 
 local Visibility = function(self, event, unit)
 	local spec = GetSpecialization()
+	print("WarlockPower Visibility", spec)
 
 	local show
 	if spec == SPEC_WARLOCK_AFFLICTION then
@@ -199,15 +180,19 @@ local Visibility = function(self, event, unit)
 			self:RegisterEvent("SPELLS_CHANGED", Visibility, true)
 		end
 	end
+	self.spec = spec
 
 	local element = self.WarlockPower
+	element.powerType = powerTypes[spec]
 
 	if show then
+		print("show")
 		if element.Show then
 			element:Show()
 		end
 		element:ForceUpdate("Visibility", "player")
 	else
+		print("hide")
 		if element.Hide then
 			element:Hide()
 		else
@@ -235,15 +220,9 @@ local Enable = function(self, unit)
 		self:RegisterEvent("UNIT_POWER", Path)
 		self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
 		self:RegisterEvent("PLAYER_TALENT_UPDATE", Visibility, true)
---[[
-		for index = 1, PRIEST_BAR_NUM_ORBS do
-			local orb = element[index]
-			if(orb:IsObjectType"Texture" and not orb:GetTexture()) then
-				orb:SetTexture[[Interface\PlayerFrame\Priest-ShadowUI]]
-				orb:SetTexCoord(0.45703125, 0.60546875, 0.44531250, 0.73437500)
-			end
-		end
-]]
+
+		Visibility(self, nil, "player")
+
 		return true
 	end
 end
