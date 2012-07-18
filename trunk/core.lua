@@ -238,7 +238,7 @@ ns.UpdateComboPoints = function(self, event, unit)
 		cp = GetComboPoints("player", "target")
 	end
 
-	ns.UpdateOrbs(self.CPoints, cp)
+	ns.Orbs.Update(self.CPoints, cp)
 end
 
 ------------------------------------------------------------------------
@@ -518,51 +518,6 @@ end
 
 ------------------------------------------------------------------------
 
-ns.CreateOrbs = function(parent, num, size)
-	local orbs = {}
-	for i = 1, num do
-		local orb = CreateFrame("Frame", nil, parent)
-		orb:SetSize(size or 20, size or 20)
-
-		orb.bg = orb:CreateTexture(nil, "BACKGROUND")
-		orb.bg:SetAllPoints(true)
-		orb.bg:SetTexture("Interface\\AddOns\\oUF_Phanx\\media\\OrbBG")
-
-		orb.fg = orb:CreateTexture(nil, "ARTWORK")
-		orb.fg:SetAllPoints(true)
-		orb.fg:SetTexture("Interface\\AddOns\\oUF_Phanx\\media\\OrbFG")
-
-		orb.id = i
-		orbs[i] = orb
-	end
-	return orbs
-end
-
-ns.UpdateOrbs = function(orbs, n)
-	local max = #orbs
-	if n == 0 then
-		for i = 1, max do
-			orbs[i]:Hide()
-		end
-	else
-		for i = 1, max do
-			local orb = orbs[i]
-			orb:Show()
-			if i <= n then
-				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-				orb.bg:SetAlpha(1)
-				orb.fg:Show()
-			else
-				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
-				orb.bg:SetAlpha(0.5)
-				orb.fg:Hide()
-			end
-		end
-	end
-end
-
-------------------------------------------------------------------------
-
 ns.Spawn = function(self, unit, isSingle)
 	if self:GetParent():GetAttribute("useOwnerUnit") then
 		local suffix = self:GetParent():GetAttribute("unitsuffix")
@@ -748,7 +703,7 @@ ns.Spawn = function(self, unit, isSingle)
 	------------------
 
 	if unit == "target" then
-		local t = ns.CreateOrbs(self.overlay, MAX_COMBO_POINTS, 20)
+		local t = ns.Orbs.Create(self.overlay, MAX_COMBO_POINTS, 20)
 		for i = MAX_COMBO_POINTS, 1, -1 do
 			local orb = t[i]
 			if i == 1 then
@@ -767,74 +722,52 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Class-specific resources --
 	------------------------------
 
-	if unit == "player" and playerClass == "SHAMAN" then -- (playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "SHAMAN" or playerClass == "WARLOCK") then
+	if unit == "player" and (playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "WARLOCK") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 
-		local element, max, buff, power
---[[
+		local element, power, max, update
+
 		---------
 		-- Chi --
 		---------
 		if playerClass == "MONK" then
-			element, max = "PowerStack", 4
-			power = SPELL_POWER_LIGHT_FORCE
+			element = "HarmonyOrbs"
+			power, max = SPELL_POWER_LIGHT_FORCE, 5
 		----------------
 		-- Holy power --
 		----------------
 		elseif playerClass == "PALADIN" then
-			element, max = "HolyPower", 3
-			power = SPELL_POWER_HOLY_POWER
+			element = "HolyPower"
+			power, max = SPELL_POWER_HOLY_POWER, 4
 		----------------
 		-- Shadow Orb --
 		----------------
 		elseif playerClass == "PRIEST" then
-			element, max = "PowerStack", 3
-			power = SPELL_POWER_SHADOW_ORBS
-		----------------------
-		-- Maelstrom Weapon --
-		----------------------
-		elseif playerClass == "SHAMAN" then
-]]
-			element, max = "PowerStack", 5
-			buff = GetSpellInfo(53817)
---[[
+			element= "ShadowOrbs"
+			power, max = SPELL_POWER_SHADOW_ORBS, 3
 		-----------------
 		-- Soul shards --
 		-----------------
 		elseif playerClass == "WARLOCK" then
-			element, max = "SoulShards", 3
-			power = SPELL_POWER_SOUL_SHARDS
+			element= "SoulShards"
+			power, max = SPELL_POWER_SOUL_SHARDS, 4
 		end
-]]
-		local SetAlpha
-		if power then
-			SetAlpha = function(self, alpha)
-				if alpha == 1 then
-					self.bg:SetVertexColor(0.25, 0.25, 0.25)
-					self.bg:SetAlpha(1)
-					self.fg:Show()
-				else
-					local num = UnitPower("player", power)
-					self.bg:SetVertexColor(0.4, 0.4, 0.4)
-					self.bg:SetAlpha(num > 0 and 0.5 or 0)
-					self.fg:Hide()
-				end
-			end
-		else
-			SetAlpha = function(orb, alpha)
-				if alpha == 1 then
-					orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-					orb.bg:SetAlpha(1)
-					orb.fg:Show()
-				else
-					orb.bg:SetVertexColor(0.4, 0.4, 0.4)
-					orb.bg:SetAlpha(0.5)
-					orb.fg:Hide()
-				end
+
+		local SetAlpha = function(self, alpha)
+			if alpha == 1 then
+				self.bg:SetVertexColor(0.25, 0.25, 0.25)
+				self.bg:SetAlpha(1)
+				self.fg:Show()
+			else
+				local num = UnitPower("player", self.__container.powerType)
+				local max = UnitPowerMax("player", self.__container.powerType)
+				self.bg:SetVertexColor(0.4, 0.4, 0.4)
+				self.bg:SetAlpha(num > 0 and 0.5 or 0)
+				self.fg:Hide()
 			end
 		end
 
-		local t = ns.CreateOrbs(self.overlay, max, 20)
+		local t = ns.Orbs.Create(self.overlay, max, 20)
 		for i = 1, max do
 			local orb = t[i]
 			if i == 1 then
@@ -846,9 +779,44 @@ ns.Spawn = function(self, unit, isSingle)
 			orb.fg:SetVertexColor(color.r, color.g, color.b)
 			orb.SetAlpha = SetAlpha
 		end
-
-		t.buff = buff
+		t.powerType = power
 		self[element] = t
+	end
+
+	--------------------
+	-- Stacking buffs --
+	--------------------
+
+	if unit == "player" and playerClass == "SHAMAN" then
+		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
+
+		local SetAlpha = function(orb, alpha)
+			if alpha == 1 then
+				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+				orb.bg:SetAlpha(1)
+				orb.fg:Show()
+			else
+				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
+				orb.bg:SetAlpha(0.5)
+				orb.fg:Hide()
+			end
+		end
+
+		local t = ns.Orbs.Create(self.overlay, 5, 20)
+		for i = 1, 5 do
+			local orb = t[i]
+			if i == 1 then
+				orb:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, -5)
+			else
+				orb:SetPoint("BOTTOMRIGHT", t[i - 1], "BOTTOMLEFT", 2, 0)
+			end
+			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+			orb.fg:SetVertexColor(color.r, color.g, color.b)
+			orb.SetAlpha = SetAlpha
+		end
+
+		t.buff = GetSpellInfo(53817)
+		self.PowerStack = t
 	end
 
 	-----------------------
