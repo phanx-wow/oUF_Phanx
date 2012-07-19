@@ -768,7 +768,7 @@ ns.Spawn = function(self, unit, isSingle)
 	if unit == "player" and (playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "WARLOCK") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 
-		local element, power, max, update
+		local element, power, max, update, statusbar
 
 		---------
 		-- Chi --
@@ -784,36 +784,36 @@ ns.Spawn = function(self, unit, isSingle)
 			element = "HolyPower"
 			power, max = SPELL_POWER_HOLY_POWER, 5 -- default UI only shows 3, but you can actually have 5
 			update = ns.UpdateHolyPower
-		----------------
-		-- Shadow Orb --
-		----------------
+		-----------------
+		-- Shadow orbs --
+		-----------------
 		elseif playerClass == "PRIEST" then
 			element = "ShadowOrbs"
 			power, max = SPELL_POWER_SHADOW_ORBS, 3
 			update = ns.UpdateShadowOrbs
-		-----------------
-		-- Soul shards --
-		-----------------
+		-----------------------------------------------
+		-- Soul shards, demonic fury, burning embers --
+		-----------------------------------------------
 		elseif playerClass == "WARLOCK" then
 			element = "WarlockPower" -- "SoulShards"
 			power, max = SPELL_POWER_SOUL_SHARDS, 4
+			statusbar = true
 		end
 
 		local SetAlpha = function(self, alpha)
+			--print("SetAlpha", self.id, alpha)
 			if alpha == 1 then
 				self.bg:SetVertexColor(0.25, 0.25, 0.25)
 				self.bg:SetAlpha(1)
 				self.fg:Show()
 			else
-				local num = UnitPower("player", self.container.powerType)
-				local max = UnitPowerMax("player", self.container.powerType)
 				self.bg:SetVertexColor(0.4, 0.4, 0.4)
-				self.bg:SetAlpha(num > 0 and 0.5 or 0)
+				self.bg:SetAlpha(0.5)
 				self.fg:Hide()
 			end
 		end
 
-		local t = ns.Orbs.Create(self.overlay, max, 20)
+		local t = ns.Orbs.Create(self.overlay, max, 20, statusbar)
 		for i = 1, max do
 			local orb = t[i]
 			if i == 1 then
@@ -823,7 +823,9 @@ ns.Spawn = function(self, unit, isSingle)
 			end
 			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
 			orb.fg:SetVertexColor(color.r, color.g, color.b)
-			orb.SetAlpha = SetAlpha
+			if not statusbar then
+				orb.SetAlpha = SetAlpha
+			end
 		end
 		t.powerType = power
 		t.Override = update
