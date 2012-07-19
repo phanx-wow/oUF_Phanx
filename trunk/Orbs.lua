@@ -14,7 +14,7 @@ ns.Orbs = Orbs
 ------------------------------------------------------------------------
 --	Create a new orb group.
 --
-function Orbs.Create(parent, num, size, orientation, reverse)
+function Orbs.Create(parent, num, size, statusbar, orientation, reverse, style)
 	-- normal direction is LTR or TTB, reverse is RTL or BTT
 	local orbs = {}
 	for i = 1, num do
@@ -30,21 +30,39 @@ function Orbs.Create(parent, num, size, orientation, reverse)
 		orb.fg:SetAllPoints(true)
 		orb.fg:SetTexture("Interface\\AddOns\\oUF_Phanx\\media\\OrbFG")
 
-		if orientation then
-			orb.orientation = orientation
-			orb.reverse = reverse
+		if statusbar then
+			local spiral = CreateFrame("Cooldown", nil, orb)
+			spiral.noCooldownCount = true
+			spiral.noOmniCC = true
+			--spiral:SetDrawEdge(true)
+			spiral:SetReverse(false)
+			spiral:Hide()
+			spiral:SetScript("OnUpdate", OrbStatusBar.Cooldown_OnUpdate)
+			spiral.orb = orb
+			orb.spiral = spiral
+
 			for k, v in pairs(OrbStatusBar) do
 				orb[k] = v
 			end
+
+			orb:SetOrientation(orientation)
+			orb:SetReverseFill(reverse)
+			orb:SetStyle(style)
 		end
 
 		orb.id = i
-		orb.container = orbs
+		orb.orbs = orbs
+		orb.style = style or "StatusBar"
 		orbs[i] = orb
 	end
-	orbs.Hide = Orbs.Hide
-	orbs.Show = Orbs.Show
-	orbs.Update = Orbs.Update
+
+	orbs.areOrbs = true
+	for k, v in pairs(Orbs) do
+		if k ~= "Create" then
+			orbs[k] = v
+		end
+	end
+
 	return orbs
 end
 
@@ -113,54 +131,159 @@ end
 
 function OrbStatusBar.SetValue(orb, value)
 	if value == orb.value then return end
+	--print("SetValue", orb.id, value)
+	orb.value = value
+
+	if value == 0 then
+		--print("ZERO VALUE")
+		orb.bg:SetVertexColor(0.4, 0.4, 0.4)
+		orb.bg:SetAlpha(0.5)
+
+		orb.fg:ClearAllPoints()
+		orb.fg:SetAllPoints(orb)
+		orb.fg:SetTexCoord(0, 1, 0, 1)
+		orb.fg:Hide()
+
+		orb.spiral:Hide()
+		return
+	end
+
+	orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+	orb.bg:SetAlpha(1)
+	orb.fg:Show()
+
+	-- Cooldown style
+	if orb.style == "Cooldown" and value > 0 then
+		return orb.spiral:Show()
+	else
+		orb.spiral:Hide()
+	end
+
+	-- StatusBar style
 	local min, max = orb.minValue or 0, orb.maxValue or 1
-	local percent = (value - min) / (max - min)
+	--print("min", min, "max", max)
+	if value < min then
+		value = min
+	elseif value > max then
+		value = max
+	end
+
+	local fg = orb.fg
 	local size = orb.size
-	if orientation == "VERTICAL" then
+	local percent = (value - min) / (max - min)
+	--print("percent", percent)
+	if orb.orientation == "VERTICAL" then
+		--print("VERTICAL", reverse)
 		if orb.reverse then
-			orb.fg:SetPoint("TOPLEFT")
-			orb.fg:SetPoint("TOPRIGHT")
-			orb.fg:SetHeight(percent * size)
-			orb.fg:SetWidth(size)
-			orb.fg:SetTexCoord(0, 1, percent, 1)
+			fg:ClearAllPoints()
+			fg:SetPoint("TOPLEFT")
+			fg:SetPoint("TOPRIGHT")
+			fg:SetHeight(percent * size)
+			fg:SetTexCoord(0, 1, 0, percent)
 		else
-			orb.fg:SetPoint("BOTTOMLEFT")
-			orb.fg:SetPoint("BOTTOMRIGHT")
-			orb.fg:SetHeight(percent * orb.size)
-			orb.fg:SetWidth(size)
-			orb.fg:SetTexCoord(0, 1, 0, percent)
+			fg:ClearAllPoints()
+			fg:SetPoint("BOTTOMLEFT")
+			fg:SetPoint("BOTTOMRIGHT")
+			fg:SetHeight(percent * size)
+			fg:SetTexCoord(0, 1, 1 - percent, 1)
 		end
 	else -- default to HORIZONTAL
+		--print("HORIZONTAL", reverse)
 		if orb.reverse then
-			orb.fg:SetPoint("TOPRIGHT")
-			orb.fg:SetPoint("BOTTOMRIGHT")
-			orb.fg:SetWidth(percent * orb.size)
-			orb.fg:SetHeight(size)
-			orb.fg:SetTexCoord(percent, 1, 0, 1)
+			fg:ClearAllPoints()
+			fg:SetPoint("TOPRIGHT")
+			fg:SetPoint("BOTTOMRIGHT")
+			fg:SetWidth(percent * size)
+			fg:SetTexCoord(1 - percent, 1, 0, 1)
 		else
-			orb.fg:SetPoint("TOPLEFT")
-			orb.fg:SetPoint("BOTTOMLEFT")
-			orb.fg:SetWidth(percent * orb.size)
-			orb.fg:SetHeight(size)
-			orb.fg:SetTexCoord(0, percent, 0, 1)
+			fg:ClearAllPoints()
+			fg:SetPoint("TOPLEFT")
+			fg:SetPoint("BOTTOMLEFT")
+			fg:SetWidth(percent * size)
+			fg:SetTexCoord(0, percent, 0, 1)
 		end
 	end
-	orb.value = value
 end
 
 function OrbStatusBar.SetMinMaxValues(orb, min, max)
-	orb.minValue = min or 0
-	orb.maxValue = max or 1
+	if not min or not max then min, max = 0, 1 end
+	if min == orb.minValue and max == orb.maxValue then return end
+
+	orb.minValue = min
+	orb.maxValue = max
 
 	local value = orb.value
 	orb.value = nil
 	orb:SetValue(value)
 end
 
-function OrbStatusBar.SetOrientation(orb, direction)
-	orb.direction = direction or orb.direction
+------------------------------------------------------------------------
+--	Set statusbar properties
+
+function OrbStatusBar.SetOrientation(orb, orientation)
+	orb.orientation = orientation or orb.orientation or "HORIZONTAL"
 end
 
 function OrbStatusBar.SetReverseFill(orb, reverse)
 	orb.reverse = reverse
+end
+
+------------------------------------------------------------------------
+--	Switch between statusbar mode and cooldown mode
+
+function OrbStatusBar.SetStyle(orb, style)
+	if style and style:upper() == "COOLDOWN" then
+		if value > 0 and orb.maxValue > 0 then
+
+		end
+		orb.style = "Cooldown"
+		local value = orb.value
+		orb:SetValue(0)
+		orb:SetValue(value)
+	else
+		orb.style = "StatusBar"
+		orb.spiral:Hide()
+	end
+end
+
+------------------------------------------------------------------------
+--	Update a cooldown spiral
+
+local GetTime = GetTime
+
+function OrbStatusBar.Cooldown_OnUpdate(spiral, elapsed)
+	spiral:SetCooldown(GetTime() - spiral.orb.value, spiral.orb.maxValue)
+end
+
+------------------------------------------------------------------------
+--	Shortcuts
+
+function Orbs.SetOrientation(orbs, orientation)
+	for i = 1, #orbs do
+		orbs[i]:SetOrientation(orientation)
+	end
+end
+
+function Orbs.GetOrientation(orbs)
+	return orbs[i].orientation
+end
+
+function Orbs.SetReverseFill(orbs, reverse)
+	for i = 1, #orbs do
+		orbs[i]:SetReverseFill(reverse)
+	end
+end
+
+function Orbs.GetReverseFill(orbs)
+	return orbs[i].reverse
+end
+
+function Orbs.SetStyle(orbs, style)
+	for i = 1, #orbs do
+		orbs[i]:SetStyle(style)
+	end
+end
+
+function Orbs.GetStyle(orbs)
+	return orbs[i].style
 end
