@@ -11,7 +11,7 @@
 	Last updated: 2011-02-22 by Akkorian <akkorian@hotmail.com>
 ----------------------------------------------------------------------]]
 
-if not GetLocale():match( "^es" ) then return end
+if not GetLocale():match("^es") then return end
 
 local _, ns = ...
 local L = {}
@@ -30,7 +30,7 @@ L[" Hu"] = " Hu"
 L[" Me"] = " Me"
 L[" Un"] = " No"
 
-L["oUF_Phanx is a layout for Haste's oUF framework. Use this panel to configure some basic options for this layout."] = "oUF_Phanx es un diseño para el sistema oUF, por Haste. Estas opciones te permiten modificar la configuración de oUF_Phanx."
+L["oUF_Phanx is a layout for Haste's oUF framework. Use this panel to configure some basic options for this layout."] = "oUF_Phanx es un diseño para oUF, por Haste. Estas opciones le permiten modificar la configuración de oUF_Phanx."
 
 L["Texture"] = "Textura"
 L["Select a texture for health, power, and other bars."] = "Establecer la textura para las barras de salud, poder, etc."
@@ -61,10 +61,10 @@ L["Show eclipse bar"] = "Barra de eclipse"
 L["Show an eclipse bar above the player frame."] = "Mostrar una barra de eclipse sobre el marco de tu personaje."
 L["Show eclipse bar icons"] = "Iconos de eclipse"
 L["Show animated moon and sun icons on either end of the eclipse bar."] = "Mostrar iconos animados en cada extremo de la barra de eclipse."
-L["This option will not take effect until the next time you log in or reload your UI."] = "Esta opción no tendrá efecto hasta la próxima vez que te conecte o vuelva a cargar la interfaz de usuario."
+L["This option will not take effect until the next time you log in or reload your UI."] = "Esta opción no tendrá efecto hasta la próxima vez que se conecte o vuelva a cargar la interfaz de usuario."
 
 L["Bar Colors"] = "Colores"
-L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = "Estas opciones te permiten modificar los colores utilizados para las diferentes partes de los marcos."
+L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = "Estas opciones le permiten modificar los colores utilizados para las diferentes partes de los marcos."
 
 L["Health color mode"] = "Modo de color de salud"
 L["Change how health bars are colored."] = "Establecer como están coloreadas las barras de salud."
