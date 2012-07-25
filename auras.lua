@@ -387,6 +387,18 @@ if playerClass == "MAGE" then
 end
 
 ------------------------------------------------------------------------
+--	Monk
+
+if playerClass == "MONK" then
+	auras[124458] = 4 -- Healing Sphere (active counter)
+	auras[115867] = 4 -- Mana Tea
+
+	auras[124682] = 2 -- Enveloping Mist
+	auras[116849] = 1 -- Life Cocoon
+	auras[119611] = 2 -- Renewing Mist (HoT)
+end
+
+------------------------------------------------------------------------
 --	Paladin
 
 if playerClass == "PALADIN" then
