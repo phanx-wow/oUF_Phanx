@@ -480,7 +480,7 @@ if playerClass == "PRIEST" then
 	auras[6346]  = 1 -- Fear Ward
 	auras[77613] = 2 -- Grace
 	auras[47788] = 2 -- Guardian Spirit
-	auras[88682] = 2 -- Holy Word: Aspire
+	auras[88684] = 2 -- Holy Word: Serenity
 	auras[33206] = 2 -- Pain Suppression
 	auras[10060] = 2 -- Power Infusion
 	auras[17]    = 1 -- Power Word: Shield
