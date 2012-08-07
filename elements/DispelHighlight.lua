@@ -39,19 +39,21 @@ local colors = {
 	["Poison"] = { 0, 0.8, 0 },
 }
 --	for type, color in pairs(DebuffTypeColor) do
---		colors[ type ] = { color.r, color.g, color.b }
+--		colors[type] = { color.r, color.g, color.b }
 --	end
 oUF.colors.debuff = colors
 
-local enrageEffects = { }
+local enrageEffects = {}
 local invulnEffects = { [642] = true, [1022] = true, [45438] = true, }
+
+local MoP = select(4, GetBuildInfo()) >= 50000
 
 ------------------------------------------------------------------------
 
-local canDispel, canPurge, canShatter, canSteal, canTranq = { }
+local canDispel, canPurge, canShatter, canSteal, canTranq = {}
 local defaultPriority = { Curse = 2, Disease = 4, Magic = 1, Poison = 3 }
 local dispelPriority = { Curse = 3, Disease = 1, Magic = 4, Poison = 2 }
-local prioritySort = function(a, b) return dispelPriority[ a ] > dispelPriority[ b ] end
+local prioritySort = function(a, b) return dispelPriority[a] > dispelPriority[b] end
 
 ------------------------------------------------------------------------
 
@@ -86,8 +88,8 @@ do
 		local result, name = IsEnrageEffect(scanUnit, scanIndex)
 		if result then
 			-- print("Found enrage effect", id, name)
-			PoUFDB.enrageEffects = PoUFDB.enrageEffects or { }
-			PoUFDB.enrageEffects[ id ] = name
+			PoUFDB.enrageEffects = PoUFDB.enrageEffects or {}
+			PoUFDB.enrageEffects[id] = name
 		end
 		rawset(enrageEffects, id, result)
 		return result
@@ -96,7 +98,7 @@ end
 
 ------------------------------------------------------------------------
 
-local debuffTypeCache = { }
+local debuffTypeCache = {}
 
 local function Update(self, event, unit)
 	if unit ~= self.unit then return end
@@ -110,10 +112,10 @@ local function Update(self, event, unit)
 			local name, _, _, _, type = UnitDebuff(unit, i)
 			if not name then break end
 			-- print("UnitDebuff", unit, i, tostring(name), tostring(type))
-			if type and (not debuffType or dispelPriority[ type ] > dispelPriority[ debuffType ]) then
+			if type and (not debuffType or dispelPriority[type] > dispelPriority[debuffType]) then
 				-- print("debuffType", type)
 				debuffType = type
-				dispellable = canDispel[ type ]
+				dispellable = canDispel[type]
 			end
 			i = i + 1
 		end
@@ -124,16 +126,16 @@ local function Update(self, event, unit)
 		while true do
 			local name, _, _, _, type, _, _, _, stealable, _, id = UnitBuff(unit, i)
 			if not name then break end
-			if type and type:len() < 4 then type = nil end
+			if type and strlen(type) < 4 then type = nil end
 			-- print("UnitBuff", unit, i, tostring(name), tostring(type))
 
 			scanIndex = i
-			if not type and enrageEffects[ id ] then
+			if not type and enrageEffects[id] then
 				type = "Enrage"
 			end
 			scanIndex = nil
 
-			if canShatter and not type and invulnEffects[ id ] then
+			if canShatter and not type and invulnEffects[id] then
 				type = "Invulnerability"
 			end
 
@@ -150,17 +152,17 @@ local function Update(self, event, unit)
 		scanUnit = nil
 	end
 
-	if debuffTypeCache[ unit ] == debuffType then return end
+	if debuffTypeCache[unit] == debuffType then return end
 
-	-- print("UpdateDispelHighlight", unit, tostring(debuffTypeCache[ unit ]), "==>", tostring(debuffType))
-	debuffTypeCache[ unit ] = debuffType
+	-- print("UpdateDispelHighlight", unit, tostring(debuffTypeCache[unit]), "==>", tostring(debuffType))
+	debuffTypeCache[unit] = debuffType
 
 	local element = self.DispelHighlight
 	if element.Override then
 		element:Override(unit, debuffType, dispellable)
 	elseif debuffType and (dispellable or not element.filter) then
 		if element.SetVertexColor then
-			element:SetVertexColor(unpack(colors[ debuffType ]))
+			element:SetVertexColor(unpack(colors[debuffType]))
 		end
 		element:Show()
 	else
@@ -220,9 +222,9 @@ f:RegisterEvent("PLAYER_TALENT_UPDATE")
 f:RegisterEvent("SPELLS_CHANGED")
 f:SetScript("OnEvent", function(self, event)
 	if not self.initialized then
-		PoUFDB.enrageEffects = PoUFDB.enrageEffects or { }
+		PoUFDB.enrageEffects = PoUFDB.enrageEffects or {}
 		for id in pairs(PoUFDB.enrageEffects) do
-			enrageEffects[ id ] = true
+			enrageEffects[id] = true
 		end
 		self.initialized = true
 	end
@@ -230,39 +232,67 @@ f:SetScript("OnEvent", function(self, event)
 	-- print("DispelHighlight", event, "Checking capabilities...")
 
 	if class == "DRUID" then
-		if IsSpellKnown(2782) then -- Remove Corruption
-			canDispel.Curse = true
-			canDispel.Poison = true
-			canDispel.Magic = (select(5, GetTalentInfo(3, 17)) or 0) >= 1 -- Nature's Cure
+		canDispel.Curse = IsSpellKnown(2782) -- Remove Corruption
+		canDispel.Poison = canDispel.Curse
+		if MoP then
+			canDispel.Magic = GetSpecialization() == 4 and UnitLevel("player") >= 22 -- Nature's Cure (88423)
+		else
+			canDispel.Magic = select(5, GetTalentInfo(3, 17)) == 1 -- Nature's Cure
 		end
 		canTranq = IsSpellKnown(2908) -- Soothe
+
 	elseif class == "HUNTER" then
 		canPurge = IsSpellKnown(19801) -- Tranquilizing Shot
 		canTranq = canPurge
+
 	elseif class == "MAGE" then
 		canDispel.Curse = IsSpellKnown(475) -- Remove Curse
 		canSteal = IsSpellKnown(30449) -- Spellsteal
+
+	elseif class == "MONK" then
+		canDispel.Disease = IsPlayerSpell(115450) -- Detox
+		canDispel.Magic = GetSpecialization() == 2 and UnitLevel("player") >= 20 -- Internal Medicine (115451)
+		canDispel.Poison = canDispel.Disease
+
 	elseif class == "PALADIN" then
-		if IsSpellKnown(4987) then -- Cleanse
-			canDispel.Disease = true
-			canDispel.Poison = true
-			canDispel.Magic = (select(5, GetTalentInfo(1, 14)) or 0) >= 1 -- Sacred Cleansing
+		canDispel.Disease = IsSpellKnown(4987) -- Cleanse
+		canDispel.Poison = canDispel.Disease
+		if MoP then
+			canDispel.Magic = GetSpecialization() == 1 and UnitLevel("player") >= 20 -- Sacred Cleansing (53551)
+		else
+			canDispel.Magic = select(5, GetTalentInfo(1, 14)) == 1 -- Sacred Cleansing
 		end
+
 	elseif class == "PRIEST" then
-		canDispel.Disease = IsSpellKnown(528) -- Cure Disease
-		canDispel.Magic = IsSpellKnown(527) -- Dispel Magic
-		canPurge = canDispel.Magic
+		if MoP then
+			local spec = GetSpecialization()
+			local level = UnitLevel("player")
+			canDispel.Disease = spec == 2 and level >= 22 -- Purify (527)
+			canDispel.Magic = IsPlayerSpell(32375) or (spec == 2 and level >= 22) -- Mass Dispel, or Purify (527)
+			canPurge = IsPlayerSpell(528) -- Dispel Magic
+		else
+			canDispel.Disease = IsSpellKnown(528) -- Cure Disease
+			canDispel.Magic = IsSpellKnown(527) or IsSpellKnown(32375) -- Dispel Magic or Mass Dispel
+			canPurge = IsSpellKnown(527) -- Dispel Magic
+		end
+
 	elseif class == "ROGUE" then
 		canTranq = IsSpellKnown(5938) -- Shiv
+
 	elseif class == "SHAMAN" then
-		if IsSpellKnown(51886) then -- Cleanse Spirit
-			canDispel.Curse = true
-			canDispel.Magic = (select(5, GetTalentInfo(3, 12)) or 0) >= 1 -- Improved Cleanse Spirit
+		if MoP then
+			canDispel.Curse = IsPlayerSpell(51886) -- Cleanse Spirit (upgrades to Purify Spirit)
+			canDispel.Magic = GetSpecialization() == 3 and UnitLevel("player") >= 18 -- Purify Spirit (77130)
+		else
+			canDispel.Curse = IsSpellKnown(51886) -- Cleanse Spirit
+			canDispel.Magic = select(5, GetTalentInfo(3, 12)) == 1 -- Improved Cleanse Spirit
 		end
 		canPurge = IsSpellKnown(370) -- Purge
+
 	elseif class == "WARLOCK" then
 		canDispel.Magic = IsSpellKnown(89808, true) -- Singe Magic (Imp)
 		canPurge = IsSpellKnown(19505, true) -- Devour Magic (Felhunter)
+
 	elseif class == "WARRIOR" then
 		canPurge = IsSpellKnown(23922) -- Shield Slam
 		canShatter = IsSpellKnown(64382) -- Shattering Throw
@@ -274,14 +304,14 @@ f:SetScript("OnEvent", function(self, event)
 ]]
 	wipe(dispelPriority)
 	for type, priority in pairs(defaultPriority) do
-		dispelPriority[ 1 + #dispelPriority ] = type
-		dispelPriority[type] = (canDispel[ type ] and 10 or 5) - priority
+		dispelPriority[1 + #dispelPriority] = type
+		dispelPriority[type] = (canDispel[type] and 10 or 5) - priority
 	end
 	table.sort(dispelPriority, prioritySort)
 
 --[[#DEBUGGING
 	for i, v in ipairs(dispelPriority) do
-		print("Can dispel " .. v .. "?", canDispel[ v ] and "YES" or "NO")
+		print("Can dispel " .. v .. "?", canDispel[v] and "YES" or "NO")
 	end
 	print("Can purge?", canPurge and "YES" or "NO")
 	print("Can shatter?", canShatter and "YES" or "NO")
