@@ -369,6 +369,10 @@ ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
 	end
 end
 
+ns.PostUpdateAuras = function(self, unit)
+	self.__owner.Health:ForceUpdate() -- required to detect Dead => Ghost
+end
+
 ------------------------------------------------------------------------
 
 ns.PostCastStart = function(self, unit, name, rank, castid)
@@ -969,6 +973,7 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Buffs.CustomFilter   = ns.CustomAuraFilters.player
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+		self.Buffs.PostUpdate = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
 		self.Buffs.parent = self
 	elseif unit == "pet" then
@@ -1011,6 +1016,7 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Buffs.CustomFilter   = ns.CustomAuraFilters.party
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+		self.Buffs.PostUpdate = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
 		self.Buffs.parent = self
 	elseif unit == "target" then
@@ -1037,6 +1043,7 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Debuffs.CustomFilter   = ns.CustomAuraFilters.target
 		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+		self.Debuffs.PostUpdate = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
 		self.Debuffs.parent = self
 
@@ -1221,7 +1228,7 @@ ns.Spawn = function(self, unit, isSingle)
 	-- Element: Resurrection text --
 	--------------------------------
 
-	if not unit:match("^.+target$") then
+	if not strmatch(unit, ".+target$") and not strmatch(unit, "^arena") and not strmatch(unit, "^boss") then
 		self.Resurrection = ns.CreateFontString(self.overlay, 16, "CENTER")
 		self.Resurrection:SetPoint("CENTER", self.Health)
 	end
