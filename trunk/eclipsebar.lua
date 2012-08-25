@@ -9,12 +9,16 @@
 
 local _, ns = ...
 
+local ECLIPSE_MARKER_COORDS = ECLIPSE_MARKER_COORDS
+local SPELL_POWER_ECLIPSE = SPELL_POWER_ECLIPSE
+local GetEclipseDirection = GetEclipseDirection
+
 local EclipseBar_PostUpdatePower = function(self, unit)
 	local cur = UnitPower(unit, SPELL_POWER_ECLIPSE)
 	local max = UnitPowerMax(unit, SPELL_POWER_ECLIPSE)
 
 	local direction = GetEclipseDirection()
-	self.directionArrow:SetTexCoord(unpack(ECLIPSE_MARKER_COORDS[ direction ]))
+	self.directionArrow:SetTexCoord(unpack(ECLIPSE_MARKER_COORDS[direction]))
 
 	local x = (cur / max) * (self:GetWidth() / 2)
 	if direction == "moon" then

@@ -19,57 +19,34 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 if not oUF then return end
 
-local ResComm = LibStub and LibStub("LibResComm-1.0", true)
-if not ResComm then return end
+local LibResInfo = LibStub and LibStub("LibResInfo-1.0", true)
+if not LibResInfo then return end
 
 local displayText = {
 	CASTING = "|cffffff00RES|r",
-	FINISHED = "|cff00ff00RES|r",
-	SOULSTONE = "|cffff00ffSS|r",
+	PENDING = "|cff00ff00RES|r",
+	SELFRES = "|cffff00ffSS|r",
 }
 
 ------------------------------------------------------------------------
 
-local resTarget = { }
-local resStatus = { }
-local unitName = { }
-
-local UNIT_HEALTH
-function UNIT_HEALTH(self, event, unit)
-	if unit ~= self.unit then return end
-
-	local name = unitName[unit]
-	if name and not UnitIsDead(unit) then
-		unitName[unit] = nil
-		resStatus[name] = nil
-		self.Resurrection:SetText(nil)
-		self:UnregisterEvent("UNIT_HEALTH", UNIT_HEALTH)
-	end
-end
-
 local Update = function(self, event, unit)
 	if not unit then return end -- frame doesn't currently have a unit (eg. nonexistent party member)
-	-- print("Resurrection Update", unit)
+
+	local guid = UnitGUID(unit)
+	if not guid then return end
+	--print(event, unit)
+
+	local hasRes, caster = LibStub("LibResInfo-1.0"):UnitHasIncomingRes(guid)
+	local status = caster and "CASTING" or hasRes and "PENDING" or nil
+	--print(status)
+
 	local element = self.Resurrection
-
-	local name, realm = UnitName(unit)
-	if realm and realm ~= "" then
-		name = ("%s-%s"):format(name, realm)
-	end
-	unitName[unit] = name
-
-	local status = resStatus[name]
-	local text = status and displayText[status]
-
-	if status ~= "SOULSTONE" or not element.ignoreSoulstone then
-		element:SetText(text)
-	end
+	element:SetText(status and displayText[status] or nil)
 
 	if element.PostUpdate then
 		element:PostUpdate(unit, status, text)
 	end
-
-	self:RegisterEvent("UNIT_HEALTH", UNIT_HEALTH)
 end
 
 local ForceUpdate = function(element)
@@ -90,7 +67,7 @@ end
 
 local Disable = function(self)
 	local element = self.Resurrection
-	if not element or not element.SetText then return end
+	if not element then return end
 
 	element:Hide()
 
@@ -101,7 +78,7 @@ oUF:AddElement("Resurrection", Update, Enable, Disable)
 
 ------------------------------------------------------------------------
 
-local UpdateAll = function(event)
+local UpdateAll = function(event, unit)
 	for _, frame in ipairs(oUF.objects) do
 		if frame.Resurrection then
 			Update(frame, event, frame.unit)
@@ -109,43 +86,8 @@ local UpdateAll = function(event)
 	end
 end
 
-ResComm.RegisterCallback("oUF_Resurrection", "ResComm_ResStart", function(event, caster, _, target)
-	if target and not resStatus[target] then
-		resStatus[target] = "CASTING"
-		UpdateAll(event)
-		resTarget[caster] = target
-	end
-end)
-
-ResComm.RegisterCallback("oUF_Resurrection", "ResComm_ResEnd", function(event, caster, target)
-	if target and resStatus[target] == "CASTING" then
-		resStatus[target] = nil
-		UpdateAll(event)
-		resTarget[caster] = nil
-	elseif resTarget[caster] and resStatus[resTarget[caster]] == "CASTING" then
-		resStatus[resTarget[caster]] = nil
-		resTarget[caster] = nil
-		UpdateAll(event)
-	end
-end)
-
-ResComm.RegisterCallback("oUF_Resurrection", "ResComm_Ressed", function(event, target)
-	if target then
-		resStatus[target] = "FINISHED"
-		UpdateAll(event)
-	end
-end)
-
-ResComm.RegisterCallback("oUF_Resurrection", "ResComm_ResExpired", function(event, target)
-	if target then
-		resStatus[target] = nil
-		UpdateAll(event)
-	end
-end)
-
-ResComm.RegisterCallback("oUF_Resurrection", "ResComm_CanRes", function(event, target)
-	if target then
-		resStatus[target] = "SOULSTONE"
-		UpdateAll(event)
-	end
-end)
+LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResCastStarted", UpdateAll)
+LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResCastCancelled", UpdateAll)
+LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResPending", UpdateAll)
+LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResUsed", UpdateAll)
+LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResExpired", UpdateAll)
