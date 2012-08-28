@@ -1,5 +1,5 @@
 ## Interface: 50001
-## Version: 5.0.3.wowi:revision-beta
+## Version: 5.0.4.wowi:revision
 
 ## Title: oUF: Phanx
 ## Notes: Fully featured PvE-oriented oUF layout.
