@@ -112,7 +112,8 @@ end
 ------------------------------------------------------------------------
 --	Weakened Blows
 
-if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "WARLOCK" or playerClass == "WARRIOR" then
+if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "WARLOCK" or playerClass == "WARRIOR" then
+	-- druids have Faerie Fire, they don't need to see the generic one too
 	auras[109466] = 1 -- Curse of Elements (warlock)
 	auras[115798] = 1 -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
 end
@@ -399,8 +400,8 @@ if playerClass == "SHAMAN" then
 	auras[73682]  = 2 -- Unleash Frost
 	auras[118740] = 2 -- Unleashed Fury (flametongue)
 
-	auras[2825]   = 3, -- Bloodlust (shaman)
-	auras[32182]  = 3, -- Heroism (shaman)
+	auras[2825]   = 3 -- Bloodlust (shaman)
+	auras[32182]  = 3 -- Heroism (shaman)
 	auras[974]    = 2 -- Earth Shield
 	auras[119523] = 3 -- Healing Stream Totem (resistance)
 	auras[16191]  = 3 -- Mana Tide
