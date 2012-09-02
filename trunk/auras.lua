@@ -74,6 +74,8 @@ local auras = {
 
 if playerClass == "ROGUE" or playerClass == "WARLOCK" then
 	auras[1490]  = 1 -- Curse of the Elements (warlock)
+	auras[34889] = 1 -- Fire Breath (hunter dragonhawk)
+	auras[24844] = 1 -- Lightning Breath (hunter wind serpent)
 	auras[93068] = 1 -- Master Poisoner (rogue)
 end
 
@@ -81,6 +83,7 @@ end
 --	Mortal Wounds
 
 if playerClass == "HUNTER" or playerClass == "MONK" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
+	auras[54680]  = 1 -- Monstrous Bite (hunter devilsaur)
 	auras[115804] = 1 -- Mortal Wounds (monk, warrior)
 	auras[82654]  = 1 -- Widow Venom (hunter)
 	auras[8680]   = 1 -- Wound Poison (rogue)
@@ -90,31 +93,43 @@ end
 --	Physical Vulnerability
 
 if playerClass == "DEATHKNIGHT" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
-	auras[81326] = 1 -- Physical Vulnerability
+	auras[55749] = 1 -- Acid Rain (hunter worm)
+	auras[35290] = 1 -- Gore (hunter boar)
+	auras[81326] = 1 -- Physical Vulnerability (death knight, paladin, warrior)
+	auras[50518] = 1 -- Ravage (hunter ravager)
+	auras[57386] = 1 -- Stampede (hunter rhino)
 end
 
 ------------------------------------------------------------------------
 --	Slow Casting
 
-if playerClass == "DEATHKNIGHT" or playerClass == "ROGUE" or playerClass == "WARLOCK" then
+if playerClass == "DEATHKNIGHT" or playerClass == "MAGE" or playerClass == "ROGUE" or playerClass == "WARLOCK" then
 	auras[109466] = 1 -- Curse of Enfeeblement (warlock)
 	auras[5760]   = 1 -- Mind-numbing Poison (rogue)
 	auras[73975]  = 1 -- Necrotic Strike (death knight)
+	auras[31589]  = 1 -- Slow (mage)
+	auras[50274]  = 1 -- Spore Cloud (hunter sporebat)
+	auras[90315]  = 1 -- Tailspin (hunter fox)
+	auras[126406] = 1 -- Trample (hunter goat)
+	auras[58604]  = 1 -- Lava Breath (hunter core hound)
 end
 
 ------------------------------------------------------------------------
 --	Weakened Armor
 
 if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
-	auras[113746] = 1 -- Weakened Armor
+	-- druids have Faerie Fire, they don't need to see the generic one too
+	auras[113746] = 1 -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
 end
 
 ------------------------------------------------------------------------
 --	Weakened Blows
 
 if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "WARLOCK" or playerClass == "WARRIOR" then
-	-- druids have Faerie Fire, they don't need to see the generic one too
+	-- druids have Thrash, they don't need to see the generic one too
 	auras[109466] = 1 -- Curse of Elements (warlock)
+	auras[60256]  = 1 -- Demoralizing Roar (hunter bear)
+	auras[24423]  = 1 -- Demoralizing Screech (hunter carrion bird)
 	auras[115798] = 1 -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
 end
 
