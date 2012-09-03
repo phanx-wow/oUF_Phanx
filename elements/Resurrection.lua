@@ -37,8 +37,7 @@ local Update = function(self, event, unit)
 	if not guid then return end
 	--print(event, unit)
 
-	local hasRes, caster = LibStub("LibResInfo-1.0"):UnitHasIncomingRes(guid)
-	local status = caster and "CASTING" or hasRes and "PENDING" or nil
+	local status, endTime, casterGUID, casterUnit = LibStub("LibResInfo-1.0"):UnitHasIncomingRes(guid)
 	--print(status)
 
 	local element = self.Resurrection
@@ -78,7 +77,7 @@ oUF:AddElement("Resurrection", Update, Enable, Disable)
 
 ------------------------------------------------------------------------
 
-local UpdateAll = function(event, unit)
+local UpdateAll = function(event, guid, unit)
 	for _, frame in ipairs(oUF.objects) do
 		if frame.Resurrection then
 			Update(frame, event, frame.unit)
