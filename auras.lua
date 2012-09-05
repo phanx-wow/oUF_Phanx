@@ -172,22 +172,6 @@ if PVP_MODE then
 end
 
 ------------------------------------------------------------------------
---	Spell-locked -- NOT UPDATED FOR WOW5
-
-if PVP_MODE then
-	auras[2139]  = 1 -- Counterspell (mage)
-	auras[1766]  = 1 -- Kick (rogue)
-	auras[47528] = 1 -- Mind Freeze (death knight)
-	auras[6552]  = 1 -- Pummel (warrior)
-	auras[26090] = 1 -- Pummel (hunter gorilla)
-	auras[50318] = 1 -- Serenity Dust (hunter moth)
-	auras[72]    = 1 -- Shield Bash (warrior)
-	auras[80964] = 1 -- Skull Bash (Bear) (druid)
-	auras[80965] = 1 -- Skull Bash (Cat) (druid)
-	auras[57994] = 1 -- Wind Shear (shaman)
-end
-
-------------------------------------------------------------------------
 --	Taunted
 
 if not PVP_MODE and (playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR") then
@@ -204,6 +188,49 @@ end
 --	Death Knight
 
 if playerClass == "DEATHKNIGHT" then
+	auras[48707]  = 4 -- Anti-Magic Shell
+	auras[49222]  = 4 -- Bone Shield
+	auras[53386]  = 4 -- Cinderglacier
+	auras[119975] = 4 -- Conversion
+	auras[101568] = 4 -- Dark Succor <= glyph
+	auras[96268]  = 4 -- Death's Advance
+	auras[59052]  = 4 -- Freezing Fog <= Rime
+	auras[48792]  = 4 -- Icebound Fortitude
+	auras[51124]  = 4 -- Killing Machine
+	auras[49039]  = 4 -- Lichborne
+	auras[51271]  = 4 -- Pillar of Frost
+	auras[46584]  = 4 -- Raise Dead
+	auras[108200] = 4 -- Remorseless Winter
+	auras[51460]  = 4 -- Runic Corruption
+	auras[50421]  = 4 -- Scent of Blood
+	auras[116888] = 4 -- Shroud of Purgatory
+	auras[8134]   = 4 -- Soul Reaper
+	auras[81340]  = 4 -- Sudden Doom
+	auras[115989] = 4 -- Unholy Blight
+--	auras[53365]  = 4 -- Unholy Strength <= Rune of the Fallen Crusader
+	auras[55233]  = 4 -- Vampiric Blood
+	auras[81162]  = 4 -- Will of the Necropolis (damage reduction)
+	auras[96171]  = 4 -- Will of the Necropolis (free Rune Tap)
+
+	auras[108194] = 1 -- Asphyxiate
+	auras[55078]  = 2 -- Blood Plague
+	auras[45524]  = 1 -- Chains of Ice
+--	auras[50435]  = 1 -- Chilblains
+	auras[111673] = 2 -- Control Undead -- needs check
+	auras[77606]  = 2 -- Dark Simulacrum
+	auras[55095]  = 2 -- Frost Fever
+	auras[51714]  = 2 -- Frost Vulernability <= Rune of Razorice
+	auras[73975]  = 1 -- Necrotic Strike
+	auras[115000] = 2 -- Remorseless Winter (slow)
+	auras[115001] = 2 -- Remorseless Winter (stun)
+	auras[114866] = 2 -- Soul Reaper (blood)
+	auras[130735] = 2 -- Soul Reaper (frost)
+	auras[130736] = 2 -- Soul Reaper (unholy)
+	auras[47476]  = 1 -- Strangulate
+
+	auras[49016]  = 3 -- Unholy Frenzy
+
+	auras[63560]  = 2 -- Dark Transformation
 end
 
 ------------------------------------------------------------------------
