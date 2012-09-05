@@ -231,7 +231,16 @@ f:SetScript("OnEvent", function(self, event)
 
 	-- print("DispelHighlight", event, "Checking capabilities...")
 
-	if class == "DRUID" then
+	if class == "DEATHKNIGHT" then
+		for i = 1, GetNumGlyphSockets() do
+			local enabled, _, _, id = GetGlyphSocketInfo(i)
+			if id == 58631 then
+				canPurge = true -- Glyph of Icy Touch
+				break
+			end
+		end
+
+	elseif class == "DRUID" then
 		canDispel.Curse = IsSpellKnown(2782) -- Remove Corruption
 		canDispel.Poison = canDispel.Curse
 		if MoP then
@@ -260,7 +269,7 @@ f:SetScript("OnEvent", function(self, event)
 		if MoP then
 			canDispel.Magic = GetSpecialization() == 1 and UnitLevel("player") >= 20 -- Sacred Cleansing (53551)
 		else
-			canDispel.Magic = select(5, GetTalentInfo(1, 14)) == 1 -- Sacred Cleansing
+			canDispel.Magic = select(5, GetTalentInfo(1, 14)) == 1 -- Sacred Cleansing (53551)
 		end
 
 	elseif class == "PRIEST" then
@@ -273,7 +282,7 @@ f:SetScript("OnEvent", function(self, event)
 		else
 			canDispel.Disease = IsSpellKnown(528) -- Cure Disease
 			canDispel.Magic = IsSpellKnown(527) or IsSpellKnown(32375) -- Dispel Magic or Mass Dispel
-			canPurge = IsSpellKnown(527) -- Dispel Magic
+			canPurge = IsSpellKnown(527) -- Purify
 		end
 
 	elseif class == "ROGUE" then
