@@ -60,13 +60,15 @@ ns.UpdateBorder = function(self)
 	local threat, debuff, dispellable = self.threatLevel, self.debuffType, self.debuffDispellable
 	-- print("UpdateBorder", self.unit, "threatLevel", threat, "debuffType", debuff, "debuffDispellable", dispellable)
 
-	local color
+	local color, glow
 	if debuff and dispellable then
 		-- print(self.unit, "has dispellable debuff:", debuff)
 		color = colors.debuff[debuff]
+		glow = true
 	elseif threat and threat > 1 then
 		-- print(self.unit, "has aggro:", threat)
 		color = colors.threat[threat]
+		glow = true
 	elseif debuff and not config.dispelFilter then
 		-- print(self.unit, "has debuff:", debuff)
 		color = colors.debuff[debuff]
@@ -78,7 +80,7 @@ ns.UpdateBorder = function(self)
 	end
 
 	if color then
-		self:SetBackdropBorderColor(color[1], color[2], color[3], 1)
+		self:SetBackdropBorderColor(color[1], color[2], color[3], 1, glow and config.borderGlow)
 	else
 		self:SetBackdropBorderColor(0, 0, 0, 0)
 	end
@@ -386,8 +388,8 @@ ns.PostCastStart = function(self, unit, name, rank, castid)
 	else
 		r, g, b = unpack(colors.reaction[1])
 	end
-	self:SetBackdropColor(r * 0.2, g * 0.2, b * 0.2)
-	self:SetStatusBarColor(r * 0.6, g * 0.6, b * 0.6)
+	self:SetStatusBarColor(r * 0.8, g * 0.8, b * 0.8)
+	self.bg:SetVertexColor(r * 0.2, g * 0.2, b * 0.2)
 
 	if self.SafeZone then
 		self:GetStatusBarTexture():SetDrawLayer("ARTWORK")
@@ -772,27 +774,24 @@ ns.Spawn = function(self, unit, isSingle)
 	if unit == "player" and (playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "WARLOCK") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 
-		local element, power, max, update, statusbar
+		local element, power, max, update, statusbar = "ClassIcons"
 
 		---------
 		-- Chi --
 		---------
 		if playerClass == "MONK" then
-			element = "Harmony"
 			power, max = SPELL_POWER_LIGHT_FORCE, 5
 			update = ns.UpdateChi
 		----------------
 		-- Holy power --
 		----------------
 		elseif playerClass == "PALADIN" then
-			element = "HolyPower"
 			power, max = SPELL_POWER_HOLY_POWER, 5 -- default UI only shows 3, but you can actually have 5
 			update = ns.UpdateHolyPower
 		-----------------
 		-- Shadow orbs --
 		-----------------
 		elseif playerClass == "PRIEST" then
-			element = "ShadowOrbs"
 			power, max = SPELL_POWER_SHADOW_ORBS, 3
 			update = ns.UpdateShadowOrbs
 		-----------------------------------------------
@@ -833,6 +832,7 @@ ns.Spawn = function(self, unit, isSingle)
 		end
 		t.powerType = power
 		t.Override = update
+		t.UpdateTexture = function() return end -- fuck off oUF >:(
 		self[element] = t
 	end
 
@@ -1136,8 +1136,6 @@ ns.Spawn = function(self, unit, isSingle)
 		self.Castbar:SetPoint("TOPLEFT", self, "BOTTOMLEFT", height, -10)
 		self.Castbar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -10)
 		self.Castbar:SetHeight(height)
-
-		self.Castbar.bg:SetVertexColor(unpack(config.borderColor))
 
 		self.Castbar.Icon = self.Castbar:CreateTexture(nil, "BACKDROP")
 		self.Castbar.Icon:SetPoint("TOPRIGHT", self.Castbar, "TOPLEFT", 0, 0)
