@@ -64,9 +64,19 @@ ns.CreateBorder = function(self, size, offset, parent, layer)
 	ns.SetBorderColor(self)
 	ns.SetBorderParent(self, parent)
 	ns.SetBorderSize(self, size, offset)
+
+	local glow = self:CreateTexture(nil, "BACKGROUND")
+	glow:SetPoint("CENTER")
+	glow:SetTexture([[Interface\AddOns\oUF_Phanx\media\frameGlow]])
+	glow:SetWidth(self:GetWidth() / 225 * 256)
+	glow:SetHeight(self:GetHeight() / 30 * 64)
+	glow:Hide()
+	self.Glow = glow
+
+	return true
 end
 
-ns.SetBorderColor = function(self, r, g, b, a)
+ns.SetBorderColor = function(self, r, g, b, a, glow)
 	local t = self.BorderTextures
 	if not t then return end
 
@@ -76,6 +86,16 @@ ns.SetBorderColor = function(self, r, g, b, a)
 
 	for pos, tex in pairs(t) do
 		tex:SetVertexColor(r, g, b)
+	end
+
+	if self.Glow then
+		if glow then
+			self.Glow:SetVertexColor(r, g, b, a)
+			self.Glow:Show()
+		else
+			self.Glow:SetVertexColor(1, 1, 1, 1)
+			self.Glow:Hide()
+		end
 	end
 end
 
