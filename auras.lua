@@ -118,7 +118,6 @@ end
 --	Weakened Armor
 
 if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
-	-- druids have Faerie Fire, they don't need to see the generic one too
 	auras[113746] = 1 -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
 end
 
@@ -126,7 +125,7 @@ end
 --	Weakened Blows
 
 if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "WARLOCK" or playerClass == "WARRIOR" then
-	-- druids have Thrash, they don't need to see the generic one too
+	-- druids need to keep Thrash up anyway, no need to see both
 	auras[109466] = 1 -- Curse of Elements (warlock)
 	auras[60256]  = 1 -- Demoralizing Roar (hunter bear)
 	auras[24423]  = 1 -- Demoralizing Screech (hunter carrion bird)
@@ -314,6 +313,66 @@ end
 --	Hunter
 
 if playerClass == "HUNTER" then
+	auras[83559]  = 4 -- Black Ice
+--	auras[82921]  = 4 -- Bombardment
+--	auras[53257]  = 4 -- Cobra Strikes
+	auras[51755]  = 4 -- Camouflage
+	auras[19263]  = 4 -- Deterrence
+	auras[15571]  = 4 -- Dazed <== Aspect of the Cheetah
+	auras[6197]   = 4 -- Eagle Eye
+	auras[5384]   = 4 -- Feign Death
+	auras[82726]  = 4 -- Fervor
+	auras[82926]  = 4 -- Fire! <= Master Marksman
+	auras[82692]  = 4 -- Focus Fire
+	auras[56453]  = 4 -- Lock and Load
+	auras[62305]  = 4 -- Master's Call -- NEEDS CHECK
+	auras[64216]  = 4 -- Master's Call -- NEEDS CHECK
+	auras[34477]  = 4 -- Misdirection
+	auras[118922] = 4 -- Posthaste
+	auras[3045]   = 4 -- Rapid Fire
+--	auras[82925]  = 4 -- Ready, Set, Aim... <= Master Marksman
+	auras[53220]  = 4 -- Steady Focus
+	auras[34471]  = 4 -- The Beast Within
+	auras[34720]  = 4 -- Thrill of the Hunt
+
+	auras[131894] = 2 -- A Murder of Crows
+	auras[117526] = 2 -- Binding Shot (stun)
+	auras[117405] = 2 -- Binding Shot (tether)
+	auras[3674]   = 2 -- Black Arrow
+	auras[35101]  = 2 -- Concussive Barrage
+	auras[5116]   = 2 -- Concussive Shot
+	auras[20736]  = 2 -- Distracting Shot
+	auras[64803]  = 2 -- Entrapment
+	auras[53301]  = 2 -- Explosive Shot
+	auras[13812]  = 2 -- Explosive Trap -- NEEDS CHECK
+	auras[43446]  = 2 -- Explosive Trap Effect -- NEEDS CHECK
+	auras[128961] = 2 -- Explosive Trap Effect -- NEEDS CHECK
+	auras[3355]   = 2 -- Freezing Trap -- NEEDS CHECK
+	auras[43448]  = 2 -- Freezing Trap -- NEEDS CHECK
+	auras[61394]  = 2 -- Frozen Wake <= Glyph of Freezing Trap
+	auras[120761] = 2 -- Glaive Toss -- NEEDS CHECK
+	auras[121414] = 2 -- Glaive Toss -- NEEDS CHECK
+	auras[1130]   = 1 -- Hunter's Mark
+	auras[67035]  = 2 -- Ice Trap -- NEEDS CHECK
+	auras[110610] = 2 -- Ice Trap -- NEEDS CHECK
+	auras[34394]  = 2 -- Intimidation
+	auras[115928] = 2 -- Narrow Escape -- NEEDS CHECK
+	auras[128405] = 2 -- Narrow Escape -- NEEDS CHECK
+--	auras[63468]  = 2 -- Piercing Shots
+	auras[1513]   = 2 -- Scare Beast
+	auras[19503]  = 2 -- Scatter Shot
+	auras[1978]   = 2 -- Serpent Sting
+	auras[34490]  = 2 -- Silencing Shot
+	auras[82654]  = 2 -- Widow Venom
+	auras[19386]  = 2 -- Wyvern Sting
+
+	auras[19615]  = 3 -- Frenzy
+--	auras[118455] = 3 -- Beast Cleave
+	auras[19574]  = 3 -- Bestial Wrath
+	auras[136]    = 3 -- Mend Pet
+	auras[35079]  = 3 -- Misdirection -- NEEDS CHECK
+	auras[110588] = 3 -- Misdirection -- NEEDS CHECK
+	auras[110591] = 3 -- Misdirection -- NEEDS CHECK
 end
 
 ------------------------------------------------------------------------
