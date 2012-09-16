@@ -51,11 +51,24 @@ assert(oUF, "oUF_PowerStack requires oUF.")
 
 local UnitBuff = UnitBuff
 
+local Enable, Disable
+
 local Update = function(self, event, unit)
-	if unit ~= "player" then return end
+	if unit ~= self.unit then return end
 
 	local element = self.PowerStack
 	local max = #element
+
+	local hasVehicle = UnitHasVehicleUI("player")
+	if element.__inVehicle ~= hasVehicle then
+		element.__inVehicle = hasVehicle
+
+		if hasVehicle then
+			return Disable(self)
+		else
+			Enable(self)
+		end
+	end
 
 	local count
 	if element.power then
@@ -96,7 +109,7 @@ local ForceUpdate = function(element)
 	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
-local Enable = function(self)
+Enable = function(self)
 	local element = self.PowerStack
 	if not element then return end
 
@@ -116,11 +129,15 @@ local Enable = function(self)
 	return true
 end
 
-local Disable = function(self)
+Disable = function(self)
 	local element = self.PowerStack
 	if not element then return end
 
 	self:UnregisterEvent("UNIT_AURA", Path)
+
+	for i = 1, #element do
+		element[i]:Hide()
+	end
 end
 
 oUF:AddElement("PowerStack", Path, Enable, Disable)
