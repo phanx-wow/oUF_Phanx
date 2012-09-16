@@ -70,8 +70,6 @@ local Update = function(self, event, unit)
 		end
 	end
 
-	print("Update", event, unit, hasVehicle)
-
 	local count
 	if element.power then
 		count = UnitPower("player", element.power)
