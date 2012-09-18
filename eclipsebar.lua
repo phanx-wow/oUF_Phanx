@@ -13,7 +13,7 @@ local ECLIPSE_MARKER_COORDS = ECLIPSE_MARKER_COORDS
 local SPELL_POWER_ECLIPSE = SPELL_POWER_ECLIPSE
 local GetEclipseDirection = GetEclipseDirection
 
-local EclipseBar_PostUpdatePower = function(self, unit)
+local function EclipseBar_PostUpdatePower(self, unit)
 	local cur = UnitPower(unit, SPELL_POWER_ECLIPSE)
 	local max = UnitPowerMax(unit, SPELL_POWER_ECLIPSE)
 
@@ -30,7 +30,7 @@ local EclipseBar_PostUpdatePower = function(self, unit)
 	end
 end
 
-local EclipseBar_PostUnitAura = function(self, unit)
+local function EclipseBar_PostUnitAura(self, unit)
 	local hasLunarEclipse, hasSolarEclipse = self.hasLunarEclipse, self.hasSolarEclipse
 
 	if hasLunarEclipse then
@@ -107,7 +107,7 @@ local EclipseBar_PostUnitAura = function(self, unit)
 end
 
 local eclipseBar
-ns.CreateEclipseBar = function(self, texture, useEclipseBarIcons)
+function ns.CreateEclipseBar(self, texture, useEclipseBarIcons)
 	if eclipseBar then
 		eclipseBar:SetParent(self)
 		if eclipseBar.glow then

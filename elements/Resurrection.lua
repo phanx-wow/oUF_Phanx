@@ -30,7 +30,7 @@ local displayText = {
 
 ------------------------------------------------------------------------
 
-local Update = function(self, event, unit)
+local function Update(self, event, unit)
 	if not unit then return end -- frame doesn't currently have a unit (eg. nonexistent party member)
 
 	local guid = UnitGUID(unit)
@@ -48,13 +48,13 @@ local Update = function(self, event, unit)
 	end
 end
 
-local ForceUpdate = function(element)
+local function ForceUpdate(element)
 	return Update(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
 ------------------------------------------------------------------------
 
-local Enable = function(self)
+local function Enable(self)
 	local element = self.Resurrection
 	if not element or not element.SetText then return end
 
@@ -64,7 +64,7 @@ local Enable = function(self)
 	return true
 end
 
-local Disable = function(self)
+local function Disable(self)
 	local element = self.Resurrection
 	if not element then return end
 
@@ -77,7 +77,7 @@ oUF:AddElement("Resurrection", Update, Enable, Disable)
 
 ------------------------------------------------------------------------
 
-local UpdateAll = function(event, guid, unit)
+local function UpdateAll(event, guid, unit)
 	for _, frame in ipairs(oUF.objects) do
 		if frame.Resurrection then
 			Update(frame, event, frame.unit)

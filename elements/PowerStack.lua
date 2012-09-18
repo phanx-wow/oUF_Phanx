@@ -53,7 +53,7 @@ local UnitBuff = UnitBuff
 
 local Enable, Disable
 
-local Update = function(self, event, unit)
+local function Update(self, event, unit)
 	if unit ~= self.unit then return end
 
 	local element = self.PowerStack
@@ -101,15 +101,15 @@ local Update = function(self, event, unit)
 	element.prev = count
 end
 
-local Path = function(self, ...)
+local function Path(self, ...)
 	return (self.PowerStack.Override or Update)(self, ...)
 end
 
-local ForceUpdate = function(element)
+local function ForceUpdate(element)
 	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
-Enable = function(self)
+function Enable(self)
 	local element = self.PowerStack
 	if not element then return end
 
@@ -129,7 +129,7 @@ Enable = function(self)
 	return true
 end
 
-Disable = function(self)
+function Disable(self)
 	local element = self.PowerStack
 	if not element then return end
 

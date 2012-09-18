@@ -13,7 +13,7 @@ ns.borderedObjects = {}
 
 local sections = { "TOPLEFT", "TOPRIGHT", "TOP", "BOTTOMLEFT", "BOTTOMRIGHT", "BOTTOM", "LEFT", "RIGHT" }
 
-ns.CreateBorder = function(self, size, offset, parent, layer)
+function ns.CreateBorder(self, size, offset, parent, layer)
 	if type(self) ~= "table" or not self.CreateTexture or self.BorderTextures then return end
 
 	local t = {}
@@ -76,7 +76,7 @@ ns.CreateBorder = function(self, size, offset, parent, layer)
 	return true
 end
 
-ns.SetBorderColor = function(self, r, g, b, a, glow)
+function ns.SetBorderColor(self, r, g, b, a, glow)
 	local t = self.BorderTextures
 	if not t then return end
 
@@ -99,7 +99,7 @@ ns.SetBorderColor = function(self, r, g, b, a, glow)
 	end
 end
 
-ns.SetBorderLayer = function(self, layer)
+function ns.SetBorderLayer(self, layer)
 	local t = self.BorderTextures
 	if not t then return end
 
@@ -108,7 +108,7 @@ ns.SetBorderLayer = function(self, layer)
 	end
 end
 
-ns.SetBorderParent = function(self, parent)
+function ns.SetBorderParent(self, parent)
 	local t = self.BorderTextures
 	if not t then return end
 
@@ -117,7 +117,7 @@ ns.SetBorderParent = function(self, parent)
 	end
 end
 
-ns.SetBorderSize = function(self, size, offset)
+function ns.SetBorderSize(self, size, offset)
 	local t = self.BorderTextures
 	if not t then return end
 

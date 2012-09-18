@@ -31,7 +31,7 @@ oUF.Tags.Events["powercolor"] = "UNIT_DISPLAYPOWER"
 oUF.Tags.Methods["powercolor"] = function(unit)
 	local _, type = UnitPowerType(unit)
 	local color = ns.colors.power[type] or ns.colors.power.FUEL
-	return ("|cff%02x%02x%02x"):format(color[1] * 255, color[2] * 255, color[3] * 255)
+	return format("|cff%02x%02x%02x", color[1] * 255, color[2] * 255, color[3] * 255)
 end
 
 oUF.Tags.Events["combaticon"] = "PLAYER_REGEN_DISABLED PLAYER_REGEN_ENABLED"
@@ -84,50 +84,6 @@ oUF.Tags.Methods["restingicon"] = function(unit)
 end
 
 do
-	local MAELSTROM_WEAPON = GetSpellInfo(53817)
-	oUF.Tags.Events["maelstrom"] = "UNIT_AURA"
-	oUF.Tags.Methods["maelstrom"] = function(unit)
-		if unit == "player" then
-			local name, _, icon, count = UnitBuff("player", MAELSTROM_WEAPON)
-			return name and count
-		end
-	end
-end
-
-do
-	local EARTH_SHIELD = GetSpellInfo(974)
-	local EARTH_TEXT = setmetatable({}, { __index = function(t,i) return ("|cffa7c466%d|r"):format(i) end })
-
-	local LIGHTNING_SHIELD = GetSpellInfo(324)
-	local LIGHTNING_TEXT = setmetatable({}, { __index = function(t,i) return ("|cff7f97f7%d|r"):format(i) end })
-
-	local WATER_SHIELD = GetSpellInfo(52127)
-	local WATER_TEXT = setmetatable({}, { __index = function(t,i) return ("|cff7cbdff%d|r"):format(i) end })
-
-	oUF.Tags.Events["elementalshield"] = "UNIT_AURA"
-	oUF.Tags.Methods["elementalshield"] = function(unit)
-		local name, _, icon, count = UnitBuff(unit, EARTH_SHIELD, nil, "PLAYER")
-		if name then return EARTH_TEXT[count] end
-
-		if unit ~= "player" then return end
-
-		name, _, icon, count = UnitBuff(unit, LIGHTNING_SHIELD)
-		if name then return LIGHTNING_TEXT[count] end
-
-		name, _, icon, count = UnitBuff(unit, WATER_SHIELD)
-		return name and WATER_TEXT[count]
-	end
-end
-
-oUF.Tags.Events["holypower"] = "UNIT_POWER"
-oUF.Tags.Methods["holypower"] = function(unit)
-	if unit == "player" then
-		local holypower = UnitPower(unit, SPELL_POWER_HOLY_POWER)
-		return holypower > 0 and holypower
-	end
-end
-
-do
 	local EVANGELISM = GetSpellInfo(81661) -- 81660 for rank 1
 	local DARK_EVANGELISM = GetSpellInfo(87118) -- 87117 for rank 1
 	oUF.Tags.Events["evangelism"] = "UNIT_AURA"
@@ -143,27 +99,46 @@ do
 end
 
 do
-	local SHADOW_ORB = GetSpellInfo(77487)
-	oUF.Tags.Events["shadoworbs"] = "UNIT_AURA"
-	oUF.Tags.Methods["shadoworbs"] = function(unit)
+	local EARTH_SHIELD = GetSpellInfo(974)
+	local LIGHTNING_SHIELD = GetSpellInfo(324)
+	local WATER_SHIELD = GetSpellInfo(52127)
+
+	local EARTH_TEXT = setmetatable({}, { __index = function(t,i)
+		return format("|cffa7c466%d|r", i)
+	end })
+	local LIGHTNING_TEXT = setmetatable({}, { __index = function(t,i)
+		return format("|cff7f97f7%d|r", i)
+	end })
+	local WATER_TEXT = setmetatable({}, { __index = function(t,i)
+		return format("|cff7cbdff%d|r", i)
+	end })
+
+	oUF.Tags.Events["elementalshield"] = "UNIT_AURA"
+	oUF.Tags.Methods["elementalshield"] = function(unit)
+		local name, _, icon, count = UnitBuff(unit, EARTH_SHIELD, nil, "PLAYER")
+		if name then
+			return EARTH_TEXT[count]
+		end
 		if unit == "player" then
-			local name, _, icon, count = UnitBuff("player", SHADOW_ORB)
-			return name and count
+			name, _, icon, count = UnitBuff(unit, LIGHTNING_SHIELD)
+			if name then
+				return LIGHTNING_TEXT[count]
+			end
+			name, _, icon, count = UnitBuff(unit, WATER_SHIELD)
+			if name then
+				return WATER_TEXT[count]
+			end
 		end
 	end
 end
 
-oUF.Tags.Events["soulshards"] = "UNIT_POWER"
-oUF.Tags.Methods["soulshards"] = function(unit)
-	if unit == "player" then
-		local soulshards = UnitPower(unit, SPELL_POWER_SOUL_SHARDS)
-		return soulshards > 0 and soulshards
-	end
-end
-
-oUF.Tags.Events["feralmana"] = "UNIT_POWER UNIT_MAXPOWER"
-oUF.Tags.Methods["feralmana"]  = function(unit)
-	if unit == "player" then
-		return UnitPower("player", SPELL_POWER_MANA)
+do
+	local MAELSTROM_WEAPON = GetSpellInfo(53817)
+	oUF.Tags.Events["maelstrom"] = "UNIT_AURA"
+	oUF.Tags.Methods["maelstrom"] = function(unit)
+		if unit == "player" then
+			local name, _, icon, count = UnitBuff("player", MAELSTROM_WEAPON)
+			return name and count
+		end
 	end
 end

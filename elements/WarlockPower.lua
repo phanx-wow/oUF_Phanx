@@ -1,3 +1,12 @@
+--[[--------------------------------------------------------------------
+	oUF_WarlockPower
+	by Phanx <addons@phanx.net>
+	Adds support for the new (in WoW 5.0) warlock resources.
+
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone plugin.
+----------------------------------------------------------------------]]
+
 local SPEC_WARLOCK_AFFLICTION = SPEC_WARLOCK_AFFLICTION
 local WARLOCK_SOULBURN = WARLOCK_SOULBURN
 local SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS

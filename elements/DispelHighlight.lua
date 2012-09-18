@@ -53,7 +53,10 @@ local MoP = select(4, GetBuildInfo()) >= 50000
 local canDispel, canPurge, canShatter, canSteal, canTranq = {}
 local defaultPriority = { Curse = 2, Disease = 4, Magic = 1, Poison = 3 }
 local dispelPriority = { Curse = 3, Disease = 1, Magic = 4, Poison = 2 }
-local prioritySort = function(a, b) return dispelPriority[a] > dispelPriority[b] end
+
+local function prioritySort(a, b)
+	return dispelPriority[a] > dispelPriority[b]
+end
 
 ------------------------------------------------------------------------
 

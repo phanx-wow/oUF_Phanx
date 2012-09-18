@@ -12,13 +12,13 @@ local config
 local colors = oUF.colors
 local playerClass = select(2, UnitClass("player"))
 local playerUnits = { player = true, pet = true, vehicle = true }
-local noop = function() return end
+local function noop() return end
 
 ns.frames, ns.headers, ns.objects, ns.fontstrings, ns.statusbars = {}, {}, {}, {}, {}
 
 ------------------------------------------------------------------------
 
-ns.si = function(value)
+function ns.si(value)
 	local absvalue = abs(value)
 
 	if absvalue >= 10000000 then
@@ -36,7 +36,7 @@ end
 
 local si = ns.si
 
-ns.si_raw = function(value)
+function ns.si_raw(value)
 	local absvalue = abs(value)
 
 	if absvalue >= 10000000 then
@@ -56,7 +56,7 @@ local si_raw = ns.si_raw
 
 ------------------------------------------------------------------------
 
-ns.UpdateBorder = function(self)
+function ns.UpdateBorder(self)
 	local threat, debuff, dispellable = self.threatLevel, self.debuffType, self.debuffDispellable
 	-- print("UpdateBorder", self.unit, "threatLevel", threat, "debuffType", debuff, "debuffDispellable", dispellable)
 
@@ -88,7 +88,7 @@ end
 
 ------------------------------------------------------------------------
 
-ns.PostUpdateHealth = function(self, unit, cur, max)
+function ns.PostUpdateHealth(self, unit, cur, max)
 	if not UnitIsConnected(unit) then
 		local color = colors.disconnected
 		local power = self.__owner.Power
@@ -151,7 +151,7 @@ end
 
 ------------------------------------------------------------------------
 
-ns.UpdateIncomingHeals = function(self, event, unit)
+function ns.UpdateIncomingHeals(self, event, unit)
 	if self.unit ~= unit then return end
 
 	local bar = self.HealPrediction
@@ -184,7 +184,7 @@ end
 
 ------------------------------------------------------------------------
 
-ns.PostUpdatePower = function(self, unit, cur, max)
+function ns.PostUpdatePower(self, unit, cur, max)
 	local shown = self:IsShown()
 	if max == 0 then
 		if shown then
@@ -232,7 +232,7 @@ end
 
 local SPELL_POWER_LIGHT_FORCE = SPELL_POWER_LIGHT_FORCE
 
-ns.UpdateChi = function(self, event, unit, powerType)
+function ns.UpdateChi(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "LIGHT_FORCE") then return end
 
 	local num = UnitPower("player", SPELL_POWER_LIGHT_FORCE)
@@ -246,7 +246,7 @@ end
 
 local SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER
 
-ns.UpdateHolyPower = function(self, event, unit, powerType)
+function ns.UpdateHolyPower(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "HOLY_POWER") then return end
 
 	local num = UnitPower("player", SPELL_POWER_HOLY_POWER)
@@ -261,7 +261,7 @@ end
 local SPELL_POWER_SHADOW_ORBS = SPELL_POWER_SHADOW_ORBS
 local PRIEST_BAR_NUM_ORBS = PRIEST_BAR_NUM_ORBS
 
-ns.UpdateShadowOrbs = function(self, event, unit, powerType)
+function ns.UpdateShadowOrbs(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "SHADOW_ORBS") then return end
 
 	local num = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
@@ -273,7 +273,7 @@ end
 
 ------------------------------------------------------------------------
 
-ns.UpdateComboPoints = function(self, event, unit)
+function ns.UpdateComboPoints(self, event, unit)
 	if unit == "pet" then return end
 
 	local cp
@@ -288,26 +288,26 @@ end
 
 ------------------------------------------------------------------------
 
-local AuraIconCD_OnShow = function(cd)
+local function AuraIconCD_OnShow(cd)
 	local button = cd:GetParent()
 	button:SetBorderParent(cd)
 	button.count:SetParent(cd)
 end
 
-local AuraIconCD_OnHide = function(cd)
+local function AuraIconCD_OnHide(cd)
 	local button = cd:GetParent()
 	button:SetBorderParent(button)
 	button.count:SetParent(button)
 end
 
-local AuraIconOverlay_SetBorderColor = function(overlay, r, g, b)
+local function AuraIconOverlay_SetBorderColor(overlay, r, g, b)
 	if not r or not g or not b then
 		r, g, b = unpack(config.borderColor)
 	end
 	overlay:GetParent():SetBorderColor(r, g, b)
 end
 
-ns.PostCreateAuraIcon = function(iconframe, button)
+function ns.PostCreateAuraIcon(iconframe, button)
 	ns.CreateBorder(button, 12)
 
 	button.cd:SetReverse(true)
@@ -325,7 +325,7 @@ ns.PostCreateAuraIcon = function(iconframe, button)
 	button:SetScript("OnClick", nil) -- because oUF still tries to cancel buffs on right-click, and Blizzard thinks preventing this will stop botting?
 end
 
-ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
+function ns.PostUpdateAuraIcon(iconframe, unit, button, index, offset)
 	local name, _, texture, count, type, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID = UnitAura(unit, index, button.filter)
 
 	if playerUnits[caster] then
@@ -371,13 +371,13 @@ ns.PostUpdateAuraIcon = function(iconframe, unit, button, index, offset)
 	end
 end
 
-ns.PostUpdateAuras = function(self, unit)
+function ns.PostUpdateAuras(self, unit)
 	self.__owner.Health:ForceUpdate() -- required to detect Dead => Ghost
 end
 
 ------------------------------------------------------------------------
 
-ns.PostCastStart = function(self, unit, name, rank, castid)
+function ns.PostCastStart(self, unit, name, rank, castid)
 	local r, g, b
 	if UnitIsUnit(unit, "player") then
 		r, g, b = unpack(colors.class[playerClass])
@@ -400,7 +400,7 @@ ns.PostCastStart = function(self, unit, name, rank, castid)
 	end
 end
 
-ns.PostChannelStart = function(self, unit, name, rank, text)
+function ns.PostChannelStart(self, unit, name, rank, text)
 	local r, g, b
 	if UnitIsUnit(unit, "player") then
 		r, g, b = unpack(colors.class[playerClass])
@@ -423,17 +423,17 @@ ns.PostChannelStart = function(self, unit, name, rank, text)
 	end
 end
 
-ns.CustomDelayText = function(self, duration)
+function ns.CustomDelayText(self, duration)
 	self.Time:SetFormattedText("%.1f|cffff0000-%.1f|r", self.max - duration, self.delay)
 end
 
-ns.CustomTimeText = function(self, duration)
+function ns.CustomTimeText(self, duration)
 	self.Time:SetFormattedText("%.1f", self.max - duration)
 end
 
 ------------------------------------------------------------------------
 
-ns.UpdateDispelHighlight = function(self, unit, debuffType, canDispel)
+function ns.UpdateDispelHighlight(self, unit, debuffType, canDispel)
 	-- print("UpdateDispelHighlight", unit, debuffType, canDispel)
 
 	local frame = self.__owner
@@ -444,7 +444,7 @@ end
 
 ------------------------------------------------------------------------
 
-ns.UpdateThreatHighlight = function(self, unit, status)
+function ns.UpdateThreatHighlight(self, unit, status)
 	if not status then status = 0 end
 	-- print("UpdateThreatHighlight", unit, status)
 
@@ -461,7 +461,7 @@ end
 
 ------------------------------------------------------------------------
 
-ns.UnitFrame_OnEnter = function(self)
+function ns.UnitFrame_OnEnter(self)
 	if self.__owner then
 		self = self.__owner
 	end
@@ -489,7 +489,7 @@ ns.UnitFrame_OnEnter = function(self)
 	end
 end
 
-ns.UnitFrame_OnLeave = function(self)
+function ns.UnitFrame_OnLeave(self)
 	if self.__owner then
 		self = self.__owner
 	end
@@ -506,7 +506,7 @@ ns.UnitFrame_OnLeave = function(self)
 	end
 end
 
-ns.UnitFrame_DropdownMenu = function(self)
+function ns.UnitFrame_DropdownMenu(self)
 	local unit = self.unit:sub(1, -2)
 	if unit == "party" or unit == "partypet" then
 		ToggleDropDownMenu(1, nil, _G["PartyMemberFrame" .. self.id .. "DropDown"], "cursor", 0, 0)
@@ -523,7 +523,7 @@ end
 
 ------------------------------------------------------------------------
 
-ns.CreateFontString = function(parent, size, justify)
+function ns.CreateFontString(parent, size, justify)
 	local fs = parent:CreateFontString(nil, "OVERLAY")
 	fs:SetFont(config.font, size or 16, config.fontOutline)
 	fs:SetJustifyH(justify or "LEFT")
@@ -535,13 +535,13 @@ end
 
 ------------------------------------------------------------------------
 
-ns.SetStatusBarValue = function(self, cur)
+function ns.SetStatusBarValue(self, cur)
 	local min, max = self:GetMinMaxValues()
 	self:GetStatusBarTexture():SetTexCoord(0, (cur - min) / (max - min), 0, 1)
 	self.orig_SetValue(self, cur)
 end
 
-ns.CreateStatusBar = function(parent, size, justify, nohook)
+function ns.CreateStatusBar(parent, size, justify, nohook)
 	local sb = CreateFrame("StatusBar", nil, parent)
 	sb:SetStatusBarTexture(config.statusbar)
 	sb:GetStatusBarTexture():SetDrawLayer("BORDER")
@@ -567,7 +567,7 @@ end
 
 ------------------------------------------------------------------------
 
-ns.Spawn = function(self, unit, isSingle)
+function ns.Spawn(self, unit, isSingle)
 	if self:GetParent():GetAttribute("useOwnerUnit") then
 		local suffix = self:GetParent():GetAttribute("unitsuffix")
 		self:SetAttribute("useOwnerUnit", true)
@@ -803,7 +803,7 @@ ns.Spawn = function(self, unit, isSingle)
 			statusbar = true
 		end
 
-		local SetAlpha = function(self, alpha)
+		local function SetAlpha(self, alpha)
 			--print("SetAlpha", self.id, alpha)
 			if alpha == 1 then
 				self.bg:SetVertexColor(0.25, 0.25, 0.25)
@@ -843,7 +843,7 @@ ns.Spawn = function(self, unit, isSingle)
 	if unit == "player" and playerClass == "SHAMAN" then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 
-		local SetAlpha = function(orb, alpha)
+		local function SetAlpha(orb, alpha)
 			if alpha == 1 then
 				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
 				orb.bg:SetAlpha(1)
@@ -1087,7 +1087,7 @@ ns.Spawn = function(self, unit, isSingle)
 		druidMana.colorPower = true
 		druidMana.bg.multiplier = config.powerBG
 
-		druidMana.PostUpdate = function(self, unit, cur, max)
+		function druidMana:PostUpdate(unit, cur, max)
 			self.value:SetFormattedText(si_raw(cur))
 		end
 
@@ -1132,47 +1132,50 @@ ns.Spawn = function(self, unit, isSingle)
 	if uconfig.castbar then
 		local height = config.height * (1 - config.powerHeight)
 
-		self.Castbar = ns.CreateStatusBar(self)
-		self.Castbar:SetPoint("TOPLEFT", self, "BOTTOMLEFT", height, -10)
-		self.Castbar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -10)
-		self.Castbar:SetHeight(height)
+		local Castbar = ns.CreateStatusBar(self)
+		Castbar:SetPoint("TOPLEFT", self, "BOTTOMLEFT", height, -10)
+		Castbar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -10)
+		Castbar:SetHeight(height)
 
-		self.Castbar.Icon = self.Castbar:CreateTexture(nil, "BACKDROP")
-		self.Castbar.Icon:SetPoint("TOPRIGHT", self.Castbar, "TOPLEFT", 0, 0)
-		self.Castbar.Icon:SetPoint("BOTTOMRIGHT", self.Castbar, "BOTTOMLEFT", 0, 0)
-		self.Castbar.Icon:SetWidth(height)
-		self.Castbar.Icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		Castbar.Icon = Castbar:CreateTexture(nil, "BACKDROP")
+		Castbar.Icon:SetPoint("TOPRIGHT", Castbar, "TOPLEFT", 0, 0)
+		Castbar.Icon:SetPoint("BOTTOMRIGHT", Castbar, "BOTTOMLEFT", 0, 0)
+		Castbar.Icon:SetWidth(height)
+		Castbar.Icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 
 		if unit == "player" then
-			self.Castbar.SafeZone = self.Castbar:CreateTexture(nil, "BORDER")
-			self.Castbar.SafeZone:SetTexture(config.statusbar)
-			self.Castbar.SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
+			Castbar.SafeZone = Castbar:CreateTexture(nil, "BORDER")
+			Castbar.SafeZone:SetTexture(config.statusbar)
+			Castbar.SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
 
-			self.Castbar.Time = ns.CreateFontString(self.Castbar, 20, "RIGHT")
-			self.Castbar.Time:SetPoint("RIGHT", self.Castbar, "RIGHT", -4, 0)
+			Castbar.Time = ns.CreateFontString(Castbar, 20, "RIGHT")
+			Castbar.Time:SetPoint("RIGHT", Castbar, "RIGHT", -4, 0)
+
 		elseif (uconfig.width or 1) > 0.75 then
-			self.Castbar.Text = ns.CreateFontString(self.Castbar, 16, "LEFT")
-			self.Castbar.Text:SetPoint("LEFT", self.Castbar, "LEFT", 4, 0)
+			Castbar.Text = ns.CreateFontString(Castbar, 16, "LEFT")
+			Castbar.Text:SetPoint("LEFT", Castbar, "LEFT", 4, 0)
 		end
 
-		self.Castbar.PostCastStart = ns.PostCastStart
-		self.Castbar.PostChannelStart = ns.PostChannelStart
-		self.Castbar.CustomDelayText = ns.CustomDelayText
-		self.Castbar.CustomTimeText = ns.CustomTimeText
-
-		ns.CreateBorder(self.Castbar, nil, nil, nil, "OVERLAY")
+		ns.CreateBorder(Castbar, nil, nil, nil, "OVERLAY")
 
 		local d = floor(config.borderSize / 2 + 0.5) - 2
-		self.Castbar.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", self.Castbar.Icon, "TOPLEFT", -d, d)
-		self.Castbar.BorderTextures.BOTTOMLEFT:SetPoint("BOTTOMLEFT", self.Castbar.Icon, "BOTTOMLEFT", -d, -d)
+		Castbar.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Castbar.Icon, "TOPLEFT", -d, d)
+		Castbar.BorderTextures.BOTTOMLEFT:SetPoint("BOTTOMLEFT", Castbar.Icon, "BOTTOMLEFT", -d, -d)
 
-		local o = self.Castbar.SetBorderSize
-		self.Castbar.SetBorderSize = function(self, size, offset)
+		local o = Castbar.SetBorderSize
+		function Castbar:SetBorderSize(size, offset)
 			o(self, size, offset)
 			local d = floor(size / 2 + 0.5) - 2
 			self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", self.Icon, "TOPLEFT", -d, d)
 			self.BorderTextures.BOTTOMLEFT:SetPoint("BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d)
 		end
+
+		Castbar.PostCastStart = ns.PostCastStart
+		Castbar.PostChannelStart = ns.PostChannelStart
+		Castbar.CustomDelayText = ns.CustomDelayText
+		Castbar.CustomTimeText = ns.CustomTimeText
+
+		self.Castbar = Castbar
 	end
 
 	-----------
@@ -1339,6 +1342,13 @@ ns.Spawn = function(self, unit, isSingle)
 			insideAlpha = 1,
 			outsideAlpha = 0.5,
 		}
+	end
+
+	if unit == "player" then
+		local BuffBars = CreateFrame("Frame", nil, self)
+		BuffBars:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 10)
+		BuffBars:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 10)
+		self.BuffBars = BuffBars
 	end
 
 end
