@@ -518,6 +518,21 @@ end
 --	Warlock
 
 if playerClass == "WARLOCK" then
+	--auras[] = 4 -- Backdraft
+	--auras[] = 4 -- Backlash
+	--auras[] = 4 -- Dark Soul: Instability
+	--auras[] = 4 -- Havoc
+	--auras[] = 4 -- Unending Resolve
+
+	--auras[] = 2 -- Banish
+	auras[17962] = 2 -- Conflagrate (slow)
+	auras[172] = 2 -- Corruption
+	--auras[] = 1 -- Curse of Enfeeblement
+	--auras[] = 1 -- Curse of the Elements
+	--auras[] = 2 -- Fear
+	auras[348] = 2 -- Immolate
+	--auras[] = 2 -- Enslave Demon
+	--auras[] = 2 -- Seduction
 end
 
 ------------------------------------------------------------------------
@@ -529,7 +544,9 @@ end
 ------------------------------------------------------------------------
 -- Racials
 
-if playerRace == "Draenei" then
+if playerRace == "BloodElf" then
+
+elseif playerRace == "Draenei" then
 	auras[59545]  = 4 -- Gift of the Naaru (death knight)
 	auras[59543]  = 4 -- Gift of the Naaru (hunter)
 	auras[59548]  = 4 -- Gift of the Naaru (mage)
