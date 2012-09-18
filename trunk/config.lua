@@ -164,7 +164,7 @@ end
 --	End configuration
 ------------------------------------------------------------------------
 
-ns.SetAllFonts = function(file, flag)
+function ns.SetAllFonts(file, flag)
 	if not file then file = ns.config.font end
 	if not flag then flag = ns.config.fontOutline end
 
@@ -180,7 +180,7 @@ ns.SetAllFonts = function(file, flag)
 	end
 end
 
-ns.SetAllStatusBarTextures = function(file)
+function ns.SetAllStatusBarTextures(file)
 	if not file then file = ns.config.statusbar end
 
 	for _, v in ipairs(ns.statusbars) do
@@ -364,7 +364,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	valueBG:SetVertexColor(0.35, 0.35, 0.35)
 	statusbar.valueBG = valueBG
 
-	statusbar.OnValueChanged = function(self, value)
+	function statusbar:OnValueChanged(value)
 		local file = SharedMedia:Fetch("statusbar", value)
 		if db.statusbar == file then return end
 		valueBG:SetTexture(file)
@@ -432,7 +432,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
-	font.OnValueChanged = function(self, value)
+	function font:OnValueChanged(value)
 		local file = SharedMedia:Fetch("font", value)
 		if db.font == file then return end
 		db.font = file
@@ -470,7 +470,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 			end)
 
 			local SetText = font.dropdown.list.text.SetText
-			font.dropdown.list.text.SetText = function(self, text)
+			function font.dropdown.list.text:SetText(text)
 				self:SetFont(SharedMedia:Fetch("font", text), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT + 1)
 				SetText(self, text)
 			end
@@ -530,8 +530,8 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	borderSize:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", -2, -12)
 	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 4, -12)
 
-	borderSize.OnValueChanged = function(self, value)
-		value = math.floor(value + 0.5)
+	function borderSize:OnValueChanged(value)
+		value = floor(value + 0.5)
 		db.borderSize = value
 		for _, frame in ipairs(ns.borderedObjects) do
 			frame:SetBorderSize(value)
@@ -540,9 +540,10 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	end
 
 	local borderGlow = CreateCheckbox(self, L["Show Border Glow"])
-	borderGlow.desc = L["Show a glow around the frame border to highlight important states."]
+	borderGlow.desc = L["Show a glow around the frame border to more visibly highlight important states."]
 	borderGlow:SetPoint("TOPLEFT", borderSize, "BOTTOMLEFT", 2, -12)
-	borderGlow.OnClick = function(self, checked)
+
+	function borderGlow:OnClick(checked)
 		db.borderGlow = checked
 	end
 
@@ -551,7 +552,8 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	local dispelFilter = CreateCheckbox(self, L["Filter debuff highlight"])
 	dispelFilter.desc = L["Show the debuff highlight only for debuffs you can dispel."]
 	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-	dispelFilter.OnClick = function(self, checked)
+
+	function dispelFilter:OnClick(checked)
 		db.dispelFilter = checked
 		for _, frame in ipairs(ns.objects) do
 			if frame.DispelHighlight then
@@ -569,7 +571,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	healFilter.desc = L["Show only incoming heals cast by other players."]
 	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -6)
 
-	healFilter.OnClick = function(self, checked)
+	function healFilter:OnClick(checked)
 		db.ignoreOwnHeals = checked
 		for _, frame in ipairs(oUF.objects) do
 			if frame.HealPrediction and frame:IsShown() then
@@ -584,7 +586,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	threatLevels.desc = L["Show threat levels instead of binary aggro status."]
 	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -6)
 
-	threatLevels.OnClick = function(self, checked)
+	function threatLevels:OnClick(checked)
 		db.threatLevels = checked
 		for _, frame in ipairs(oUF.objects) do
 			if frame.ThreatHighlight and frame:IsShown() then
@@ -597,19 +599,17 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	local druidMana, eclipseBar, eclipseBarIcons
 	if select(2, UnitClass("player")) == "DRUID" then
-		druidMana = CreateCheckbox(self, L["Show druid mana bar"],
-			L["Show a mana bar while you are in Bear Form or Cat Form."]
-			.. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
+		druidMana = CreateCheckbox(self, L["Show druid mana bar"], L["Show a mana bar while you are in Bear Form or Cat Form."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
 		druidMana:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -18)
-		druidMana.OnClick = function(self, checked)
+
+		function druidMana:OnClick(checked)
 			db.druidMana = checked
 		end
 
-		eclipseBar = CreateCheckbox(self, L["Show eclipse bar"],
-			L["Show an eclipse bar above the player frame."]
-			.. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
+		eclipseBar = CreateCheckbox(self, L["Show eclipse bar"], L["Show an eclipse bar above the player frame."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
 		eclipseBar:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -18)
-		eclipseBar.OnClick = function(self, checked)
+
+		function eclipseBar:OnClick(checked)
 			db.eclipseBar = checked
 			if checked then
 				eclipseBarIcons:Enable()
@@ -618,18 +618,17 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 			end
 		end
 
-		eclipseBarIcons = CreateCheckbox(self, L["Show eclipse bar icons"],
-			L["Show animated moon and sun icons on either end of the eclipse bar."]
-			.. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
+		eclipseBarIcons = CreateCheckbox(self, L["Show eclipse bar icons"], L["Show animated moon and sun icons on either end of the eclipse bar."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
 		eclipseBarIcons:SetPoint("TOPLEFT", eclipseBar, "BOTTOMLEFT", 0, -6)
-		eclipseBarIcons.OnClick = function(self, checked)
+
+		function eclipseBarIcons:OnClick(checked)
 			db.eclipseBarIcons = checked
 		end
 	end
 
 	--------------------------------------------------------------------
 
-	self.refresh = function()
+	function self.refresh()
 		for k, v in pairs(SharedMedia:HashTable("statusbar")) do
 			if v == db.statusbar or v:match("([^\\]+)$") == db.statusbar:match("([^\\]+)$") then
 				statusbar:SetValue(k)
@@ -757,11 +756,11 @@ ns.colorsPanel = CreateOptionsPanel(ns.L["Colors"], ns.optionsPanel.name, functi
 	healthColor.desc = L["Change the health bar color."]
 	healthColor:SetPoint("BOTTOMLEFT", healthColorMode, "BOTTOMRIGHT", 16, 4)
 
-	healthColor.GetColor = function()
+	function healthColor:GetColor()
 		return unpack(db.healthColor)
 	end
 
-	healthColor.OnColorChanged = function(self, r, g, b)
+	function healthColor:OnColorChanged(r, g, b)
 		db.healthColor[1] = r
 		db.healthColor[2] = g
 		db.healthColor[3] = b
@@ -782,7 +781,7 @@ ns.colorsPanel = CreateOptionsPanel(ns.L["Colors"], ns.optionsPanel.name, functi
 	healthBG:SetPoint("TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12)
 	healthBG:SetPoint("TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12)
 
-	healthBG.OnValueChanged = function(self, value)
+	function healthBG:OnValueChanged(value)
 		value = math.floor(value * 100 + 0.5) / 100
 		db.healthBG = value
 		local custom = db.healthColorMode == "CUSTOM"
@@ -875,11 +874,11 @@ ns.colorsPanel = CreateOptionsPanel(ns.L["Colors"], ns.optionsPanel.name, functi
 	powerColor.desc = L["Change the health bar color."]
 	powerColor:SetPoint("BOTTOMLEFT", powerColorMode, "BOTTOMRIGHT", 16, 4)
 
-	powerColor.GetColor = function()
+	function powerColor:GetColor()
 		return unpack(db.powerColor)
 	end
 
-	powerColor.OnColorChanged = function(self, r, g, b)
+	function powerColor:OnColorChanged(r, g, b)
 		db.powerColor[1] = r
 		db.powerColor[2] = g
 		db.powerColor[3] = b
@@ -900,8 +899,8 @@ ns.colorsPanel = CreateOptionsPanel(ns.L["Colors"], ns.optionsPanel.name, functi
 	powerBG:SetPoint("TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -12)
 	powerBG:SetPoint("TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -12)
 
-	powerBG.OnValueChanged = function(self, value)
-		value = math.floor(value * 100 + 0.5) / 100
+	function powerBG:OnValueChanged(value)
+		value = floor(value * 100 + 0.5) / 100
 		db.powerBG = value
 		local custom = db.powerColorMode == "CUSTOM"
 		for _, frame in ipairs(ns.objects) do
@@ -941,11 +940,11 @@ ns.colorsPanel = CreateOptionsPanel(ns.L["Colors"], ns.optionsPanel.name, functi
 	borderColor.desc = L["Change the default frame border color."]
 	borderColor:SetPoint("TOPLEFT", powerBG, "BOTTOMLEFT", 4, -16)
 
-	borderColor.GetColor = function()
+	function borderColor:GetColor()
 		return unpack(db.borderColor)
 	end
 
-	borderColor.OnColorChanged = function(self, r, g, b)
+	function borderColor:OnColorChanged(r, g, b)
 		db.borderColor[1] = r
 		db.borderColor[2] = g
 		db.borderColor[3] = b
@@ -961,7 +960,7 @@ ns.colorsPanel = CreateOptionsPanel(ns.L["Colors"], ns.optionsPanel.name, functi
 
 	--------------------------------------------------------------------
 
-	self.refresh = function()
+	function self.refresh()
 		healthColorMode:SetValue(db.healthColorMode, healthColorModes[db.healthColorMode])
 		healthColor:SetColor(unpack(db.healthColor))
 		if db.healthColorMode == "CUSTOM" then
@@ -996,7 +995,7 @@ end
 SLASH_OUFPHANX1 = "/pouf"
 
 local testMode
-SlashCmdList.OUFPHANX = function(cmd)
+function SlashCmdList.OUFPHANX(cmd)
 	if cmd == "test" then
 		testMode = not testMode
 		if testMode then

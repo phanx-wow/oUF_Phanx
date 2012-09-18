@@ -14,8 +14,8 @@
 if not oUF then return end
 if IsAddOnLoaded("oUF_AFK") then return end
 
-local times = { }
-local objects = { }
+local times = {}
+local objects = {}
 local updater = CreateFrame("Frame")
 local lastupdate = 0
 
@@ -45,7 +45,7 @@ updater:SetScript("OnUpdate", function(self, elapsed)
 	lastupdate = 0
 end)
 
-local Update = function(self, event, unit)
+local function Update(self, event, unit)
 	if unit ~= self.unit then return end
 
 	local afk = UnitIsAFK(unit)
@@ -61,13 +61,13 @@ local Update = function(self, event, unit)
 	end
 end
 
-local Enable = function(self)
+local function Enable(self)
 	if not self.AFK or not self.AFK.SetFormattedText then return end
 
 	self:RegisterEvent("PLAYER_FLAGS_CHANGED", Update)
 end
 
-local Disable = function(self)
+local function Disable(self)
 	if not self.AFK or not self.AFK.SetFormattedText then return end
 
 	self:UnregisterEvent("PLAYER_FLAGS_CHANGED", Update)

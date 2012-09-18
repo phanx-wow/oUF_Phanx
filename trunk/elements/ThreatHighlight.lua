@@ -37,7 +37,7 @@ local function Update(self, event, unit)
 	end
 end
 
-local ForceUpdate = function(element)
+local function ForceUpdate(element)
 	return Update(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
