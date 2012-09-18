@@ -20,7 +20,7 @@ local powerTypes = {
 	[SPEC_WARLOCK_DESTRUCTION] = "BURNING_EMBERS",
 }
 
-local Update = function(self, event, unit, powerType)
+local function Update(self, event, unit, powerType)
 	local element = self.WarlockPower
 	if self.unit ~= unit or (powerType and powerType ~= element.powerType) then return end
 
@@ -200,7 +200,7 @@ local Update = function(self, event, unit, powerType)
 	end
 end
 
-local Visibility = function(self, event, unit)
+local function Visibility(self, event, unit)
 	local spec = GetSpecialization()
 	--print("WarlockPower Visibility", spec)
 
@@ -257,15 +257,15 @@ local Visibility = function(self, event, unit)
 	end
 end
 
-local Path = function(self, ...)
-	return (self.WarlockPower.Override or Update) (self, ...)
+local function Path(self, ...)
+	return (self.WarlockPower.Override or Update)(self, ...)
 end
 
-local ForceUpdate = function(element)
+local function ForceUpdate(element)
 	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
-local Enable = function(self, unit)
+local function Enable(self, unit)
 	local element = self.WarlockPower
 	if(element and unit == "player") then
 		element.__owner = self
@@ -281,7 +281,7 @@ local Enable = function(self, unit)
 	end
 end
 
-local Disable = function(self)
+local function Disable(self)
 	local element = self.WarlockPower
 	if(element) then
 		self:UnregisterEvent("UNIT_POWER", Path)

@@ -120,12 +120,17 @@ local function Update(self, event, unit)
 			i = i + 1
 		end
 	elseif UnitCanAttack("player", unit) then
-		scanUnit = unit
+--		scanUnit = unit
 
 		local i = 1
 		while true do
 			local name, _, _, _, type, _, _, _, stealable, _, id = UnitBuff(unit, i)
 			if not name then break end
+
+			if type == "" then
+				type = "Enrage"
+			end
+--[[
 			if type and strlen(type) < 4 then type = nil end
 			-- print("UnitBuff", unit, i, tostring(name), tostring(type))
 
@@ -134,7 +139,7 @@ local function Update(self, event, unit)
 				type = "Enrage"
 			end
 			scanIndex = nil
-
+]]
 			if canShatter and not type and invulnEffects[id] then
 				type = "Invulnerability"
 			end
@@ -149,7 +154,7 @@ local function Update(self, event, unit)
 			i = i + 1
 		end
 
-		scanUnit = nil
+--		scanUnit = nil
 	end
 
 	if debuffTypeCache[unit] == debuffType then return end
@@ -172,7 +177,7 @@ end
 
 ------------------------------------------------------------------------
 
-local ForceUpdate = function(element)
+local function ForceUpdate(element)
 	return Update(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
