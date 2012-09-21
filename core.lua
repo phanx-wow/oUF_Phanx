@@ -1343,14 +1343,6 @@ function ns.Spawn(self, unit, isSingle)
 			outsideAlpha = 0.5,
 		}
 	end
---[[
-	if unit == "player" then
-		local BuffBars = CreateFrame("Frame", nil, self)
-		BuffBars:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 10)
-		BuffBars:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 10)
-		self.BuffBars = BuffBars
-	end
-]]
 end
 
 ------------------------------------------------------------------------
