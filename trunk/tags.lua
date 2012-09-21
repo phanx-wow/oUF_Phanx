@@ -43,9 +43,8 @@ oUF.Tags.Methods["combaticon"] = function(unit)
 	end
 end
 
-oUF.Tags.Events["leadericon"] = "PARTY_LEADER_CHANGED PARTY_MEMBERS_CHANGED"
-oUF.Tags.SharedEvents["PARTY_LEADER_CHANGED"] = true
-oUF.Tags.SharedEvents["PARTY_MEMBERS_CHANGED"] = true
+oUF.Tags.Events["leadericon"] = "GROUP_ROSTER_UPDATE"
+oUF.Tags.SharedEvents["GROUP_ROSTER_UPDATE"] = true
 oUF.Tags.Methods["leadericon"] = function(unit)
 	if UnitIsGroupLeader(unit) then
 		return [[|TInterface\GroupFrame\UI-Group-LeaderIcon:0|t]]
@@ -54,9 +53,9 @@ oUF.Tags.Methods["leadericon"] = function(unit)
 	end
 end
 
-oUF.Tags.Events["mastericon"] = "PARTY_LOOT_METHOD_CHANGED PARTY_MEMBERS_CHANGED"
+oUF.Tags.Events["mastericon"] = "PARTY_LOOT_METHOD_CHANGED GROUP_ROSTER_UPDATE"
 oUF.Tags.SharedEvents["PARTY_LOOT_METHOD_CHANGED"] = true
-oUF.Tags.SharedEvents["PARTY_MEMBERS_CHANGED"] = true
+oUF.Tags.SharedEvents["GROUP_ROSTER_UPDATE"] = true
 oUF.Tags.Methods["mastericon"] = function(unit)
 	local method, pid, rid = GetLootMethod()
 	if method ~= "master" then return end
