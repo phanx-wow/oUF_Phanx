@@ -379,6 +379,52 @@ end
 --	Mage
 
 if playerClass == "MAGE" then
+	auras[110909] = 4 -- Alter Time
+	auras[36032]  = 4 -- Arcane Charge
+	auras[12042]  = 4 -- Arcane Power
+	auras[108843] = 4 -- Blazing Speed
+	auras[57761]  = 4 -- Brain Freeze
+	auras[87023]  = 4 -- Cauterize
+	auras[44544]  = 4 -- Fingers of Frost
+	auras[110960] = 4 -- Greater Invisibility
+	auras[48107]  = 4 -- Heating Up
+	auras[11426]  = 4 -- Ice Barrier
+	auras[45438]  = 4 -- Ice Block
+	auras[108839] = 4 -- Ice Floes
+	auras[12472]  = 4 -- Icy Veins
+	auras[1463]   = 4 -- Inacnter's Ward
+	auras[66]     = 4 -- Invisibility
+	auras[12043]  = 4 -- Presence of Mind
+	auras[116014] = 4 -- Rune of Power
+	auras[115610] = 4 -- Temporal Shield (shield)
+	auras[115611] = 4 -- Temporal Shield (heal)
+
+	auras[34356]  = 2 -- Blizzard (slow) -- NEEDS CHECK
+	auras[83853]  = 2 -- Combustion
+	auras[120]    = 2 -- Cone of Cold
+	auras[44572]  = 2 -- Deep Freeze
+	auras[31661]  = 2 -- Dragon's Breath
+	auras[112948] = 2 -- Frost Bomb
+	auras[113092] = 2 -- Frost Bomb (slow)
+	auras[122]    = 2 -- Frost Nova
+	auras[116]    = 2 -- Frostbolt
+	auras[44614]  = 2 -- Frostfire Bolt
+	auras[102051] = 2 -- Frostjaw
+	auras[84721]  = 2 -- Frozen Orb
+--	auras[12654]  = 2 -- Ignite
+	auras[44457]  = 2 -- Living Bomb
+	auras[114923] = 2 -- Nether Tempest
+	auras[118]    = 2 -- Polymorph
+	auras[61305]  = 2 -- Polymorph (Black Cat)
+	auras[28272]  = 2 -- Polymorph (Pig)
+	auras[61721]  = 2 -- Polymorph (Rabbit)
+	auras[61780]  = 2 -- Polymorph (Turkey)
+	auras[28217]  = 2 -- Polymorph (Turtle)
+--	auras[11366]  = 2 -- Pyroblast
+	auras[132210] = 2 -- Pyromaniac
+	auras[82691]  = 2 -- Ring of Frost
+	auras[55021]  = 2 -- Silenced - Improved Counterspell
+	auras[31589]  = 2 -- Slow
 end
 
 ------------------------------------------------------------------------
@@ -408,27 +454,27 @@ if playerClass == "MONK" then
 	auras[118674] = 4 -- Vital Mists
 
 	auras[128531] = 2 -- Blackout Kick
-	auras[123393] = 1 -- Breath of Fire (disorient)
+	auras[123393] = 2 -- Breath of Fire (disorient)
 	auras[123725] = 2 -- Breath of Fire (dot)
-	auras[119392] = 1 -- Charging Ox Wave
-	auras[122242] = 1 -- Clash (stun) -- NEEDS CHECK
-	auras[126451] = 1 -- Clash (stun) -- NEEDS CHECK
-	auras[128846] = 1 -- Clash (stun) -- NEEDS CHECK
+	auras[119392] = 2 -- Charging Ox Wave
+	auras[122242] = 2 -- Clash (stun) -- NEEDS CHECK
+	auras[126451] = 2 -- Clash (stun) -- NEEDS CHECK
+	auras[128846] = 2 -- Clash (stun) -- NEEDS CHECK
 	auras[125647] = 2 -- Crackling Jade Lightning (+damage)
-	auras[116095] = 1 -- Disable
-	auras[116330] = 1 -- Dizzying Haze -- NEEDS CHECK
-	auras[123727] = 1 -- Dizzying Haze -- NEEDS CHECK
+	auras[116095] = 2 -- Disable
+	auras[116330] = 2 -- Dizzying Haze -- NEEDS CHECK
+	auras[123727] = 2 -- Dizzying Haze -- NEEDS CHECK
 	auras[123586] = 4 -- Flying Serpent Kick
-	auras[117368] = 1 -- Grapple Weapon
-	auras[118585] = 1 -- Leer of the Ox
-	auras[119381] = 1 -- Leg Sweep
-	auras[115078] = 1 -- Paralysis
-	auras[118635] = 1 -- Provoke -- NEEDS CHECK
-	auras[116189] = 1 -- Provoke -- NEEDS CHECK
+	auras[117368] = 2 -- Grapple Weapon
+	auras[118585] = 2 -- Leer of the Ox
+	auras[119381] = 2 -- Leg Sweep
+	auras[115078] = 2 -- Paralysis
+	auras[118635] = 2 -- Provoke -- NEEDS CHECK
+	auras[116189] = 2 -- Provoke -- NEEDS CHECK
 	auras[130320] = 2 -- Rising Sun Kick
 	auras[116847] = 2 -- Rushing Jade Wind
-	auras[116709] = 1 -- Spear Hand Strike
-	auras[123407] = 1 -- Spinning Fire Blossom
+	auras[116709] = 2 -- Spear Hand Strike
+	auras[123407] = 2 -- Spinning Fire Blossom
 
 	auras[124682] = 2 -- Enveloping Mist
 	auras[116849] = 3 -- Life Cocoon
@@ -441,18 +487,161 @@ end
 --	Paladin
 
 if playerClass == "PALADIN" then
+	auras[121467] = 4 -- Alabaster Shield
+	auras[31850]  = 4 -- Ardent Defender
+	auras[31884]  = 4 -- Avenging Wrath
+	auras[114637] = 4 -- Bastion of Glory
+	auras[88819]  = 4 -- Daybreak
+	auras[31842]  = 4 -- Divine Favor
+	auras[54428]  = 4 -- Divine Plea
+	auras[498]    = 4 -- Divine Protection
+	auras[90174]  = 4 -- Divine Purpose
+	auras[642]    = 4 -- Divine Shield
+	auras[54957]  = 4 -- Glyph of Flash of Light
+	auras[85416]  = 4 -- Grand Crusader
+	auras[86659]  = 4 -- Guardian of Ancient Kings (protection)
+	auras[86669]  = 4 -- Guardian of Ancient Kings (holy)
+	auras[86698]  = 4 -- Guardian of Ancient Kings (retribution)
+	auras[105809] = 4 -- Holy Avenger
+	auras[54149]  = 4 -- Infusion of Light
+	auras[84963]  = 4 -- Inquisition
+	auras[114250] = 4 -- Selfless Healer
+--	auras[132403] = 4 -- Shield of the Righteous
+	auras[85499]  = 4 -- Speed of Light
+	auras[94686]  = 4 -- Supplication
+
+	auras[31935]  = 2 -- Avenger's Shield
+--	auras[110300] = 2 -- Burden of Guilt
+	auras[105421] = 2 -- Blinding Light
+	auras[31803]  = 2 -- Censure
+	auras[63529]  = 2 -- Dazed - Avenger's Shield
+	auras[2812]   = 2 -- Denounce
+	auras[114916] = 2 -- Execution Sentence
+	auras[105593] = 2 -- Fist of Justice
+	auras[853]    = 2 -- Hammer of Justice
+	auras[119072] = 2 -- Holy Wrath
+	auras[20066]  = 2 -- Repentance
+	auras[10326]  = 2 -- Turn Evil
+
+	auras[31821]  = 3 -- Devotion Aura
+	auras[114163] = 3 -- Eternal Flame
+	auras[1044]   = 3 -- Hand of Freedom
+	auras[1022]   = 3 -- Hand of Protection
+	auras[114039] = 3 -- Hand of Purity
+	auras[6940]   = 3 -- Hand of Sacrifice
+	auras[1038]   = 3 -- Hand of Salvation
+	auras[86273]  = 3 -- Illuminated Healing
+	auras[20925]  = 3 -- Sacred Shield
+	auras[20170]  = 3 -- Seal of Justice
+	auras[114917] = 3 -- Stay of Execution
 end
 
 ------------------------------------------------------------------------
 --	Priest
 
 if playerClass == "PRIEST" then
+--	auras[114214] = 4 -- Angelic Bulwark
+	auras[81700]  = 4 -- Archangel
+--	auras[59889]  = 4 -- Borrowed Time
+	auras[47585]  = 4 -- Dispersion
+	auras[123266] = 4 -- Divine Insight (discipline)
+	auras[123267] = 4 -- Divine Insight (holy)
+	auras[124430] = 4 -- Divine Insight (shadow)
+	auras[81661]  = 4 -- Evangelism
+	auras[586]    = 4 -- Fade
+	auras[2096]   = 4 -- Mind Vision
+	auras[114239] = 4 -- Phantasm
+	auras[10060]  = 4 -- Power Infusion
+	auras[63735]  = 4 -- Serendipity
+	auras[112833] = 4 -- Spectral Guise
+	auras[109964] = 4 -- Spirit Shell
+	auras[87160]  = 4 -- Surge of Darkness -- NEEDS CHECK
+	auras[126083] = 4 -- Surge of Darkness -- NEEDS CHECK
+	auras[128654] = 4 -- Surge of Light -- NEEDS CHECK
+	auras[114255] = 4 -- Surge of Light -- NEEDS CHECK
+	auras[123254] = 4 -- Twist of Fate
+	auras[15286]  = 4 -- Vampiric Embrace
+	auras[108920] = 4 -- Void Tendrils
+
+	auras[124467] = 2 -- Devouring Plague
+--	auras[14914]  = 2 -- Holy Fire
+	auras[88625]  = 2 -- Holy Word: Chastise
+	auras[89485]  = 2 -- Inner Focus
+	auras[64044]  = 2 -- Psychic Horror (horror)
+--	auras[64058]  = 2 -- Psychic Horror (disarm)
+	auras[8122]   = 2 -- Psychic Scream
+	auras[113792] = 2 -- Psychic Terror
+	auras[9484]   = 2 -- Shackle Undead
+	auras[589]    = 2 -- Shadow Word: Pain -- NEEDS CHECK
+	auras[124464] = 2 -- Shadow Word: Pain -- NEEDS CHECK
+	auras[15487]  = 2 -- Silence
+	auras[34914]  = 2 -- Vampiric Touch -- NEEDS CHECK
+	auras[124465] = 2 -- Vampiric Touch -- NEEDS CHECK
+
+	auras[77613]  = 3 -- Grace
+	auras[47788]  = 3 -- Guardian Spirit
+	auras[88684]  = 3 -- Holy Word: Serenity
+	auras[33206]  = 3 -- Pain Suppression
+	auras[62618]  = 3 -- Power Word: Barrier
+	auras[17]     = 3 -- Power Word: Shield
+	auras[139]    = 3 -- Renew
 end
 
 ------------------------------------------------------------------------
 --	Rogue
 
 if playerClass == "ROGUE" then
+	auras[13750]  = 4 -- Adrenaline Rush
+	auras[115189] = 4 -- Anticipation
+	auras[18377]  = 4 -- Blade Flurry
+	auras[121153] = 4 -- Blindside
+	auras[108212] = 4 -- Burst of Speed
+	auras[31224]  = 4 -- Cloak of Shadows
+	auras[74002]  = 4 -- Combat Insight
+	auras[74001]  = 4 -- Combat Readiness
+	auras[84747]  = 4 -- Deep Insight
+	auras[56814]  = 4 -- Detection
+	auras[32645]  = 4 -- Envenom
+	auras[5277]   = 4 -- Evasion
+	auras[1966]   = 4 -- Feint
+	auras[51690]  = 4 -- Killing Spree
+	auras[84746]  = 4 -- Moderate Insight
+	auras[73651]  = 4 -- Recuperate
+	auras[121472] = 4 -- Shadow Blades
+	auras[51713]  = 4 -- Shadow Dance
+	auras[114842] = 4 -- Shadow Walk
+	auras[36554]  = 4 -- Shadowstep
+	auras[84745]  = 4 -- Shallow Insight
+	auras[114018] = 4 -- Shroud of Concealment
+	auras[5171]   = 4 -- Slice and Dice
+	auras[76577]  = 4 -- Smoke Bomb
+	auras[2983]   = 4 -- Sprint
+	auras[57934]  = 4 -- Tricks of the Trade
+	auras[1856]   = 4 -- Vanish
+
+	auras[2094]   = 2 -- Blind
+	auras[1833]   = 2 -- Cheap Shot
+--	auras[122233] = 2 -- Crimson Tempest
+--	auras[3409]   = 2 -- Crippling Poison
+--	auras[2818]   = 2 -- Deadly Poison
+	auras[26679]  = 2 -- Deadly Throw
+	auras[51722]  = 2 -- Dismantle
+	auras[91021]  = 2 -- Find Weakness
+	auras[703]    = 2 -- Garrote
+	auras[1330]   = 2 -- Garrote - Silence
+	auras[1773]   = 2 -- Gouge
+	auras[89774]  = 2 -- Hemorrhage
+	auras[408]    = 2 -- Kidney Shot
+	auras[112961] = 2 -- Leeching Poison
+	auras[5760]   = 2 -- Mind-numbing Poison
+	auras[112947] = 2 -- Nerve Strike
+	auras[113952] = 2 -- Paralytic Poison
+	auras[84617]  = 2 -- Revealing Strike
+	auras[1943]   = 2 -- Rupture
+	auras[6770]   = 2 -- Sap
+	auras[57933]  = 2 -- Tricks of the Trade
+	auras[79140]  = 2 -- Vendetta
+	auras[8680]   = 2 -- Wound Poison
 end
 
 ------------------------------------------------------------------------
@@ -518,34 +707,117 @@ end
 --	Warlock
 
 if playerClass == "WARLOCK" then
-	--auras[] = 4 -- Backdraft
-	--auras[] = 4 -- Backlash
-	--auras[] = 4 -- Dark Soul: Instability
-	--auras[] = 4 -- Havoc
-	--auras[] = 4 -- Unending Resolve
+	auras[116198] = 2 -- Aura of Enfeeblement -- NEEDS CHECK
+	auras[119652] = 2 -- Aura of Enfeeblement -- NEEDS CHECK
+	auras[116202] = 2 -- Aura of the Elements
+	auras[117828] = 4 -- Backdraft
+	auras[111400] = 4 -- Burning Rush
+	auras[114168] = 4 -- Dark Apotheosis
+	auras[110913] = 4 -- Dark Bargain (absorb)
+	auras[110914] = 4 -- Dark Bargain (dot)
+	auras[108359] = 4 -- Dark Regeneration
+	auras[113858] = 4 -- Dark Soul: Instability
+	auras[113861] = 4 -- Dark Soul: Knowledge
+	auras[113860] = 4 -- Dark Soul: Misery
+	auras[88448] = 4 -- Demonic Rebirth
+	auras[126] = 4 -- Eye of Kilrogg
+	auras[108683] = 4 -- Fire and Brimstone
+	auras[80240] = 4 -- Havoc
+	auras[119049] = 4 -- Kil'jaeden's Cunning
+	auras[126090] = 4 -- Molten Core -- NEEDS CHECK
+	auras[122355] = 4 -- Molten Core -- NEEDS CHECK
+	auras[86211] = 4 -- Soul Swap
 
-	--auras[] = 2 -- Banish
+	auras[131737] = 2 -- Agony
+	auras[108505] = 2 -- Archimonde's Vengeance
+	auras[170] = 2 -- Banish
+	auras[111397] = 2 -- Blood Fear
+	auras[124915] = 2 -- Chaos Wave -- NEEDS CHECK
+	auras[129347] = 2 -- Chaos Wave -- NEEDS CHECK
 	auras[17962] = 2 -- Conflagrate (slow)
 	auras[172] = 2 -- Corruption
-	--auras[] = 1 -- Curse of Enfeeblement
-	--auras[] = 1 -- Curse of the Elements
-	--auras[] = 2 -- Fear
+	auras[131740] = 2 -- Corruption -- NEEDS CHECK
+	auras[109466] = 2 -- Curse of Enfeeblement
+	auras[18223] = 2 -- Curse of Exhaustion
+	auras[1490] = 2 -- Curse of the Elements
+	auras[5782] = 2 -- Fear
+	auras[48181] = 2 -- Haunt
+	auras[5484] = 2 -- Howl of Terror
 	auras[348] = 2 -- Immolate
-	--auras[] = 2 -- Enslave Demon
-	--auras[] = 2 -- Seduction
+	auras[103103] = 2 -- Malefic Grasp
+	auras[6789] = 2 -- Mortal Coil
+	auras[60947] = 2 -- Nightmare
+	auras[108416] = 2 -- Sacrificial Pact
+	auras[123566] = 2 -- Seed of Corruption
+	auras[47960] = 2 -- Shadowflame
+	auras[30283] = 2 -- Shadowfury
+	auras[104773] = 2 -- Unending Resolve
+	auras[131736] = 2 -- Unstable Affliction
 end
 
 ------------------------------------------------------------------------
 --	Warrior
 
 if playerClass == "WARRIOR" then
+	auras[107574] = 4 -- Avatar
+	auras[18499]  = 4 -- Berserker Rage
+	auras[46924]  = 4 -- Bladestorm
+	auras[12292]  = 4 -- Bloodbath
+	auras[46916]  = 4 -- Bloodsurge
+	auras[85730]  = 4 -- Deadly Calm
+	auras[125565] = 4 -- Demoralizing Shout
+	auras[118038] = 4 -- Die by the Sword
+	auras[12880]  = 4 -- Enrage
+	auras[55964]  = 4 -- Enraged Regeneration
+	auras[115945] = 4 -- Glyph of Hamstring
+	auras[12975]  = 4 -- Last Stand
+	auras[114028] = 4 -- Mass Spell Reflection
+	auras[114192] = 4 -- Mocking Banner
+	auras[97463]  = 4 -- Rallying Cry
+	auras[1719]   = 4 -- Recklessness
+	auras[112048] = 4 -- Shield Barrier
+	auras[2565]   = 4 -- Shield Block
+	auras[871]    = 4 -- Shield Wall
+	auras[114206] = 4 -- Skull Banner
+	auras[23920]  = 4 -- Spell Banner
+	auras[52437]  = 4 -- Sudden Death
+	auras[12328]  = 4 -- Sweeping Strikes
+	auras[50227]  = 4 -- Sword and Board
+	auras[125831] = 4 -- Taste for Blood
+	auras[122510] = 4 -- Ultimatum
+
+	auras[86346]  = 2 -- Colossus Smash
+	auras[114205] = 2 -- Demoralizing Banner
+	auras[1160]   = 2 -- Demoralizing Shout
+	auras[676]    = 2 -- Disarm
+	auras[118895] = 2 -- Dragon Roar
+	auras[1715]   = 2 -- Hamstring
+	auras[5246]   = 2 -- Intimidating Shout -- NEEDS CHECK
+	auras[20511]  = 2 -- Intimidating Shout -- NEEDS CHECK
+	auras[12323]  = 2 -- Piercing Howl
+	auras[64382]  = 2 -- Shattering Throw
+	auras[46968]  = 2 -- Shockwave
+	auras[18498]  = 2 -- Silenced - Gag Order
+	auras[107566] = 2 -- Staggering Shout
+	auras[107570] = 2 -- Storm Bolt
+	auras[355]    = 2 -- Taunt
+	auras[105771] = 2 -- Warbringer
+
+	auras[46947]  = 3 -- Safeguard (damage reduction)
+	auras[114029] = 3 -- Safeguard (intercept)
+	auras[114030] = 3 -- Vigilance
 end
 
 ------------------------------------------------------------------------
 -- Racials
 
 if playerRace == "BloodElf" then
-
+	auras[50613]  = 4 -- Arcane Torrent (death knight)
+	auras[80483]  = 4 -- Arcane Torrent (hunter)
+	auras[28730]  = 4 -- Arcane Torrent (mage, paladin, priest, warlock)
+	auras[129597] = 4 -- Arcane Torrent (monk)
+	auras[25046]  = 4 -- Arcane Torrent (rogue)
+	auras[69179]  = 4 -- Arcane Torrent (warrior)
 elseif playerRace == "Draenei" then
 	auras[59545]  = 4 -- Gift of the Naaru (death knight)
 	auras[59543]  = 4 -- Gift of the Naaru (hunter)
