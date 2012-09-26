@@ -774,32 +774,33 @@ function ns.Spawn(self, unit, isSingle)
 	if unit == "player" and (playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "WARLOCK") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 
-		local element, power, max, update, statusbar = "ClassIcons"
+		local element, max, power, update, statusbar = "ClassIcons", 5
 
 		---------
 		-- Chi --
 		---------
 		if playerClass == "MONK" then
-			power, max = SPELL_POWER_LIGHT_FORCE, 5
+			power = SPELL_POWER_LIGHT_FORCE
 			update = ns.UpdateChi
 		----------------
 		-- Holy power --
 		----------------
 		elseif playerClass == "PALADIN" then
-			power, max = SPELL_POWER_HOLY_POWER, 5 -- default UI only shows 3, but you can actually have 5
+			power = SPELL_POWER_HOLY_POWER
 			update = ns.UpdateHolyPower
 		-----------------
 		-- Shadow orbs --
 		-----------------
 		elseif playerClass == "PRIEST" then
-			power, max = SPELL_POWER_SHADOW_ORBS, 3
+			power = SPELL_POWER_SHADOW_ORBS
 			update = ns.UpdateShadowOrbs
 		-----------------------------------------------
 		-- Soul shards, demonic fury, burning embers --
 		-----------------------------------------------
 		elseif playerClass == "WARLOCK" then
 			element = "WarlockPower" -- "SoulShards"
-			power, max = SPELL_POWER_SOUL_SHARDS, 4
+			max = 4
+			power = SPELL_POWER_SOUL_SHARDS
 			statusbar = true
 		end
 
