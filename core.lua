@@ -22,13 +22,13 @@ function ns.si(value)
 	local absvalue = abs(value)
 
 	if absvalue >= 10000000 then
-		return ("%.1fm"):format(value / 1000000)
+		return format("%.1fm", value / 1000000)
 	elseif absvalue >= 1000000 then
-		return ("%.2fm"):format(value / 1000000)
+		return format("%.2fm", value / 1000000)
 	elseif absvalue >= 100000 then
-		return ("%.0fk"):format(value / 1000)
+		return format("%.0fk", value / 1000)
 	elseif absvalue >= 1000 then
-		return ("%.1fk"):format(value / 1000)
+		return format("%.1fk", value / 1000)
 	end
 
 	return value
@@ -302,7 +302,8 @@ end
 
 local function AuraIconOverlay_SetBorderColor(overlay, r, g, b)
 	if not r or not g or not b then
-		r, g, b = unpack(config.borderColor)
+		local color = config.borderColor
+		r, g, b = color[1], color[2], color[3]
 	end
 	overlay:GetParent():SetBorderColor(r, g, b)
 end
@@ -378,16 +379,17 @@ end
 ------------------------------------------------------------------------
 
 function ns.PostCastStart(self, unit, name, rank, castid)
-	local r, g, b
+	local color
 	if UnitIsUnit(unit, "player") then
-		r, g, b = unpack(colors.class[playerClass])
+		color = colors.class[playerClass]
 	elseif self.interrupt then
-		r, g, b = unpack(colors.uninterruptible)
+		color = colors.uninterruptible
 	elseif UnitIsFriend(unit, "player") then
-		r, g, b = unpack(colors.reaction[5])
+		color = colors.reaction[5]
 	else
-		r, g, b = unpack(colors.reaction[1])
+		color = colors.reaction[1]
 	end
+	local r, g, b = color[1], color[2], color[3]
 	self:SetStatusBarColor(r * 0.8, g * 0.8, b * 0.8)
 	self.bg:SetVertexColor(r * 0.2, g * 0.2, b * 0.2)
 
@@ -401,16 +403,17 @@ function ns.PostCastStart(self, unit, name, rank, castid)
 end
 
 function ns.PostChannelStart(self, unit, name, rank, text)
-	local r, g, b
+	local color
 	if UnitIsUnit(unit, "player") then
-		r, g, b = unpack(colors.class[playerClass])
+		color = colors.class[playerClass]
 	elseif self.interrupt then
-		r, g, b = unpack(colors.reaction[4])
+		color = colors.reaction[4]
 	elseif UnitIsFriend(unit, "player") then
-		r, g, b = unpack(colors.reaction[5])
+		color = colors.reaction[5]
 	else
-		r, g, b = unpack(colors.reaction[1])
+		color = colors.reaction[1]
 	end
+	local r, g, b = color[1], color[2], color[3]
 	self:SetBackdropColor(r * 0.2, g * 0.2, b * 0.2)
 	self:SetStatusBarColor(r * 0.6, g * 0.6, b * 0.6)
 
@@ -480,11 +483,20 @@ function ns.UnitFrame_OnEnter(self)
 	end
 
 	self.isMouseOver = true
-	for _, element in ipairs(self.mouseovers) do
+	for _, element in pairs(self.mouseovers) do
 		if element.ForceUpdate then
 			element:ForceUpdate()
 		else
 			element:Show()
+		end
+	end
+
+	if IsShiftKeyDown() and not UnitAffectingCombat("player") then
+		local buffs = self.Buffs or self.Auras
+		if buffs and buffs.CustomFilter then
+			buffs.__CustomFilter = buffs.CustomFilter
+			buffs.CustomFilter = nil
+			buffs:ForceUpdate()
 		end
 	end
 end
@@ -497,12 +509,19 @@ function ns.UnitFrame_OnLeave(self)
 	UnitFrame_OnLeave(self)
 
 	self.isMouseOver = nil
-	for _, element in ipairs(self.mouseovers) do
+	for _, element in pairs(self.mouseovers) do
 		if element.ForceUpdate then
 			element:ForceUpdate()
 		else
 			element:Hide()
 		end
+	end
+
+	local buffs = self.Buffs or self.Auras
+	if buffs and buffs.__CustomFilter then
+		buffs.CustomFilter = buffs.__CustomFilter
+		buffs.__CustomFilter = nil
+		buffs:ForceUpdate()
 	end
 end
 
@@ -511,7 +530,7 @@ function ns.UnitFrame_DropdownMenu(self)
 	if unit == "party" or unit == "partypet" then
 		ToggleDropDownMenu(1, nil, _G["PartyMemberFrame" .. self.id .. "DropDown"], "cursor", 0, 0)
 	else
-		local cunit = self.unit:gsub("^%l", string.upper)
+		local cunit = gsub(self.unit, "^%l", strupper)
 		if cunit == "Vehicle" then
 			cunit = "Pet"
 		end
@@ -578,7 +597,7 @@ function ns.Spawn(self, unit, isSingle)
 	local uconfig = ns.uconfig[unit]
 	self.spawnunit = unit
 
-	unit = unit:gsub("%d", "") -- turn "boss2" into "boss" for example
+	unit = gsub(unit, "%d", "") -- turn "boss2" into "boss" for example
 
 	-- print("Spawn", self:GetName(), unit)
 	tinsert(ns.objects, self)
@@ -1363,6 +1382,9 @@ oUF:Factory(function(oUF)
 	oUF:RegisterStyle("Phanx", ns.Spawn)
 	oUF:SetActiveStyle("Phanx")
 
+	local vis = CreateFrame("Frame", "oUFPhanxHider", UIParent, "SecureHandlerStateTemplate")
+	RegisterStateDriver(vis, "visibility", "[petbattle]hide;show")
+
 	local initialConfigFunction = [[
 		self:SetAttribute("*type2", "menu")
 		self:SetAttribute("initial-width", %d)
@@ -1392,12 +1414,14 @@ oUF:Factory(function(oUF)
 	for u, f in pairs(ns.frames) do
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
+		--f:SetParent(oUFPhanxHider)
 		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 		f:Show()
 	end
 	for u, f in pairs(ns.headers) do
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
+		--f:SetParent(oUFPhanxHider)
 		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 		f:Show()
 	end
