@@ -124,7 +124,7 @@ end
 ------------------------------------------------------------------------
 --	Weakened Blows
 
-if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "WARLOCK" or playerClass == "WARRIOR" then
+if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
 	-- druids need to keep Thrash up anyway, no need to see both
 	auras[109466] = 1 -- Curse of Elements (warlock)
 	auras[60256]  = 1 -- Demoralizing Roar (hunter bear)
