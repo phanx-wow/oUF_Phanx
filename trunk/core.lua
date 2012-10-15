@@ -1394,7 +1394,7 @@ oUF:Factory(function(oUF)
 	]]
 
 	for u, udata in pairs(ns.uconfig) do
-		local name = "oUFPhanx" .. u:gsub("%a", string.upper, 1):gsub("target", "Target"):gsub("pet", "Pet")
+		local name = "oUFPhanx" .. u:gsub("%a", strupper, 1):gsub("target", "Target"):gsub("pet", "Pet")
 		if udata.point then
 			if udata.attributes then
 				-- print("generating header for", u)
@@ -1414,16 +1414,16 @@ oUF:Factory(function(oUF)
 	for u, f in pairs(ns.frames) do
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
-		--f:SetParent(oUFPhanxHider)
+		f:ClearAllPoints()
+		f:SetParent(oUFPhanxHider)
 		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
-		f:Show()
 	end
 	for u, f in pairs(ns.headers) do
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
-		--f:SetParent(oUFPhanxHider)
+		f:ClearAllPoints()
+		f:SetParent(oUFPhanxHider)
 		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
-		f:Show()
 	end
 
 	for i = 1, 3 do
