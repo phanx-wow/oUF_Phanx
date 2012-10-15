@@ -308,7 +308,7 @@ local function AuraIconOverlay_SetBorderColor(overlay, r, g, b)
 	overlay:GetParent():SetBorderColor(r, g, b)
 end
 
-function ns.PostCreateAuraIcon(iconframe, button)
+function ns.PostCreateAuraIcon(element, button)
 	ns.CreateBorder(button, 12)
 
 	button.cd:SetReverse(true)
@@ -324,9 +324,12 @@ function ns.PostCreateAuraIcon(iconframe, button)
 	button.overlay.Show = noop
 
 	button:SetScript("OnClick", nil) -- because oUF still tries to cancel buffs on right-click, and Blizzard thinks preventing this will stop botting?
+
+	element.anchoredIcons = 0 -- work around bizarre 1.#IND bug
+	element:ForceUpdate()
 end
 
-function ns.PostUpdateAuraIcon(iconframe, unit, button, index, offset)
+function ns.PostUpdateAuraIcon(element, unit, button, index, offset)
 	local name, _, texture, count, type, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID = UnitAura(unit, index, button.filter)
 
 	if playerUnits[caster] then
