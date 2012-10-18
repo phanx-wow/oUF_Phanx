@@ -1385,9 +1385,6 @@ oUF:Factory(function(oUF)
 	oUF:RegisterStyle("Phanx", ns.Spawn)
 	oUF:SetActiveStyle("Phanx")
 
-	local vis = CreateFrame("Frame", "oUFPhanxHider", UIParent, "SecureHandlerStateTemplate")
-	RegisterStateDriver(vis, "visibility", "[petbattle]hide;show")
-
 	local initialConfigFunction = [[
 		self:SetAttribute("*type2", "menu")
 		self:SetAttribute("initial-width", %d)
@@ -1418,14 +1415,12 @@ oUF:Factory(function(oUF)
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
 		f:ClearAllPoints()
-		f:SetParent(oUFPhanxHider)
 		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 	end
 	for u, f in pairs(ns.headers) do
 		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
 		f:ClearAllPoints()
-		f:SetParent(oUFPhanxHider)
 		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 	end
 
