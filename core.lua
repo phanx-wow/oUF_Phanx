@@ -399,9 +399,9 @@ function ns.PostCastStart(self, unit, name, rank, castid)
 	if self.SafeZone then
 		self:GetStatusBarTexture():SetDrawLayer("ARTWORK")
 		self.SafeZone:SetDrawLayer("BORDER")
-		--self.SafeZone:ClearAllPoints()
-		--self.SafeZone:SetPoint("TOPRIGHT", self)
-		--self.SafeZone:SetPoint("BOTTOMRIGHT", self)
+		self.SafeZone:ClearAllPoints()
+		self.SafeZone:SetPoint("TOPRIGHT", self)
+		self.SafeZone:SetPoint("BOTTOMRIGHT", self)
 	end
 end
 
@@ -423,9 +423,9 @@ function ns.PostChannelStart(self, unit, name, rank, text)
 	if self.SafeZone then
 		self:GetStatusBarTexture():SetDrawLayer("BORDER")
 		self.SafeZone:SetDrawLayer("ARTWORK")
-		--self.SafeZone:ClearAllPoints()
-		--self.SafeZone:SetPoint("TOPLEFT", self)
-		--self.SafeZone:SetPoint("BOTTOMLEFT", self)
+		self.SafeZone:ClearAllPoints()
+		self.SafeZone:SetPoint("TOPLEFT", self)
+		self.SafeZone:SetPoint("BOTTOMLEFT", self)
 	end
 end
 
