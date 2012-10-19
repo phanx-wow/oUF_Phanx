@@ -563,7 +563,7 @@ if playerClass == "PRIEST" then
 	auras[15286]  = 4 -- Vampiric Embrace
 	auras[108920] = 4 -- Void Tendrils
 
-	auras[124467] = 2 -- Devouring Plague
+	auras[2944]   = 2 -- Devouring Plague
 --	auras[14914]  = 2 -- Holy Fire
 	auras[88625]  = 2 -- Holy Word: Chastise
 	auras[89485]  = 2 -- Inner Focus
@@ -572,11 +572,9 @@ if playerClass == "PRIEST" then
 	auras[8122]   = 2 -- Psychic Scream
 	auras[113792] = 2 -- Psychic Terror
 	auras[9484]   = 2 -- Shackle Undead
-	auras[589]    = 2 -- Shadow Word: Pain -- NEEDS CHECK
-	auras[124464] = 2 -- Shadow Word: Pain -- NEEDS CHECK
+	auras[589]    = 2 -- Shadow Word: Pain
 	auras[15487]  = 2 -- Silence
-	auras[34914]  = 2 -- Vampiric Touch -- NEEDS CHECK
-	auras[124465] = 2 -- Vampiric Touch -- NEEDS CHECK
+	auras[34914]  = 2 -- Vampiric Touch
 
 	auras[77613]  = 3 -- Grace
 	auras[47788]  = 3 -- Guardian Spirit
