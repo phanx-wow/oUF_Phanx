@@ -237,7 +237,7 @@ end
 
 if playerClass == "DRUID" then
 	auras[88212]  = 4 -- Barkskin
-	auras[106952] = 4 -- Berserk
+	auras[106951] = 4 -- Berserk
 	auras[112071] = 4 -- Celestial Alignment
 	auras[16870]  = 4 -- Clearcasting <= Omen of Clarity
 	auras[1850]   = 4 -- Dash
@@ -259,7 +259,7 @@ if playerClass == "DRUID" then
 	auras[48391]  = 4 -- Owlkin Frenzy
 	auras[69369]  = 4 -- Predator's Swiftness
 	auras[62606]  = 4 -- Savage Defense
-	auras[52610]  = 4 -- Savage Roar
+	auras[127538] = 4 -- Savage Roar
 	auras[93400]  = 4 -- Shooting Stars
 	auras[114108] = 2 -- Soul of the Forest (resto)
 	auras[61336]  = 4 -- Survival Instincts
