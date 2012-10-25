@@ -396,12 +396,13 @@ function ns.PostCastStart(self, unit, name, rank, castid)
 	self:SetStatusBarColor(r * 0.8, g * 0.8, b * 0.8)
 	self.bg:SetVertexColor(r * 0.2, g * 0.2, b * 0.2)
 
-	if self.SafeZone then
+	local safezone = self.SafeZone
+	if safezone then
 		self:GetStatusBarTexture():SetDrawLayer("ARTWORK")
-		self.SafeZone:SetDrawLayer("BORDER")
-		self.SafeZone:ClearAllPoints()
-		self.SafeZone:SetPoint("TOPRIGHT", self)
-		self.SafeZone:SetPoint("BOTTOMRIGHT", self)
+		safezone:SetDrawLayer("BORDER")
+		if safezone:GetWidth() == 0 then -- fix for bug on first cast
+			safezone:Hide()
+		end
 	end
 end
 
@@ -417,15 +418,16 @@ function ns.PostChannelStart(self, unit, name, rank, text)
 		color = colors.reaction[1]
 	end
 	local r, g, b = color[1], color[2], color[3]
-	self:SetBackdropColor(r * 0.2, g * 0.2, b * 0.2)
 	self:SetStatusBarColor(r * 0.6, g * 0.6, b * 0.6)
+	self.bg:SetVertexColor(r * 0.2, g * 0.2, b * 0.2)
 
-	if self.SafeZone then
+	local safezone = self.SafeZone
+	if safezone then
 		self:GetStatusBarTexture():SetDrawLayer("BORDER")
-		self.SafeZone:SetDrawLayer("ARTWORK")
-		self.SafeZone:ClearAllPoints()
-		self.SafeZone:SetPoint("TOPLEFT", self)
-		self.SafeZone:SetPoint("BOTTOMLEFT", self)
+		safezone:SetDrawLayer("ARTWORK")
+		if safezone:GetWidth() == 0 then -- fix for bug on first cast
+			safezone:Hide()
+		end
 	end
 end
 
