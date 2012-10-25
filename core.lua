@@ -859,6 +859,15 @@ function ns.Spawn(self, unit, isSingle)
 		t.Override = update
 		t.UpdateTexture = function() return end -- fuck off oUF >:(
 		self[element] = t
+
+		if CUSTOM_CLASS_COLORS then
+			CUSTOM_CLASS_COLORS:RegisterCallback(function()
+				local color = CUSTOM_CLASS_COLORS[playerClass]
+				for i = 1, #t do
+					t.fg:SetVertexColor(color.r, color.g, color.b)
+				end
+			end)
+		end
 	end
 
 	--------------------
@@ -895,6 +904,15 @@ function ns.Spawn(self, unit, isSingle)
 
 		t.buff = GetSpellInfo(53817)
 		self.PowerStack = t
+
+		if CUSTOM_CLASS_COLORS then
+			CUSTOM_CLASS_COLORS:RegisterCallback(function()
+				local color = CUSTOM_CLASS_COLORS[playerClass]
+				for i = 1, #t do
+					t.fg:SetVertexColor(color.r, color.g, color.b)
+				end
+			end)
+		end
 	end
 
 	-----------------------
