@@ -476,10 +476,9 @@ if playerClass == "MONK" then
 	auras[116709] = 2 -- Spear Hand Strike
 	auras[123407] = 2 -- Spinning Fire Blossom
 
-	auras[124682] = 2 -- Enveloping Mist
+	auras[132120] = 2 -- Enveloping Mist
 	auras[116849] = 3 -- Life Cocoon
 	auras[119611] = 2 -- Renewing Mist
-	auras[115175] = 2 -- Soothing Mist
 	auras[124081] = 2 -- Zen Sphere
 end
 
