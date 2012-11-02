@@ -267,9 +267,8 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 	SharedMedia = LibStub("LibSharedMedia-3.0", true)
 	if SharedMedia then
 		SharedMedia:Register("font", "PT Sans Bold", [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]])
-		SharedMedia:Register("font", "PT Serif", [[Interface\AddOns\oUF_Phanx\media\PTSerif.ttf]])
 
-		SharedMedia:Register("statusbar", "Blizzard Flat", [[Interface\BUTTONS\WHITE8X8]])
+		SharedMedia:Register("statusbar", "Flat", [[Interface\BUTTONS\WHITE8X8]])
 		SharedMedia:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
 
 		for i, v in pairs(SharedMedia:List("font")) do
