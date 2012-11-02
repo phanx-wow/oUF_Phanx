@@ -1,0 +1,33 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/../FrameXML/UI.xsd">
+	<Script file="Libs\LibStub\LibStub.lua"/>
+	<Script file="Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua"/>
+	<Script file="Libs\LibAboutPanel\LibAboutPanel.lua"/>
+	<Script file="Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua"/>
+	<Script file="Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua"/>
+	<Script file="Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua"/>
+	<Script file="Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua"/>
+	<Script file="Libs\PhanxConfig-Header\PhanxConfig-Header.lua"/>
+	<Script file="Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua"/>
+	<Script file="Libs\PhanxConfig-ScrollingDropdown\PhanxConfig-ScrollingDropdown.lua"/>
+	<Script file="Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua"/>
+
+	<Button name="oUF_PhanxPartyTemplate" inherits="SecureUnitButtonTemplate" hidden="true" virtual="true">
+		<Frames>
+			<Button name="$parentPet" inherits="SecureUnitButtonTemplate">
+				<Anchors>
+					<Anchor point="LEFT" relativePoint="RIGHT" relativeTo="$parent">
+						<Offset>
+							<AbsDimension x="10" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Attributes>
+					<Attribute name="unitsuffix" type="string" value="pet"/>
+					<Attribute name="useparent-unit" type="boolean" value="true"/>
+					<Attribute name="type1" type="string" value="target"/>
+					<Attribute name="initial-unitWatch" type="boolean" value="true"/>
+				</Attributes>
+			</Button>
+		</Frames>
+	</Button>
+</Ui>
