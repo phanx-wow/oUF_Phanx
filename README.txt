@@ -12,19 +12,49 @@ Description
 
 oUF_Phanx is a PvE-oriented layout for oUF.
 
-Features include aggro highlighting, debuff highlighting with dispel
-prioritization, incoming heal bars, resurrection status text, AFK timer
-text, filtered aura display, casting bars for player/pet/target, and
-more detailed health and power text on mouseover.
 
-This layout supports the player, pet, target, target of target, focus,
-target of focus, party, and party pet units. Boss unit frames will be
-added in the future. Raid frames will *not* be added; use Grid or
-another raid frame addon of your choice.
+### Features:
 
-The oUF_Smooth plugin is supported, along with any other plugin which
-does not require explicit support from within a layout. If you’d like to
-see support for a specific plugin, post a feature request.
+* Aggro highlighting.
+* Filtered buffs and debuffs for all classes.
+* Debuff highlighting with defensive and offensive dispel priorities.
+* Incoming heals overlaid on health bars.
+* Druid mana, eclipse, and totem bars.
+* Simple orb displays for chi, holy power, shadow orbs, burning embers,
+  demonic fury, soul shards, and Maelstom Weapon stacks.
+* Casting bars on player, pet, target, and focus frames.
+* Incoming resurrection display.
+* AFK timers on player and party frames.
+* More detailed text shown on mouseover.
+
+Runes are not yet supported. Use a standalone rune addon of your choice.
+
+
+### Supported Units
+
+* Player
+* Pet
+* Target
+* Target's target
+* Focus
+* Focus's target
+* Party
+* Party pets
+* Arena enemies
+* Bosses
+
+Raid frames will *not* be added; use Grid, or another raid frame addon
+of your choice, or even the default raid frames if you like.
+
+
+### Supported Plugins
+
+* oUF_CombatFeedback
+* oUF_Smooth
+* oUF_SpellRange
+
+If you’d like to see support for another plugin, please post a feature
+request ticket with a link to the plugin's download page.
 
 
 Usage
@@ -50,7 +80,7 @@ http://www.wowinterface.com/forums/forumdisplay.php?f=87
 Dependencies
 ------------
 
-Requires oUF 1.5.3 or higher:
+Requires oUF 1.6 or higher:
 http://www.wowinterface.com/downloads/info9994-oUF.html
 
 
@@ -60,7 +90,7 @@ Localization
 Compatible with English, Deutsch, Español (EU), Español (AL), Français,
 Italiano, Português, Русский, 한국어, 简体中文, and 繁體中文 game clients.
 
-Translated into English and Español.
+Translated into English, Español, and 简体中文.
 
 To add or update translations for any language, see the Localization tab
 on the CurseForge project page:
