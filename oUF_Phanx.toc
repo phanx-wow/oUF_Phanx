@@ -37,7 +37,7 @@ Tags.lua
 
 Elements\Auras.lua
 Elements\EclipseBar.lua
-Elements\Totems.lua
+Elements\TotemBars.lua
 
 Config.lua
 Core.lua

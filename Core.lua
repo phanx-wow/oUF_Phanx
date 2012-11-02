@@ -1168,6 +1168,33 @@ function ns.Spawn(self, unit, isSingle)
 		self.EclipseBar = eclipseBar
 	end
 
+	-----------------------
+	-- Shaman totem bars --
+	-----------------------
+
+	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
+		local Totems = ns.CreateTotemBars(self)
+
+		local N = #Totems
+		local TOTEM_WIDTH = (config.width - (6 * (N - 1))) / N
+		local TOTEM_HEIGHT = config.height * (1 - config.powerHeight) * 0.5
+
+		for i = 1, N do
+			local bar = Totems[i]
+			if i > 1 then
+				bar:SetPoint("LEFT", Totems[i-1], "RIGHT", 6, 0)
+			else
+				bar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 6)
+			end
+			bar:SetFrameLevel(self.overlay:GetFrameLevel() + 1)
+			bar:SetSize(TOTEM_WIDTH, TOTEM_HEIGHT)
+			bar.bg.multiplier = config.powerBG
+			bar.Icon:SetHeight(TOTEM_WIDTH)
+		end
+
+		self.Totems = Totems
+	end
+
 	------------------------------
 	-- Cast bar, icon, and text --
 	------------------------------
@@ -1180,16 +1207,18 @@ function ns.Spawn(self, unit, isSingle)
 		Castbar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -10)
 		Castbar:SetHeight(height)
 
-		Castbar.Icon = Castbar:CreateTexture(nil, "BACKDROP")
-		Castbar.Icon:SetPoint("TOPRIGHT", Castbar, "TOPLEFT", 0, 0)
-		Castbar.Icon:SetPoint("BOTTOMRIGHT", Castbar, "BOTTOMLEFT", 0, 0)
-		Castbar.Icon:SetWidth(height)
-		Castbar.Icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		local Icon = Castbar:CreateTexture(nil, "BACKDROP")
+		Icon:SetPoint("TOPRIGHT", Castbar, "TOPLEFT", 0, 0)
+		Icon:SetPoint("BOTTOMRIGHT", Castbar, "BOTTOMLEFT", 0, 0)
+		Icon:SetWidth(height)
+		Icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+		Castbar.Icon = Icon
 
 		if unit == "player" then
-			Castbar.SafeZone = Castbar:CreateTexture(nil, "BORDER")
-			Castbar.SafeZone:SetTexture(config.statusbar)
-			Castbar.SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
+			local SafeZone = Castbar:CreateTexture(nil, "BORDER")
+			SafeZone:SetTexture(config.statusbar)
+			SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
+			Castbar.SafeZone = SafeZone
 
 			Castbar.Time = ns.CreateFontString(Castbar, 20, "RIGHT")
 			Castbar.Time:SetPoint("RIGHT", Castbar, "RIGHT", -4, 0)

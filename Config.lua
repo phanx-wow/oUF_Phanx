@@ -230,8 +230,11 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 		threatLevels = true,			-- show threat levels instead of binary aggro
 
 		druidMana = false,				-- show a mana bar for druids while in feral forms
+
 		eclipseBar = true,				-- show an eclipse bar for druids
 		eclipseBarIcons = false,		-- show animated icons on the eclipse bar
+
+		totemBars = true,				-- show totem bars for shamans
 
 		healthColor = { 0.2, 0.2, 0.2 },
 		healthColorMode = "CUSTOM",
@@ -618,11 +621,23 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 			end
 		end
 
-		eclipseBarIcons = CreateCheckbox(self, L["Show eclipse bar icons"], L["Show animated moon and sun icons on either end of the eclipse bar."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
+		eclipseBarIcons = CreateCheckbox(self, L["Show eclipse bar icons"],
+			L["Show animated moon and sun icons on either end of the eclipse bar."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
 		eclipseBarIcons:SetPoint("TOPLEFT", eclipseBar, "BOTTOMLEFT", 0, -6)
 
 		function eclipseBarIcons:OnClick(checked)
 			db.eclipseBarIcons = checked
+		end
+	end
+
+	local totemBars
+	if select(2, UnitClass("player")) == "SHAMAN" then
+		totemBars = CreateCheckbox(self, L["Show totem bars"],
+			L["Show timer bars for your totems."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
+		totemBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -18)
+
+		function totemBars:OnClick(checked)
+			db.totemBars = checked
 		end
 	end
 
@@ -663,6 +678,10 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 			else
 				eclipseBarIcons:Disable()
 			end
+		end
+
+		if totemBars then
+			totemBars:SetChecked(db.totemBars)
 		end
 	end
 end)
@@ -904,30 +923,31 @@ ns.colorsPanel = CreateOptionsPanel(ns.L["Colors"], ns.optionsPanel.name, functi
 		db.powerBG = value
 		local custom = db.powerColorMode == "CUSTOM"
 		for _, frame in ipairs(ns.objects) do
-			local power = frame.Power
-			if power then
-				power.bg.multiplier = value
+			local Power = frame.Power
+			if Power then
+				Power.bg.multiplier = value
 				if custom then
 					local r, g, b = unpack(db.powerColor)
-					power:SetStatusBarColor(r, g, b)
-					power.bg:SetVertexColor(r * value, g * value, b * value)
+					Power:SetStatusBarColor(r, g, b)
+					Power.bg:SetVertexColor(r * value, g * value, b * value)
 				elseif frame:IsShown() then
-					power:ForceUpdate()
+					Power:ForceUpdate()
 				end
 			end
-			local druidMana = frame.DruidMana
-			if druidMana then
+
+			local DruidMana = frame.DruidMana
+			if DruidMana then
 				local r, g, b = unpack(oUF.colors.power.MANA)
-				druidMana.bg.multiplier = value
-				druidMana:PostUpdatePower(frame.unit)
+				DruidMana.bg.multiplier = value
+				DruidMana:PostUpdatePower(frame.unit)
 			end
-			local totemBar = frame.TotemBar
-			if totemBar then
-				for i = 1, 4 do
-					local bg = totemBar[i].bg
+
+			local Totems = frame.Totems
+			if Totems then
+				for i = 1, #Totems do
 					local r, g, b = unpack(oUF.colors.totems[SHAMAN_TOTEM_PRIORITIES[i]])
-					bg:SetVertexColor(r * value, g * value, b * value)
-					bg.multiplier = value
+					Totems[i].bg:SetVertexColor(r * value, g * value, b * value)
+					Totems[i].bg.multiplier = value
 				end
 			end
 		end
