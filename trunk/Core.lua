@@ -1306,84 +1306,6 @@ function ns.Spawn(self, unit, isSingle)
 		self.Resurrection:SetPoint("CENTER", self.Health)
 	end
 
-	---------------------------------
-	-- Plugin: oUF_boring_totembar --
-	---------------------------------
-
-	if IsAddOnLoaded("oUF_boring_totembar") and unit == "player" and playerClass == "SHAMAN" then
-		local totemSize = (config.height * (1 - config.powerHeight)) / 2
-
-		local totemBar = CreateFrame("Frame", nil, self)
-		totemBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 6)
-		totemBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 6)
-		totemBar:SetHeight(totemSize)
-		self.TotemBar = totemBar
-
-		totemBar.Destroy = true
-		totemBar.UpdateColors = true
-
-		for _, color in ipairs(oUF.colors.totems) do
-			for i, value in ipairs(color) do
-				color[i] = value * 1.5
-			end
-		end
-
-		ns.CreateBorder(totemBar, config.borderSize)
-		local function UpdateBorderParent(self)
-			for i = 4, 1, -1 do
-				if totemBar[i]:IsShown() then
-					for _, tex in ipairs(totemBar.BorderTextures) do
-						tex:SetParent(self)
-					end
-					return
-				end
-			end
-			for _, tex in ipairs(totemBar.BorderTextures) do
-				tex:SetParent(totemBar)
-			end
-		end
-
-		for i = 1, 4 do
-			local totem = ns.CreateStatusBar(totemBar, 14, "CENTER")
-			totem:SetWidth((self:GetWidth() / 4) - totemBar:GetHeight())
-			if i > 1 then
-				totem:SetPoint("TOPLEFT", totemBar[i - 1], "TOPRIGHT", totemSize, 0)
-				totem:SetPoint("BOTTOMLEFT", totemBar[i - 1], "BOTTOMRIGHT", totemSize, 0)
-			else
-				totem:SetPoint("TOPLEFT", totemSize, 0)
-				totem:SetPoint("BOTTOMLEFT", totemSize, 0)
-			end
-
-			local icon = totem:CreateTexture(nil, "BACKGROUND")
-			icon:SetPoint("TOPRIGHT", totem, "TOPLEFT")
-			icon:SetPoint("BOTTOMRIGHT", totem, "BOTTOMRIGHT")
-			icon:SetWidth(totemSize)
-			icon:SetTexCoord(0.06, 0.94, 0.06, 0.94)
-			totem.Icon = icon
-
-			local bg = totem.bg
-			bg:SetParent(totemBar)
-			bg:SetDrawLayer("BACKGROUND")
-			bg:SetPoint("TOPLEFT", totem, "TOPLEFT", -totemSize, 0)
-			bg:SetPoint("BOTTOMRIGHT", totem)
-			bg:Show()
-
-			local r, g, b = unpack(oUF.colors.totems[SHAMAN_TOTEM_PRIORITIES[i]])
-			local mu = config.powerBG
-			bg:SetVertexColor(r * mu, g * mu, b * mu)
-			bg.multiplier = mu
-
-			totemBar[i] = totem
-			totem.StatusBar = totem
-
-			totem.Time = totem.value
-			totem.Time:SetPoint("CENTER", 0, 1)
-
-			totem:HookScript("OnShow", UpdateBorderParent)
-			totem:HookScript("OnHide", UpdateBorderParent)
-		end
-	end
-
 	--------------------------------
 	-- Plugin: oUF_CombatFeedback --
 	--------------------------------
@@ -1402,6 +1324,9 @@ function ns.Spawn(self, unit, isSingle)
 		self.Health.Smooth = true
 		if self.Power then
 			self.Power.Smooth = true
+		end
+		if self.DruidMana then
+			self.DruidMana.Smooth = true
 		end
 	end
 
