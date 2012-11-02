@@ -236,7 +236,7 @@ end
 --	Druid
 
 if playerClass == "DRUID" then
-	auras[88212]  = 4 -- Barkskin
+	auras[22812]  = 4 -- Barkskin
 	auras[106951] = 4 -- Berserk
 	auras[112071] = 4 -- Celestial Alignment
 	auras[16870]  = 4 -- Clearcasting <= Omen of Clarity
@@ -262,6 +262,7 @@ if playerClass == "DRUID" then
 	auras[127538] = 4 -- Savage Roar
 	auras[93400]  = 4 -- Shooting Stars
 	auras[114108] = 2 -- Soul of the Forest (resto)
+	auras[48505]  = 4 -- Starfall
 	auras[61336]  = 4 -- Survival Instincts
 	auras[5217]   = 4 -- Tiger's Fury
 	auras[102416] = 4 -- Wild Charge (aquatic)
