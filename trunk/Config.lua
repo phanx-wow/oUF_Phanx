@@ -236,6 +236,8 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 
 		totemBars = true,				-- show totem bars for shamans
 
+		runeBars = true,				-- show rune bars for death knights
+
 		healthColor = { 0.2, 0.2, 0.2 },
 		healthColorMode = "CUSTOM",
 		healthBG = 2,
@@ -641,6 +643,17 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		end
 	end
 
+	local runeBars
+	if select(2, UnitClass("player")) == "DEATHKNIGHT" then
+		runeBars = CreateCheckbox(self, L["Show rune bars"],
+			L["Show timer bars for your runes."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
+		runeBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -18)
+
+		function runeBars:OnClick(checked)
+			db.runeBars = checked
+		end
+	end
+
 	--------------------------------------------------------------------
 
 	function self.refresh()
@@ -682,6 +695,10 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 		if totemBars then
 			totemBars:SetChecked(db.totemBars)
+		end
+
+		if runeBars then
+			runeBars:SetChecked(db.runeBars)
 		end
 	end
 end)
