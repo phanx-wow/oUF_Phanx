@@ -1,8 +1,8 @@
 ﻿oUF_Phanx
 =========
 
-* Copyright (c) 2008-2012 Phanx <addons@phanx.net>. All rights reserved.
-* See the accompanying LICENSE file for more information.
+* Copyright (c) 2008-2012 Phanx <addons@phanx.net>
+* See the accompanying LICENSE file for more information
 * http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 * http://wow.curseforge.com/addons/ouf-phanx/
 
@@ -19,15 +19,15 @@ oUF_Phanx is a PvE-oriented layout for oUF.
 * Filtered buffs and debuffs for all classes.
 * Debuff highlighting with defensive and offensive dispel priorities.
 * Incoming heals overlaid on health bars.
-* Druid mana, eclipse, and totem bars.
-* Simple orb displays for chi, holy power, shadow orbs, burning embers,
-  demonic fury, soul shards, and Maelstom Weapon stacks.
+* Bars for druid mana, eclipse, runes, and totems.
+* Orbs for chi, holy power, shadow orbs, burning embers, demonic fury,
+  soul shards, and Maelstom Weapon stacks.
 * Casting bars on player, pet, target, and focus frames.
 * Incoming resurrection display.
 * AFK timers on player and party frames.
 * More detailed text shown on mouseover.
 
-Runes are not yet supported. Use a standalone rune addon of your choice.
+Druid mushrooms and death knight ghouls are not yet supported.
 
 
 ### Supported Units

@@ -35,9 +35,9 @@ Orbs.lua
 PlayerState.lua
 Tags.lua
 
-Elements\Auras.lua
 Elements\EclipseBar.lua
-Elements\TotemBars.lua
+Elements\Runes.lua
+Elements\Totems.lua
 
 Config.lua
 Core.lua
