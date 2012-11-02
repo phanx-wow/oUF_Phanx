@@ -27,7 +27,7 @@ oUF_Phanx is a PvE-oriented layout for oUF.
 * AFK timers on player and party frames.
 * More detailed text shown on mouseover.
 
-Druid mushrooms and death knight ghouls are not yet supported.
+No timers for druid mushrooms or death knight ghouls yet.
 
 
 ### Supported Units

@@ -1173,7 +1173,7 @@ function ns.Spawn(self, unit, isSingle)
 	-----------------------
 
 	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
-		local Totems = ns.CreateTotemBars(self)
+		local Totems = ns.CreateTotems(self)
 
 		local N = #Totems
 		local TOTEM_WIDTH = (config.width - (6 * (N - 1))) / N
@@ -1181,18 +1181,52 @@ function ns.Spawn(self, unit, isSingle)
 
 		for i = 1, N do
 			local bar = Totems[i]
+			bar:SetFrameLevel(self.overlay:GetFrameLevel() + 1)
+			bar:SetSize(TOTEM_WIDTH, TOTEM_HEIGHT)
+			bar.Icon:SetHeight(TOTEM_WIDTH)
+			bar.bg.multiplier = config.powerBG
 			if i > 1 then
 				bar:SetPoint("LEFT", Totems[i-1], "RIGHT", 6, 0)
 			else
 				bar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 6)
 			end
-			bar:SetFrameLevel(self.overlay:GetFrameLevel() + 1)
-			bar:SetSize(TOTEM_WIDTH, TOTEM_HEIGHT)
-			bar.bg.multiplier = config.powerBG
-			bar.Icon:SetHeight(TOTEM_WIDTH)
 		end
 
 		self.Totems = Totems
+	end
+
+	----------------------------
+	-- Death knight rune bars --
+	----------------------------
+
+	if unit == "player" and playerClass == "DEATHKNIGHT" and config.runeBars then
+		local Runes = ns.CreateRunes(self)
+		Runes:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 6)
+		Runes:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 6)
+		Runes:SetHeight(config.height * (1 - config.powerHeight) * 0.5)
+
+		Runes:SetBackdrop(config.backdrop)
+		Runes:SetBackdropColor(0, 0, 0, 1)
+		Runes:SetBackdropBorderColor(unpack(config.borderColor))
+
+		local N = #Runes
+		local RUNE_WIDTH = (config.width - (1 * (N + 1))) / N
+
+		for i = 1, N do
+			local bar = Runes[i]
+			bar:SetWidth(RUNE_WIDTH)
+			bar.bg.multiplier = config.powerBG
+
+			if i > 1 then
+				bar:SetPoint("TOPLEFT", Runes[i-1], "TOPRIGHT", 1, 0)
+				bar:SetPoint("BOTTOMLEFT", Runes[i-1], "BOTTOMRIGHT", 1, 0)
+			else
+				bar:SetPoint("TOPLEFT", Runes, 1, 0)
+				bar:SetPoint("BOTTOMLEFT", Runes, 1, 0)
+			end
+		end
+
+		self.Runes = Runes
 	end
 
 	------------------------------

@@ -7,9 +7,11 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
 
+if select(2, UnitClass("player")) ~= "SHAMAN" then return end
+
 local _, ns = ...
 
-local TotemBars
+local Totems
 
 local TOTEM_COLORS = {
 	[1] = { 0.6, 1,   0.2 }, -- Earth
@@ -23,13 +25,13 @@ local ColorGradient = oUF.ColorGradient
 local SMOOTH_COLORS = oUF.colors.smooth
 local unpack = unpack
 
-local function TotemBar_OnMouseUp(bar, button)
+local function Totem_OnMouseUp(bar, button)
 	if button == "RightButton" and bar.mouseover then
 		DestroyTotem(bar:GetID())
 	end
 end
 
-local function TotemBar_OnEnter(bar)
+local function Totem_OnEnter(bar)
 	bar.mouseover = true
 
 	bar.value:Show()
@@ -41,7 +43,7 @@ local function TotemBar_OnEnter(bar)
 	b.BOTTOMRIGHT:SetPoint("BOTTOMRIGHT", bar.Icon, d, -d)
 end
 
-local function TotemBar_OnLeave(bar)
+local function Totem_OnLeave(bar)
 	bar.mouseover = nil
 
 	bar.value:Hide()
@@ -53,7 +55,7 @@ local function TotemBar_OnLeave(bar)
 	b.BOTTOMRIGHT:SetPoint("BOTTOMRIGHT", bar, d, -d)
 end
 
-local function TotemBar_OnUpdate(bar, elapsed)
+local function Totem_OnUpdate(bar, elapsed)
 	local duration = bar.duration - elapsed
 	if duration > 0 then
 		bar.duration = duration
@@ -68,7 +70,7 @@ local function TotemBar_OnUpdate(bar, elapsed)
 	end
 end
 
-local function TotemBars_PostUpdate(element, id, _, name, start, duration, icon)
+local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 	local bar = element[id]
 
 	bar.duration = duration
@@ -82,25 +84,25 @@ local function TotemBars_PostUpdate(element, id, _, name, start, duration, icon)
 		bar:SetStatusBarColor(r, g, b)
 		bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
 
-		bar:SetScript("OnUpdate", TotemBar_OnUpdate)
+		bar:SetScript("OnUpdate", Totem_OnUpdate)
 	else
 		bar:SetScript("OnUpdate", nil)
 	end
 
 	if not bar.scripted then
-		bar:HookScript("OnEnter", TotemBar_OnEnter)
-		bar:HookScript("OnLeave", TotemBar_OnLeave)
+		bar:HookScript("OnEnter", Totem_OnEnter)
+		bar:HookScript("OnLeave", Totem_OnLeave)
 		bar.scripted = true
 	end
 end
 
-ns.CreateTotemBars = function(frame)
-	if TotemBars then
-		return TotemBars
+ns.CreateTotems = function(frame)
+	if Totems then
+		return Totems
 	end
 
-	TotemBars = {
-		PostUpdate = TotemBars_PostUpdate
+	Totems = {
+		PostUpdate = Totems_PostUpdate
 	}
 
 	for i = 1, MAX_TOTEMS do
@@ -117,12 +119,12 @@ ns.CreateTotemBars = function(frame)
 		bar.Icon:Hide()
 
 		bar:EnableMouse(true)
-		bar:SetScript("OnMouseDown", TotemBar_OnClick)
+		bar:SetScript("OnMouseDown", Totem_OnClick)
 
 		bar.__owner = frame
 
-		TotemBars[i] = bar
+		Totems[i] = bar
 	end
 
-	return TotemBars
+	return Totems
 end
