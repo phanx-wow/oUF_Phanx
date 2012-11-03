@@ -634,7 +634,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	local totemBars
 	if select(2, UnitClass("player")) == "SHAMAN" then
 		totemBars = CreateCheckbox(self, L["Show totem bars"],
-			L["Show timer bars for your totems."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
+			L["Show timer bars for your totems above the player frame."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
 		totemBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -18)
 
 		function totemBars:OnClick(checked)
@@ -645,7 +645,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	local runeBars
 	if select(2, UnitClass("player")) == "DEATHKNIGHT" then
 		runeBars = CreateCheckbox(self, L["Show rune bars"],
-			L["Show timer bars for your runes."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
+			L["Show timer bars for your runes above the player frame."] .. "\n\n" .. L["This option will not take effect until the next time you log in or reload your UI."])
 		runeBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -18)
 
 		function runeBars:OnClick(checked)
