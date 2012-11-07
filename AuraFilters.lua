@@ -447,7 +447,6 @@ if playerClass == "MONK" then
 	auras[124968] = 4 -- Retreat
 	auras[127722] = 4 -- Serpent's Zeal
 	auras[125359] = 4 -- Tiger Power
-	auras[120273] = 4 -- Tiger Strikes
 	auras[116841] = 4 -- Tiger's Lust
 	auras[125195] = 4 -- Tigereye Brew (stack)
 	auras[116740] = 4 -- Tigereye Brew (consume)
@@ -726,15 +725,14 @@ if playerClass == "WARLOCK" then
 	auras[122355] = 4 -- Molten Core -- NEEDS CHECK
 	auras[86211]  = 4 -- Soul Swap
 
-	auras[131737] = 2 -- Agony
+	auras[980]    = 2 -- Agony
 	auras[108505] = 2 -- Archimonde's Vengeance
 	auras[170]    = 2 -- Banish
 	auras[111397] = 2 -- Blood Fear
 	auras[124915] = 2 -- Chaos Wave -- NEEDS CHECK
 	auras[129347] = 2 -- Chaos Wave -- NEEDS CHECK
 	auras[17962]  = 2 -- Conflagrate (slow)
-	auras[172]    = 2 -- Corruption
-	auras[131740] = 2 -- Corruption -- NEEDS CHECK
+	auras[131740] = 2 -- Corruption
 	auras[109466] = 2 -- Curse of Enfeeblement
 	auras[18223]  = 2 -- Curse of Exhaustion
 	auras[1490]   = 2 -- Curse of the Elements
@@ -747,11 +745,11 @@ if playerClass == "WARLOCK" then
 	auras[6789]   = 2 -- Mortal Coil
 	auras[60947]  = 2 -- Nightmare
 	auras[108416] = 2 -- Sacrificial Pact
-	auras[123566] = 2 -- Seed of Corruption
+	auras[30108]  = 2 -- Seed of Corruption
 	auras[47960]  = 2 -- Shadowflame
 	auras[30283]  = 2 -- Shadowfury
 	auras[104773] = 2 -- Unending Resolve
-	auras[131736] = 2 -- Unstable Affliction
+	auras[27243]  = 2 -- Unstable Affliction
 end
 
 ------------------------------------------------------------------------
