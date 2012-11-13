@@ -845,11 +845,15 @@ elseif playerRace == "Worgen" then
 end
 
 ------------------------------------------------------------------------
+--	Boss debuffs that Blizzard forgot to flag
+
+auras[106784] = 1 -- Brew Explosion (Ook Ook in Stormsnout Brewery)
+
+------------------------------------------------------------------------
 
 local unitIsPlayer = { player = true, pet = true, vehicle = true }
 
 local filters = {
-	[1] = function(self, unit, caster) return true end,
 	[2] = function(self, unit, caster) return unitIsPlayer[caster] end,
 	[3] = function(self, unit, caster) return UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) end,
 	[4] = function(self, unit, caster) return unit == "player" and not self.__owner.isGroupFrame end,
@@ -865,7 +869,10 @@ ns.CustomAuraFilters = {
 	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, value1, value2, value3)
 		local v = auras[spellID]
 		-- print("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v)
-		if v and filters[v] then
+		if v == 1 then
+			-- Whitelist
+			return true
+		elseif v and filters[v] then
 			-- Specific filter.
 			return filters[v](self, unit, caster)
 		elseif UnitCanAttack(unit, "player") and not UnitPlayerControlled(unit) then
