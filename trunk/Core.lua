@@ -185,13 +185,11 @@ end
 ------------------------------------------------------------------------
 
 function ns.PostUpdatePower(self, unit, cur, max)
-	local shown = self:IsShown()
 	if max == 0 then
-		if shown then
-			self:Hide()
-		end
-		return
-	elseif not shown then
+		self.__owner.Health:SetPoint("BOTTOM", self.__owner, "BOTTOM", 0, 1)
+		return self:Hide()
+	else
+		self.__owner.Health:SetPoint("BOTTOM", self, "TOP", 0, 1)
 		self:Show()
 	end
 
@@ -637,9 +635,9 @@ function ns.Spawn(self, unit, isSingle)
 	-------------------------
 
 	local health = ns.CreateStatusBar(self, 24, "RIGHT", true)
-	health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -2)
-	health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -2)
-	health:SetPoint("BOTTOM", self, "BOTTOM", 0, 0)
+	health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -1)
+	health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
+	health:SetPoint("BOTTOM", self, "BOTTOM", 0, 1)
 	self.Health = health
 
 	health:GetStatusBarTexture():SetDrawLayer("ARTWORK")
@@ -696,6 +694,8 @@ function ns.Spawn(self, unit, isSingle)
 		power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)
 		power:SetHeight(config.height * config.powerHeight)
 		self.Power = power
+
+		health:SetPoint("BOTTOM", power, "TOP", 0, 1)
 
 		if power.value then
 			power.value:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 4, config.height * config.powerHeight - 2)
@@ -1264,14 +1264,14 @@ function ns.Spawn(self, unit, isSingle)
 
 		ns.CreateBorder(Castbar, nil, nil, nil, "OVERLAY")
 
-		local d = floor(config.borderSize / 2 + 0.5) - 2
+		local d = floor(config.borderSize * 0.25 + 0.5)
 		Castbar.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Castbar.Icon, "TOPLEFT", -d, d)
 		Castbar.BorderTextures.BOTTOMLEFT:SetPoint("BOTTOMLEFT", Castbar.Icon, "BOTTOMLEFT", -d, -d)
 
 		local o = Castbar.SetBorderSize
 		function Castbar:SetBorderSize(size, offset)
 			o(self, size, offset)
-			local d = floor(size / 2 + 0.5) - 2
+			local d = floor(size * 0.25 + 0.5)
 			self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", self.Icon, "TOPLEFT", -d, d)
 			self.BorderTextures.BOTTOMLEFT:SetPoint("BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d)
 		end

@@ -20,7 +20,8 @@ function ns.CreateBorder(self, size, offset, parent, layer)
 
 	for i = 1, #sections do
 		local x = self:CreateTexture(nil, layer or "ARTWORK")
-		x:SetTexture([[Interface\AddOns\oUF_Phanx\media\SimpleSquare]])
+		--x:SetTexture([[Interface\AddOns\oUF_Phanx\media\SimpleSquare]])
+		x:SetTexture([[Interface\AddOns\PhanxMedia\LerbUI\bordernp]])
 		t[sections[i]] = x
 	end
 
@@ -122,10 +123,10 @@ function ns.SetBorderSize(self, size, offset)
 	if not t then return end
 
 	if not size then
-		size = ns.config.borderSize
+		size = ns.config.borderSize * 2
 	end
 
-	local d = offset or (floor(size / 2 + 0.5) - 2)
+	local d = offset or floor(size * 0.25 + 0.5) -- (floor(size / 2 + 0.5) - 2)
 
 	for pos, tex in pairs(t) do
 		tex:SetSize(size, size)
