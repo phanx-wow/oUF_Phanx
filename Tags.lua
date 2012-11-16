@@ -9,6 +9,8 @@
 
 local _, ns = ...
 
+local GetLootMethod, IsResting, UnitAffectingCombat, UnitBuff, UnitClass, UnitInRaid, UnitIsConnected, UnitIsDeadOrGhost, UnitIsEnemy, UnitIsGroupAssistant, UnitIsGroupLeader, UnitIsPlayer, UnitIsTapped, UnitIsTappedByPlayer, UnitIsUnit, UnitPowerType, UnitReaction = GetLootMethod, IsResting, UnitAffectingCombat, UnitBuff, UnitClass, UnitInRaid, UnitIsConnected, UnitIsDeadOrGhost, UnitIsEnemy, UnitIsGroupAssistant, UnitIsGroupLeader, UnitIsPlayer, UnitIsTapped, UnitIsTappedByPlayer, UnitIsUnit, UnitPowerType, UnitReaction
+
 oUF.Tags.Events["unitcolor"] = "UNIT_HEALTH UNIT_CLASSIFICATION UNIT_REACTION"
 oUF.Tags.Methods["unitcolor"] = function(unit)
 	local color

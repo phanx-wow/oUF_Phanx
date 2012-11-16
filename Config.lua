@@ -17,17 +17,19 @@ local SharedMedia
 ns.uconfig = {
 	player = {
 		point = "BOTTOMRIGHT UIParent CENTER -100 -230",
+		width = 4/3,
 		power = true,
 		castbar = true,
 	},
 	pet = {
 		point = "RIGHT player LEFT -12 0",
-		power = true,
 		width = 0.5,
+		power = true,
 		castbar = true,
 	},
 	target = {
 		point = "BOTTOMLEFT UIParent CENTER 100 -230",
+		width = 4/3,
 		power = true,
 		castbar = true,
 	},
@@ -247,7 +249,9 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 		powerBG = 0.25,
 
 		borderColor = { 0.3, 0.3, 0.3 },
-		borderSize = 16,
+		borderSize = 10,
+
+		DBVERSION = 0,
 	}
 
 	PoUFDB = PoUFDB or {}
@@ -257,6 +261,11 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 		end
 	end
 	ns.config = PoUFDB
+
+	if PoUFDB.DBVERSION < 1 then
+		PoUFDB.borderSize = PoUFDB.borderSize / 2
+		PoUFDB.DBVERSION = 1
+	end
 
 	if PoUFDB.bgColorIntensity then
 		PoUFDB.healthBG = PoUFDB.bgColorIntensity
@@ -529,7 +538,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local borderSize = CreateSlider(self, L["Border Size"], 8, 24, 2)
+	local borderSize = CreateSlider(self, L["Border Size"], 5, 15, 1)
 	borderSize.desc = L["Change the size of the frame borders."]
 	borderSize:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", -2, -12)
 	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 4, -12)
