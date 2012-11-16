@@ -441,6 +441,7 @@ if playerClass == "MONK" then
 	auras[115288] = 4 -- Energizing Brew
 	auras[115203] = 4 -- Fortifying Brew
 	auras[115295] = 4 -- Guard
+	auras[123402] = 4 -- Guard (glyphed)
 	auras[124458] = 4 -- Healing Sphere (count)
 	auras[115867] = 4 -- Mana Tea (stack)
 	auras[119085] = 4 -- Momentum
