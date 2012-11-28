@@ -43,60 +43,18 @@ local colors = {
 --	end
 oUF.colors.debuff = colors
 
-local enrageEffects = {}
 local invulnEffects = { [642] = true, [1022] = true, [45438] = true, }
 
 local MoP = select(4, GetBuildInfo()) >= 50000
 
 ------------------------------------------------------------------------
 
-local canDispel, canPurge, canShatter, canSteal, canTranq = {}
+local canDispel, canPurge, canShatter, canSteal, canTranq, noDispels = {}
 local defaultPriority = { Curse = 2, Disease = 4, Magic = 1, Poison = 3 }
 local dispelPriority = { Curse = 3, Disease = 1, Magic = 4, Poison = 2 }
 
 local function prioritySort(a, b)
 	return dispelPriority[a] > dispelPriority[b]
-end
-
-------------------------------------------------------------------------
-
-local scanUnit, scanIndex
-
-do
-	local scanTooltip
-
-	local function CreateScanTooltip()
-		scanTooltip = CreateFrame("GameTooltip", "pxScanningTooltip")
-		scanTooltip.left, scanTooltip.right = scanTooltip:CreateFontString(), scanTooltip:CreateFontString()
-		scanTooltip.left:SetFontObject(GameFontNormal)
-		scanTooltip.right:SetFontObject(GameFontNormal)
-		scanTooltip:AddFontStrings(scanTooltip.left, scanTooltip.right)
-		return scanTooltip
-	end
-
-	local function IsEnrageEffect(unit, index)
-		scanTooltip = scanTooltip or CreateScanTooltip()
-		scanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-		scanTooltip:ClearLines()
-		scanTooltip:SetUnitBuff(unit, index)
-		local name = scanTooltip.left:GetText()
-		local type = scanTooltip.right:GetText()
-		-- print("Scanning", unit, index, type or "Unknown", "buff", name or "Unknown")
-		scanTooltip:Hide()
-		return (type == "Enrage"), name
-	end
-
-	setmetatable(enrageEffects, { __index = function(enrageEffects, id)
-		if not scanUnit or not scanIndex or type(id) ~= "number" then return end
-		local result, name = IsEnrageEffect(scanUnit, scanIndex)
-		if result then
-			-- print("Found enrage effect", id, name)
-			PoUFDB.enrageEffects = PoUFDB.enrageEffects or {}
-			PoUFDB.enrageEffects[id] = name
-		end
-		rawset(enrageEffects, id, result)
-		return result
-	end })
 end
 
 ------------------------------------------------------------------------
@@ -109,9 +67,8 @@ local function Update(self, event, unit)
 
 	local debuffType, dispellable
 
-	if UnitCanAssist("player", unit) then
-		local i = 1
-		while true do
+	if not noDispels and UnitCanAssist("player", unit) then
+		for i = 1, 32 do
 			local name, _, _, _, type = UnitDebuff(unit, i)
 			if not name then break end
 			-- print("UnitDebuff", unit, i, tostring(name), tostring(type))
@@ -120,29 +77,16 @@ local function Update(self, event, unit)
 				debuffType = type
 				dispellable = canDispel[type]
 			end
-			i = i + 1
 		end
-	elseif UnitCanAttack("player", unit) then
---		scanUnit = unit
-
-		local i = 1
-		while true do
+	elseif (canSteal or canPurge or canTranq) and UnitCanAttack("player", unit) then
+		for i = 1, 32 do
 			local name, _, _, _, type, _, _, _, stealable, _, id = UnitBuff(unit, i)
 			if not name then break end
 
 			if type == "" then
 				type = "Enrage"
 			end
---[[
-			if type and strlen(type) < 4 then type = nil end
-			-- print("UnitBuff", unit, i, tostring(name), tostring(type))
 
-			scanIndex = i
-			if not type and enrageEffects[id] then
-				type = "Enrage"
-			end
-			scanIndex = nil
-]]
 			if canShatter and not type and invulnEffects[id] then
 				type = "Invulnerability"
 			end
@@ -153,11 +97,7 @@ local function Update(self, event, unit)
 				dispellable = true
 				break
 			end
-
-			i = i + 1
 		end
-
---		scanUnit = nil
 	end
 
 	if debuffTypeCache[unit] == debuffType then return end
@@ -236,6 +176,8 @@ f:SetScript("OnEvent", function(self, event)
 		end
 		self.initialized = true
 	end
+
+	wipe(canDispel)
 
 	-- print("DispelHighlight", event, "Checking capabilities...")
 
@@ -325,6 +267,11 @@ f:SetScript("OnEvent", function(self, event)
 		dispelPriority[type] = (canDispel[type] and 10 or 5) - priority
 	end
 	table.sort(dispelPriority, prioritySort)
+
+	noDispels = true
+	for type in pairs(canDispel) do
+		noDispels = nil
+	end
 
 --[[#DEBUGGING
 	for i, v in ipairs(dispelPriority) do
