@@ -248,10 +248,10 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 		powerColorMode = "CLASS",
 		powerBG = 0.25,
 
-		borderColor = { 0.3, 0.3, 0.3 },
-		borderSize = 10,
+		borderColor = { 0.5, 0.5, 0.5 },
+		borderSize = 16,
 
-		DBVERSION = 0,
+		--DBVERSION = 0,
 	}
 
 	PoUFDB = PoUFDB or {}
@@ -261,12 +261,12 @@ ns.loader:SetScript("OnEvent", function(self, event, addon)
 		end
 	end
 	ns.config = PoUFDB
-
+--[[
 	if PoUFDB.DBVERSION < 1 then
 		PoUFDB.borderSize = PoUFDB.borderSize / 2
 		PoUFDB.DBVERSION = 1
 	end
-
+]]
 	if PoUFDB.bgColorIntensity then
 		PoUFDB.healthBG = PoUFDB.bgColorIntensity
 		PoUFDB.powerBG = 1 / PoUFDB.bgColorIntensity
@@ -538,7 +538,8 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local borderSize = CreateSlider(self, L["Border Size"], 5, 15, 1)
+	local borderSize = CreateSlider(self, L["Border Size"], 12, 24, 2)
+	--local borderSize = CreateSlider(self, L["Border Size"], 5, 15, 1)
 	borderSize.desc = L["Change the size of the frame borders."]
 	borderSize:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", -2, -12)
 	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 4, -12)

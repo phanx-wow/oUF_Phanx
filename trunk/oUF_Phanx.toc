@@ -1,5 +1,5 @@
-## Interface: 50001
-## Version: 5.0.5.wowi:revision
+## Interface: 50100
+## Version: 5.1.0.wowi:revision
 
 ## Title: oUF: Phanx
 ## Notes: Fully featured PvE-oriented oUF layout.
@@ -42,3 +42,4 @@ Elements\Totems.lua
 
 Config.lua
 Core.lua
+Frames.lua

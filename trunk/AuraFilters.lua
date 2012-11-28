@@ -434,6 +434,7 @@ end
 if playerClass == "MONK" then
 	auras[126050] = 4 -- Adaptation
 	auras[122278] = 4 -- Dampen Harm
+	auras[121125] = 4 -- Death Note
 	auras[122465] = 4 -- Dematerialize
 	auras[122783] = 4 -- Diffuse Magic
 	auras[128939] = 4 -- Elusive Brew (stack)
@@ -479,7 +480,8 @@ if playerClass == "MONK" then
 
 	auras[132120] = 2 -- Enveloping Mist
 	auras[116849] = 3 -- Life Cocoon
-	auras[119611] = 2 -- Renewing Mist
+	auras[119607] = 2 -- Renewing Mist (jump)
+	auras[119611] = 2 -- Renewing Mist (hot)
 	auras[124081] = 2 -- Zen Sphere
 end
 

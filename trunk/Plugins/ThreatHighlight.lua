@@ -19,7 +19,7 @@ local oUF = ns.oUF or oUF
 if not oUF then return end
 
 local function Update(self, event, unit)
-	if self.unit ~= unit then return end
+	if not unit or self.unit ~= unit then return end
 
 	local status = UnitThreatSituation(unit)
 	-- print("ThreatHighlight Update", event, unit, status)
