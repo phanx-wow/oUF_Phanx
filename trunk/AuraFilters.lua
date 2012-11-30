@@ -851,6 +851,7 @@ end
 --	Boss debuffs that Blizzard forgot to flag
 
 auras[106784] = 1 -- Brew Explosion (Ook Ook in Stormsnout Brewery)
+auras[123059] = 1 -- Destabilize (Amber-Shaper Un'sok)
 
 ------------------------------------------------------------------------
 
