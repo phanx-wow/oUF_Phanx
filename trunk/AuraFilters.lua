@@ -303,7 +303,7 @@ if playerClass == "DRUID" then
 	auras[33763]  = 2 -- Lifebloom
 	auras[94447]  = 2 -- Lifebloom (tree)
 	auras[8936]   = 2 -- Regrowth
-	auras[744]    = 2 -- Rejuvenation
+	auras[774]    = 2 -- Rejuvenation
 	auras[77761]  = 3 -- Stampeding Roar (bear)
 	auras[77764]  = 3 -- Stampeding Roar (cat)
 	auras[106898] = 3 -- Stampeding Roar
