@@ -169,14 +169,6 @@ local f = CreateFrame("Frame")
 f:RegisterEvent("PLAYER_TALENT_UPDATE")
 f:RegisterEvent("SPELLS_CHANGED")
 f:SetScript("OnEvent", function(self, event)
-	if not self.initialized then
-		PoUFDB.enrageEffects = PoUFDB.enrageEffects or {}
-		for id in pairs(PoUFDB.enrageEffects) do
-			enrageEffects[id] = true
-		end
-		self.initialized = true
-	end
-
 	wipe(canDispel)
 
 	-- print("DispelHighlight", event, "Checking capabilities...")
