@@ -62,7 +62,6 @@ end
 local function SetBorderParent(self, parent)
 	local t = self.BorderTextures
 	if not t then return end
-
 	for pos, tex in pairs(t) do
 		tex:SetParent(parent or self)
 	end

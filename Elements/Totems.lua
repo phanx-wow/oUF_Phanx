@@ -25,34 +25,20 @@ local ColorGradient = oUF.ColorGradient
 local SMOOTH_COLORS = oUF.colors.smooth
 local unpack = unpack
 
-local function Totem_OnMouseUp(bar, button)
-	if button == "RightButton" and bar.mouseover then
-		DestroyTotem(bar:GetID())
-	end
-end
-
 local function Totem_OnEnter(bar)
-	bar.mouseover = true
+	bar.isMouseOver = true
 
+	bar.iconFrame:Show()
 	bar.value:Show()
-	bar.Icon:Show()
-
-	local b = bar.BorderTextures
-	local _, _, _, d = b.BOTTOMRIGHT:GetPoint("BOTTOMRIGHT")
-	b.BOTTOMLEFT:SetPoint("BOTTOMLEFT", bar.Icon, -d, -d)
-	b.BOTTOMRIGHT:SetPoint("BOTTOMRIGHT", bar.Icon, d, -d)
+	bar.value:SetParent(bar.iconFrame)
 end
 
 local function Totem_OnLeave(bar)
-	bar.mouseover = nil
+	bar.isMouseOver = nil
 
+	bar.iconFrame:Hide()
 	bar.value:Hide()
-	bar.Icon:Hide()
-
-	local b = bar.BorderTextures
-	local _, _, _, d = b.BOTTOMRIGHT:GetPoint("BOTTOMRIGHT")
-	b.BOTTOMLEFT:SetPoint("BOTTOMLEFT", bar, -d, -d)
-	b.BOTTOMRIGHT:SetPoint("BOTTOMRIGHT", bar, d, -d)
+	bar.value:SetParent(bar)
 end
 
 local function Totem_OnUpdate(bar, elapsed)
@@ -61,7 +47,7 @@ local function Totem_OnUpdate(bar, elapsed)
 		bar.duration = duration
 		bar:SetValue(duration)
 
-		if bar.mouseover then
+		if bar.isMouseOver or bar.__owner.isMouseOver then
 			bar.value:SetFormattedText(SecondsToTimeAbbrev(duration))
 			bar.value:SetTextColor(ColorGradient(bar.duration, bar.max, unpack(SMOOTH_COLORS)))
 		end
@@ -83,10 +69,6 @@ local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 		local r, g, b, mu = color[1], color[2], color[3], bar.bg.multiplier or 1
 		bar:SetStatusBarColor(r, g, b)
 		bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
-
-		bar:SetScript("OnUpdate", Totem_OnUpdate)
-	else
-		bar:SetScript("OnUpdate", nil)
 	end
 
 	if not bar.scripted then
@@ -94,6 +76,13 @@ local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 		bar:HookScript("OnLeave", Totem_OnLeave)
 		bar.scripted = true
 	end
+
+	for i = 1, #element do
+		if element[i]:IsShown() then
+			return element:Show()
+		end
+	end
+	element:Hide()
 end
 
 ns.CreateTotems = function(frame)
@@ -101,28 +90,29 @@ ns.CreateTotems = function(frame)
 		return Totems
 	end
 
-	Totems = {
-		PostUpdate = Totems_PostUpdate
-	}
+	Totems = CreateFrame("Frame", nil, frame)
+	Totems.PostUpdate = Totems_PostUpdate
 
 	for i = 1, MAX_TOTEMS do
-		local bar = ns.CreateStatusBar(frame, 16, "CENTER", true)
-		ns.CreateBorder(bar)
-
-		bar.value:Hide()
-		bar.value:SetPoint("CENTER", bar, "TOP")
-
-		bar.Icon = bar:CreateTexture(nil, "ARTWORK")
-		bar.Icon:SetPoint("TOPLEFT")
-		bar.Icon:SetPoint("TOPRIGHT")
-		bar.Icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
-		bar.Icon:Hide()
-
-		bar:EnableMouse(true)
-		bar:SetScript("OnMouseDown", Totem_OnClick)
-
+		local bar = ns.CreateStatusBar(Totems, 16, "CENTER", true)
+		bar:SetHitRectInsets(0, 0, -10, 0)
 		bar.__owner = frame
 
+		bar.bg:SetDrawLayer("ARTWORK")
+
+		bar.iconFrame = CreateFrame("Frame", nil, bar)
+		bar.iconFrame:SetPoint("CENTER")
+		bar.iconFrame:Hide()
+
+		bar.Icon = bar.iconFrame:CreateTexture(nil, "BACKGROUND")
+		bar.Icon:SetAllPoints(true)
+		bar.Icon:SetTexCoord(0.09, 0.91, 0.08, 0.91)
+
+		bar.value:SetPoint("CENTER", 1, 1)
+		bar.value:Hide()
+
+		bar:EnableMouse(true)
+		bar:SetScript("OnUpdate", Totem_OnUpdate)
 		Totems[i] = bar
 	end
 
