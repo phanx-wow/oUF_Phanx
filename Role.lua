@@ -82,7 +82,7 @@ elseif playerClass == "WARRIOR" then
 		if GetSpecialization() == 3 and GetShapeshiftFormID() == 18 then -- Battle 17, Berserker 19, Defensive 18
 			return "TANK"
 		end
-	end)
+	end
 
 end
 
@@ -91,14 +91,14 @@ if getRole then
 	eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
 	if updateEvents then
-		for event in strsplit(" ", updateEvents) do
-			eventFrame:RegisterEvents(event)
+		for event in gmatch(updateEvents, "%S+") do
+			eventFrame:RegisterEvent(event)
 		end
 	end
 	eventFrame:SetScript("OnEvent", function(_, event, ...)
-		local role = getRole() or "DPS
-		if role =~ CURRENT_ROLE then
-			CURRENT_ROLE == role
+		local role = getRole() or "DPS"
+		if role ~= CURRENT_ROLE then
+			CURRENT_ROLE = role
 			for _, frame in ns.objects do
 				if frame.updateOnRoleChange then
 					ns.UpdatePlayerRole(frame, CURRENT_ROLE)
