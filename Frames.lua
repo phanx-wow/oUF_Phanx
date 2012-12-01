@@ -493,11 +493,12 @@ function ns.Spawn(self, unit, isSingle)
 		local MAX_ICONS = floor((config.width + GAP) / (config.height + GAP)) - 1
 		local NUM_BUFFS = math.max(1, floor(MAX_ICONS * 0.2))
 		local NUM_DEBUFFS = math.min(MAX_ICONS - 1, floor(MAX_ICONS * 0.8))
+		local ROW_HEIGHT = (config.height * 2) + (GAP * 2)
 
 		self.Debuffs = CreateFrame("Frame", nil, self)
 		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
 		self.Debuffs:SetWidth((config.height * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)))
-		self.Debuffs:SetHeight((config.height * 2) + (GAP * 2))
+		self.Debuffs:SetHeight(ROW_HEIGHT)
 
 		self.Debuffs["growth-x"] = "RIGHT"
 		self.Debuffs["growth-y"] = "UP"
@@ -518,7 +519,7 @@ function ns.Spawn(self, unit, isSingle)
 		self.Buffs = CreateFrame("Frame", nil, self)
 		self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
 		self.Buffs:SetWidth((config.height * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)))
-		self.Buffs:SetHeight((config.height * 2) + (GAP * 2))
+		self.Buffs:SetHeight(ROW_HEIGHT)
 
 		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "UP"
@@ -534,6 +535,42 @@ function ns.Spawn(self, unit, isSingle)
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
 		self.Buffs.parent = self
+
+		self.updateOnRoleChange = self.updateOnRoleChange or {}
+		tinsert(self.updateOnRoleChange, function(self, role)
+			if role == "HEAL" then
+				self.Debuffs:ClearAllPoints()
+				self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
+				self.Debuffs:SetWidth((config.height * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)))
+				self.Debuffs["growth-x"] = "LEFT"
+				self.Debuffs["growth-y"] = "UP"
+				self.Debuffs["initialAnchor"] = "BOTTOMRIGHT"
+				self.Debuffs["num"] = NUM_BUFFS
+
+				self.Buffs:ClearAllPoints()
+				self.Buffs:SetWidth((config.height * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)))
+				self.Buffs["growth-x"] = "RIGHT"
+				self.Buffs["growth-y"] = "UP"
+				self.Buffs["initialAnchor"] = "BOTTOMLEFT"
+				self.Buffs["num"] = NUM_DEBUFFS
+			else
+				self.Debuffs:ClearAllPoints()
+				self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
+				self.Debuffs:SetWidth((config.height * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)))
+				self.Debuffs["growth-x"] = "RIGHT"
+				self.Debuffs["growth-y"] = "UP"
+				self.Debuffs["initialAnchor"] = "BOTTOMLEFT"
+				self.Debuffs["num"] = NUM_DEBUFFS
+
+				self.Buffs:ClearAllPoints()
+				self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
+				self.Buffs:SetWidth((config.height * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)))
+				self.Buffs["growth-x"] = "LEFT"
+				self.Buffs["growth-y"] = "UP"
+				self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
+				self.Buffs["num"] = NUM_BUFFS
+			end
+		end)
 	end
 
 	--------------------

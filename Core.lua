@@ -127,6 +127,14 @@ function ns.UpdateBorder(self)
 	end
 end
 
+function ns.UpdatePlayerRole(self, role)
+	if self.updateOnRoleChange then
+		for _, func in pairs(self.updateOnRoleChange) do
+			func(self, role)
+		end
+	end
+end
+
 ------------------------------------------------------------------------
 --	Health
 ------------------------------------------------------------------------
@@ -174,8 +182,8 @@ function ns.PostUpdateHealth(self, unit, cur, max)
 	-- OTHER:  percent, current on mouseover
 
 	if cur < max then
-		if ns.isHealing and UnitCanAssist("player", unit) then
-			if self.__owner.isMouseOver and not unit:match("^party") then
+		if ns.GetRole() == "HEAL" and UnitCanAssist("player", unit) then
+			if self.__owner.isMouseOver and not strmatch(unit, "party%d") then
 				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
 			else
 				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit) - UnitHealthMax(unit)))
