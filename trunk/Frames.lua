@@ -56,6 +56,18 @@ function ns.Spawn(self, unit, isSingle)
 	end
 
 	-------------------------
+	-- Border and backdrop --
+	-------------------------
+
+	ns.CreateBorder(self)
+	self:SetBorderParent(self.overlay)
+	self.UpdateBorder = ns.UpdateBorder
+
+	self:SetBackdrop(config.backdrop)
+	self:SetBackdropColor(0, 0, 0, 1)
+	self:SetBackdropBorderColor(unpack(config.borderColor))
+
+	-------------------------
 	-- Health bar and text --
 	-------------------------
 
@@ -573,16 +585,15 @@ function ns.Spawn(self, unit, isSingle)
 		end)
 	end
 
-	--------------------
-	-- Druid mana bar --
-	--------------------
+	---------------
+	-- DruidMana --
+	---------------
 
 	if unit == "player" and playerClass == "DRUID" and config.druidMana then
 		local druidMana = ns.CreateStatusBar(self, 16, "CENTER")
-		druidMana:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 6)
-		druidMana:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 6)
-		druidMana:SetHeight(config.height * (1 - config.powerHeight) * 0.5)
-		self.DruidMana = druidMana
+		druidMana:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
+		druidMana:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
+		druidMana:SetHeight(config.height * config.powerHeight)
 
 		local druidManaText = druidMana.value
 		druidManaText:SetPoint("CENTER", 0, 1)
@@ -591,23 +602,44 @@ function ns.Spawn(self, unit, isSingle)
 
 		druidMana.colorPower = true
 		druidMana.bg.multiplier = config.powerBG
+		druidMana.PostUpdate = ns.PostUpdateDruidMana
 
-		function druidMana:PostUpdate(unit, cur, max)
-			self.value:SetFormattedText(si_raw(cur))
-		end
-
+		self.DruidMana = druidMana
+--[[
 		ns.CreateBorder(druidMana)
+]]
+		local o = self.SetBorderSize
+		function self:SetBorderSize(size, offset)
+			o(self, size, offset)
+			if druidMana:IsShown() then
+				local size, offset = self:GetBorderSize()
+				local inset = floor(size * -0.2)
+				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", druidMana, -offset, offset + 1)
+				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", druidMana, offset, offset + 1)
+			end
+		end
+		druidMana:SetScript("OnShow", function(self)
+			local frame = self.__owner
+			frame:SetBorderParent(self)
+			frame:SetBorderSize()
+		end)
+
+		druidMana:SetScript("OnHide", function(self)
+			local frame = self.__owner
+			frame:SetBorderParent(frame.overlay)
+			frame:SetBorderSize()
+		end)
 	end
 
-	-----------------------
-	-- Druid eclipse bar --
-	-----------------------
+	----------------
+	-- EclipseBar --
+	----------------
 
 	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
 		local eclipseBar = ns.CreateEclipseBar(self, config.statusbar, config.eclipseBarIcons)
-		eclipseBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 6)
-		eclipseBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 6)
-		eclipseBar:SetHeight(config.height * (1 - config.powerHeight) * 0.5)
+		eclipseBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
+		eclipseBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
+		eclipseBar:SetHeight(config.height * config.powerHeight + 1)
 
 		table.insert(ns.statusbars, eclipseBar.bg)
 		table.insert(ns.statusbars, eclipseBar.lunarBG)
@@ -619,10 +651,32 @@ function ns.Spawn(self, unit, isSingle)
 		self:Tag(eclipseText, "[pereclipse]%")
 		table.insert(self.mouseovers, eclipseText)
 		eclipseBar.value = eclipseText
-
+--[[
 		ns.CreateBorder(eclipseBar)
 		eclipseBar.BorderTextures.LEFT:Hide()
 		eclipseBar.BorderTextures.RIGHT:Hide()
+]]
+		local o = self.SetBorderSize
+		function self:SetBorderSize(size, offset)
+			o(self, size, offset)
+			if eclipseBar:IsShown() then
+				local _, offset = self:GetBorderSize()
+				local inset = floor(size * -0.2)
+				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", eclipseBar, -offset, offset)
+				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", eclipseBar, offset, offset)
+			end
+		end
+		eclipseBar:SetScript("OnShow", function(self)
+			local frame = self.__owner
+			frame:SetBorderParent(self)
+			frame:SetBorderSize()
+		end)
+
+		eclipseBar:SetScript("OnHide", function(self)
+			local frame = self.__owner
+			frame:SetBorderParent(frame.overlay)
+			frame:SetBorderSize()
+		end)
 
 		eclipseBar:SetScript("OnEnter", ns.UnitFrame_OnEnter)
 		eclipseBar:SetScript("OnLeave", ns.UnitFrame_OnLeave)
@@ -630,65 +684,149 @@ function ns.Spawn(self, unit, isSingle)
 		self.EclipseBar = eclipseBar
 	end
 
-	-----------------------
-	-- Shaman totem bars --
-	-----------------------
-
-	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
-		local Totems = ns.CreateTotems(self)
-
-		local N = #Totems
-		local TOTEM_WIDTH = (config.width - (6 * (N - 1))) / N
-		local TOTEM_HEIGHT = config.height * (1 - config.powerHeight) * 0.5
-
-		for i = 1, N do
-			local bar = Totems[i]
-			bar:SetFrameLevel(self.overlay:GetFrameLevel() + 1)
-			bar:SetSize(TOTEM_WIDTH, TOTEM_HEIGHT)
-			bar.Icon:SetHeight(TOTEM_WIDTH)
-			bar.bg.multiplier = config.powerBG
-			if i > 1 then
-				bar:SetPoint("LEFT", Totems[i-1], "RIGHT", 6, 0)
-			else
-				bar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 6)
-			end
-		end
-
-		self.Totems = Totems
-	end
-
-	----------------------------
-	-- Death knight rune bars --
-	----------------------------
+	-----------
+	-- Runes --
+	-----------
 
 	if unit == "player" and playerClass == "DEATHKNIGHT" and config.runeBars then
 		local Runes = ns.CreateRunes(self)
-		Runes:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 6)
-		Runes:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 6)
-		Runes:SetHeight(config.height * (1 - config.powerHeight) * 0.5)
+		Runes:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -1)
+		Runes:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -1)
+		Runes:SetHeight(config.height * config.powerHeight + 2)
 
 		Runes:SetBackdrop(config.backdrop)
 		Runes:SetBackdropColor(0, 0, 0, 1)
 		Runes:SetBackdropBorderColor(unpack(config.borderColor))
 
 		local N = #Runes
-		local RUNE_WIDTH = (config.width - (1 * (N + 1))) / N
+		local RUNE_WIDTH = (FRAME_WIDTH - (1 * (N + 1))) / N
 
 		for i = 1, N do
 			local bar = Runes[i]
 			bar:SetWidth(RUNE_WIDTH)
+			bar:EnableMouse(false)
 			bar.bg.multiplier = config.powerBG
-
 			if i > 1 then
 				bar:SetPoint("TOPLEFT", Runes[i-1], "TOPRIGHT", 1, 0)
 				bar:SetPoint("BOTTOMLEFT", Runes[i-1], "BOTTOMRIGHT", 1, 0)
 			else
-				bar:SetPoint("TOPLEFT", Runes, 1, 0)
-				bar:SetPoint("BOTTOMLEFT", Runes, 1, 0)
+				bar:SetPoint("TOPLEFT", Runes, 1, -1)
+				bar:SetPoint("BOTTOMLEFT", Runes, 1, 1)
 			end
 		end
 
+		tinsert(self.mouseovers, function(self, isMouseOver)
+			local script = isMouseOver and "OnEnter" or "OnLeave"
+			for i = 1, N do
+				Runes[i]:GetScript(script)(Runes[i])
+			end
+		end)
+
+		local o = self.SetBorderSize
+		function self:SetBorderSize(size, offset)
+			o(self, size, offset)
+			self:SetBorderParent(Runes[N])
+
+			local size, offset = self:GetBorderSize()
+			local inset = floor(size * -0.2)
+			self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Runes, -offset, offset)
+			self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", Runes, offset, offset)
+		end
+		self:SetBorderSize()
+
 		self.Runes = Runes
+	end
+
+	------------
+	-- Totems --
+	------------
+
+	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
+		local Totems = ns.CreateTotems(self)
+
+		local N = #Totems
+		local TOTEM_WIDTH = (FRAME_WIDTH - (1 * (N + 1))) / N
+
+		Totems:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -1)
+		Totems:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -1)
+		Totems:SetHeight(config.height * config.powerHeight + 2)
+
+		Totems:SetBackdrop(config.backdrop)
+		Totems:SetBackdropColor(0, 0, 0, 1)
+		Totems:SetBackdropBorderColor(unpack(config.borderColor))
+
+		for i = 1, N do
+			local bar = Totems[i]
+			bar:SetWidth(TOTEM_WIDTH)
+
+			bar.iconFrame:SetSize(TOTEM_WIDTH / 2, TOTEM_WIDTH / 2)
+			ns.CreateBorder(bar.iconFrame)
+
+			bar.bg.multiplier = config.powerBG
+
+			bar.bg:SetParent(Totems)
+			bar.bg:SetVertexColor(oUF.colors.totems[i][1] * config.powerBG, oUF.colors.totems[i][2] * config.powerBG, oUF.colors.totems[i][3] * config.powerBG)
+			bar.bg:Show()
+
+			if i > 1 then
+				bar:SetPoint("TOPLEFT", Totems[i-1], "TOPRIGHT", 1, 0)
+				bar:SetPoint("BOTTOMLEFT", Totems[i-1], "BOTTOMRIGHT", 1, 0)
+			else
+				bar:SetPoint("TOPLEFT", Totems, 1, -1)
+				bar:SetPoint("BOTTOMLEFT", Totems, 1, 1)
+			end
+		end
+
+		tinsert(self.mouseovers, function(self, isMouseOver)
+			if isMouseOver then
+				for i =1, N do
+					Totems[i].value:Show()
+				end
+			else
+				for i = 1, N do
+					Totems[i].value:Hide()
+				end
+			end
+		end)
+
+		local function UpdateTotemBorders()
+			if Totems:IsShown() then
+				local totem
+				for i = 1, N do
+					if Totems[i]:IsShown() then
+						totem = Totems[i]
+					end
+				end
+				self:SetBorderParent(totem)
+
+				local size, offset = self:GetBorderSize()
+				local inset = floor(size * -0.2)
+				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Totems, -offset, offset)
+				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", Totems, offset, offset)
+			else
+				self:SetBorderParent(self.overlay)
+				if not self.changingBorderSize then
+					self.changingBorderSize = true
+					self:SetBorderSize()
+					self.changingBorderSize = nil
+				end
+			end
+		end
+
+		local p = Totems.PostUpdate
+		function Totems:PostUpdate(...)
+			p(self, ...)
+			UpdateTotemBorders()
+		end
+
+		local o = self.SetBorderSize
+		function self:SetBorderSize(size, offset)
+			o(self, size, offset)
+			UpdateTotemBorders()
+		end
+		self:SetBorderSize()
+
+		self.Totems = Totems
 	end
 
 	------------------------------
@@ -757,18 +895,6 @@ function ns.Spawn(self, unit, isSingle)
 			outsideAlpha = 0.5,
 		}
 	end
-
-	-------------------------
-	-- Border and backdrop --
-	-------------------------
-
-	ns.CreateBorder(self)
-	self:SetBorderParent(self.overlay)
-	self.UpdateBorder = ns.UpdateBorder
-
-	self:SetBackdrop(config.backdrop)
-	self:SetBackdropColor(0, 0, 0, 1)
-	self:SetBackdropBorderColor(unpack(config.borderColor))
 
 	----------------------
 	-- Element: AFK text --

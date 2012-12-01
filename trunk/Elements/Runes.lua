@@ -81,14 +81,14 @@ ns.CreateRunes = function(frame)
 		bar:SetScript("OnLeave", Rune_OnLeave)
 
 		bar.value:Hide()
-		bar.value:SetPoint("CENTER")
+		bar.value:SetPoint("CENTER", 0, 1)
 
 		Runes[i] = bar
 	end
-
+--[[
 	ns.CreateBorder(Runes)
 	Runes:SetBorderParent(Runes[#Runes])
-
+]]
 	Runes.PostUpdateRune = PostUpdateRune
 	return Runes
 end

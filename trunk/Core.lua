@@ -182,7 +182,7 @@ function ns.PostUpdateHealth(self, unit, cur, max)
 	-- OTHER:  percent, current on mouseover
 
 	if cur < max then
-		if ns.GetRole() == "HEAL" and UnitCanAssist("player", unit) then
+		if ns.GetPlayerRole() == "HEAL" and UnitCanAssist("player", unit) then
 			if self.__owner.isMouseOver and not strmatch(unit, "party%d") then
 				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
 			else
@@ -279,6 +279,14 @@ function ns.PostUpdatePower(self, unit, cur, max)
 	else
 		self.value:SetText(nil)
 	end
+end
+
+------------------------------------------------------------------------
+--	DruidMana
+------------------------------------------------------------------------
+
+function ns.PostUpdateDruidMana(bar, unit, mana, maxMana)
+	bar.value:SetFormattedText(si_raw(mana))
 end
 
 ------------------------------------------------------------------------
@@ -561,7 +569,9 @@ function ns.UnitFrame_OnEnter(self)
 
 	self.isMouseOver = true
 	for _, element in pairs(self.mouseovers) do
-		if element.ForceUpdate then
+		if type(element) == "function" then
+			element(self, true)
+		elseif element.ForceUpdate then
 			element:ForceUpdate()
 		else
 			element:Show()
@@ -587,7 +597,9 @@ function ns.UnitFrame_OnLeave(self)
 
 	self.isMouseOver = nil
 	for _, element in pairs(self.mouseovers) do
-		if element.ForceUpdate then
+		if type(element) == "function" then
+			element(self)
+		elseif element.ForceUpdate then
 			element:ForceUpdate()
 		else
 			element:Hide()

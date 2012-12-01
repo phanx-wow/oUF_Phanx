@@ -125,14 +125,14 @@ function ns.CreateEclipseBar(self, texture, useEclipseBarIcons)
 	eclipseBar.bg = bg
 
 	local lunarBG = eclipseBar:CreateTexture(nil, "BACKGROUND", nil, 1)
-	lunarBG:SetPoint("TOPLEFT")
+	lunarBG:SetPoint("TOPLEFT", eclipseBar, 1, -1)
 	lunarBG:SetPoint("BOTTOMRIGHT", eclipseBar, "BOTTOM")
 	lunarBG:SetTexture(texture)
 	lunarBG:SetVertexColor(0, 0.6, 1)
 	eclipseBar.lunarBG = lunarBG
 
 	local solarBG = eclipseBar:CreateTexture(nil, "BACKGROUND", nil, 1)
-	solarBG:SetPoint("TOPRIGHT")
+	solarBG:SetPoint("TOPRIGHT", eclipseBar, 1, 1)
 	solarBG:SetPoint("BOTTOMLEFT", eclipseBar, "BOTTOM")
 	solarBG:SetTexture(texture)
 	solarBG:SetVertexColor(1, 0.8, 0)
