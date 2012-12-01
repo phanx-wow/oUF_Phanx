@@ -735,7 +735,7 @@ if playerClass == "WARLOCK" then
 	auras[124915] = 2 -- Chaos Wave -- NEEDS CHECK
 	auras[129347] = 2 -- Chaos Wave -- NEEDS CHECK
 	auras[17962]  = 2 -- Conflagrate (slow)
-	auras[131740] = 2 -- Corruption
+	auras[172]    = 2 -- Corruption
 	auras[109466] = 2 -- Curse of Enfeeblement
 	auras[18223]  = 2 -- Curse of Exhaustion
 	auras[1490]   = 2 -- Curse of the Elements
