@@ -29,8 +29,7 @@ L[" Hu"] = " Hu"
 L[" Me"] = " Me"
 L[" Un"] = " Re"
 
-
--- L["oUF_Phanx is a layout for Haste's oUF framework. Use this panel to configure some basic options for this layout."] = ""
+L["oUF_Phanx is a layout for Haste's oUF framework. Use this panel to configure some basic options for this layout."] = "oUF_Phanx é um esquema de quadros de unidade para oUF. Estas opções alterar algumas configurações básicas para os quadros."
 
 L["Texture"] = "Textura"
 L["Select a texture for health, power, and other bars."] = "Escolher uma textura para as barras da vida, de saúde, e outros."
@@ -64,7 +63,7 @@ L["Show animated moon and sun icons on either end of the eclipse bar."] = "Mostr
 L["This option will not take effect until the next time you log in or reload your UI."] = "Esta opção não terá efeito até que a próxima vez que você recarregar a interface ou conectar."
 
 L["Bar Colors"] = "Cores de barras"
--- L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = ""
+L["Use this panel to configure the colors used for different parts of the unit frames created by this layout."] = "Estas opções alteram as cores usadas nos quadros de unidade."
 
 L["Health color mode"] = "Modo de coloração de saúde"
 L["Change how health bars are colored."] = "Alterar a forma como as barras da vida são coloridos."
