@@ -33,7 +33,7 @@ Plugins\WarlockPower.lua
 AuraFilters.lua
 Border.lua
 Orbs.lua
-PlayerState.lua
+Role.lua
 Tags.lua
 
 Elements\EclipseBar.lua
