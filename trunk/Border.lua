@@ -109,7 +109,7 @@ local function SetBorderSize(self, size, offset)
 	t.RIGHT:SetPoint("TOPRIGHT", t.TOPRIGHT, "BOTTOMRIGHT")
 	t.RIGHT:SetPoint("BOTTOMRIGHT", t.BOTTOMRIGHT, "TOPRIGHT")
 
-	if self.SetHitRectInsets then
+	if self.SetHitRectInsets and not InCombatLockdown() then
 		local x = floor(size * 0.2)
 		self:SetHitRectInsets(-x, -x, -x, -x)
 	end
