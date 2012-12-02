@@ -722,6 +722,7 @@ if playerClass == "WARLOCK" then
 	auras[88448]  = 4 -- Demonic Rebirth
 	auras[126]    = 4 -- Eye of Kilrogg
 	auras[108683] = 4 -- Fire and Brimstone
+	auras[119830] = 4 -- Fury Ward
 	auras[80240]  = 4 -- Havoc
 	auras[119049] = 4 -- Kil'jaeden's Cunning
 	auras[126090] = 4 -- Molten Core -- NEEDS CHECK
