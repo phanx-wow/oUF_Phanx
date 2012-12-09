@@ -773,6 +773,7 @@ if playerClass == "WARRIOR" then
 	auras[115945] = 4 -- Glyph of Hamstring
 	auras[12975]  = 4 -- Last Stand
 	auras[114028] = 4 -- Mass Spell Reflection
+	auras[85739]  = 4 -- Meat Cleaver
 	auras[114192] = 4 -- Mocking Banner
 	auras[97463]  = 4 -- Rallying Cry
 	auras[1719]   = 4 -- Recklessness
@@ -851,6 +852,7 @@ end
 ------------------------------------------------------------------------
 --	Boss debuffs that Blizzard forgot to flag
 
+auras[106648] = 1 -- Brew Explosion (Ook Ook in Stormsnout Brewery)
 auras[106784] = 1 -- Brew Explosion (Ook Ook in Stormsnout Brewery)
 auras[123059] = 1 -- Destabilize (Amber-Shaper Un'sok)
 
@@ -866,7 +868,8 @@ local filters = {
 
 ns.CustomAuraFilters = {
 	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
-		return auras[spellID]
+		-- print("CustomAuraFilter", self.__owner:GetName(), "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, caster == "vehicle")
+		return auras[spellID] or caster and UnitIsUnit(caster, "vehicle")
 	end,
 	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
 		return caster and unitIsPlayer[caster] and auras[spellID] == 2
@@ -881,9 +884,9 @@ ns.CustomAuraFilters = {
 			-- Specific filter.
 			return filters[v](self, unit, caster)
 		elseif UnitCanAttack(unit, "player") and not UnitPlayerControlled(unit) then
-			-- Hostile NPC. Show auras cast by the unit, or auras cast by the player's vehicle.
+			-- Hostile NPC. Show boss debuffs, auras cast by the unit, or auras cast by the player's vehicle.
 			-- print("Hostile NPC")
-			return not caster or caster == unit or UnitIsUnit(caster, "vehicle")
+			return isBossDebuff or not caster or caster == unit or UnitIsUnit(caster, "vehicle")
 		else
 			-- Friendly target or hostile player. Show boss debuffs, or auras cast by the player's vehicle.
 			-- print("Hostile player / friendly unit")

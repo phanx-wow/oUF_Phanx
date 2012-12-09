@@ -395,10 +395,6 @@ function ns.PostCreateAuraIcon(element, button)
 	button.overlay.Show = noop
 
 	button:SetScript("OnClick", nil) -- because oUF still tries to cancel buffs on right-click, and Blizzard thinks preventing this will stop botting?
---[[
-	element.anchoredIcons = 0 -- work around bizarre 1.#IND bug
-	element:ForceUpdate()
-]]
 end
 
 function ns.PostUpdateAuraIcon(element, unit, button, index, offset)
@@ -472,9 +468,12 @@ function ns.PostCastStart(self, unit, name, rank, castid)
 
 	local safezone = self.SafeZone
 	if safezone then
-		self:GetStatusBarTexture():SetDrawLayer("ARTWORK")
-		safezone:SetDrawLayer("BORDER")
-		if safezone:GetWidth() == 0 then -- fix for bug on first cast
+		local width = safezone:GetWidth()
+		if width and width > 0 and width <= self:GetWidth() then
+			self:GetStatusBarTexture():SetDrawLayer("ARTWORK")
+			safezone:SetDrawLayer("BORDER")
+			safezone:SetWidth(width)
+		else
 			safezone:Hide()
 		end
 	end
@@ -497,9 +496,12 @@ function ns.PostChannelStart(self, unit, name, rank, text)
 
 	local safezone = self.SafeZone
 	if safezone then
-		self:GetStatusBarTexture():SetDrawLayer("BORDER")
-		safezone:SetDrawLayer("ARTWORK")
-		if safezone:GetWidth() == 0 then -- fix for bug on first cast
+		local width = safezone:GetWidth()
+		if width and width > 0 and width <= self:GetWidth() then
+			self:GetStatusBarTexture():SetDrawLayer("BORDER")
+			safezone:SetDrawLayer("ARTWORK")
+			safezone:SetWidth(width)
+		else
 			safezone:Hide()
 		end
 	end

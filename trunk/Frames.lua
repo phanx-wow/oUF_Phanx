@@ -282,7 +282,7 @@ function ns.Spawn(self, unit, isSingle)
 		for i = 1, max do
 			local orb = t[i]
 			if i == 1 then
-				orb:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, -5)
+				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
 			else
 				orb:SetPoint("BOTTOMRIGHT", t[i - 1], "BOTTOMLEFT", 2, 0)
 			end
@@ -330,7 +330,7 @@ function ns.Spawn(self, unit, isSingle)
 		for i = 1, 5 do
 			local orb = t[i]
 			if i == 1 then
-				orb:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, -5)
+				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
 			else
 				orb:SetPoint("BOTTOMRIGHT", t[i - 1], "BOTTOMLEFT", 2, 0)
 			end
