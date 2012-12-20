@@ -453,7 +453,7 @@ function ns.Spawn(self, unit, isSingle)
 		self.Buffs.CustomFilter   = ns.CustomAuraFilters.player
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
-		self.Buffs.PostUpdate = ns.PostUpdateAuras -- required to detect Dead => Ghost
+		self.Buffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
 		self.Buffs.parent = self
 	elseif unit == "pet" then
@@ -496,15 +496,15 @@ function ns.Spawn(self, unit, isSingle)
 		self.Buffs.CustomFilter   = ns.CustomAuraFilters.party
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
-		self.Buffs.PostUpdate = ns.PostUpdateAuras -- required to detect Dead => Ghost
+		self.Buffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
 		self.Buffs.parent = self
 	elseif unit == "target" then
 		local GAP = 6
 
 		local MAX_ICONS = floor((config.width + GAP) / (config.height + GAP)) - 1
-		local NUM_BUFFS = math.max(1, floor(MAX_ICONS * 0.2))
-		local NUM_DEBUFFS = math.min(MAX_ICONS - 1, floor(MAX_ICONS * 0.8))
+		local NUM_BUFFS = math.max(2, floor(MAX_ICONS * 0.25))
+		local NUM_DEBUFFS = math.min(MAX_ICONS - 2, floor(MAX_ICONS * 0.75))
 		local ROW_HEIGHT = (config.height * 2) + (GAP * 2)
 
 		self.Debuffs = CreateFrame("Frame", nil, self)
@@ -524,7 +524,7 @@ function ns.Spawn(self, unit, isSingle)
 		self.Debuffs.CustomFilter   = ns.CustomAuraFilters.target
 		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
-		self.Debuffs.PostUpdate = ns.PostUpdateAuras -- required to detect Dead => Ghost
+		self.Debuffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
 		self.Debuffs.parent = self
 
@@ -1056,4 +1056,18 @@ oUF:Factory(function(oUF)
 
 		ns.CreateBorder(bar, nil, nil, bar.bar, "OVERLAY")
 	end
+
+	local fixer = CreateFrame("Frame")
+	fixer.timer = 2
+	fixer:SetScript("OnUpdate", function(self, elapsed)
+		self.timer = self.timer - elapsed
+		if self.timer <= 0 then
+			self:Hide()
+			self:SetScript("OnUpdate", nil)
+			self.timer = nil
+			for _, object in pairs(ns.objects) do
+				object:UpdateAllElements("ForceUpdate")
+			end
+		end
+	end)
 end)

@@ -857,6 +857,32 @@ auras[106784] = 1 -- Brew Explosion (Ook Ook in Stormsnout Brewery)
 auras[123059] = 1 -- Destabilize (Amber-Shaper Un'sok)
 
 ------------------------------------------------------------------------
+--	NPC buffs that are completely useless
+
+auras[63501] = 0 -- Argent Crusade Champion's Pennant
+auras[60023] = 0 -- Scourge Banner Aura (Boneguard Commander in Icecrown)
+auras[63406] = 0 -- Darnassus Champion's Pennant
+auras[63405] = 0 -- Darnassus Valiant's Pennant
+auras[63423] = 0 -- Exodar Champion's Pennant
+auras[63422] = 0 -- Exodar Valiant's Pennant
+auras[63396] = 0 -- Gnomeregan Champion's Pennant
+auras[63395] = 0 -- Gnomeregan Valiant's Pennant
+auras[63427] = 0 -- Ironforge Champion's Pennant
+auras[63426] = 0 -- Ironforge Valiant's Pennant
+auras[63433] = 0 -- Orgrimmar Champion's Pennant
+auras[63432] = 0 -- Orgrimmar Valiant's Pennant
+auras[63399] = 0 -- Sen'jin Champion's Pennant
+auras[63398] = 0 -- Sen'jin Valiant's Pennant
+auras[63403] = 0 -- Silvermoon Champion's Pennant
+auras[63402] = 0 -- Silvermoon Valiant's Pennant
+auras[62594] = 0 -- Stormwind Champion's Pennant
+auras[62596] = 0 -- Stormwind Valiant's Pennant
+auras[63436] = 0 -- Thunder Bluff Champion's Pennant
+auras[63435] = 0 -- Thunder Bluff Valiant's Pennant
+auras[63430] = 0 -- Undercity Champion's Pennant
+auras[63429] = 0 -- Undercity Valiant's Pennant
+
+------------------------------------------------------------------------
 
 local unitIsPlayer = { player = true, pet = true, vehicle = true }
 
@@ -876,21 +902,31 @@ ns.CustomAuraFilters = {
 	end,
 	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
 		local v = auras[spellID]
-		-- print("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v)
+		-- print("CustomAuraFilter", unit, spellID, name, caster, v)
+		if v then
+			return filters[v] and filters[v](self, unit, caster) or v > 0
+	--[[
 		if v == 1 then
 			-- Whitelist
+			-- print("whitelist")
 			return true
+		elseif v == 0 then
+			-- Blacklist
+			-- print("blacklist")
+			return false
 		elseif v and filters[v] then
-			-- Specific filter.
+			-- Specific filter
+			-- print("filter", v)
 			return filters[v](self, unit, caster)
-		elseif UnitCanAttack(unit, "player") and not UnitPlayerControlled(unit) then
+	]]
+		elseif UnitCanAttack("player", unit) and not UnitPlayerControlled(unit) then
 			-- Hostile NPC. Show boss debuffs, auras cast by the unit, or auras cast by the player's vehicle.
-			-- print("Hostile NPC")
+			-- print("hostile NPC")
 			return isBossDebuff or not caster or caster == unit or UnitIsUnit(caster, "vehicle")
 		else
 			-- Friendly target or hostile player. Show boss debuffs, or auras cast by the player's vehicle.
-			-- print("Hostile player / friendly unit")
-			return isBossDebuff or caster and UnitIsUnit(caster, "vehicle")
+			-- print("hostile player / friendly unit")
+			return isBossDebuff or not caster or UnitIsUnit(caster, "vehicle")
 		end
 	end,
 	party = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
