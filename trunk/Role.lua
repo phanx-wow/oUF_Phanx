@@ -18,7 +18,7 @@ if playerClass == "DEATHKNIGHT" then
 
 	updateEvents = "UPDATE_SHAPESHIFT_FORM"
 	getRole = function()
-		if GetSpecialization() == 1 then
+		if GetSpecialization() == 1 then -- Blood 1, Frost 2, Unholy 3
 			return "TANK"
 		end
 	end
@@ -30,7 +30,7 @@ elseif playerClass == "DRUID" then
 		local form = GetShapeshiftFormID() -- Aquatic 4, Bear 5, Cat 1, Flight 29, Moonkin 31, Swift Flight 27, Travel 3, Tree 2
 		if form == 5 then
 			return "TANK"
-		elseif GetSpecialization() == 4 then
+		elseif GetSpecialization() == 4 then -- Balance 1, Feral 2, Guardian 3, Restoration 4
 			return "HEAL"
 		end
 	end
@@ -42,7 +42,7 @@ elseif playerClass == "MONK" then
 		local form = GetShapeshiftFormID() -- Tiger 24, Ox 23, Serpent 20
 		if form == 23 then
 			return "TANK"
-		elseif spec == 20 then
+		elseif form == 20 then
 			return "HEAL"
 		end
 	end
@@ -54,7 +54,7 @@ elseif playerClass == "PALADIN" then
 	getRole = function()
 		if UnitAura("player", RIGHTEOUS_FURY, "HELPFUL") then
 			return "TANK"
-		elseif GetSpecialization() == 1 then
+		elseif GetSpecialization() == 1 then -- Holy 1, Protection 2, Retribution 3
 			return "HEAL"
 		end
 	end
@@ -62,7 +62,7 @@ elseif playerClass == "PALADIN" then
 elseif playerClass == "PRIEST" then
 
 	getRole = function()
-		if GetSpecialization() ~= 3 then
+		if GetSpecialization() ~= 3 then -- Discipline 1, Holy 2, Shadow 3
 			return "HEAL"
 		end
 	end
@@ -70,7 +70,7 @@ elseif playerClass == "PRIEST" then
 elseif playerClass == "SHAMAN" then
 
 	getRole = function()
-		if GetSpecialization() == 3 then
+		if GetSpecialization() == 3 then -- Elemental 1, Enhancement 2, Restoration 3
 			return "HEAL"
 		end
 	end
@@ -99,7 +99,7 @@ if getRole then
 		local role = getRole() or "DPS"
 		if role ~= CURRENT_ROLE then
 			CURRENT_ROLE = role
-			for _, frame in ns.objects do
+			for _, frame in pairs(ns.objects) do
 				if frame.updateOnRoleChange then
 					ns.UpdatePlayerRole(frame, CURRENT_ROLE)
 				end
