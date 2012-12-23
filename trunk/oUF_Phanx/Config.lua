@@ -572,9 +572,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		for _, frame in ipairs(ns.objects) do
 			if frame.DispelHighlight then
 				frame.DispelHighlightFilter = checked
-				if frame:IsShown() then
-					frame:GetScript("OnEvent")(frame, "UNIT_AURA", frame.unit)
-				end
+				frame.DispelHighlight:ForceUpdate()
 			end
 		end
 	end
