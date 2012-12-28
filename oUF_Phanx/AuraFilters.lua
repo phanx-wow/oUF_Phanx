@@ -722,7 +722,7 @@ if playerClass == "WARLOCK" then
 	auras[88448]  = 4 -- Demonic Rebirth
 	auras[126]    = 4 -- Eye of Kilrogg
 	auras[108683] = 4 -- Fire and Brimstone
-	auras[119830] = 4 -- Fury Ward
+	auras[119839] = 4 -- Fury Ward
 	auras[80240]  = 4 -- Havoc
 	auras[119049] = 4 -- Kil'jaeden's Cunning
 	auras[126090] = 4 -- Molten Core -- NEEDS CHECK
@@ -904,7 +904,11 @@ ns.CustomAuraFilters = {
 		local v = auras[spellID]
 		-- print("CustomAuraFilter", unit, spellID, name, caster, v)
 		if v then
-			return filters[v] and filters[v](self, unit, caster) or v > 0
+			if filters[v] then
+				return filters[v](self, unit, caster)
+			else
+				return v > 0
+			end
 	--[[
 		if v == 1 then
 			-- Whitelist
