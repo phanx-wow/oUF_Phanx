@@ -2,7 +2,9 @@
 ## Version: 5.1.0.wowi:revision
 
 ## Title: oUF: Phanx
-## Notes: Fully featured PvE-oriented oUF layout.
+## Notes: An oUF layout with many PvE-oriented features and a few options.
+## Notes-esES: Un diseño de oUF que ofrece numerosas funciones orientado a PvE, y algunas opciones.
+## Notes-esMX: Un diseño de oUF que ofrece numerosas funciones orientado a PvE, y algunas opciones.
 ## Author: Phanx
 ## X-Email: addons@phanx.net
 ## X-Copyright: Copyright (c) 2008-2012 Phanx. All rights reserved.
