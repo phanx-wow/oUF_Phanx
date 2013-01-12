@@ -7,7 +7,7 @@
 ## Notes-esMX: Un diseño de oUF que ofrece numerosas funciones orientado a PvE, y algunas opciones.
 ## Author: Phanx
 ## X-Email: addons@phanx.net
-## X-Copyright: Copyright (c) 2008-2012 Phanx. All rights reserved.
+## X-Copyright: Copyright (c) 2008-2013 Phanx. All rights reserved.
 ## X-License: See accompanying LICENSE file for details.
 ## X-CompatibleLocales: deDE, enUS, esES, esMX, frFR, itIT, ptBR, koKR, ruRU, zhCN, zhTW
 ## X-Localizations: enUS, esES, esMX, ptBR, zhCN
