@@ -362,7 +362,7 @@ if playerClass == "HUNTER" then
 --	auras[63468]  = 2 -- Piercing Shots
 	auras[1513]   = 2 -- Scare Beast
 	auras[19503]  = 2 -- Scatter Shot
-	auras[1978]   = 2 -- Serpent Sting
+	auras[118253] = 2 -- Serpent Sting
 	auras[34490]  = 2 -- Silencing Shot
 	auras[82654]  = 2 -- Widow Venom
 	auras[19386]  = 2 -- Wyvern Sting
