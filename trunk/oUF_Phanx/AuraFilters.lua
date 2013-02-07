@@ -66,6 +66,7 @@ local auras = {
 	[6358]   = 1, -- Seduction
 	[9484]   = 1, -- Shackle Undead
 	[10326]  = 1, -- Turn Evil
+	[114404] = 1  -- Void Tendrils
 	[19386]  = 1, -- Wyvern Sting
 }
 
@@ -557,13 +558,10 @@ if playerClass == "PRIEST" then
 	auras[63735]  = 4 -- Serendipity
 	auras[112833] = 4 -- Spectral Guise
 	auras[109964] = 4 -- Spirit Shell
-	auras[87160]  = 4 -- Surge of Darkness -- NEEDS CHECK
-	auras[126083] = 4 -- Surge of Darkness -- NEEDS CHECK
-	auras[128654] = 4 -- Surge of Light -- NEEDS CHECK
-	auras[114255] = 4 -- Surge of Light -- NEEDS CHECK
+	auras[87160]  = 4 -- Surge of Darkness
+	auras[114255] = 4 -- Surge of Light
 	auras[123254] = 4 -- Twist of Fate
 	auras[15286]  = 4 -- Vampiric Embrace
-	auras[108920] = 4 -- Void Tendrils
 
 	auras[2944]   = 2 -- Devouring Plague
 --	auras[14914]  = 2 -- Holy Fire
@@ -582,8 +580,9 @@ if playerClass == "PRIEST" then
 	auras[47788]  = 3 -- Guardian Spirit
 	auras[88684]  = 3 -- Holy Word: Serenity
 	auras[33206]  = 3 -- Pain Suppression
-	auras[62618]  = 3 -- Power Word: Barrier
+	auras[81782]  = 3 -- Power Word: Barrier
 	auras[17]     = 3 -- Power Word: Shield
+	auras[41635]  = 3 -- Prayer of Mending
 	auras[139]    = 3 -- Renew
 end
 
