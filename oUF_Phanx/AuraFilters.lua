@@ -66,123 +66,9 @@ local auras = {
 	[6358]   = 1, -- Seduction
 	[9484]   = 1, -- Shackle Undead
 	[10326]  = 1, -- Turn Evil
-	[114404] = 1  -- Void Tendrils
+	[114404] = 1, -- Void Tendrils
 	[19386]  = 1, -- Wyvern Sting
 }
-
-------------------------------------------------------------------------
---	Magic Vulnerability
-
-if playerClass == "ROGUE" or playerClass == "WARLOCK" then
-	auras[1490]  = 1 -- Curse of the Elements (warlock)
-	auras[34889] = 1 -- Fire Breath (hunter dragonhawk)
-	auras[24844] = 1 -- Lightning Breath (hunter wind serpent)
-	auras[93068] = 1 -- Master Poisoner (rogue)
-end
-
-------------------------------------------------------------------------
---	Mortal Wounds
-
-if playerClass == "HUNTER" or playerClass == "MONK" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
-	auras[54680]  = 1 -- Monstrous Bite (hunter devilsaur)
-	auras[115804] = 1 -- Mortal Wounds (monk, warrior)
-	auras[82654]  = 1 -- Widow Venom (hunter)
-	auras[8680]   = 1 -- Wound Poison (rogue)
-end
-
-------------------------------------------------------------------------
---	Physical Vulnerability
-
-if playerClass == "DEATHKNIGHT" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
-	auras[55749] = 1 -- Acid Rain (hunter worm)
-	auras[35290] = 1 -- Gore (hunter boar)
-	auras[81326] = 1 -- Physical Vulnerability (death knight, paladin, warrior)
-	auras[50518] = 1 -- Ravage (hunter ravager)
-	auras[57386] = 1 -- Stampede (hunter rhino)
-end
-
-------------------------------------------------------------------------
---	Slow Casting
-
-if playerClass == "DEATHKNIGHT" or playerClass == "MAGE" or playerClass == "ROGUE" or playerClass == "WARLOCK" then
-	auras[109466] = 1 -- Curse of Enfeeblement (warlock)
-	auras[5760]   = 1 -- Mind-numbing Poison (rogue)
-	auras[73975]  = 1 -- Necrotic Strike (death knight)
-	auras[31589]  = 1 -- Slow (mage)
-	auras[50274]  = 1 -- Spore Cloud (hunter sporebat)
-	auras[90315]  = 1 -- Tailspin (hunter fox)
-	auras[126406] = 1 -- Trample (hunter goat)
-	auras[58604]  = 1 -- Lava Breath (hunter core hound)
-end
-
-------------------------------------------------------------------------
---	Weakened Armor
-
-if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
-	auras[113746] = 1 -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
-end
-
-------------------------------------------------------------------------
---	Weakened Blows
-
-if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
-	-- druids need to keep Thrash up anyway, no need to see both
-	auras[109466] = 1 -- Curse of Elements (warlock)
-	auras[60256]  = 1 -- Demoralizing Roar (hunter bear)
-	auras[24423]  = 1 -- Demoralizing Screech (hunter carrion bird)
-	auras[115798] = 1 -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
-end
-
-------------------------------------------------------------------------
---	Disarmed
-
-if PVP_MODE then
-	auras[50541]  = 1 -- Clench (hunter scorpid)
-	auras[676]    = 1 -- Disarm (warrior)
-	auras[51722]  = 1 -- Dismantle (rogue)
-	auras[117368] = 1 -- Grapple Weapon (monk)
-	auras[91644]  = 1 -- Snatch (hunter bird of prey)
-end
-
-------------------------------------------------------------------------
---	Silenced
-
-if PVP_MODE then
-	auras[25046]  = 1 -- Arcane Torrent (blood elf - rogue)
-	auras[28730]  = 1 -- Arcane Torrent (blood elf - mage, paladin, priest, warlock)
-	auras[50613]  = 1 -- Arcane Torrent (blood elf - death knight)
-	auras[69179]  = 1 -- Arcane Torrent (blood elf - warrior)
-	auras[80483]  = 1 -- Arcane Torrent (blood elf - hunter)
-	auras[129597] = 1 -- Arcane Torrent (blood elf - monk)
-	auras[31935]  = 1 -- Avenger's Shield (paladin)
-	auras[102051] = 1 -- Frostjaw (mage)
-	auras[1330]   = 1 -- Garrote - Silence (rogue)
-	auras[50479]  = 1 -- Nether Shock (hunter nether ray)
-	auras[15487]  = 1 -- Silence (priest)
-	auras[18498]  = 1 -- Silenced - Gag Order (warrior)
-	auras[34490]  = 1 -- Silencing Shot (hunter)
-	auras[78675]  = 1 -- Solar Beam (druid)
-	auras[97547]  = 1 -- Solar Beam (druid)
-	auras[113286] = 1 -- Solar Beam (symbiosis)
-	auras[113287] = 1 -- Solar Beam (symbiosis)
-	auras[113288] = 1 -- Solar Beam (symbiosis)
-	auras[116709] = 1 -- Spear Hand Strike (monk)
-	auras[24259]  = 1 -- Spell Lock (warlock felhunter)
-	auras[47476]  = 1 -- Strangulate (death knight)
-end
-
-------------------------------------------------------------------------
---	Taunted
-
-if not PVP_MODE and (playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR") then
-	auras[56222]  = 1 -- Dark Command
-	auras[57604]  = 1 -- Death Grip -- NEEDS CHECK 57603
-	auras[20736]  = 1 -- Distracting Shot
-	auras[6795]   = 1 -- Growl
-	auras[118585] = 1 -- Leer of the Ox
-	auras[62124]  = 1 -- Reckoning
-	auras[355]    = 1 -- Taunt
-end
 
 ------------------------------------------------------------------------
 --	Death Knight
@@ -813,12 +699,12 @@ end
 -- Racials
 
 if playerRace == "BloodElf" then
-	auras[50613]  = 4 -- Arcane Torrent (death knight)
-	auras[80483]  = 4 -- Arcane Torrent (hunter)
-	auras[28730]  = 4 -- Arcane Torrent (mage, paladin, priest, warlock)
-	auras[129597] = 4 -- Arcane Torrent (monk)
-	auras[25046]  = 4 -- Arcane Torrent (rogue)
-	auras[69179]  = 4 -- Arcane Torrent (warrior)
+	auras[50613]  = 2 -- Arcane Torrent (death knight)
+	auras[80483]  = 2 -- Arcane Torrent (hunter)
+	auras[28730]  = 2 -- Arcane Torrent (mage, paladin, priest, warlock)
+	auras[129597] = 2 -- Arcane Torrent (monk)
+	auras[25046]  = 2 -- Arcane Torrent (rogue)
+	auras[69179]  = 2 -- Arcane Torrent (warrior)
 elseif playerRace == "Draenei" then
 	auras[59545]  = 4 -- Gift of the Naaru (death knight)
 	auras[59543]  = 4 -- Gift of the Naaru (hunter)
@@ -846,6 +732,120 @@ elseif playerRace == "Troll" then
 	auras[26297]  = 4 -- Berserking
 elseif playerRace == "Worgen" then
 	auras[68992]  = 4 -- Darkflight
+end
+
+------------------------------------------------------------------------
+--	Magic Vulnerability
+
+if playerClass == "ROGUE" or playerClass == "WARLOCK" then
+	auras[1490]  = 1 -- Curse of the Elements (warlock)
+	auras[34889] = 1 -- Fire Breath (hunter dragonhawk)
+	auras[24844] = 1 -- Lightning Breath (hunter wind serpent)
+	auras[93068] = 1 -- Master Poisoner (rogue)
+end
+
+------------------------------------------------------------------------
+--	Mortal Wounds
+
+if playerClass == "HUNTER" or playerClass == "MONK" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
+	auras[54680]  = 1 -- Monstrous Bite (hunter devilsaur)
+	auras[115804] = 1 -- Mortal Wounds (monk, warrior)
+	auras[82654]  = 1 -- Widow Venom (hunter)
+	auras[8680]   = 1 -- Wound Poison (rogue)
+end
+
+------------------------------------------------------------------------
+--	Physical Vulnerability
+
+if playerClass == "DEATHKNIGHT" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
+	auras[55749] = 1 -- Acid Rain (hunter worm)
+	auras[35290] = 1 -- Gore (hunter boar)
+	auras[81326] = 1 -- Physical Vulnerability (death knight, paladin, warrior)
+	auras[50518] = 1 -- Ravage (hunter ravager)
+	auras[57386] = 1 -- Stampede (hunter rhino)
+end
+
+------------------------------------------------------------------------
+--	Slow Casting
+
+if playerClass == "DEATHKNIGHT" or playerClass == "MAGE" or playerClass == "ROGUE" or playerClass == "WARLOCK" then
+	auras[109466] = 1 -- Curse of Enfeeblement (warlock)
+	auras[5760]   = 1 -- Mind-numbing Poison (rogue)
+	auras[73975]  = 1 -- Necrotic Strike (death knight)
+	auras[31589]  = 1 -- Slow (mage)
+	auras[50274]  = 1 -- Spore Cloud (hunter sporebat)
+	auras[90315]  = 1 -- Tailspin (hunter fox)
+	auras[126406] = 1 -- Trample (hunter goat)
+	auras[58604]  = 1 -- Lava Breath (hunter core hound)
+end
+
+------------------------------------------------------------------------
+--	Weakened Armor
+
+if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
+	auras[113746] = 1 -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
+end
+
+------------------------------------------------------------------------
+--	Weakened Blows
+
+if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
+	-- druids need to keep Thrash up anyway, no need to see both
+	auras[109466] = 1 -- Curse of Elements (warlock)
+	auras[60256]  = 1 -- Demoralizing Roar (hunter bear)
+	auras[24423]  = 1 -- Demoralizing Screech (hunter carrion bird)
+	auras[115798] = 1 -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
+end
+
+------------------------------------------------------------------------
+--	Disarmed
+
+if PVP_MODE then
+	auras[50541]  = 1 -- Clench (hunter scorpid)
+	auras[676]    = 1 -- Disarm (warrior)
+	auras[51722]  = 1 -- Dismantle (rogue)
+	auras[117368] = 1 -- Grapple Weapon (monk)
+	auras[91644]  = 1 -- Snatch (hunter bird of prey)
+end
+
+------------------------------------------------------------------------
+--	Silenced
+
+if PVP_MODE then
+	auras[25046]  = 1 -- Arcane Torrent (blood elf - rogue)
+	auras[28730]  = 1 -- Arcane Torrent (blood elf - mage, paladin, priest, warlock)
+	auras[50613]  = 1 -- Arcane Torrent (blood elf - death knight)
+	auras[69179]  = 1 -- Arcane Torrent (blood elf - warrior)
+	auras[80483]  = 1 -- Arcane Torrent (blood elf - hunter)
+	auras[129597] = 1 -- Arcane Torrent (blood elf - monk)
+	auras[31935]  = 1 -- Avenger's Shield (paladin)
+	auras[102051] = 1 -- Frostjaw (mage)
+	auras[1330]   = 1 -- Garrote - Silence (rogue)
+	auras[50479]  = 1 -- Nether Shock (hunter nether ray)
+	auras[15487]  = 1 -- Silence (priest)
+	auras[18498]  = 1 -- Silenced - Gag Order (warrior)
+	auras[34490]  = 1 -- Silencing Shot (hunter)
+	auras[78675]  = 1 -- Solar Beam (druid)
+	auras[97547]  = 1 -- Solar Beam (druid)
+	auras[113286] = 1 -- Solar Beam (symbiosis)
+	auras[113287] = 1 -- Solar Beam (symbiosis)
+	auras[113288] = 1 -- Solar Beam (symbiosis)
+	auras[116709] = 1 -- Spear Hand Strike (monk)
+	auras[24259]  = 1 -- Spell Lock (warlock felhunter)
+	auras[47476]  = 1 -- Strangulate (death knight)
+end
+
+------------------------------------------------------------------------
+--	Taunted
+
+if not PVP_MODE and (playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR") then
+	auras[56222]  = 1 -- Dark Command
+	auras[57604]  = 1 -- Death Grip -- NEEDS CHECK 57603
+	auras[20736]  = 1 -- Distracting Shot
+	auras[6795]   = 1 -- Growl
+	auras[118585] = 1 -- Leer of the Ox
+	auras[62124]  = 1 -- Reckoning
+	auras[355]    = 1 -- Taunt
 end
 
 ------------------------------------------------------------------------
