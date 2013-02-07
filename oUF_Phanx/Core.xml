@@ -2,6 +2,7 @@
 	<Script file="Libs\LibStub\LibStub.lua"/>
 	<Script file="Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua"/>
 	<Script file="Libs\LibAboutPanel\LibAboutPanel.lua"/>
+	<Script file="Libs\LibResInfo-1.0\LibResInfo-1.0.lua"/>
 	<Script file="Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua"/>
 	<Script file="Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua"/>
 	<Script file="Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua"/>
