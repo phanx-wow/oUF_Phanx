@@ -175,7 +175,7 @@ function ns.CreateBorder(self, size, offset, parent, layer)
 	end
 
 	if self.SetBackdropBorderColor then
-		self.SetBackdropBorderColor = ns.SetBorderColor
+		self.SetBackdropBorderColor = SetBorderColor
 	end
 
 	local glow = self:CreateTexture(nil, "BACKGROUND")
