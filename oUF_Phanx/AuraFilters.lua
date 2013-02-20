@@ -146,6 +146,7 @@ if playerClass == "DRUID" then
 	auras[48391]  = 4 -- Owlkin Frenzy
 	auras[69369]  = 4 -- Predator's Swiftness
 	auras[132402] = 4 -- Savage Defense
+	auras[52610]  = 4 -- Savage Roar -- VERIFIED 13/02/20 on tauren feral
 	auras[127538] = 4 -- Savage Roar
 	auras[93400]  = 4 -- Shooting Stars
 	auras[114108] = 2 -- Soul of the Forest (resto)
