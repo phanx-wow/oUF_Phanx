@@ -231,14 +231,11 @@ private.loader:SetScript("OnEvent", function(self, event, addon)
 		ignoreOwnHeals = false,			-- only show incoming heals from other players
 		threatLevels = true,			-- show threat levels instead of binary aggro
 
-		druidMana = false,				-- show a mana bar for druids while in feral forms
-
-		eclipseBar = true,				-- show an eclipse bar for druids
-		eclipseBarIcons = false,		-- show animated icons on the eclipse bar
-
-		totemBars = true,				-- show totem bars for shamans
-
-		runeBars = true,				-- show rune bars for death knights
+		druidMana = false,				-- [druid] show a mana bar in cat/bear forms
+		eclipseBar = true,				-- [druid] show an eclipse bar
+		eclipseBarIcons = false,		-- [druid] show animated icons on the eclipse bar
+		runeBars = true,				-- [deathknight] show rune cooldown bars
+		totemBars = true,				-- [shaman] show totem duration bars
 
 		healthColor = { 0.2, 0.2, 0.2 },
 		healthColorMode = "CUSTOM",
@@ -350,7 +347,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	local statusbar = CreateScrollingDropdown(self, L.Texture, nil, private.statusbarList)
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
+	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
 
 	local valueBG = statusbar.dropdown:CreateTexture(nil, "OVERLAY")
 	valueBG:SetPoint("LEFT", statusbar.valueText, -2, 1)
@@ -517,8 +514,8 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	--------------------------------------------------------------------
 
 	local borderSize = CreateSlider(self, L.BorderSize, nil, 12, 24, 2)
-	borderSize:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", -2, -12)
-	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 4, -12)
+	borderSize:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", 0, -12)
+	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -12)
 	function borderSize:OnValueChanged(value)
 		value = floor(value + 0.5)
 		db.borderSize = value
@@ -526,6 +523,29 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 			frame:SetBorderSize(value)
 		end
 		return value
+	end
+
+	--------------------------------------------------------------------
+
+	local borderColor = CreateColorPicker(self, L.BorderColor, L.BorderColor_Desc)
+	borderColor:SetPoint("LEFT", borderSize, "RIGHT", 24, -2)
+
+	function borderColor:GetColor()
+		return unpack(db.borderColor)
+	end
+
+	function borderColor:OnColorChanged(r, g, b)
+		db.borderColor[1] = r
+		db.borderColor[2] = g
+		db.borderColor[3] = b
+		for _, frame in ipairs(private.borderedObjects) do
+			frame:SetBorderColor(r, g, b)
+		end
+		for _, frame in ipairs(private.objects) do
+			if frame.UpdateBorder then
+				frame:UpdateBorder()
+			end
+		end
 	end
 
 	--------------------------------------------------------------------
@@ -557,7 +577,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local threatLevels = CreateCheckbox(self, L.ShowThreat, L.ShowThreat_Desc)
+	local threatLevels = CreateCheckbox(self, L.ThreatLevels, L.ThreatLevels_Desc)
 	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -6)
 	function threatLevels:OnClick(checked)
 		db.threatLevels = checked
@@ -570,16 +590,18 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
+	local _, CLASS = UnitClass("player")
+
 	local druidMana, eclipseBar, eclipseBarIcons
-	if select(2, UnitClass("player")) == "DRUID" then
+	if CLASS == "DRUID" then
 		druidMana = CreateCheckbox(self, L.DruidManaBar, L.DruidManaBar_Desc .. "\n\n" .. L.OptionRequiresReload)
-		druidMana:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -18)
+		druidMana:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -6)
 		function druidMana:OnClick(checked)
 			db.druidMana = checked
 		end
 
 		eclipseBar = CreateCheckbox(self, L.EclipseBar, L.EclipseBar_Desc .. "\n\n" .. L.OptionRequiresReload)
-		eclipseBar:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -18)
+		eclipseBar:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -6)
 		function eclipseBar:OnClick(checked)
 			db.eclipseBar = checked
 			if checked then
@@ -594,90 +616,28 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		function eclipseBarIcons:OnClick(checked)
 			db.eclipseBarIcons = checked
 		end
+
+		borderColor:ClearAllPoints()
+		borderColor:SetPoint("TOPLEFT", eclipseBarIcons, "BOTTOMLEFT", 0, -5)
 	end
 
 	local totemBars
-	if select(2, UnitClass("player")) == "SHAMAN" then
+	if CLASS == "SHAMAN" then
 		totemBars = CreateCheckbox(self, L.TotemBars, L.TotemBars_Desc .. "\n\n" .. L.OptionRequiresReload)
-		totemBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -18)
+		totemBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -6)
 		function totemBars:OnClick(checked)
 			db.totemBars = checked
 		end
 	end
 
 	local runeBars
-	if select(2, UnitClass("player")) == "DEATHKNIGHT" then
+	if CLASS == "DEATHKNIGHT" then
 		runeBars = CreateCheckbox(self, L.RuneBars, L.RuneBars_Desc  .. "\n\n" .. L.OptionRequiresReload)
-		runeBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -18)
+		runeBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -6)
 		function runeBars:OnClick(checked)
 			db.runeBars = checked
 		end
 	end
-
-	--------------------------------------------------------------------
-
-	function self.refresh()
-		for k, v in pairs(SharedMedia:HashTable("statusbar")) do
-			if v == db.statusbar or v:match("([^\\]+)$") == db.statusbar:match("([^\\]+)$") then
-				statusbar:SetValue(k)
-				statusbar.valueBG:SetTexture(v)
-			end
-		end
-		for k, v in pairs(SharedMedia:HashTable("font")) do
-			if v == db.font or v:lower():match("([^\\]+)%.ttf$") == db.font:lower():match("([^\\]+)%.ttf$") then
-				font:SetValue(k)
-				local _, height, flags = font.valueText:GetFont()
-				font.valueText:SetFont(v, height, flags)
-			end
-		end
-		outline:SetValue(db.fontOutline, outlines[db.fontOutline])
-
-		borderSize:SetValue(db.borderSize)
-		borderGlow:SetChecked(db.borderGlow)
-
-		dispelFilter:SetChecked(db.dispelFilter)
-		healFilter:SetChecked(db.ignoreOwnHeals)
-		threatLevels:SetChecked(db.threatLevels)
-
-		if druidMana then
-			druidMana:SetChecked(db.druidMana)
-		end
-
-		if eclipseBar then
-			eclipseBar:SetChecked(db.eclipseBar)
-			eclipseBarIcons:SetChecked(db.eclipseBarIcons)
-			if db.eclipseBar then
-				eclipseBarIcons:Enable()
-			else
-				eclipseBarIcons:Disable()
-			end
-		end
-
-		if totemBars then
-			totemBars:SetChecked(db.totemBars)
-		end
-
-		if runeBars then
-			runeBars:SetChecked(db.runeBars)
-		end
-	end
-end)
-
-------------------------------------------------------------------------
-
-private.colorsPanel = CreateOptionsPanel(L.Colors, private.optionsPanel.name, function(self)
-	local db = private.config
-
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
-	local CreateColorPicker = LibStub("PhanxConfig-ColorPicker").CreateColorPicker
-	local CreateDropdown = LibStub("PhanxConfig-Dropdown").CreateDropdown
-	local CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
-
-	--------------------------------------------------------------------
-
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(self, self.name, L.Colors_Desc)
-
-	--------------------------------------------------------------------
 
 	local healthColor
 
@@ -688,8 +648,8 @@ private.colorsPanel = CreateOptionsPanel(L.Colors, private.optionsPanel.name, fu
 	}
 
 	local healthColorMode = CreateDropdown(self, L.HealthColor, L.HealthColor_Desc)
-	healthColorMode:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	healthColorMode:SetPoint("TOPRIGHT", notes, "BOTTOM", -8, -12)
+	healthColorMode:SetPoint("TOPLEFT", borderSize, "BOTTOMLEFT", 0, -12)
+	healthColorMode:SetPoint("TOPRIGHT", borderSize, "BOTTOMRIGHT", 0, -12)
 
 	do
 		local info = {}
@@ -742,7 +702,7 @@ private.colorsPanel = CreateOptionsPanel(L.Colors, private.optionsPanel.name, fu
 	--------------------------------------------------------------------
 
 	healthColor = CreateColorPicker(self, L.HealthColorCustom)
-	healthColor:SetPoint("BOTTOMLEFT", healthColorMode, "BOTTOMRIGHT", 16, 4)
+	healthColor:SetPoint("LEFT", healthColorMode, "RIGHT", 24, eclipseBarIcons and -10 or -6)
 	function healthColor:GetColor()
 		return unpack(db.healthColor)
 	end
@@ -855,7 +815,7 @@ private.colorsPanel = CreateOptionsPanel(L.Colors, private.optionsPanel.name, fu
 	--------------------------------------------------------------------
 
 	powerColor = CreateColorPicker(self, L.PowerColorCustom)
-	powerColor:SetPoint("BOTTOMLEFT", powerColorMode, "BOTTOMRIGHT", 16, 4)
+	powerColor:SetPoint("LEFT", powerColorMode, "RIGHT", 24, eclipseBarIcons and -10 or -6)
 
 	function powerColor:GetColor()
 		return unpack(db.powerColor)
@@ -917,32 +877,50 @@ private.colorsPanel = CreateOptionsPanel(L.Colors, private.optionsPanel.name, fu
 		return value
 	end
 
-	--------------------------------------------------------------------
-
-	local borderColor = CreateColorPicker(self, L.BorderColor, L.BorderColor_Desc)
-	borderColor:SetPoint("TOPLEFT", powerBG, "BOTTOMLEFT", 4, -16)
-
-	function borderColor:GetColor()
-		return unpack(db.borderColor)
-	end
-
-	function borderColor:OnColorChanged(r, g, b)
-		db.borderColor[1] = r
-		db.borderColor[2] = g
-		db.borderColor[3] = b
-		for _, frame in ipairs(private.borderedObjects) do
-			frame:SetBorderColor(r, g, b)
-		end
-		for _, frame in ipairs(private.objects) do
-			if frame.UpdateBorder then
-				frame:UpdateBorder()
-			end
-		end
-	end
 
 	--------------------------------------------------------------------
 
 	function self.refresh()
+		for k, v in pairs(SharedMedia:HashTable("statusbar")) do
+			if v == db.statusbar or v:match("([^\\]+)$") == db.statusbar:match("([^\\]+)$") then
+				statusbar:SetValue(k)
+				statusbar.valueBG:SetTexture(v)
+			end
+		end
+		for k, v in pairs(SharedMedia:HashTable("font")) do
+			if v == db.font or v:lower():match("([^\\]+)%.ttf$") == db.font:lower():match("([^\\]+)%.ttf$") then
+				font:SetValue(k)
+				local _, height, flags = font.valueText:GetFont()
+				font.valueText:SetFont(v, height, flags)
+			end
+		end
+		outline:SetValue(db.fontOutline, outlines[db.fontOutline])
+
+		borderSize:SetValue(db.borderSize)
+
+		dispelFilter:SetChecked(db.dispelFilter)
+		healFilter:SetChecked(db.ignoreOwnHeals)
+		threatLevels:SetChecked(db.threatLevels)
+
+		if druidMana then
+			druidMana:SetChecked(db.druidMana)
+		end
+		if eclipseBar then
+			eclipseBar:SetChecked(db.eclipseBar)
+			eclipseBarIcons:SetChecked(db.eclipseBarIcons)
+			if db.eclipseBar then
+				eclipseBarIcons:Enable()
+			else
+				eclipseBarIcons:Disable()
+			end
+		end
+		if totemBars then
+			totemBars:SetChecked(db.totemBars)
+		end
+		if runeBars then
+			runeBars:SetChecked(db.runeBars)
+		end
+
 		healthColorMode:SetValue(db.healthColorMode, healthColorModes[db.healthColorMode])
 		healthColor:SetColor(unpack(db.healthColor))
 		if db.healthColorMode == "CUSTOM" then
