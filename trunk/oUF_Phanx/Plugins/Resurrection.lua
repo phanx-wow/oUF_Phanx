@@ -37,11 +37,13 @@ local function Update(self, event, unit)
 	if not guid then return end
 	--print(event, unit)
 
-	local status, endTime, casterGUID, casterUnit = LibStub("LibResInfo-1.0"):UnitHasIncomingRes(guid)
+	local status, endTime, casterUnit, casterGUID = LibStub("LibResInfo-1.0"):UnitHasIncomingRes(guid)
 	--print(status)
 
 	local element = self.Resurrection
-	element:SetText(status and displayText[status] or nil)
+	local text = status and displayText[status]
+
+	element:SetText(text)
 
 	if element.PostUpdate then
 		element:PostUpdate(unit, status, text)
