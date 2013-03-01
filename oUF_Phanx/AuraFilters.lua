@@ -214,8 +214,7 @@ if playerClass == "HUNTER" then
 	auras[82926]  = 4 -- Fire! <= Master Marksman
 	auras[82692]  = 4 -- Focus Fire
 	auras[56453]  = 4 -- Lock and Load
-	auras[62305]  = 4 -- Master's Call -- NEEDS CHECK
-	auras[64216]  = 4 -- Master's Call -- NEEDS CHECK
+	auras[54216]  = 4 -- Master's Call
 	auras[34477]  = 4 -- Misdirection
 	auras[118922] = 4 -- Posthaste
 	auras[3045]   = 4 -- Rapid Fire
@@ -233,17 +232,15 @@ if playerClass == "HUNTER" then
 	auras[20736]  = 2 -- Distracting Shot
 	auras[64803]  = 2 -- Entrapment
 	auras[53301]  = 2 -- Explosive Shot
-	auras[13812]  = 2 -- Explosive Trap -- NEEDS CHECK
+	auras[13812]  = 2 -- Explosive Trap
 	auras[43446]  = 2 -- Explosive Trap Effect -- NEEDS CHECK
 	auras[128961] = 2 -- Explosive Trap Effect -- NEEDS CHECK
-	auras[3355]   = 2 -- Freezing Trap -- NEEDS CHECK
-	auras[43448]  = 2 -- Freezing Trap -- NEEDS CHECK
+	auras[3355]   = 2 -- Freezing Trap
 	auras[61394]  = 2 -- Frozen Wake <= Glyph of Freezing Trap
 	auras[120761] = 2 -- Glaive Toss -- NEEDS CHECK
 	auras[121414] = 2 -- Glaive Toss -- NEEDS CHECK
 	auras[1130]   = 1 -- Hunter's Mark
-	auras[67035]  = 2 -- Ice Trap -- NEEDS CHECK
-	auras[110610] = 2 -- Ice Trap -- NEEDS CHECK
+	auras[135299] = 1 -- Ice Trap
 	auras[34394]  = 2 -- Intimidation
 	auras[115928] = 2 -- Narrow Escape -- NEEDS CHECK
 	auras[128405] = 2 -- Narrow Escape -- NEEDS CHECK
@@ -255,13 +252,12 @@ if playerClass == "HUNTER" then
 	auras[82654]  = 2 -- Widow Venom
 	auras[19386]  = 2 -- Wyvern Sting
 
-	auras[19615]  = 3 -- Frenzy
---	auras[118455] = 3 -- Beast Cleave
-	auras[19574]  = 3 -- Bestial Wrath
-	auras[136]    = 3 -- Mend Pet
-	auras[35079]  = 3 -- Misdirection -- NEEDS CHECK
-	auras[110588] = 3 -- Misdirection -- NEEDS CHECK
-	auras[110591] = 3 -- Misdirection -- NEEDS CHECK
+	auras[19615]  = 2 -- Frenzy
+--	auras[118455] = 2 -- Beast Cleave
+	auras[19574]  = 2 -- Bestial Wrath
+	auras[136]    = 2 -- Mend Pet
+	auras[34477]  = 1 -- Misdirection (30 sec threat)
+	auras[35079]  = 1 -- Misdirection (4 sec transfer)
 end
 
 ------------------------------------------------------------------------
