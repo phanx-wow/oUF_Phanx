@@ -20,8 +20,8 @@ local PVP_MODE = false
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
-local playerClass = select(2, UnitClass("player"))
-local playerRace = select(2, UnitRace("player"))
+local _, playerClass = UnitClass("player")
+local _, playerRace = UnitRace("player")
 
 local auras = {
 	[1022]   = 4, -- Hand of Protection
@@ -779,7 +779,8 @@ end
 ------------------------------------------------------------------------
 --	Weakened Armor
 
-if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
+if playerClass == "ROGUE" or playerClass == "WARRIOR" then
+	-- druids need to keep Faerie Fire/Swarm up anyway, no need to see both
 	auras[113746] = 1 -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
 end
 
