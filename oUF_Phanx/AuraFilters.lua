@@ -467,6 +467,8 @@ if playerClass == "PRIEST" then
 	auras[17]     = 3 -- Power Word: Shield
 	auras[41635]  = 3 -- Prayer of Mending
 	auras[139]    = 3 -- Renew
+
+	auars[6788]   = 3 -- Weakened Soul
 end
 
 ------------------------------------------------------------------------
