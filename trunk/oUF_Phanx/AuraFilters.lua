@@ -420,6 +420,8 @@ if playerClass == "PALADIN" then
 	auras[20925]  = 3 -- Sacred Shield
 	auras[20170]  = 3 -- Seal of Justice
 	auras[114917] = 3 -- Stay of Execution
+
+	auras[25771]  = 3 -- Forbearace
 end
 
 ------------------------------------------------------------------------
