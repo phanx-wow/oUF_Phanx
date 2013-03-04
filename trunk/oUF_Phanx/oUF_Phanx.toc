@@ -35,6 +35,7 @@ Locales\Locale-zhCN.lua
 
 Plugins\AFK.lua
 Plugins\DispelHighlight.lua
+Plugins\DruidMushrooms.lua
 Plugins\PowerStack.lua
 Plugins\Resurrection.lua
 Plugins\ThreatHighlight.lua

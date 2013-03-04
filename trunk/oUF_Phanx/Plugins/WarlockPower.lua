@@ -29,7 +29,77 @@ local powerTypes = {
 	[SPEC_WARLOCK_DESTRUCTION] = "BURNING_EMBERS",
 }
 
-local function Update(self, event, unit, powerType)
+local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
+
+function UpdateVisibility(self, event, unit)
+	local spec = GetSpecialization()
+	--print("WarlockPower: UpdateVisibility", spec)
+
+	local element = self.WarlockPower
+	element.powerType = powerTypes[spec]
+
+	local show
+	if UnitIsDeadOrGhost("player") or UnitHasVehicleUI("player") then
+		--print("dead or in vehicle")
+		-- no show
+	elseif spec == SPEC_WARLOCK_AFFLICTION then
+		--print("AFFLICTION")
+		if IsPlayerSpell(WARLOCK_SOULBURN) then
+			show = true
+		else
+			self.spellID = WARLOCK_SOULBURN
+			self:RegisterEvent("SPELLS_CHANGED", UpdateVisibility, true)
+		end
+	elseif spec == SPEC_WARLOCK_DEMONOLOGY then
+		--print("DEMONOLOGY")
+		show = true
+		if element.areOrbs then -- oooorrrrbssss!
+			element:SetOrientation("HORIZONTAL")
+			element:SetReverseFill(true)
+		end
+	elseif spec == SPEC_WARLOCK_DESTRUCTION then
+		--print("DESTRUCTION")
+		if IsPlayerSpell(WARLOCK_BURNING_EMBERS) then
+			show = true
+			if element.areOrbs then -- oooorrrrbssss!
+				element:SetOrientation("VERTICAL")
+				element:SetReverseFill(false)
+			end
+		else
+			self.spellID = WARLOCK_BURNING_EMBERS
+			self:RegisterEvent("SPELLS_CHANGED", UpdateVisibility, true)
+		end
+	end
+	self.spec = spec
+
+	if show then
+		--print("show")
+		if element.Show then
+			element:Show()
+		end
+
+		self:RegisterEvent("UNIT_POWER", Path)
+		self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
+
+		self:UnregisterEvent("SPELLS_CHANGED", UpdateVisibility)
+
+		element:ForceUpdate("UpdateVisibility", "player")
+	else
+		--print("hide")
+		self:UnregisterEvent("UNIT_POWER", Path)
+		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
+
+		if element.Hide then
+			element:Hide()
+		else
+			for i = 1, #element do
+				element[i]:Hide()
+			end
+		end
+	end
+end
+
+function Update(self, event, unit, powerType)
 	local element = self.WarlockPower
 	if self.unit ~= unit or (powerType and powerType ~= element.powerType) then return end
 
@@ -209,113 +279,45 @@ local function Update(self, event, unit, powerType)
 	end
 end
 
-local function Path(self, ...)
+function Path(self, ...)
 	return (self.WarlockPower.Override or Update)(self, ...)
 end
 
-local function ForceUpdate(element)
+function ForceUpdate(element)
 	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
-local function Visibility(self, event, unit)
-	local spec = GetSpecialization()
-	--print("WarlockPower: Visibility", spec)
-
-	local element = self.WarlockPower
-	element.powerType = powerTypes[spec]
-
-	local show
-	if UnitIsDeadOrGhost("player") or UnitHasVehicleUI("player") then
-		--print("dead or in vehicle")
-		-- no show
-	elseif spec == SPEC_WARLOCK_AFFLICTION then
-		--print("AFFLICTION")
-		if IsPlayerSpell(WARLOCK_SOULBURN) then
-			show = true
-		else
-			self.spellID = WARLOCK_SOULBURN
-			self:RegisterEvent("SPELLS_CHANGED", Visibility, true)
-		end
-	elseif spec == SPEC_WARLOCK_DEMONOLOGY then
-		--print("DEMONOLOGY")
-		show = true
-		if element.areOrbs then -- oooorrrrbssss!
-			element:SetOrientation("HORIZONTAL")
-			element:SetReverseFill(true)
-		end
-	elseif spec == SPEC_WARLOCK_DESTRUCTION then
-		--print("DESTRUCTION")
-		if IsPlayerSpell(WARLOCK_BURNING_EMBERS) then
-			show = true
-			if element.areOrbs then -- oooorrrrbssss!
-				element:SetOrientation("VERTICAL")
-				element:SetReverseFill(false)
-			end
-		else
-			self.spellID = WARLOCK_BURNING_EMBERS
-			self:RegisterEvent("SPELLS_CHANGED", Visibility, true)
-		end
-	end
-	self.spec = spec
-
-	if show then
-		--print("show")
-		if element.Show then
-			element:Show()
-		end
-
-		self:RegisterEvent("UNIT_POWER", Path)
-		self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
-
-		self:UnregisterEvent("SPELLS_CHANGED", Visibility)
-
-		element:ForceUpdate("Visibility", "player")
-	else
-		--print("hide")
-		self:UnregisterEvent("UNIT_POWER", Path)
-		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
-
-		if element.Hide then
-			element:Hide()
-		else
-			for i = 1, #element do
-				element[i]:Hide()
-			end
-		end
-	end
-end
-
-local function Enable(self, unit)
+function Enable(self, unit)
 	local element = self.WarlockPower
 	if element and unit == "player" then
 		element.__owner = self
 		element.ForceUpdate = ForceUpdate
 
-		self:RegisterEvent("PLAYER_ALIVE", Visibility, true)
-		self:RegisterEvent("PLAYER_DEAD", Visibility, true)
-		self:RegisterEvent("PLAYER_UNGHOST", Visibility, true)
-		self:RegisterEvent("PLAYER_TALENT_UPDATE", Visibility, true)
-		self:RegisterEvent("UNIT_ENTERED_VEHICLE", Visibility)
-		self:RegisterEvent("UNIT_EXITED_VEHICLE", Visibility)
+		self:RegisterEvent("PLAYER_ALIVE", UpdateVisibility, true)
+		self:RegisterEvent("PLAYER_DEAD", UpdateVisibility, true)
+		self:RegisterEvent("PLAYER_UNGHOST", UpdateVisibility, true)
+		self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
+		self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
+		self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
 
-		Visibility(self, nil, "player")
+		UpdateVisibility(self, nil, "player")
 
 		return true
 	end
 end
 
-local function Disable(self)
+function Disable(self)
 	local element = self.WarlockPower
 	if element then
 		self:UnregisterEvent("UNIT_POWER", Path)
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
 
-		self:UnregisterEvent("PLAYER_ALIVE", Visibility)
-		self:UnregisterEvent("PLAYER_DEAD", Visibility)
-		self:UnregisterEvent("PLAYER_UNGHOST", Visibility)
-		self:UnregisterEvent("PLAYER_TALENT_UPDATE", Visibility)
-		self:UnregisterEvent("UNIT_ENTERED_VEHICLE", Visibility)
-		self:UnregisterEvent("UNIT_EXITED_VEHICLE", Visibility)
+		self:UnregisterEvent("PLAYER_ALIVE", UpdateVisibility)
+		self:UnregisterEvent("PLAYER_DEAD", UpdateVisibility)
+		self:UnregisterEvent("PLAYER_UNGHOST", UpdateVisibility)
+		self:UnregisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility)
+		self:UnregisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
+		self:UnregisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
 
 		if element.Hide then
 			element:Hide()
