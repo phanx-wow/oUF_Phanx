@@ -35,19 +35,19 @@
       local Totem = CreateFrame('Button', nil, self)
       Totem:SetSize(40, 40)
       Totem:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', index * Totem:GetWidth(), 0)
-      
+
       local Icon = Totem:CreateTexture(nil, "OVERLAY")
       Icon:SetAllPoints()
-      
+
       local Cooldown = CreateFrame("Cooldown", nil, Totem)
       Cooldown:SetAllPoints()
-      
+
       Totem.Icon = Icon
       Totem.Cooldown = Cooldown
-      
+
       Totems[index] = Totem
    end
-   
+
    -- Register with oUF
    self.Totems = Totems
 
@@ -67,9 +67,9 @@ if(select(2, UnitClass'player') == 'SHAMAN') then
 	priorities = SHAMAN_TOTEM_PRIORITIES
 end
 
-local OnClick = function(self)
-	DestroyTotem(self:GetID())
-end
+--local OnClick = function(self)
+--	DestroyTotem(self:GetID())
+--end
 
 local UpdateTooltip = function(self)
 	GameTooltip:SetTotem(self:GetID())
@@ -139,9 +139,9 @@ local Enable = function(self)
 
 			totem:SetID(priorities[i])
 
-			if(totem:HasScript'OnClick') then
-				totem:SetScript('OnClick', OnClick)
-			end
+--			if(totem:HasScript'OnClick') then
+--				totem:SetScript('OnClick', OnClick)
+--			end
 
 			if(totem:IsMouseEnabled()) then
 				totem:SetScript('OnEnter', OnEnter)
