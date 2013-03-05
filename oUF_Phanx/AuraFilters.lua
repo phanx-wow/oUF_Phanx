@@ -470,7 +470,7 @@ if playerClass == "PRIEST" then
 	auras[41635]  = 3 -- Prayer of Mending
 	auras[139]    = 3 -- Renew
 
-	auars[6788]   = 3 -- Weakened Soul
+	auras[6788]   = 3 -- Weakened Soul
 end
 
 ------------------------------------------------------------------------
