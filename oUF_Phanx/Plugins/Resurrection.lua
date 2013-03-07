@@ -1,5 +1,5 @@
 --[[--------------------------------------------------------------------
-	oUF_Resurrection
+	oUF_ResInfo
 	by Phanx <addons@phanx.net>
 	Adds resurrection status text to oUF frames.
 	Loosely based on GridStatusRes.
@@ -7,20 +7,24 @@
 	You may embed this module in your own layout, but please do not
 	distribute it as a standalone plugin.
 
-	Usage:
-		frame.Resurrection = frame.Health:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		frame.Resurrection:SetPoint("CENTER")
+	Usage
 
-	Options:
-		frame.Resurrection.ignoreSoulstone = true
+	frame.ResInfo = frame.Health:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	frame.ResInfo:SetPoint("CENTER")
+
+	Options
+
+	frame.ResInfo.ignoreSoulstone = true -- NOT YET IMPLEMENTED
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-if not oUF then return end
+assert(oUF, "oUF_ResInfo requires oUF")
 
-local LibResInfo = LibStub and LibStub("LibResInfo-1.0", true)
-if not LibResInfo then return end
+local LibResInfo = LibStub("LibResInfo-1.0", true)
+assert(LibResInfo, "oUF_ResInfo requires LibResInfo-1.0")
+
+local Update, Path, ForceUpdate, Enable, Disable
 
 local displayText = {
 	CASTING = "|cffffff00RES|r",
@@ -28,19 +32,15 @@ local displayText = {
 	SELFRES = "|cffff00ffSS|r",
 }
 
-------------------------------------------------------------------------
+function Update(self, event, unit)
+	if unit ~= self.unit then return end
+	local element = self.ResInfo
 
-local function Update(self, event, unit)
-	if not unit then return end -- frame doesn't currently have a unit (eg. nonexistent party member)
+	if element.PreUpdate then
+		element:PreUpdate(unit)
+	end
 
-	local guid = UnitGUID(unit)
-	if not guid then return end
-	--print(event, unit)
-
-	local status, endTime, casterUnit, casterGUID = LibStub("LibResInfo-1.0"):UnitHasIncomingRes(guid)
-	--print(status)
-
-	local element = self.Resurrection
+	local status, endTime, casterUnit, casterGUID = LibStub("LibResInfo-1.0"):UnitHasIncomingRes(unit)
 	local text = status and displayText[status]
 
 	element:SetText(text)
@@ -50,14 +50,16 @@ local function Update(self, event, unit)
 	end
 end
 
-local function ForceUpdate(element)
-	return Update(element.__owner, "ForceUpdate", element.__owner.unit)
+function Path(self, ...)
+	return (self.ResInfo.Override or Update)(self, ...)
 end
 
-------------------------------------------------------------------------
+function ForceUpdate(element)
+	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
+end
 
-local function Enable(self)
-	local element = self.Resurrection
+function Enable(self)
+	local element = self.ResInfo
 	if not element or not element.SetText then return end
 
 	element.__owner = self
@@ -66,8 +68,8 @@ local function Enable(self)
 	return true
 end
 
-local function Disable(self)
-	local element = self.Resurrection
+function Disable(self)
+	local element = self.ResInfo
 	if not element then return end
 
 	element:Hide()
@@ -75,20 +77,21 @@ local function Disable(self)
 	return true
 end
 
-oUF:AddElement("Resurrection", Update, Enable, Disable)
+oUF:AddElement("ResInfo", Update, Enable, Disable)
 
 ------------------------------------------------------------------------
 
-local function UpdateAll(event, guid, unit)
-	for _, frame in ipairs(oUF.objects) do
-		if frame.Resurrection then
+local function UpdateAll(event, unit, guid)
+	for i = 1, #oUF.objects do
+		local frame = oUF.objects[i]
+		if frame.unit and frame.ResInfo then
 			Update(frame, event, frame.unit)
 		end
 	end
 end
 
-LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResCastStarted", UpdateAll)
-LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResCastCancelled", UpdateAll)
-LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResPending", UpdateAll)
-LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResUsed", UpdateAll)
-LibResInfo.RegisterCallback("oUF_Resurrection", "LibResInfo_ResExpired", UpdateAll)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResCastStarted", UpdateAll)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResCastCancelled", UpdateAll)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResPending", UpdateAll)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResUsed", UpdateAll)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResExpired", UpdateAll)
