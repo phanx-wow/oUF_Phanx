@@ -30,11 +30,11 @@ end
 function Update(self, event)
 	local element = self.DruidMushrooms
 	for i = 1, MAX_MUSHROOMS do
-		local exists, name, start, duration, icon = GetTotemInfo(slot)
+		local exists, name, start, duration, icon = GetTotemInfo(i)
 		if duration > 0 then
-			element[slot]:Show()
+			element[i]:Show()
 		else
-			element[slot]:Hide()
+			element[i]:Hide()
 		end
 	end
 end
