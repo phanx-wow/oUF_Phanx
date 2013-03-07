@@ -1,13 +1,15 @@
 --[[--------------------------------------------------------------------
 	oUF_DruidMushrooms
 	by Phanx <addons@phanx.net>
-	Adds basic support for druid mushrooms. Use it like ClassIcons.
+	Adds basic ClassIcons-style support for druid mushrooms.
 
 	You may embed this module in your own layout,
 	but please do not distribute it as a standalone plugin.
 ----------------------------------------------------------------------]]
 
-local MAX_MUSHROOMS = 3
+local _, ns = ...
+local oUF = ns.oUF or oUF
+assert(oUF, "oUF_DruidMushrooms requires oUF")
 
 local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
@@ -17,25 +19,37 @@ function UpdateVisibility(self, event)
 	local spec = GetSpecialization()
 	if spec == 2 or spec == 3 or UnitHasVehicleUI("player") then
 		self:UnregisterEvent("PLAYER_TOTEM_UPDATE", Path)
-		for i = 1, MAX_MUSHROOMS do
+		for i = 1, #element do
 			element[i]:Hide()
 		end
+		element.disabled = true
 		return
 	end
 
-	self:RegisterEvent("PLAYER_TOTEM_UPDATE", Path)
-	Update(self, event)
+	element.disabled = nil
+	self:RegisterEvent("PLAYER_TOTEM_UPDATE", Path, true)
+	Update(self, "UpdateVisibility")
 end
 
 function Update(self, event)
 	local element = self.DruidMushrooms
-	for i = 1, MAX_MUSHROOMS do
+	if element.disabled then return end
+
+	if element.PreUpdate then
+		element:PreUpdate()
+	end
+
+	for i = 1, MAX_TOTEMS do
 		local exists, name, start, duration, icon = GetTotemInfo(i)
 		if duration > 0 then
 			element[i]:Show()
 		else
 			element[i]:Hide()
 		end
+	end
+
+	if element.PostUpdate then
+		return element:PostUpdate()
 	end
 end
 
@@ -54,14 +68,9 @@ function Enable(self)
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 
-	self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility)
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
 	self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
 	self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
-
-	for i = 1, #element do
-		element[i]:Hide()
-	end
-
 	UpdateVisibility(self, "Enable")
 
 	TotemFrame.Show = TotemFrame.Hide
@@ -85,7 +94,14 @@ function Disable(self)
 	self:UnregisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
 
 	for i = 1, #element do
-		element[i]:Hide()
+		local obj = element[i]
+		if obj:IsObjectType("Texture") and not obj:GetTexture() then
+			obj:SetTexture([[Interface\ComboFrame\ComboPoint]])
+			obj:SetTexCoord(0, 0.375, 0, 1)
+		end
+		if i > MAX_TOTEMS then
+			obj:Hide()
+		end
 	end
 
 	TotemFrame.Show = nil

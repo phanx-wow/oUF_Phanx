@@ -51,23 +51,29 @@ assert(oUF, "oUF_PowerStack requires oUF.")
 
 local UnitBuff = UnitBuff
 
-local Enable, Disable
+local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
-local function Update(self, event, unit)
-	if unit ~= self.unit then return end
-
+function UpdateVisibility(self, event)
 	local element = self.PowerStack
-	local max = #element
 
-	local hasVehicle = UnitHasVehicleUI("player")
-	if element.__inVehicle ~= hasVehicle then
-		element.__inVehicle = hasVehicle
-
-		if hasVehicle then
-			return Disable(self)
-		else
-			Enable(self)
+	if UnitHasVehicleUI("player") then
+		self:UnregisterEvent("UNIT_AURA", Path)
+		for i = 1, #element do
+			element[i]:Hide()
 		end
+		return
+	end
+
+	self:RegisterEvent("UNIT_AURA", Path)
+	Update(self, "UpdateVisibility", self.unit)
+end
+
+function Update(self, event, unit)
+	if unit ~= self.unit then return end
+	local element = self.PowerStack
+
+	if element.PreUpdate then
+		element:PreUpdate()
 	end
 
 	local count
@@ -78,34 +84,31 @@ local function Update(self, event, unit)
 		count = stacks or 0
 	end
 
-	-- print("PowerStack: Update", event, unit, element.buff, count, max)
+	if count == element.count then
+		return
+	end
+	element.count = count
 
-	if count == element.prev then return end
-
-	if count == 0 then
-		for i = 1, max do
-			element[i]:Hide()
-		end
-	else
-		for i = 1, max do
-			local obj = element[i]
+	for i = 1, #element do
+		local obj = element[i]
+		if count == 0 or i > element.num then
+			obj:Hide()
+		else
 			obj:Show()
-			if i <= count then
-				obj:SetAlpha(1)
-			else
-				obj:SetAlpha(0.25)
-			end
+			obj:SetAlpha(i <= count and 1 or 0.25)
 		end
 	end
 
-	element.prev = count
+	if element.PostUpdate then
+		element:PostUpdate(count)
+	end
 end
 
-local function Path(self, ...)
+function Path(self, ...)
 	return (self.PowerStack.Override or Update)(self, ...)
 end
 
-local function ForceUpdate(element)
+function ForceUpdate(element)
 	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
@@ -116,7 +119,9 @@ function Enable(self)
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 
-	self:RegisterEvent("UNIT_AURA", Path)
+	if not element.num then
+		element.num = #element
+	end
 
 	for i = 1, #element do
 		local obj = element[i]
@@ -126,6 +131,10 @@ function Enable(self)
 		end
 	end
 
+	self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
+	self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
+	UpdateVisibility(self, "Enable")
+
 	return true
 end
 
@@ -134,6 +143,8 @@ function Disable(self)
 	if not element then return end
 
 	self:UnregisterEvent("UNIT_AURA", Path)
+	self:UnregisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
+	self:UnregisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
 
 	for i = 1, #element do
 		element[i]:Hide()

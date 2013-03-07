@@ -16,18 +16,18 @@
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-if not oUF then return end
+assert(oUF, "oUF_ThreatHighlight requires oUF")
 
-local function Update(self, event, unit)
+local Update, Path, ForceUpdate, Enable, Disable
+
+function Update(self, event, unit)
 	if not unit or self.unit ~= unit then return end
+	local element = self.ThreatHighlight
 
 	local status = UnitThreatSituation(unit)
 	-- print("ThreatHighlight Update", event, unit, status)
 
-	local element = self.ThreatHighlight
-	if element.Override then
-		element.Override(self, unit, status)
-	elseif status and status > 0 then
+	if status and status > 0 then
 		if element.SetVertexColor then
 			element:SetVertexColor(GetThreatStatusColor(status))
 		end
@@ -37,29 +37,31 @@ local function Update(self, event, unit)
 	end
 end
 
-local function ForceUpdate(element)
-	return Update(element.__owner, "ForceUpdate", element.__owner.unit)
+function Path(self, ...)
+	return (self.ThreatHighlight.Override or Update)(self, ...)
 end
 
-local function Enable(self)
+function ForceUpdate(element)
+	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
+end
+
+function Enable(self)
 	local element = self.ThreatHighlight
 	if not element then return end
 
-	if type(element) == "table" then
-		if not element.Override and not element.Show then return end
-	elseif type(element) == "function" then
+	if type(element) == "function" then
 		self.ThreatHighlight = {
 			Override = element
 		}
 		element = self.ThreatHighlight
-	else
+	elseif type(element) ~= "table" or (not element.Show and not element.Override) then
 		return
 	end
 
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 
-	self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
+	self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE", Path)
 
 	if element.GetTexture and not element:GetTexture() then
 		element:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
@@ -68,17 +70,13 @@ local function Enable(self)
 	return true
 end
 
-local function Disable(self)
+function Disable(self)
 	local element = self.ThreatHighlight
 	if not element then return end
 
-	self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
+	self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Path)
 
-	if element.Override then
-		element.Override(self, self.unit, 0)
-	else
-		element:Hide()
-	end
+	element:Hide()
 end
 
-oUF:AddElement("ThreatHighlight", Update, Enable, Disable)
+oUF:AddElement("ThreatHighlight", Path, Enable, Disable)

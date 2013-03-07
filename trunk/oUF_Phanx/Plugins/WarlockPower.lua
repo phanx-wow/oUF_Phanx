@@ -29,107 +29,89 @@ local powerTypes = {
 	[SPEC_WARLOCK_DESTRUCTION] = "BURNING_EMBERS",
 }
 
+local spellForSpec = {
+	[SPEC_WARLOCK_AFFLICTION] = WARLOCK_SOULBURN,
+	[SPEC_WARLOCK_DESTRUCTION] = WARLOCK_BURNING_EMBERS,
+}
+
 local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
 function UpdateVisibility(self, event, unit)
-	local spec = GetSpecialization()
-	--print("WarlockPower: UpdateVisibility", spec)
-
 	local element = self.WarlockPower
+
+	self:UnregisterEvent("SPELLS_CHANGED", UpdateVisibility)
+	self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
+	self:UnregisterEvent("UNIT_POWER", Path)
+
+	element.powerType = nil
+
+	if element.Hide then
+		element:Hide()
+	else
+		for i = 1, #element do
+			element[i]:Hide()
+		end
+	end
+
+	if UnitHasVehicleUI("player") then
+		return
+	end
+
+	local spec = GetSpecialization()
+	if not spec or spellForSpec[spec] and not IsPlayerSpell(spellForSpec[spec]) then
+		return self:RegisterEvent("SPELLS_CHANGED", UpdateVisibility, true)
+	end
+
+	element.spec = spec
 	element.powerType = powerTypes[spec]
 
-	local show
-	if UnitIsDeadOrGhost("player") or UnitHasVehicleUI("player") then
-		--print("dead or in vehicle")
-		-- no show
-	elseif spec == SPEC_WARLOCK_AFFLICTION then
-		--print("AFFLICTION")
-		if IsPlayerSpell(WARLOCK_SOULBURN) then
-			show = true
-		else
-			self.spellID = WARLOCK_SOULBURN
-			self:RegisterEvent("SPELLS_CHANGED", UpdateVisibility, true)
-		end
-	elseif spec == SPEC_WARLOCK_DEMONOLOGY then
-		--print("DEMONOLOGY")
-		show = true
-		if element.areOrbs then -- oooorrrrbssss!
+	if element.areOrbs then -- oooorrrrbssss!
+		if spec == SPEC_WARLOCK_DEMONOLOGY then
 			element:SetOrientation("HORIZONTAL")
 			element:SetReverseFill(true)
-		end
-	elseif spec == SPEC_WARLOCK_DESTRUCTION then
-		--print("DESTRUCTION")
-		if IsPlayerSpell(WARLOCK_BURNING_EMBERS) then
-			show = true
-			if element.areOrbs then -- oooorrrrbssss!
-				element:SetOrientation("VERTICAL")
-				element:SetReverseFill(false)
-			end
-		else
-			self.spellID = WARLOCK_BURNING_EMBERS
-			self:RegisterEvent("SPELLS_CHANGED", UpdateVisibility, true)
+		elseif spec == SPEC_WARLOCK_DESTRUCTION then
+			element:SetOrientation("VERTICAL")
+			element:SetReverseFill(false)
 		end
 	end
-	self.spec = spec
 
-	if show then
-		--print("show")
-		if element.Show then
-			element:Show()
-		end
-
-		self:RegisterEvent("UNIT_POWER", Path)
-		self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
-
-		self:UnregisterEvent("SPELLS_CHANGED", UpdateVisibility)
-
-		element:ForceUpdate("UpdateVisibility", "player")
-	else
-		--print("hide")
-		self:UnregisterEvent("UNIT_POWER", Path)
-		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
-
-		if element.Hide then
-			element:Hide()
-		else
-			for i = 1, #element do
-				element[i]:Hide()
-			end
-		end
+	if element.Show then
+		element:Show()
 	end
+
+	self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
+	self:RegisterEvent("UNIT_POWER", Path)
+	Update(self, "UpdateVisibility", "player")
 end
 
 function Update(self, event, unit, powerType)
 	local element = self.WarlockPower
-	if self.unit ~= unit or (powerType and powerType ~= element.powerType) then return end
+	if self.unit ~= unit or not element.powerType or (powerType and powerType ~= element.powerType) then return end
 
 	if element.PreUpdate then
 		element:PreUpdate()
 	end
 
-	--print("WarlockPower.Update", powerType)
+	--print("WarlockPower Update", powerType)
 	if not powerType then
 		powerType = element.powerType
-		if not powerType then
-			return
-		end
 	end
 
-	local num, max
+	local power, maxPower
 
 	-- Affliction
 	if powerType == "SOUL_SHARDS" then
-		num = UnitPower(unit, SPELL_POWER_SOUL_SHARDS)
-		max = UnitPowerMax(unit, SPELL_POWER_SOUL_SHARDS)
-		--print(powerType, num, "/", max)
+		power = UnitPower(unit, SPELL_POWER_SOUL_SHARDS)
+		maxPower = UnitPowerMax(unit, SPELL_POWER_SOUL_SHARDS)
+		--print(powerType, power, "/", maxPower)
 
 		if element.SetValue then
-			element:SetMinMaxValues(0, max)
-			element:SetValue(num)
+			element:SetMinMaxValues(0, maxPower)
+			element:SetValue(power)
 		else
 			for i = 1, #element do
 				local shard = element[i]
-				if i <= num then
+				if i <= power then
 					if shard.SetValue then
 						shard:SetMinMaxValues(0, 1)
 						shard:SetValue(1)
@@ -137,7 +119,7 @@ function Update(self, event, unit, powerType)
 						shard:SetAlpha(1)
 					end
 					shard:Show()
-				elseif i <= max then
+				elseif i <= maxPower then
 					if shard.SetValue then
 						shard:SetMinMaxValues(0, 1)
 						shard:SetValue(0)
@@ -153,9 +135,9 @@ function Update(self, event, unit, powerType)
 
 	-- Demonology
 	elseif powerType == "DEMONIC_FURY" then
-		num = UnitPower(unit, SPELL_POWER_DEMONIC_FURY)
-		max = UnitPowerMax(unit, SPELL_POWER_DEMONIC_FURY)
-		--print(powerType, num, "/", max)
+		power = UnitPower(unit, SPELL_POWER_DEMONIC_FURY)
+		maxPower = UnitPowerMax(unit, SPELL_POWER_DEMONIC_FURY)
+		--print(powerType, power, "/", maxPower)
 
 		local activated
 		for i = 1, 40 do
@@ -170,13 +152,13 @@ function Update(self, event, unit, powerType)
 		end
 
 		if element.SetValue then
-			element:SetMinMaxValues(num, max)
-			element:SetValue(num)
+			element:SetMinMaxValues(power, maxPower)
+			element:SetValue(power)
 		else
-			local valuePerPart = max / #element
+			local valuePerPart = maxPower / #element
 			for i = 1, #element do
 				local part = element[i]
-				if num > valuePerPart then
+				if power > valuePerPart then
 					--print(i, "Full")
 					if part.SetValue then
 						part:SetMinMaxValues(0, valuePerPart)
@@ -185,20 +167,20 @@ function Update(self, event, unit, powerType)
 						part:SetAlpha(1)
 					end
 					part:Show()
-					num = num - valuePerPart
-				elseif num > 0 then
-					--print(i, "Partial", num)
+					power = power - valuePerPart
+				elseif power > 0 then
+					--print(i, "Partial", power)
 					if part.SetValue then
 						--print("part.SetValue")
 						part:SetMinMaxValues(0, valuePerPart)
-						part:SetValue(num)
+						part:SetValue(power)
 					else
 						--print("part.SetAlpha")
-						local percent = num / valuePerPart
+						local percent = power / valuePerPart
 						part:SetAlpha(1 - (0.75 * (percent)))
 					end
 					part:Show()
-					num = 0
+					power = 0
 				else
 					--print(i, "Empty")
 					if part.SetValue then
@@ -214,18 +196,18 @@ function Update(self, event, unit, powerType)
 
 	-- Destruction
 	elseif powerType == "BURNING_EMBERS" then
-		num = UnitPower(unit, SPELL_POWER_BURNING_EMBERS, true)
-		max = UnitPowerMax(unit, SPELL_POWER_BURNING_EMBERS, true)
+		power = UnitPower(unit, SPELL_POWER_BURNING_EMBERS, true)
+		maxPower = UnitPowerMax(unit, SPELL_POWER_BURNING_EMBERS, true)
 
-		local numWhole = math.floor(num / MAX_POWER_PER_EMBER)
-		local maxWhole = math.floor(max / MAX_POWER_PER_EMBER)
+		local numWhole = floor(power / MAX_POWER_PER_EMBER)
+		local maxWhole = floor(maxPower / MAX_POWER_PER_EMBER)
 
-		local part = num % MAX_POWER_PER_EMBER
+		local part = power % MAX_POWER_PER_EMBER
 
 		if element.SetValue then
 			--print("element.SetValue")
-			element:SetMinMaxValues(0, max)
-			element:SetValue(num)
+			element:SetMinMaxValues(0, maxPower)
+			element:SetValue(power)
 		else
 			--print("#elements")
 			for i = 1, #element do
@@ -235,7 +217,7 @@ function Update(self, event, unit, powerType)
 					ember:Hide()
 				else
 					--print(i, "Show")
-					if num > MAX_POWER_PER_EMBER then
+					if power > MAX_POWER_PER_EMBER then
 						--print(i, "Full")
 						if ember.SetValue then
 							ember:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
@@ -247,18 +229,18 @@ function Update(self, event, unit, powerType)
 							ember.bg:SetVertexColor(1, 0.6, 0)
 						end
 						ember:Show()
-						num = num - MAX_POWER_PER_EMBER
-					elseif num > 0 then
-						--print(i, "Partial", num, part)
+						power = power - MAX_POWER_PER_EMBER
+					elseif power > 0 then
+						--print(i, "Partial", power, part)
 						if ember.SetValue then
 							ember:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
-							ember:SetValue(num)
+							ember:SetValue(power)
 						else
-							local percent = num / MAX_POWER_PER_EMBER
+							local percent = power / MAX_POWER_PER_EMBER
 							ember:SetAlpha(1 - (0.75 * (percent)))
 						end
 						ember:Show()
-						num = 0
+						power = 0
 					else
 						--print(i, "Empty")
 						if ember.SetValue then
@@ -275,7 +257,7 @@ function Update(self, event, unit, powerType)
 	end
 
 	if element.PostUpdate then
-		return element:PostUpdate(num, max, powerType)
+		return element:PostUpdate(power, maxPower, powerType)
 	end
 end
 
@@ -293,9 +275,6 @@ function Enable(self, unit)
 		element.__owner = self
 		element.ForceUpdate = ForceUpdate
 
-		self:RegisterEvent("PLAYER_ALIVE", UpdateVisibility, true)
-		self:RegisterEvent("PLAYER_DEAD", UpdateVisibility, true)
-		self:RegisterEvent("PLAYER_UNGHOST", UpdateVisibility, true)
 		self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
 		self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
 		self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
@@ -312,9 +291,6 @@ function Disable(self)
 		self:UnregisterEvent("UNIT_POWER", Path)
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
 
-		self:UnregisterEvent("PLAYER_ALIVE", UpdateVisibility)
-		self:UnregisterEvent("PLAYER_DEAD", UpdateVisibility)
-		self:UnregisterEvent("PLAYER_UNGHOST", UpdateVisibility)
 		self:UnregisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility)
 		self:UnregisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
 		self:UnregisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)

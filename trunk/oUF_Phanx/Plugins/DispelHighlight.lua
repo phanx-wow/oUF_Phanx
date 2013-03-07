@@ -45,8 +45,6 @@ oUF.colors.debuff = colors
 
 local invulnEffects = { [642] = true, [1022] = true, [45438] = true, }
 
-local MoP = select(4, GetBuildInfo()) >= 50000
-
 ------------------------------------------------------------------------
 
 local canDispel, canPurge, canShatter, canSteal, canTranq, noDispels = {}
@@ -184,12 +182,8 @@ f:SetScript("OnEvent", function(self, event)
 
 	elseif class == "DRUID" then
 		canDispel.Curse = IsSpellKnown(2782) -- Remove Corruption
+		canDispel.Magic = GetSpecialization() == 4 and UnitLevel("player") >= 22 -- Nature's Cure (88423)
 		canDispel.Poison = canDispel.Curse
-		if MoP then
-			canDispel.Magic = GetSpecialization() == 4 and UnitLevel("player") >= 22 -- Nature's Cure (88423)
-		else
-			canDispel.Magic = select(5, GetTalentInfo(3, 17)) == 1 -- Nature's Cure
-		end
 		canTranq = IsSpellKnown(2908) -- Soothe
 
 	elseif class == "HUNTER" then
@@ -207,37 +201,22 @@ f:SetScript("OnEvent", function(self, event)
 
 	elseif class == "PALADIN" then
 		canDispel.Disease = IsSpellKnown(4987) -- Cleanse
+		canDispel.Magic = GetSpecialization() == 1 and UnitLevel("player") >= 20 -- Sacred Cleansing (53551)
 		canDispel.Poison = canDispel.Disease
-		if MoP then
-			canDispel.Magic = GetSpecialization() == 1 and UnitLevel("player") >= 20 -- Sacred Cleansing (53551)
-		else
-			canDispel.Magic = select(5, GetTalentInfo(1, 14)) == 1 -- Sacred Cleansing (53551)
-		end
 
 	elseif class == "PRIEST" then
-		if MoP then
-			local spec = GetSpecialization()
-			local level = UnitLevel("player")
-			canDispel.Disease = spec == 2 and level >= 22 -- Purify (527)
-			canDispel.Magic = IsPlayerSpell(32375) or (spec == 2 and level >= 22) -- Mass Dispel, or Purify (527)
-			canPurge = IsPlayerSpell(528) -- Dispel Magic
-		else
-			canDispel.Disease = IsSpellKnown(528) -- Cure Disease
-			canDispel.Magic = IsSpellKnown(527) or IsSpellKnown(32375) -- Dispel Magic or Mass Dispel
-			canPurge = IsSpellKnown(527) -- Purify
-		end
+		local spec = GetSpecialization()
+		local level = UnitLevel("player")
+		canDispel.Disease = spec == 2 and level >= 22 -- Purify (527)
+		canDispel.Magic = IsPlayerSpell(32375) or (spec == 2 and level >= 22) -- Mass Dispel, or Purify (527)
+		canPurge = IsPlayerSpell(528) -- Dispel Magic
 
 	elseif class == "ROGUE" then
 		canTranq = IsSpellKnown(5938) -- Shiv
 
 	elseif class == "SHAMAN" then
-		if MoP then
-			canDispel.Curse = IsPlayerSpell(51886) -- Cleanse Spirit (upgrades to Purify Spirit)
-			canDispel.Magic = GetSpecialization() == 3 and UnitLevel("player") >= 18 -- Purify Spirit (77130)
-		else
-			canDispel.Curse = IsSpellKnown(51886) -- Cleanse Spirit
-			canDispel.Magic = select(5, GetTalentInfo(3, 12)) == 1 -- Improved Cleanse Spirit
-		end
+		canDispel.Curse = IsPlayerSpell(51886) -- Cleanse Spirit (upgrades to Purify Spirit)
+		canDispel.Magic = GetSpecialization() == 3 and UnitLevel("player") >= 18 -- Purify Spirit (77130)
 		canPurge = IsSpellKnown(370) -- Purge
 
 	elseif class == "WARLOCK" then
