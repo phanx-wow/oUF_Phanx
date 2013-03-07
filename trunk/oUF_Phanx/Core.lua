@@ -543,8 +543,10 @@ end
 --	ThreatHighlight
 ------------------------------------------------------------------------
 
-function private.UpdateThreatHighlight(self, unit, status)
-	if not status then status = 0 end
+function private.UpdateThreatHighlight(self, unit)
+	if unit ~= self.unit then return end
+
+	local status = UnitThreatSituation(unit) or 0
 	-- print("UpdateThreatHighlight", unit, status)
 
 	if not private.config.threatLevels then
