@@ -241,7 +241,7 @@ local function Spawn(self, unit, isSingle)
 		--------------------
 		if playerClass == "DRUID" then
 			element = "DruidMushrooms"
-			maxIcons = 3
+			maxIcons = MAX_TOTEMS
 			updateFunc = private.UpdateMushrooms
 
 		---------
@@ -920,8 +920,10 @@ local function Spawn(self, unit, isSingle)
 	-- Element: Dispel highlight --
 	-------------------------------
 
-	self.DispelHighlight = private.UpdateDispelHighlight
-	self.DispelHighlightFilter = true
+	self.DispelHighlight = {
+		Override = private.UpdateDispelHighlight,
+		filter = true,
+	}
 
 	-------------------------------
 	-- Element: Threat highlight --

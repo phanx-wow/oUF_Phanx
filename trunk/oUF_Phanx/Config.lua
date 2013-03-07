@@ -556,7 +556,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		db.dispelFilter = checked
 		for _, frame in ipairs(private.objects) do
 			if frame.DispelHighlight then
-				frame.DispelHighlightFilter = checked
+				frame.DispelHighlight.filter = checked
 				frame.DispelHighlight:ForceUpdate()
 			end
 		end
