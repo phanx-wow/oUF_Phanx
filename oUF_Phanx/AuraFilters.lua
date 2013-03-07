@@ -277,10 +277,12 @@ if playerClass == "MAGE" then
 	auras[45438]  = 4 -- Ice Block
 	auras[108839] = 4 -- Ice Floes
 	auras[12472]  = 4 -- Icy Veins
+	auras[116267] = 4 -- Inacnter's Absorption
 	auras[1463]   = 4 -- Inacnter's Ward
 	auras[66]     = 4 -- Invisibility
 	auras[12043]  = 4 -- Presence of Mind
 	auras[116014] = 4 -- Rune of Power
+	auras[48108]  = 4 -- Pyroblast!
 	auras[115610] = 4 -- Temporal Shield (shield)
 	auras[115611] = 4 -- Temporal Shield (heal)
 
