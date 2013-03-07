@@ -8,13 +8,13 @@
 ----------------------------------------------------------------------]]
 
 local _, private = ...
-local config
+local _, playerClass = UnitClass("player")
 local colors = oUF.colors
-local playerClass = select(2, UnitClass("player"))
+local config
 
 private.frames, private.headers, private.objects, private.fontstrings, private.statusbars = {}, {}, {}, {}, {}
 
-function private.Spawn(self, unit, isSingle)
+local function Spawn(self, unit, isSingle)
 	if self:GetParent():GetAttribute("useOwnerUnit") then
 		local suffix = self:GetParent():GetAttribute("unitsuffix")
 		self:SetAttribute("useOwnerUnit", true)
@@ -200,7 +200,7 @@ function private.Spawn(self, unit, isSingle)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4)
 
 		self:Tag(self.Name, "[unitcolor][name]")
-	elseif unit ~= "player" and not unit:match("pet") then
+	elseif unit ~= "player" and not strmatch(unit, "pet") then
 		self.Name = private.CreateFontString(self.overlay, 20, "LEFT")
 		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
@@ -234,42 +234,45 @@ function private.Spawn(self, unit, isSingle)
 
 	if unit == "player" and (playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "WARLOCK") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
-
-		local element, max, power, update, statusbar = "ClassIcons", 5
+		local element, maxIcons, powerType, updateFunc, useStatusBars = "ClassIcons", 5
 
 		--------------------
 		-- Wild mushrooms --
 		--------------------
 		if playerClass == "DRUID" then
 			element = "DruidMushrooms"
-			max = 4
-			update = private.UpdateMushrooms
+			maxIcons = 3
+			updateFunc = private.UpdateMushrooms
+
 		---------
 		-- Chi --
 		---------
 		elseif playerClass == "MONK" then
-			power = SPELL_POWER_LIGHT_FORCE
-			update = private.UpdateChi
+			powerType = SPELL_POWER_LIGHT_FORCE
+			updateFunc = private.UpdateChi
+
 		----------------
 		-- Holy power --
 		----------------
 		elseif playerClass == "PALADIN" then
-			power = SPELL_POWER_HOLY_POWER
-			update = private.UpdateHolyPower
+			powerType = SPELL_POWER_HOLY_POWER
+			updateFunc = private.UpdateHolyPower
+
 		-----------------
 		-- Shadow orbs --
 		-----------------
 		elseif playerClass == "PRIEST" then
-			power = SPELL_POWER_SHADOW_ORBS
-			update = private.UpdateShadowOrbs
+			powerType = SPELL_POWER_SHADOW_ORBS
+			updateFunc = private.UpdateShadowOrbs
+
 		-----------------------------------------------
 		-- Soul shards, demonic fury, burning embers --
 		-----------------------------------------------
 		elseif playerClass == "WARLOCK" then
 			element = "WarlockPower" -- "SoulShards"
-			max = 4
-			power = SPELL_POWER_SOUL_SHARDS
-			statusbar = true
+			maxIcons = 4
+			powerType = SPELL_POWER_SOUL_SHARDS
+			useStatusBars = true
 		end
 
 		local function SetAlpha(self, alpha)
@@ -285,8 +288,8 @@ function private.Spawn(self, unit, isSingle)
 			end
 		end
 
-		local t = private.Orbs.Create(self.overlay, max, 20, statusbar)
-		for i = 1, max do
+		local t = private.Orbs.Create(self.overlay, maxIcons, 20, useStatusBars)
+		for i = 1, maxIcons do
 			local orb = t[i]
 			if i == 1 then
 				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
@@ -295,12 +298,12 @@ function private.Spawn(self, unit, isSingle)
 			end
 			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
 			orb.fg:SetVertexColor(color.r, color.g, color.b)
-			if not statusbar then
+			if not useStatusBars then
 				orb.SetAlpha = SetAlpha
 			end
 		end
-		t.powerType = power
-		t.Override = update
+		t.powerType = powerType
+		t.Override = updateFunc
 		t.UpdateTexture = function() return end -- fuck off oUF >:(
 		self[element] = t
 
@@ -927,30 +930,29 @@ function private.Spawn(self, unit, isSingle)
 	self.threatLevel = 0
 	self.ThreatHighlight = private.UpdateThreatHighlight
 
-	--------------------------------
-	-- Element: Resurrection text --
-	--------------------------------
+	---------------------------
+	-- Element: ResInfo text --
+	---------------------------
 
-	if not strmatch(unit, ".+target$") and not strmatch(unit, "^arena") and not strmatch(unit, "^boss") then
-		self.Resurrection = private.CreateFontString(self.overlay, 16, "CENTER")
-		self.Resurrection:SetPoint("CENTER", self.Health)
+	if not strmatch(unit, ".target$") and not strmatch(unit, "^[ab][ro][es][ns]a?") then -- ignore arena, boss, *target
+		self.ResInfo = private.CreateFontString(self.overlay, 16, "CENTER")
+		self.ResInfo:SetPoint("CENTER", 0, 1)
 	end
 
 	--------------------------------
 	-- Plugin: oUF_CombatFeedback --
 	--------------------------------
 
-	if IsAddOnLoaded("oUF_CombatFeedback") and not unit:match("^(.+)target$") then
-		local cft = private.CreateFontString(self.overlay, 24, "CENTER")
-		cft:SetPoint("CENTER", 0, 1)
-		self.CombatFeedbackText = cft
+	if IsAddOnLoaded("oUF_CombatFeedback") and not strmatch(unit, ".target$") then
+		self.CombatFeedbackText = private.CreateFontString(self.overlay, 24, "CENTER")
+		self.CombatFeedbackText:SetPoint("CENTER", 0, 1)
 	end
 
 	------------------------
 	-- Plugin: oUF_Smooth --
 	------------------------
 
-	if IsAddOnLoaded("oUF_Smooth") and not unit:match(".+target$") then
+	if IsAddOnLoaded("oUF_Smooth") and not strmatch(unit, ".target$") then
 		self.Health.Smooth = true
 		if self.Power then
 			self.Power.Smooth = true
@@ -986,7 +988,7 @@ oUF:Factory(function(oUF)
 		end
 	end
 
-	oUF:RegisterStyle("Phanx", private.Spawn)
+	oUF:RegisterStyle("Phanx", Spawn)
 	oUF:SetActiveStyle("Phanx")
 
 	local initialConfigFunction = [[
@@ -1006,7 +1008,7 @@ oUF:Factory(function(oUF)
 				local h = config.height * (udata.height or 1)
 
 				private.headers[u] = oUF:SpawnHeader(name, nil, udata.visible,
-					"oUF-initialConfigFunction", initialConfigFunction:format(w, w, h, h),
+					"oUF-initialConfigFunction", format(initialConfigFunction, w, w, h, h),
 					unpack(udata.attributes))
 			else
 				-- print("generating frame for", u)
@@ -1065,13 +1067,13 @@ oUF:Factory(function(oUF)
 	end
 
 	local fixer = CreateFrame("Frame")
-	fixer.timer = 2
+	local fixertimer = 2
 	fixer:SetScript("OnUpdate", function(self, elapsed)
-		self.timer = self.timer - elapsed
-		if self.timer <= 0 then
+		fixertimer = fixertimer - elapsed
+		if fixertimer <= 0 then
 			self:Hide()
 			self:SetScript("OnUpdate", nil)
-			self.timer = nil
+			fixertimer, fixer = nil, nil
 			for _, object in pairs(private.objects) do
 				object:UpdateAllElements("ForceUpdate")
 			end
