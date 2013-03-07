@@ -530,8 +530,8 @@ end
 --	DispelHighlight
 ------------------------------------------------------------------------
 
-function private.UpdateDispelHighlight(self, unit, debuffType, canDispel)
-	-- print("UpdateDispelHighlight", unit, debuffType, canDispel)
+function private.UpdateDispelHighlight(self, debuffType, canDispel)
+	-- print("UpdateDispelHighlight", debuffType, canDispel)
 
 	local frame = self.__owner
 	frame.debuffType = debuffType
