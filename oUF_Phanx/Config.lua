@@ -16,7 +16,7 @@ local SharedMedia
 
 private.uconfig = {
 	player = {
-		point = "BOTTOMRIGHT UIParent CENTER -100 -230",
+		point = "BOTTOMRIGHT UIParent CENTER -200 -200",
 		width = 4/3,
 		power = true,
 		castbar = true,
@@ -28,7 +28,7 @@ private.uconfig = {
 		castbar = true,
 	},
 	target = {
-		point = "BOTTOMLEFT UIParent CENTER 100 -230",
+		point = "BOTTOMLEFT UIParent CENTER 200 -200",
 		width = 4/3,
 		power = true,
 		castbar = true,

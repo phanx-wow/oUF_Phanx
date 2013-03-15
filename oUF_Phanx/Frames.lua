@@ -895,11 +895,21 @@ local function Spawn(self, unit, isSingle)
 		self.Castbar = Castbar
 	end
 
+	----------------------------
+	-- Plugin: oUF_SpellRange --
+	----------------------------
+
+	if IsAddOnLoaded("oUF_SpellRange") then
+		self.SpellRange = {
+			insideAlpha = 1,
+			outsideAlpha = 0.5,
+		}
+
 	-----------
 	-- Range --
 	-----------
 
-	if unit == "pet" or unit == "party" or unit == "partypet" then
+	elseif unit == "pet" or unit == "party" or unit == "partypet" then
 		self.Range = {
 			insideAlpha = 1,
 			outsideAlpha = 0.5,
@@ -962,17 +972,6 @@ local function Spawn(self, unit, isSingle)
 		if self.DruidMana then
 			self.DruidMana.Smooth = true
 		end
-	end
-
-	----------------------------
-	-- Plugin: oUF_SpellRange --
-	----------------------------
-
-	if IsAddOnLoaded("oUF_SpellRange") and not self.Range then
-		self.SpellRange = {
-			insideAlpha = 1,
-			outsideAlpha = 0.5,
-		}
 	end
 end
 
