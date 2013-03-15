@@ -159,8 +159,6 @@ if playerClass == "DRUID" then
 	auras[99]     = 1 -- Disorienting Roar
 	auras[339]    = 1 -- Entangling Roots
 	auras[114238] = 1 -- Fae Silence <= glpyh
-	auras[770]    = 1 -- Faerie Fire
-	auras[102355] = 1 -- Faerie Swarm
 	auras[81281]  = 1 -- Fungal Growth <= Wild Mushroom: Detonate
 	auras[2637]   = 1 -- Hibernate
 	auras[33745]  = 2 -- Lacerate
@@ -184,6 +182,11 @@ if playerClass == "DRUID" then
 	auras[45334]  = 1 -- Immobilize <= Wild Charge (bear) -- NEEDS CHECK
 	auras[49376]  = 1 -- Wild Charge (cat) -- NEEDS CHECK
 	auras[50259]  = 1 -- Immobilize <= Wild Charge (cat) -- NEEDS CHECK
+
+	if PVP_MODE then
+		auras[770]    = 1 -- Faerie Fire
+		auras[102355] = 1 -- Faerie Swarm
+	end
 
 	auras[102352] = 2 -- Cenarion Ward
 	auras[29166]  = 3 -- Innervate
@@ -785,7 +788,7 @@ end
 ------------------------------------------------------------------------
 --	Weakened Armor
 
-if playerClass == "ROGUE" or playerClass == "WARRIOR" then
+if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
 	-- druids need to keep Faerie Fire/Swarm up anyway, no need to see both
 	auras[113746] = 1 -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
 end
