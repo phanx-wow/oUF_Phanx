@@ -286,18 +286,15 @@ end
 local MAX_MUSHROOMS = 3
 
 function private.UpdateMushrooms(self, event)
-	if unit ~= self.unit or (powerType and powerType ~= "CHI") then return end
-
 	local num = 0
 	for i = 1, MAX_MUSHROOMS do
-		local exists, name, start, duration, icon = GetTotemInfo(slot)
+		local exists, name, start, duration, icon = GetTotemInfo(i)
 		if duration > 0 then
-			num = i
+			num = num + 1
 		end
 	end
-
-	--print("UpdateMushrooms", num, max)
-	private.Orbs.Update(self.Mushrooms, num, MAX_MUSHROOMS)
+	--print("UpdateMushrooms", num, MAX_MUSHROOMS)
+	private.Orbs.Update(self.DruidMushrooms, num, MAX_MUSHROOMS)
 end
 
 ------------------------------------------------------------------------
