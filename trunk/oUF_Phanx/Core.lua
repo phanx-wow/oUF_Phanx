@@ -246,7 +246,7 @@ function private.PostUpdatePower(self, unit, cur, max)
 		return
 	end
 
-	if cur > 0 then
+	if cur > 0 and cur <= max then
 		self:GetStatusBarTexture():SetTexCoord(0, cur / max, 0, 1)
 	end
 
