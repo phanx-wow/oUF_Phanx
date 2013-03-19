@@ -124,7 +124,8 @@ end
 
 if playerClass == "DRUID" then
 	auras[22812]  = 4 -- Barkskin
-	auras[106951] = 4 -- Berserk
+	auras[106951] = 4 -- Berserk (cat)
+	auras[50334]  = 4 -- Berserk (bear)
 	auras[112071] = 4 -- Celestial Alignment
 	auras[16870]  = 4 -- Clearcasting <= Omen of Clarity
 	auras[1850]   = 4 -- Dash
@@ -133,7 +134,7 @@ if playerClass == "DRUID" then
 	auras[48518]  = 4 -- Eclipse (Lunar)
 	auras[48517]  = 4 -- Eclipse (Solar)
 	auras[5229]   = 4 -- Enrage
-	auras[124769] = 4 -- Frenzied Regeneration <= glpyh
+	auras[124769] = 4 -- Frenzied Regeneration <= glyph
 	auras[102560] = 4 -- Incarnation: Chosen of Elune
 	auras[102543] = 4 -- Incarnation: King of the Jungle
 	auras[102558] = 4 -- Incarnation: Son of Ursoc
@@ -147,7 +148,7 @@ if playerClass == "DRUID" then
 	auras[69369]  = 4 -- Predator's Swiftness
 	auras[132402] = 4 -- Savage Defense
 	auras[52610]  = 4 -- Savage Roar -- VERIFIED 13/02/20 on tauren feral
-	auras[127538] = 4 -- Savage Roar
+	auras[127538] = 4 -- Savage Roar -- NEEDS CHECK
 	auras[93400]  = 4 -- Shooting Stars
 	auras[114108] = 2 -- Soul of the Forest (resto)
 	auras[48505]  = 4 -- Starfall
@@ -155,6 +156,7 @@ if playerClass == "DRUID" then
 	auras[5217]   = 4 -- Tiger's Fury
 	auras[102416] = 4 -- Wild Charge (aquatic)
 
+	auras[102795] = 1 -- Bear Hug
 	auras[33786]  = 1 -- Cyclone
 	auras[99]     = 1 -- Disorienting Roar
 	auras[339]    = 1 -- Entangling Roots
@@ -165,12 +167,12 @@ if playerClass == "DRUID" then
 	auras[22570]  = 1 -- Maim
 	auras[5211]   = 1 -- Mighty Bash
 	auras[8921]   = 2 -- Moonfire
-	auras[9005]   = 2 -- Pounce
-	auras[102546] = 2 -- Pounce
+	auras[9005]   = 2 -- Pounce -- NEEDS CHECK
+	auras[102546] = 2 -- Pounce -- NEEDS CHECK
 	auras[9007]   = 2 -- Pounce Bleed
 	auras[1822]   = 2 -- Rake
 	auras[1079]   = 2 -- Rip
-	auras[106839] = 1 -- Skull Bash
+	auras[106839] = 1 -- Skull Bash -- NOT CURRENTLY USED
 	auras[78675]  = 1 -- Solar Beam (silence)
 	auras[97547]  = 1 -- Solar Beam (interrupt)
 	auras[93402]  = 2 -- Sunfire
@@ -178,17 +180,16 @@ if playerClass == "DRUID" then
 	auras[106830] = 2 -- Thrash (cat)
 	auras[61391]  = 3 -- Typhoon
 	auras[102793] = 1 -- Ursol's Vortex
-	auras[16979]  = 1 -- Wild Charge (bear) -- NEEDS CHECK
-	auras[45334]  = 1 -- Immobilize <= Wild Charge (bear) -- NEEDS CHECK
-	auras[49376]  = 1 -- Wild Charge (cat) -- NEEDS CHECK
-	auras[50259]  = 1 -- Immobilize <= Wild Charge (cat) -- NEEDS CHECK
+	auras[45334]  = 1 -- Immobilize <= Wild Charge (bear)
+	auras[50259]  = 1 -- Dazed <= Wild Charge (cat)
 
 	if PVP_MODE then
 		auras[770]    = 1 -- Faerie Fire
 		auras[102355] = 1 -- Faerie Swarm
 	end
 
-	auras[102352] = 2 -- Cenarion Ward
+	auras[102351] = 2 -- Cenarion Ward (buff)
+	auras[102352] = 2 -- Cenarion Ward (heal)
 	auras[29166]  = 3 -- Innervate
 	auras[102342] = 3 -- Ironbark
 	auras[33763]  = 2 -- Lifebloom
@@ -197,7 +198,7 @@ if playerClass == "DRUID" then
 	auras[774]    = 2 -- Rejuvenation
 	auras[77761]  = 3 -- Stampeding Roar (bear)
 	auras[77764]  = 3 -- Stampeding Roar (cat)
-	auras[106898] = 3 -- Stampeding Roar
+	auras[106898] = 3 -- Stampeding Roar (caster)
 	auras[48438]  = 2 -- Wild Growth
 end
 
