@@ -615,9 +615,7 @@ local function Spawn(self, unit, isSingle)
 		druidMana.PostUpdate = private.PostUpdateDruidMana
 
 		self.DruidMana = druidMana
---[[
-		private.CreateBorder(druidMana)
-]]
+
 		local o = self.SetBorderSize
 		function self:SetBorderSize(size, offset)
 			o(self, size, offset)
