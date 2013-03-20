@@ -7,7 +7,7 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
 
-local _, private = ...
+local _, ns = ...
 local _, playerClass = UnitClass("player")
 local colors = oUF.colors
 local noop = function() return end
@@ -39,55 +39,55 @@ local function si(value, raw)
 	end
 end
 
-private.si = si
+ns.si = si
 
 ------------------------------------------------------------------------
 
-function private.CreateFontString(parent, size, justify)
+function ns.CreateFontString(parent, size, justify)
 	local fs = parent:CreateFontString(nil, "OVERLAY")
-	fs:SetFont(private.config.font, size or 16, private.config.fontOutline)
+	fs:SetFont(ns.config.font, size or 16, ns.config.fontOutline)
 	fs:SetJustifyH(justify or "LEFT")
 	fs:SetShadowOffset(1, -1)
 
-	tinsert(private.fontstrings, fs)
+	tinsert(ns.fontstrings, fs)
 	return fs
 end
 
 ------------------------------------------------------------------------
 
-function private.SetStatusBarValue(self, cur)
+function ns.SetStatusBarValue(self, cur)
 	local min, max = self:GetMinMaxValues()
 	self:GetStatusBarTexture():SetTexCoord(0, (cur - min) / (max - min), 0, 1)
 	self.orig_SetValue(self, cur)
 end
 
-function private.CreateStatusBar(parent, size, justify, nohook)
+function ns.CreateStatusBar(parent, size, justify, nohook)
 	local sb = CreateFrame("StatusBar", nil, parent)
-	sb:SetStatusBarTexture(private.config.statusbar)
+	sb:SetStatusBarTexture(ns.config.statusbar)
 	sb:GetStatusBarTexture():SetDrawLayer("BORDER")
 	sb:GetStatusBarTexture():SetHorizTile(false)
 	sb:GetStatusBarTexture():SetVertTile(false)
 
 	sb.bg = sb:CreateTexture(nil, "BACKGROUND")
-	sb.bg:SetTexture(private.config.statusbar)
+	sb.bg:SetTexture(ns.config.statusbar)
 	sb.bg:SetAllPoints(true)
 
 	if size then
-		sb.value = private.CreateFontString(sb, size, justify)
+		sb.value = ns.CreateFontString(sb, size, justify)
 	end
 
 	if not nohook then
 		sb.orig_SetValue = sb.SetValue
-		sb.SetValue = private.SetStatusBarValue
+		sb.SetValue = ns.SetStatusBarValue
 	end
 
-	tinsert(private.statusbars, sb)
+	tinsert(ns.statusbars, sb)
 	return sb
 end
 
 ------------------------------------------------------------------------
 
-function private.UpdateBorder(self)
+function ns.UpdateBorder(self)
 	local threat, debuff, dispellable = self.threatLevel, self.debuffType, self.debuffDispellable
 	-- print("UpdateBorder", self.unit, "threatLevel", threat, "debuffType", debuff, "debuffDispellable", dispellable)
 
@@ -100,7 +100,7 @@ function private.UpdateBorder(self)
 		-- print(self.unit, "has aggro:", threat)
 		color = colors.threat[threat]
 		glow = true
-	elseif debuff and not private.config.dispelFilter then
+	elseif debuff and not ns.config.dispelFilter then
 		-- print(self.unit, "has debuff:", debuff)
 		color = colors.debuff[debuff]
 	elseif threat and threat > 0 then
@@ -111,13 +111,13 @@ function private.UpdateBorder(self)
 	end
 
 	if color then
-		self:SetBackdropBorderColor(color[1], color[2], color[3], 1, glow and private.config.borderGlow)
+		self:SetBackdropBorderColor(color[1], color[2], color[3], 1, glow and ns.config.borderGlow)
 	else
 		self:SetBackdropBorderColor(0, 0, 0, 0)
 	end
 end
 
-function private.UpdatePlayerRole(self, role)
+function ns.UpdatePlayerRole(self, role)
 	if self.updateOnRoleChange then
 		for _, func in pairs(self.updateOnRoleChange) do
 			func(self, role)
@@ -129,7 +129,7 @@ end
 --	Health
 ------------------------------------------------------------------------
 
-function private.PostUpdateHealth(self, unit, cur, max)
+function ns.PostUpdateHealth(self, unit, cur, max)
 	if not UnitIsConnected(unit) then
 		local color = colors.disconnected
 		local power = self.__owner.Power
@@ -172,7 +172,7 @@ function private.PostUpdateHealth(self, unit, cur, max)
 	-- OTHER:  percent, current on mouseover
 
 	if cur < max then
-		if private.GetPlayerRole() == "HEAL" and UnitCanAssist("player", unit) then
+		if ns.GetPlayerRole() == "HEAL" and UnitCanAssist("player", unit) then
 			if self.__owner.isMouseOver and not strmatch(unit, "party%d") then
 				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
 			else
@@ -194,7 +194,7 @@ end
 --	IncomingHeals
 ------------------------------------------------------------------------
 
-function private.UpdateIncomingHeals(self, event, unit)
+function ns.UpdateIncomingHeals(self, event, unit)
 	if self.unit ~= unit then return end
 
 	local bar = self.HealPrediction
@@ -229,7 +229,7 @@ end
 --	Power
 ------------------------------------------------------------------------
 
-function private.PostUpdatePower(self, unit, cur, max)
+function ns.PostUpdatePower(self, unit, cur, max)
 	if max == 0 then
 		self.__owner.Health:SetPoint("BOTTOM", self.__owner, "BOTTOM", 0, 1)
 		return self:Hide()
@@ -275,7 +275,7 @@ end
 --	DruidMana
 ------------------------------------------------------------------------
 
-function private.PostUpdateDruidMana(bar, unit, mana, maxMana)
+function ns.PostUpdateDruidMana(bar, unit, mana, maxMana)
 	bar.value:SetFormattedText(si(mana, true))
 end
 
@@ -285,7 +285,7 @@ end
 
 local MAX_MUSHROOMS = 3
 
-function private.UpdateMushrooms(self, event)
+function ns.UpdateMushrooms(self, event)
 	local num = 0
 	for i = 1, MAX_MUSHROOMS do
 		local exists, name, start, duration, icon = GetTotemInfo(i)
@@ -294,7 +294,7 @@ function private.UpdateMushrooms(self, event)
 		end
 	end
 	--print("UpdateMushrooms", num, MAX_MUSHROOMS)
-	private.Orbs.Update(self.DruidMushrooms, num, MAX_MUSHROOMS)
+	ns.Orbs.Update(self.DruidMushrooms, num, MAX_MUSHROOMS)
 end
 
 ------------------------------------------------------------------------
@@ -303,14 +303,14 @@ end
 
 local SPELL_POWER_CHI = SPELL_POWER_CHI
 
-function private.UpdateChi(self, event, unit, powerType)
+function ns.UpdateChi(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "CHI") then return end
 
 	local num = UnitPower("player", SPELL_POWER_CHI)
 	local max = UnitPowerMax("player", SPELL_POWER_CHI)
 
 	--print("UpdateChi", num, max)
-	private.Orbs.Update(self.ClassIcons, num, max)
+	ns.Orbs.Update(self.ClassIcons, num, max)
 end
 
 ------------------------------------------------------------------------
@@ -319,14 +319,14 @@ end
 
 local SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER
 
-function private.UpdateHolyPower(self, event, unit, powerType)
+function ns.UpdateHolyPower(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "HOLY_POWER") then return end
 
 	local num = UnitPower("player", SPELL_POWER_HOLY_POWER)
 	local max = UnitPowerMax("player", SPELL_POWER_HOLY_POWER)
 
 	--print("UpdateHolyPower", num, max)
-	private.Orbs.Update(self.ClassIcons, num, max)
+	ns.Orbs.Update(self.ClassIcons, num, max)
 end
 
 ------------------------------------------------------------------------
@@ -336,21 +336,21 @@ end
 local SPELL_POWER_SHADOW_ORBS = SPELL_POWER_SHADOW_ORBS
 local PRIEST_BAR_NUM_ORBS = PRIEST_BAR_NUM_ORBS
 
-function private.UpdateShadowOrbs(self, event, unit, powerType)
+function ns.UpdateShadowOrbs(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "SHADOW_ORBS") then return end
 
 	local num = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
 	local max = UnitPowerMax("player", SPELL_POWER_SHADOW_ORBS)
 
 	--print("UpdateShadowOrbs", num, max)
-	private.Orbs.Update(self.ClassIcons, num, max)
+	ns.Orbs.Update(self.ClassIcons, num, max)
 end
 
 ------------------------------------------------------------------------
 --	CPoints
 ------------------------------------------------------------------------
 
-function private.UpdateComboPoints(self, event, unit)
+function ns.UpdateComboPoints(self, event, unit)
 	if unit == "pet" then return end
 
 	local cp
@@ -360,7 +360,7 @@ function private.UpdateComboPoints(self, event, unit)
 		cp = GetComboPoints("player", "target")
 	end
 
-	private.Orbs.Update(self.CPoints, cp)
+	ns.Orbs.Update(self.CPoints, cp)
 end
 
 ------------------------------------------------------------------------
@@ -381,14 +381,14 @@ end
 
 local function AuraIconOverlay_SetBorderColor(overlay, r, g, b)
 	if not r or not g or not b then
-		local color = private.config.borderColor
+		local color = ns.config.borderColor
 		r, g, b = color[1], color[2], color[3]
 	end
 	overlay:GetParent():SetBorderColor(r, g, b)
 end
 
-function private.PostCreateAuraIcon(element, button)
-	private.CreateBorder(button, 12)
+function ns.PostCreateAuraIcon(element, button)
+	ns.CreateBorder(button, 12)
 
 	button.cd:SetReverse(true)
 	button.cd:SetScript("OnHide", AuraIconCD_OnHide)
@@ -405,7 +405,7 @@ function private.PostCreateAuraIcon(element, button)
 	button:SetScript("OnClick", nil) -- because oUF still tries to cancel buffs on right-click, and Blizzard thinks preventing this will stop botting?
 end
 
-function private.PostUpdateAuraIcon(element, unit, button, index, offset)
+function ns.PostUpdateAuraIcon(element, unit, button, index, offset)
 	local name, _, texture, count, type, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID = UnitAura(unit, index, button.filter)
 
 	if playerUnits[caster] then
@@ -432,14 +432,14 @@ function private.PostUpdateAuraIcon(element, unit, button, index, offset)
 				child.text:SetPoint("CENTER", button, "TOP", 0, 2)
 				child.text.SetPoint = noop
 
-				child.text:SetFont(private.config.font, unit:match("^party") and 14 or 18, private.config.fontOutline)
+				child.text:SetFont(ns.config.font, unit:match("^party") and 14 or 18, ns.config.fontOutline)
 				child.text.SetFont = noop
 
 				child.text:SetTextColor(1, 0.8, 0)
 				child.text.SetTextColor = noop
 				child.text.SetVertexColor = noop
 
-				tinsert(private.fontstrings, child.text)
+				tinsert(ns.fontstrings, child.text)
 
 				button.timer = child.text
 
@@ -451,7 +451,7 @@ function private.PostUpdateAuraIcon(element, unit, button, index, offset)
 	end
 end
 
-function private.PostUpdateAuras(self, unit)
+function ns.PostUpdateAuras(self, unit)
 	self.__owner.Health:ForceUpdate() -- required to detect Dead => Ghost
 end
 
@@ -459,7 +459,7 @@ end
 --	Castbar
 ------------------------------------------------------------------------
 
-function private.PostCastStart(self, unit, name, rank, castid)
+function ns.PostCastStart(self, unit, name, rank, castid)
 	local color
 	if UnitIsUnit(unit, "player") then
 		color = colors.class[playerClass]
@@ -487,7 +487,7 @@ function private.PostCastStart(self, unit, name, rank, castid)
 	end
 end
 
-function private.PostChannelStart(self, unit, name, rank, text)
+function ns.PostChannelStart(self, unit, name, rank, text)
 	local color
 	if UnitIsUnit(unit, "player") then
 		color = colors.class[playerClass]
@@ -515,11 +515,11 @@ function private.PostChannelStart(self, unit, name, rank, text)
 	end
 end
 
-function private.CustomDelayText(self, duration)
+function ns.CustomDelayText(self, duration)
 	self.Time:SetFormattedText("%.1f|cffff0000-%.1f|r", self.max - duration, self.delay)
 end
 
-function private.CustomTimeText(self, duration)
+function ns.CustomTimeText(self, duration)
 	self.Time:SetFormattedText("%.1f", self.max - duration)
 end
 
@@ -527,7 +527,7 @@ end
 --	DispelHighlight
 ------------------------------------------------------------------------
 
-function private.UpdateDispelHighlight(self, debuffType, canDispel)
+function ns.UpdateDispelHighlight(self, debuffType, canDispel)
 	-- print("UpdateDispelHighlight", debuffType, canDispel)
 
 	local frame = self.__owner
@@ -540,13 +540,13 @@ end
 --	ThreatHighlight
 ------------------------------------------------------------------------
 
-function private.UpdateThreatHighlight(self, unit)
+function ns.UpdateThreatHighlight(self, unit)
 	if unit ~= self.unit then return end
 
 	local status = UnitThreatSituation(unit) or 0
 	-- print("UpdateThreatHighlight", unit, status)
 
-	if not private.config.threatLevels then
+	if not ns.config.threatLevels then
 		status = status > 1 and 3 or 0
 	end
 
@@ -561,7 +561,7 @@ end
 --	Frames
 ------------------------------------------------------------------------
 
-function private.UnitFrame_OnEnter(self)
+function ns.UnitFrame_OnEnter(self)
 	if self.__owner then
 		self = self.__owner
 	end
@@ -600,7 +600,7 @@ function private.UnitFrame_OnEnter(self)
 	end
 end
 
-function private.UnitFrame_OnLeave(self)
+function ns.UnitFrame_OnLeave(self)
 	if self.__owner then
 		self = self.__owner
 	end
@@ -626,7 +626,7 @@ function private.UnitFrame_OnLeave(self)
 	end
 end
 
-function private.UnitFrame_DropdownMenu(self)
+function ns.UnitFrame_DropdownMenu(self)
 	local unit = self.unit:sub(1, -2)
 	if unit == "party" or unit == "partypet" then
 		ToggleDropDownMenu(1, nil, _G["PartyMemberFrame" .. self.id .. "DropDown"], "cursor", 0, 0)

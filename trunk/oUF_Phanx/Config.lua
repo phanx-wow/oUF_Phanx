@@ -7,14 +7,14 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
 
-local _, private = ...
+local _, ns = ...
 local SharedMedia
 
 ------------------------------------------------------------------------
 --	Units
 ------------------------------------------------------------------------
 
-private.uconfig = {
+ns.uconfig = {
 	player = {
 		point = "BOTTOMRIGHT UIParent CENTER -200 -200",
 		width = 4/3,
@@ -46,7 +46,7 @@ private.uconfig = {
 		width = 0.5,
 	},
 	party = {
-		point = "TOPLEFT boss4 BOTTOMLEFT 0 -73",
+		point = "TOPLEFT boss5 BOTTOMLEFT 0 -75", -- CHECK POSITION
 		width = 0.5,
 		power = true,
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25 },
@@ -62,8 +62,9 @@ private.uconfig = {
 	--	Bosses --
 	-------------
 	boss1 = {
-		point = "TOPRIGHT UIParent TOPRIGHT -29 -255",
+		point = "TOPRIGHT UIParent TOPRIGHT -15 -250",
 		width = 0.8,
+		height = 0.8,
 		power = true,
 	},
 	boss2 = {
@@ -81,32 +82,42 @@ private.uconfig = {
 		width = 0.8,
 		power = true,
 	},
+	boss5 = {
+		point = "TOPRIGHT boss4 BOTTOMRIGHT 0 -25",
+		width = 0.8,
+		power = true,
+	},
 	-----------------------
 	--	Arena Oppnonents --
 	-----------------------
 	arena1 = {
-		point = "TOPLEFT boss1 TOPLEFT 0 0",
+		point = "TOPRIGHT UIParent TOPRIGHT -15 -250", -- same as boss1
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	arena2 = {
-		point = "TOPRIGHT arena1 BOTTOMRIGHT 0 -16",
+		point = "TOPRIGHT arena1 BOTTOMRIGHT 0 -25",
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	arena3 = {
-		point = "TOPRIGHT arena2 BOTTOMRIGHT 0 -16",
+		point = "TOPRIGHT arena2 BOTTOMRIGHT 0 -25",
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	arena4 = {
-		point = "TOPRIGHT arena3 BOTTOMRIGHT 0 -16",
+		point = "TOPRIGHT arena3 BOTTOMRIGHT 0 -25",
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	arena5 = {
-		point = "TOPRIGHT arena4 BOTTOMRIGHT 0 -16",
+		point = "TOPRIGHT arena4 BOTTOMRIGHT 0 -25",
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	----------------------------
@@ -115,22 +126,27 @@ private.uconfig = {
 	arenapet1 = {
 		point = "LEFT arena1 RIGHT 10 0",
 		width = 0.25,
+		height = 0.8,
 	},
 	arenapet2 = {
 		point = "LEFT arena2 RIGHT 10 0",
 		width = 0.25,
+		height = 0.8,
 	},
 	arenapet3 = {
 		point = "LEFT arena3 RIGHT 10 0",
 		width = 0.25,
+		height = 0.8,
 	},
 	arenapet4 = {
 		point = "LEFT arena4 RIGHT 10 0",
 		width = 0.25,
+		height = 0.8,
 	},
 	arenapet5 = {
 		point = "LEFT arena5 RIGHT 10 0",
 		width = 0.25,
+		height = 0.8,
 	},
 }
 
@@ -166,11 +182,11 @@ end
 --	End configuration
 ------------------------------------------------------------------------
 
-function private.SetAllFonts(file, flag)
-	if not file then file = private.config.font end
-	if not flag then flag = private.config.fontOutline end
+function ns.SetAllFonts(file, flag)
+	if not file then file = ns.config.font end
+	if not flag then flag = ns.config.fontOutline end
 
-	for _, v in ipairs(private.fontstrings) do
+	for _, v in ipairs(ns.fontstrings) do
 		local _, size = v:GetFont()
 		v:SetFont(file, size, flag)
 	end
@@ -182,10 +198,10 @@ function private.SetAllFonts(file, flag)
 	end
 end
 
-function private.SetAllStatusBarTextures(file)
-	if not file then file = private.config.statusbar end
+function ns.SetAllStatusBarTextures(file)
+	if not file then file = ns.config.statusbar end
 
-	for _, v in ipairs(private.statusbars) do
+	for _, v in ipairs(ns.statusbars) do
 		if v.SetStatusBarTexture then
 			v:SetStatusBarTexture(file)
 		else
@@ -207,11 +223,11 @@ end
 --	Load stuff
 ------------------------------------------------------------------------
 
-private.loadFuncs = {}
+ns.loadFuncs = {}
 
-private.loader = CreateFrame("Frame")
-private.loader:RegisterEvent("ADDON_LOADED")
-private.loader:SetScript("OnEvent", function(self, event, addon)
+ns.loader = CreateFrame("Frame")
+ns.loader:RegisterEvent("ADDON_LOADED")
+ns.loader:SetScript("OnEvent", function(self, event, addon)
 	if addon ~= "oUF_Phanx" then return end
 
 	local defaults = {
@@ -248,27 +264,23 @@ private.loader:SetScript("OnEvent", function(self, event, addon)
 		borderColor = { 0.5, 0.5, 0.5 },
 		borderSize = 16,
 
+		PVP = false, -- enable PVP mode, currently only affects aura filtering
+
 		--DBVERSION = 0,
 	}
 
-	PoUFDB = PoUFDB or {}
+	-- Global settings:
+	oUFPhanxConfig = PoUFDB or oUFPhanxConfig or {} -- upgrade old settings
 	for k, v in pairs(defaults) do
-		if type(PoUFDB[k]) ~= type(v) then
-			PoUFDB[k] = v
+		if type(oUFPhanxConfig[k]) ~= type(v) then
+			oUFPhanxConfig[k] = v
 		end
 	end
-	private.config = PoUFDB
---[[
-	if PoUFDB.DBVERSION < 1 then
-		PoUFDB.borderSize = PoUFDB.borderSize / 2
-		PoUFDB.DBVERSION = 1
-	end
-]]
-	if PoUFDB.bgColorIntensity then
-		PoUFDB.healthBG = PoUFDB.bgColorIntensity
-		PoUFDB.powerBG = 1 / PoUFDB.bgColorIntensity
-		PoUFDB.bgColorIntensity = nil
-	end
+	ns.config = oUFPhanxConfig
+
+	-- Aura settings stored per character:
+	oUFPhanxAuraConfig = oUFPhanxAuraConfig or {}
+	ns.UpdateAuraList()
 
 	SharedMedia = LibStub("LibSharedMedia-3.0", true)
 	if SharedMedia then
@@ -278,42 +290,42 @@ private.loader:SetScript("OnEvent", function(self, event, addon)
 		SharedMedia:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
 
 		for i, v in pairs(SharedMedia:List("font")) do
-			tinsert(private.fontList, v)
+			tinsert(ns.fontList, v)
 		end
-		table.sort(private.fontList)
+		table.sort(ns.fontList)
 
 		for i, v in pairs(SharedMedia:List("statusbar")) do
-			tinsert(private.statusbarList, v)
+			tinsert(ns.statusbarList, v)
 		end
-		table.sort(private.statusbarList)
+		table.sort(ns.statusbarList)
 
 		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_Registered", function(type)
 			if type == "font" then
-				wipe(private.fontList)
+				wipe(ns.fontList)
 				for i, v in pairs(SharedMedia:List("font")) do
-					tinsert(private.fontList, v)
+					tinsert(ns.fontList, v)
 				end
-				table.sort(private.fontList)
+				table.sort(ns.fontList)
 			elseif type == "statusbar" then
-				wipe(private.statusbarList)
+				wipe(ns.statusbarList)
 				for i, v in pairs(SharedMedia:List("statusbar")) do
-					tinsert(private.statusbarList, v)
+					tinsert(ns.statusbarList, v)
 				end
-				table.sort(private.statusbarList)
+				table.sort(ns.statusbarList)
 			end
 		end)
 
 		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_SetGlobal", function(_, type)
 			if type == "font" then
-				private.SetAllFonts()
+				ns.SetAllFonts()
 			elseif type == "statusbar" then
-				private.SetAllStatusBarTextures()
+				ns.SetAllStatusBarTextures()
 			end
 		end)
 	end
 
-	for i, f in ipairs(private.loadFuncs) do f() end
-	private.loadFuncs = nil
+	for i, f in ipairs(ns.loadFuncs) do f() end
+	ns.loadFuncs = nil
 
 	self:UnregisterAllEvents()
 	self:SetScript("OnEvent", nil)
@@ -323,15 +335,15 @@ end)
 --	Options panel
 ------------------------------------------------------------------------
 
-local L = private.L
+local L = ns.L
 local CreateOptionsPanel = LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel
 
-private.fontList, private.statusbarList = {}, {}
+ns.fontList, ns.statusbarList = {}, {}
 
 ------------------------------------------------------------------------
 
-private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
-	local db = private.config
+ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
+	local db = ns.config
 
 	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local CreateColorPicker = LibStub("PhanxConfig-ColorPicker").CreateColorPicker
@@ -345,7 +357,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local statusbar = CreateScrollingDropdown(self, L.Texture, nil, private.statusbarList)
+	local statusbar = CreateScrollingDropdown(self, L.Texture, nil, ns.statusbarList)
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
 
@@ -361,7 +373,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		if db.statusbar == file then return end
 		valueBG:SetTexture(file)
 		db.statusbar = file
-		private.SetAllStatusBarTextures()
+		ns.SetAllStatusBarTextures()
 	end
 
 	do
@@ -419,7 +431,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local font = CreateScrollingDropdown(self, L.Font, nil, private.fontList)
+	local font = CreateScrollingDropdown(self, L.Font, nil, ns.fontList)
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
@@ -429,7 +441,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		db.font = file
 		local _, height, flags = self.valueText:GetFont()
 		self.valueText:SetFont(file, height, flags)
-		private.SetAllFonts()
+		ns.SetAllFonts()
 	end
 
 	do
@@ -482,7 +494,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	do
 		local function OnClick(self)
 			db.fontOutline = self.value
-			private.SetAllFonts()
+			ns.SetAllFonts()
 			outline:SetValue(self.value, self.text)
 		end
 
@@ -519,7 +531,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	function borderSize:OnValueChanged(value)
 		value = floor(value + 0.5)
 		db.borderSize = value
-		for _, frame in ipairs(private.borderedObjects) do
+		for _, frame in ipairs(ns.borderedObjects) do
 			frame:SetBorderSize(value)
 		end
 		return value
@@ -538,10 +550,10 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		db.borderColor[1] = r
 		db.borderColor[2] = g
 		db.borderColor[3] = b
-		for _, frame in ipairs(private.borderedObjects) do
+		for _, frame in ipairs(ns.borderedObjects) do
 			frame:SetBorderColor(r, g, b)
 		end
-		for _, frame in ipairs(private.objects) do
+		for _, frame in ipairs(ns.objects) do
 			if frame.UpdateBorder then
 				frame:UpdateBorder()
 			end
@@ -554,7 +566,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 	function dispelFilter:OnClick(checked)
 		db.dispelFilter = checked
-		for _, frame in ipairs(private.objects) do
+		for _, frame in ipairs(ns.objects) do
 			if frame.DispelHighlight then
 				frame.DispelHighlight.filter = checked
 				frame.DispelHighlight:ForceUpdate()
@@ -657,7 +669,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 			local value = self.value
 			db.healthColorMode = value
 			healthColorMode:SetValue(value, healthColorModes[value])
-			for _, frame in ipairs(private.objects) do
+			for _, frame in ipairs(ns.objects) do
 				local health = frame.Health
 				if type(health) == "table" then
 					health.colorClass = value == "CLASS"
@@ -710,7 +722,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		db.healthColor[1] = r
 		db.healthColor[2] = g
 		db.healthColor[3] = b
-		for _, frame in ipairs(private.objects) do
+		for _, frame in ipairs(ns.objects) do
 			local hp = frame.Health
 			if type(hp) == "table" then
 				local mu = hp.bg.multiplier
@@ -730,7 +742,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		value = math.floor(value * 100 + 0.5) / 100
 		db.healthBG = value
 		local custom = db.healthColorMode == "CUSTOM"
-		for _, frame in ipairs(private.objects) do
+		for _, frame in ipairs(ns.objects) do
 			local health = frame.Health
 			if health then
 				health.bg.multiplier = value
@@ -765,7 +777,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 			local value = self.value
 			db.powerColorMode = value
 			powerColorMode:SetValue(value, powerColorModes[value])
-			for _, frame in ipairs(private.objects) do
+			for _, frame in ipairs(ns.objects) do
 				local power = frame.Power
 				if type(power) == "table" then
 					power.colorClass = value == "CLASS"
@@ -825,7 +837,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		db.powerColor[1] = r
 		db.powerColor[2] = g
 		db.powerColor[3] = b
-		for _, frame in ipairs(private.objects) do
+		for _, frame in ipairs(ns.objects) do
 			local power = frame.Power
 			if type(power) == "table" then
 				local mu = power.bg.multiplier
@@ -845,7 +857,7 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		value = floor(value * 100 + 0.5) / 100
 		db.powerBG = value
 		local custom = db.powerColorMode == "CUSTOM"
-		for _, frame in ipairs(private.objects) do
+		for _, frame in ipairs(ns.objects) do
 			local Power = frame.Power
 			if Power then
 				Power.bg.multiplier = value
@@ -862,8 +874,10 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 			if DruidMana then
 				local r, g, b = unpack(oUF.colors.power.MANA)
 				DruidMana.bg.multiplier = value
-				DruidMana:PostUpdatePower(frame.unit)
+				DruidMana:ForceUpdate()
 			end
+
+			-- #TODO: Runes?
 
 			local Totems = frame.Totems
 			if Totems then
@@ -877,6 +891,12 @@ private.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		return value
 	end
 
+	--------------------------------------------------------------------
+
+	local AboutPanel = LibStub("LibAboutPanel", true)
+	if AboutPanel then
+		ns.aboutPanel = AboutPanel.new(self.name, "oUF_Phanx")
+	end
 
 	--------------------------------------------------------------------
 
@@ -945,16 +965,9 @@ end)
 
 ------------------------------------------------------------------------
 
-local AboutPanel = LibStub("LibAboutPanel", true)
-if AboutPanel then
-	private.aboutPanel = AboutPanel.new(private.optionsPanel.name, "oUF_Phanx")
-end
-
-------------------------------------------------------------------------
-
 SLASH_OUFPHANX1 = "/pouf"
 
 local testMode
 function SlashCmdList.OUFPHANX()
-	InterfaceOptionsFrame_OpenToCategory(private.optionsPanel)
+	InterfaceOptionsFrame_OpenToCategory(ns.optionsPanel)
 end
