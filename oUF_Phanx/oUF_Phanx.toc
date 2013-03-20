@@ -22,7 +22,8 @@
 
 ## Dependencies: oUF
 ## OptionalDependencies: LibAboutPanel, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
-## SavedVariables: PoUFDB
+## SavedVariables: oUFPhanxConfig
+## SavedVariablesPerCharacter: oUFPhanxAuraConfig
 
 Core.xml
 
@@ -54,3 +55,5 @@ Elements\Totems.lua
 Config.lua
 Core.lua
 Frames.lua
+
+ConfigAuras.lua
