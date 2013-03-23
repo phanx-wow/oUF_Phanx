@@ -91,33 +91,28 @@ ns.uconfig = {
 	--	Arena Oppnonents --
 	-----------------------
 	arena1 = {
-		point = "TOPRIGHT UIParent TOPRIGHT -15 -250", -- same as boss1
+		point = "TOPLEFT boss1",
 		width = 0.5,
-		height = 0.8,
 		power = true,
 	},
 	arena2 = {
 		point = "TOPRIGHT arena1 BOTTOMRIGHT 0 -25",
 		width = 0.5,
-		height = 0.8,
 		power = true,
 	},
 	arena3 = {
 		point = "TOPRIGHT arena2 BOTTOMRIGHT 0 -25",
 		width = 0.5,
-		height = 0.8,
 		power = true,
 	},
 	arena4 = {
 		point = "TOPRIGHT arena3 BOTTOMRIGHT 0 -25",
 		width = 0.5,
-		height = 0.8,
 		power = true,
 	},
 	arena5 = {
 		point = "TOPRIGHT arena4 BOTTOMRIGHT 0 -25",
 		width = 0.5,
-		height = 0.8,
 		power = true,
 	},
 	----------------------------
