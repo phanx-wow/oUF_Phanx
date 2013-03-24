@@ -10,20 +10,6 @@
 local _, ns = ...
 local L = ns.L
 
-L.Auras = "Auras"
-L.Auras_Info = "Add new buffs and debuffs to show, or change the filtering behavior of predefined ones."
-L.AuraFilter0 = "Never show"
-L.AuraFilter1 = "Always show"
-L.AuraFilter2 = "Only show mine"
-L.AuraFilter3 = "Only show on friendly units"
-L.AuraFilter4 = "Only show on myself"
-L.DeleteAura = "Delete Aura"
-L.DeleteAura = "Remove your custom filter for this aura."
-L.NewAura = "New Aura"
-L.NewAura_Info = "Enter a Spell ID and press Enter."
-L.NewAura_Invalid = "That is not a valid Spell ID!"
-L.NewAura_Note = "To find the Spell ID for a spell, look it up on Wowhead.com and copy the number out of the URL."
-
 LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", function(panel)
 	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.Auras_Info)
 
@@ -75,7 +61,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	dialog:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
 	panel.Dialog = dialog
 
-	dialog.Title, dialog.Notes = LibStub("PhanxConfig-Header").CreateHeader(dialog, L.NewAura, L.NewAura_Info)
+	dialog.Title, dialog.Notes = LibStub("PhanxConfig-Header").CreateHeader(dialog, L.AddAura, L.AddAura_Info)
 
 	local dialogBox = CreateFrame("EditBox", nil, dialog, "InputBoxTemplate")
 	dialogBox:SetPoint("TOPLEFT", dialog.Notes, "BOTTOMLEFT", 10, -24)
@@ -104,7 +90,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 			dialog.Text:SetFormattedText("|T%s:0|t %s", icon, name)
 			dialog.Button:SetEnabled(true)
 		else
-			dialog.Text:SetText(RED_FONT_COLOR_CODE .. L.NewAura_Invalid .. "|r")
+			dialog.Text:SetText(RED_FONT_COLOR_CODE .. L.AddAura_Invalid .. "|r")
 			dialog.Button:Disable()
 		end
 	end)
@@ -143,7 +129,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	dialogHelp:SetJustifyH("LEFT")
 	dialogHelp:SetJustifyV("TOP")
 	dialogHelp:SetNonSpaceWrap(true)
-	dialogHelp:SetText(L.NewAura_Note)
+	dialogHelp:SetText(L.AddAura_Note)
 	dialog.HelpText = dialogHelp
 
 	dialog:Hide()
@@ -162,7 +148,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	--------------------------------------------------------------------
 
 	local add = CreateFrame("Button", "$parentAddButton", panel, "UIPanelButtonTemplate")
-	add:SetText("|TInterface\\LFGFRAME\\LFGROLE_BW:0:0:0:0:64:16:48:64:0:16:255:255:153|t " .. L.NewAura)
+	add:SetText("|TInterface\\LFGFRAME\\LFGROLE_BW:0:0:0:0:64:16:48:64:0:16:255:255:153|t " .. L.AddAura)
 	add:SetPoint("TOPRIGHT", title, "BOTTOMRIGHT", 0, -8)
 	add:SetSize(160, 32)
 	notes:SetPoint("TOPRIGHT", add, "TOPLEFT", -24, 0)
@@ -170,7 +156,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	add:SetScript("OnClick", function(self)
 		if dialog:IsShown() then
 			dialog:Hide()
-			self:SetText("|TInterface\\LFGFRAME\\LFGROLE_BW:0:0:0:0:64:16:48:64:0:16:255:255:153|t " .. L.NewAura)
+			self:SetText("|TInterface\\LFGFRAME\\LFGROLE_BW:0:0:0:0:64:16:48:64:0:16:255:255:153|t " .. L.AddAura)
 		else
 			dialog:Show()
 			self:SetText(CANCEL)
@@ -321,20 +307,27 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		end
 		table.sort(sortedAuras, sortFunc)
 
-		local height = 0
-		for i, t in ipairs(sortedAuras) do
-			local row = rows[i]
-			row.id = t.id
-			row.name:SetText(t.name)
-			row.icon:SetTexture(t.icon)
-			row.filter:SetValue(t.filter, L["AuraFilter"..t.filter])
-			row:Show()
-			height = height + 4 + row:GetHeight()
+		if #sortedAuras > 0 then
+			local height = 0
+			for i, t in ipairs(sortedAuras) do
+				local row = rows[i]
+				row.id = t.id
+				row.name:SetText(t.name)
+				row.icon:SetTexture(t.icon)
+				row.filter:SetValue(t.filter, L["AuraFilter"..t.filter])
+				row:Show()
+				height = height + 4 + row:GetHeight()
+			end
+			for i = #sortedAuras + 1, #rows do
+				rows[i]:Hide()
+			end
+			scrollChild:SetHeight(height)
+			add:Show()
+		else
+			scrollChild:SetHeight(100)
+			dialog:Show()
+			add:Hide()
 		end
-		for i = #sortedAuras + 1, #rows do
-			rows[i]:Hide()
-		end
-		scrollChild:SetHeight(height)
 	end
 
 end)
