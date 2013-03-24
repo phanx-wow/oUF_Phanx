@@ -232,7 +232,7 @@ f:SetScript("OnEvent", function(self, event)
 		canPurge = IsPlayerSpell(370) -- Purge
 
 	elseif CLASS == "WARLOCK" then
-		canDispel.Magic = IsPlayerSpell(89808, true) -- Singe Magic (Imp)
+		canDispel.Magic = IsPlayerSpell(115276, true) or IsPlayerSpell(89808, true) -- Sear Magic (Fel Imp) or Singe Magic (Imp)
 		canPurge = IsPlayerSpell(19505, true) -- Devour Magic (Felhunter)
 
 	elseif CLASS == "WARRIOR" then
