@@ -1,13 +1,11 @@
 ## Interface: 50200
 ## Title: oUF
 ## Author: Haste
-## Version: 1.6.2
+## Version: 1.6.4
 ## OptionalDeps: Clique
 ## X-eMail: troeks@gmail.com
 ## X-oUF: oUF
 ## Notes: Unit frame framework. Does nothing by itself.
-## Notes-esES: Una estructura para los marcos de unidades. No hace nada por sí mismo.
-## Notes-esMX: Una estructura para los marcos de unidades. No hace nada por sí mismo.
 ## Notes-ruRU: Каркас для модификации фреймов игроков. Сам по себе не делает ничего.
 
 oUF.xml
