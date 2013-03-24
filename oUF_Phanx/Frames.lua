@@ -1043,24 +1043,23 @@ oUF:Factory(function(oUF)
 		bar:SetWidth(225)
 		bar:SetHeight(config.height * (1 - config.powerHeight))
 
-		bar.bg = bar:GetRegions()
+		bar.bar = bar:GetChildren()
+		bar.bg, bar.text, bar.border = bar:GetRegions()
+
 		bar.bg:ClearAllPoints()
 		bar.bg:SetAllPoints(bar)
 		bar.bg:SetTexture(config.statusbar)
 		bar.bg:SetVertexColor(0.2, 0.2, 0.2, 1)
 
-		bar.text = _G[barname .. "Text"]
 		bar.text:ClearAllPoints()
 		bar.text:SetPoint("LEFT", bar, 4, 0)
 		bar.text:SetFont(config.font, 16, config.fontOutline)
 
-		bar.border = _G[barname .. "Border"]
 		bar.border:Hide()
 
-		bar.bar = _G[barname .. "StatusBar"]
 		bar.bar:SetAllPoints(bar)
 		bar.bar:SetStatusBarTexture(config.statusbar)
-		bar.bar:SetAlpha(0.8)
+		--bar.bar:SetAlpha(0.8) -- I don't remember why I did this?
 
 		private.CreateBorder(bar, nil, nil, bar.bar, "OVERLAY")
 	end
