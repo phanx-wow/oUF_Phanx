@@ -147,7 +147,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 
 	--------------------------------------------------------------------
 
-	local add = CreateFrame("Button", "$parentAddButton", panel, "UIPanelButtonTemplate")
+	local add = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
 	add:SetText("|TInterface\\LFGFRAME\\LFGROLE_BW:0:0:0:0:64:16:48:64:0:16:255:255:153|t " .. L.AddAura)
 	add:SetPoint("TOPRIGHT", title, "BOTTOMRIGHT", 0, -8)
 	add:SetSize(160, 32)
@@ -175,6 +175,12 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	local function Row_OnLeave(self)
 		self.highlight:Hide()
 		GameTooltip:Hide()
+	end
+	local function Row_OnHide(self)
+		self.id = 0
+		self.icon:SetTexture(nil)
+		self.name:SetText("")
+		self.filter.valueText:SetText("")
 	end
 
 	-- Delete button functions:
@@ -324,6 +330,9 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 			scrollChild:SetHeight(height)
 			add:Show()
 		else
+			for i = 1, #rows do
+				rows[i]:Hide()
+			end
 			scrollChild:SetHeight(100)
 			dialog:Show()
 			add:Hide()
