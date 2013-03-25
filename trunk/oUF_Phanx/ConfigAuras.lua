@@ -166,6 +166,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	--------------------------------------------------------------------
 
 	local function Row_OnEnter(self)
+		self.name:SetTextColor(1, 1, 1)
 		self.highlight:Show()
 		GameTooltip:SetOwner(self, "ANCHOR_NONE")
 		GameTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT")
@@ -173,6 +174,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		GameTooltip:Show()
 	end
 	local function Row_OnLeave(self)
+		self.name:SetTextColor(1, 0.82, 0)
 		self.highlight:Hide()
 		GameTooltip:Hide()
 	end
@@ -235,7 +237,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		row:SetPoint("LEFT")
 		row:SetPoint("RIGHT")
 		if i > 1 then
-			row:SetPoint("TOP", rows[i-1], "BOTTOM", 0, -4)
+			row:SetPoint("TOP", t[i-1], "BOTTOM", 0, -4)
 		else
 			row:SetPoint("TOP")
 		end
@@ -251,8 +253,9 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 
 		local highlight = row:CreateTexture(nil, "BACKGROUND")
 		highlight:SetAllPoints(true)
+		highlight:SetBlendMode("ADD")
 		highlight:SetTexture([[Interface\QuestFrame\UI-QuestLogTitleHighlight]])
-		highlight:SetVertexColor(0.2, 0.4, 0.8, 0.75)
+		highlight:SetVertexColor(0.2, 0.4, 0.8)
 		highlight:Hide()
 		row.highlight = highlight
 
@@ -296,7 +299,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	end
 	panel.refresh = function()
 		for i = #sortedAuras, 1, -1 do
-			pool[i] = tremove(sortedAuras, i)
+			pool[tremove(sortedAuras, i)] = true
 		end
 
 		for id, filter in pairs(oUFPhanxAuraConfig) do
