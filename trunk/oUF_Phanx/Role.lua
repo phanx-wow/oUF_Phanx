@@ -8,14 +8,12 @@
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
-
 local playerClass = select(2, UnitClass("player"))
 
 local CURRENT_ROLE = "DPS"
 local getRole, updateEvents
 
 if playerClass == "DEATHKNIGHT" then
-
 	updateEvents = "UPDATE_SHAPESHIFT_FORM"
 	getRole = function()
 		if GetSpecialization() == 1 then -- Blood 1, Frost 2, Unholy 3
@@ -24,7 +22,6 @@ if playerClass == "DEATHKNIGHT" then
 	end
 
 elseif playerClass == "DRUID" then
-
 	updateEvents = "UPDATE_SHAPESHIFT_FORM"
 	getRole = function()
 		local form = GetShapeshiftFormID() -- Aquatic 4, Bear 5, Cat 1, Flight 29, Moonkin 31, Swift Flight 27, Travel 3, Tree 2
@@ -36,7 +33,6 @@ elseif playerClass == "DRUID" then
 	end
 
 elseif playerClass == "MONK" then
-
 	updateEvents = "UPDATE_SHAPESHIFT_FORM"
 	getRole = function()
 		local form = GetShapeshiftFormID() -- Tiger 24, Ox 23, Serpent 20
@@ -48,7 +44,6 @@ elseif playerClass == "MONK" then
 	end
 
 elseif playerClass == "PALADIN" then
-
 	local RIGHTEOUS_FURY = GetSpellInfo(25780)
 	updateEvents = "PLAYER_REGEN_DISABLED"
 	getRole = function()
@@ -60,7 +55,6 @@ elseif playerClass == "PALADIN" then
 	end
 
 elseif playerClass == "PRIEST" then
-
 	getRole = function()
 		if GetSpecialization() ~= 3 then -- Discipline 1, Holy 2, Shadow 3
 			return "HEAL"
@@ -68,7 +62,6 @@ elseif playerClass == "PRIEST" then
 	end
 
 elseif playerClass == "SHAMAN" then
-
 	getRole = function()
 		if GetSpecialization() == 3 then -- Elemental 1, Enhancement 2, Restoration 3
 			return "HEAL"
@@ -76,7 +69,6 @@ elseif playerClass == "SHAMAN" then
 	end
 
 elseif playerClass == "WARRIOR" then
-
 	updateEvents = "UPDATE_SHAPESHIFT_FORM"
 	getRole = function()
 		if GetSpecialization() == 3 and GetShapeshiftFormID() == 18 then -- Battle 17, Berserker 19, Defensive 18

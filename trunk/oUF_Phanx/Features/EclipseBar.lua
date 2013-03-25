@@ -144,6 +144,10 @@ function ns.CreateEclipseBar(self, texture, useEclipseBarIcons)
 	eclipseArrow:SetBlendMode("ADD")
 	eclipseBar.directionArrow = eclipseArrow
 
+	local eclipseText = ns.CreateFontString(eclipseBar, 16, "CENTER")
+	eclipseText:SetPoint("CENTER", eclipseBar, "CENTER", 0, 1)
+	eclipseBar.value = eclipseText
+
 	if useEclipseBarIcons then
 		local moon = EclipseBarFrame.moon
 		moon:ClearAllPoints()

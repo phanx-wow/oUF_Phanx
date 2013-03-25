@@ -7,12 +7,12 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
 
-local _, private = ...
+local _, ns = ...
 local _, playerClass = UnitClass("player")
 local colors = oUF.colors
 local config
 
-private.frames, private.headers, private.objects, private.fontstrings, private.statusbars = {}, {}, {}, {}, {}
+ns.frames, ns.headers, ns.objects, ns.fontstrings, ns.statusbars = {}, {}, {}, {}, {}
 
 local function Spawn(self, unit, isSingle)
 	if self:GetParent():GetAttribute("useOwnerUnit") then
@@ -22,20 +22,20 @@ local function Spawn(self, unit, isSingle)
 		unit = unit .. suffix
 	end
 
-	local uconfig = private.uconfig[unit]
+	local uconfig = ns.uconfig[unit]
 	self.spawnunit = unit
 
 	unit = gsub(unit, "%d", "") -- turn "boss2" into "boss" for example
 
 	-- print("Spawn", self:GetName(), unit)
-	tinsert(private.objects, self)
+	tinsert(ns.objects, self)
 
 	self.mouseovers = {}
 
-	self.menu = private.UnitFrame_DropdownMenu
+	self.menu = ns.UnitFrame_DropdownMenu
 
-	self:HookScript("OnEnter", private.UnitFrame_OnEnter)
-	self:HookScript("OnLeave", private.UnitFrame_OnLeave)
+	self:HookScript("OnEnter", ns.UnitFrame_OnEnter)
+	self:HookScript("OnLeave", ns.UnitFrame_OnLeave)
 
 	self:RegisterForClicks("anyup")
 
@@ -59,9 +59,9 @@ local function Spawn(self, unit, isSingle)
 	-- Border and backdrop --
 	-------------------------
 
-	private.CreateBorder(self)
+	ns.CreateBorder(self)
 	self:SetBorderParent(self.overlay)
-	self.UpdateBorder = private.UpdateBorder
+	self.UpdateBorder = ns.UpdateBorder
 
 	self:SetBackdrop(config.backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
@@ -71,7 +71,7 @@ local function Spawn(self, unit, isSingle)
 	-- Health bar and text --
 	-------------------------
 
-	local health = private.CreateStatusBar(self, 24, "RIGHT", true)
+	local health = ns.CreateStatusBar(self, 24, "RIGHT", true)
 	health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -1)
 	health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
 	health:SetPoint("BOTTOM", self, "BOTTOM", 0, 1)
@@ -94,14 +94,14 @@ local function Spawn(self, unit, isSingle)
 		health.bg:SetVertexColor(r * healthBG, g * healthBG, b * healthBG)
 	end
 
-	health.PostUpdate = private.PostUpdateHealth
+	health.PostUpdate = ns.PostUpdateHealth
 	tinsert(self.mouseovers, health)
 
 	---------------------------
 	-- Predicted healing bar --
 	---------------------------
 
-	local heals = private.CreateStatusBar(self)
+	local heals = ns.CreateStatusBar(self)
 	heals:SetAllPoints(self.Health)
 	heals:SetAlpha(0.25)
 	heals:SetStatusBarColor(0, 1, 0)
@@ -118,14 +118,14 @@ local function Spawn(self, unit, isSingle)
 	heals.ignoreSelf = config.ignoreOwnHeals
 	heals.maxOverflow = 1
 
-	heals.Override = private.UpdateIncomingHeals
+	heals.Override = ns.UpdateIncomingHeals
 
 	------------------------
 	-- Power bar and text --
 	------------------------
 
 	if uconfig.power then
-		local power = private.CreateStatusBar(self, (uconfig.width or 1) > 0.75 and 16, "LEFT", true)
+		local power = ns.CreateStatusBar(self, (uconfig.width or 1) > 0.75 and 16, "LEFT", true)
 		power:SetFrameLevel(self.Health:GetFrameLevel() + 2)
 		power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
 		power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)
@@ -156,7 +156,7 @@ local function Spawn(self, unit, isSingle)
 		end
 
 		power.frequentUpdates = unit == "player"
-		power.PostUpdate = private.PostUpdatePower
+		power.PostUpdate = ns.PostUpdatePower
 	end
 
 	-----------------------------------------------------------
@@ -174,7 +174,7 @@ local function Spawn(self, unit, isSingle)
 	--------------------------
 --[[
 	if unit == "target" then
-		self.ThreatText = private.CreateFontString(self.overlay, 20, "RIGHT")
+		self.ThreatText = ns.CreateFontString(self.overlay, 20, "RIGHT")
 		self.ThreatText:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
 	end
 ]]
@@ -183,7 +183,7 @@ local function Spawn(self, unit, isSingle)
 	---------------------------
 
 	if unit == "target" or unit == "focus" then
-		self.Level = private.CreateFontString(self.overlay, 16, "LEFT")
+		self.Level = ns.CreateFontString(self.overlay, 16, "LEFT")
 		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -3)
 
 		self:Tag(self.Level, "[difficulty][level][shortclassification]")
@@ -195,13 +195,13 @@ local function Spawn(self, unit, isSingle)
 			self.RareElite:SetTexture("Interface\\AddOns\\oUF_Phanx\\media\\Elite")
 		end
 ]]
-		self.Name = private.CreateFontString(self.overlay, 20, "LEFT")
+		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
 		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, -1)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4)
 
 		self:Tag(self.Name, "[unitcolor][name]")
 	elseif unit ~= "player" and not strmatch(unit, "pet") then
-		self.Name = private.CreateFontString(self.overlay, 20, "LEFT")
+		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
 		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
 
@@ -213,7 +213,7 @@ local function Spawn(self, unit, isSingle)
 	------------------
 
 	if unit == "target" then
-		local t = private.Orbs.Create(self.overlay, MAX_COMBO_POINTS, 20)
+		local t = ns.Orbs.Create(self.overlay, MAX_COMBO_POINTS, 20)
 		for i = MAX_COMBO_POINTS, 1, -1 do
 			local orb = t[i]
 			if i == 1 then
@@ -225,7 +225,7 @@ local function Spawn(self, unit, isSingle)
 			orb.fg:SetVertexColor(1, 0.8, 0)
 		end
 		self.CPoints = t
-		self.CPoints.Override = private.UpdateComboPoints
+		self.CPoints.Override = ns.UpdateComboPoints
 	end
 
 	------------------------------
@@ -234,45 +234,42 @@ local function Spawn(self, unit, isSingle)
 
 	if unit == "player" and (playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "WARLOCK") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
-		local element, maxIcons, powerType, updateFunc, useStatusBars = "ClassIcons", 5
+		local element, powerType, updateFunc = "ClassIcons"
 
 		--------------------
 		-- Wild mushrooms --
 		--------------------
 		if playerClass == "DRUID" then
-			element = "DruidMushrooms"
-			maxIcons = MAX_TOTEMS
-			updateFunc = private.UpdateMushrooms
+			element = "WildMushrooms"
+			updateFunc = ns.UpdateMushrooms
 
 		---------
 		-- Chi --
 		---------
 		elseif playerClass == "MONK" then
 			powerType = SPELL_POWER_LIGHT_FORCE
-			updateFunc = private.UpdateChi
+			updateFunc = ns.UpdateChi
 
 		----------------
 		-- Holy power --
 		----------------
 		elseif playerClass == "PALADIN" then
 			powerType = SPELL_POWER_HOLY_POWER
-			updateFunc = private.UpdateHolyPower
+			updateFunc = ns.UpdateHolyPower
 
 		-----------------
 		-- Shadow orbs --
 		-----------------
 		elseif playerClass == "PRIEST" then
 			powerType = SPELL_POWER_SHADOW_ORBS
-			updateFunc = private.UpdateShadowOrbs
+			updateFunc = ns.UpdateShadowOrbs
 
 		-----------------------------------------------
 		-- Soul shards, demonic fury, burning embers --
 		-----------------------------------------------
 		elseif playerClass == "WARLOCK" then
-			element = "WarlockPower" -- "SoulShards"
-			maxIcons = 4
+			element = "SoulShards"
 			powerType = SPELL_POWER_SOUL_SHARDS
-			useStatusBars = true
 		end
 
 		local function SetAlpha(self, alpha)
@@ -288,8 +285,8 @@ local function Spawn(self, unit, isSingle)
 			end
 		end
 
-		local t = private.Orbs.Create(self.overlay, maxIcons, 20, useStatusBars)
-		for i = 1, maxIcons do
+		local t = ns.Orbs.Create(self.overlay, 5, 20)
+		for i = 1, 5 do
 			local orb = t[i]
 			if i == 1 then
 				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
@@ -298,9 +295,7 @@ local function Spawn(self, unit, isSingle)
 			end
 			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
 			orb.fg:SetVertexColor(color.r, color.g, color.b)
-			if not useStatusBars then
-				orb.SetAlpha = SetAlpha
-			end
+			orb.SetAlpha = SetAlpha
 		end
 		t.powerType = powerType
 		t.Override = updateFunc
@@ -336,7 +331,7 @@ local function Spawn(self, unit, isSingle)
 			end
 		end
 
-		local t = private.Orbs.Create(self.overlay, 5, 20)
+		local t = ns.Orbs.Create(self.overlay, 5, 20)
 		for i = 1, 5 do
 			local orb = t[i]
 			if i == 1 then
@@ -367,7 +362,7 @@ local function Spawn(self, unit, isSingle)
 	-----------------------
 
 	if unit == "player" then
-		self.Status = private.CreateFontString(self.overlay, 16, "LEFT")
+		self.Status = ns.CreateFontString(self.overlay, 16, "LEFT")
 		self.Status:SetPoint("LEFT", self.Health, "TOPLEFT", 2, 2)
 
 		self:Tag(self.Status, "[leadericon][mastericon]")
@@ -380,7 +375,7 @@ local function Spawn(self, unit, isSingle)
 		self.Combat:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", 0, -2)
 		self.Combat:SetSize(24, 24)
 	elseif unit == "party" or unit == "target" then
-		self.Status = private.CreateFontString(self.overlay, 16, "RIGHT")
+		self.Status = ns.CreateFontString(self.overlay, 16, "RIGHT")
 		self.Status:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", -2, 0)
 
 		self:Tag(self.Status, "[mastericon][leadericon]")
@@ -460,10 +455,10 @@ local function Spawn(self, unit, isSingle)
 		self.Buffs["spacing-x"] = GAP
 		self.Buffs["spacing-y"] = GAP
 
-		self.Buffs.CustomFilter   = private.CustomAuraFilters.player
-		self.Buffs.PostCreateIcon = private.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = private.PostUpdateAuraIcon
-		self.Buffs.PostUpdate     = private.PostUpdateAuras -- required to detect Dead => Ghost
+		self.Buffs.CustomFilter   = ns.CustomAuraFilters.player
+		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+		self.Buffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
 		self.Buffs.parent = self
 	elseif unit == "pet" then
@@ -482,9 +477,9 @@ local function Spawn(self, unit, isSingle)
 		self.Buffs["spacing-x"] = GAP
 		self.Buffs["spacing-y"] = GAP
 
-		self.Buffs.CustomFilter   = private.CustomAuraFilters.pet
-		self.Buffs.PostCreateIcon = private.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = private.PostUpdateAuraIcon
+		self.Buffs.CustomFilter   = ns.CustomAuraFilters.pet
+		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
 		self.Buffs.parent = self
 	elseif unit == "party" then
@@ -503,10 +498,10 @@ local function Spawn(self, unit, isSingle)
 		self.Buffs["spacing-x"] = GAP
 		self.Buffs["spacing-y"] = GAP
 
-		self.Buffs.CustomFilter   = private.CustomAuraFilters.party
-		self.Buffs.PostCreateIcon = private.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = private.PostUpdateAuraIcon
-		self.Buffs.PostUpdate     = private.PostUpdateAuras -- required to detect Dead => Ghost
+		self.Buffs.CustomFilter   = ns.CustomAuraFilters.party
+		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+		self.Buffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
 		self.Buffs.parent = self
 	elseif unit == "target" then
@@ -531,10 +526,10 @@ local function Spawn(self, unit, isSingle)
 		self.Debuffs["spacing-x"] = GAP
 		self.Debuffs["spacing-y"] = GAP * 2
 
-		self.Debuffs.CustomFilter   = private.CustomAuraFilters.target
-		self.Debuffs.PostCreateIcon = private.PostCreateAuraIcon
-		self.Debuffs.PostUpdateIcon = private.PostUpdateAuraIcon
-		self.Debuffs.PostUpdate     = private.PostUpdateAuras -- required to detect Dead => Ghost
+		self.Debuffs.CustomFilter   = ns.CustomAuraFilters.target
+		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+		self.Debuffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
 		self.Debuffs.parent = self
 
@@ -552,9 +547,9 @@ local function Spawn(self, unit, isSingle)
 		self.Buffs["spacing-x"] = GAP
 		self.Buffs["spacing-y"] = GAP * 2
 
-		self.Buffs.CustomFilter   = private.CustomAuraFilters.target
-		self.Buffs.PostCreateIcon = private.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = private.PostUpdateAuraIcon
+		self.Buffs.CustomFilter   = ns.CustomAuraFilters.target
+		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
+		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
 		self.Buffs.parent = self
 
@@ -595,44 +590,112 @@ local function Spawn(self, unit, isSingle)
 		end)
 	end
 
-	---------------
-	-- DruidMana --
-	---------------
+	-------------------
+	-- BurningEmbers --
+	-------------------
 
-	if unit == "player" and playerClass == "DRUID" and config.druidMana then
-		local druidMana = private.CreateStatusBar(self, 16, "CENTER")
-		druidMana:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
-		druidMana:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
-		druidMana:SetHeight(FRAME_HEIGHT * config.powerHeight)
+	if unit == "player" and playerClass == "WARLOCK" then
+		local BurningEmbers = ns.SetupBurningEmbers(self)
+		self.BurningEmbers = BurningEmbers
 
-		local druidManaText = druidMana.value
-		druidManaText:SetPoint("CENTER", 0, 1)
-		druidManaText:Hide()
-		table.insert(self.mouseovers, druidManaText)
+		BurningEmbers:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -1)
+		BurningEmbers:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -1)
+		BurningEmbers:SetHeight(FRAME_HEIGHT * config.powerHeight + 2)
 
-		druidMana.colorPower = true
-		druidMana.bg.multiplier = config.powerBG
-		druidMana.PostUpdate = private.PostUpdateDruidMana
+		BurningEmbers:SetBackdrop(config.backdrop)
+		BurningEmbers:SetBackdropColor(0, 0, 0, 1)
+		BurningEmbers:SetBackdropBorderColor(unpack(config.borderColor))
 
-		self.DruidMana = druidMana
+		local N = #BurningEmbers
+		local W = (FRAME_WIDTH - (1 * (N + 1))) / N -- 1x looks awkward, but gap can be bigger than 1 also
+
+		for i = 1, N do
+			local bar = BurningEmbers[i]
+			bar:SetReverseFill(true)
+			bar:SetWidth(W)
+			if i > 1 then
+				bar:SetPoint("TOPRIGHT", BurningEmbers[i-1], "TOPLEFT", -1, 0)
+				bar:SetPoint("BOTTOMRIGHT", BurningEmbers[i-1], "BOTTOMLEFT", -1, 0)
+			else
+				bar:SetPoint("TOPRIGHT", BurningEmbers, -1, -1)
+				bar:SetPoint("BOTTOMRIGHT", BurningEmbers, -1, 1)
+			end
+			bar.bg.multiplier = config.powerBG
+		end
+
+		local function UpdateEmbersBorder()
+			if BurningEmbers:IsShown() then
+				self:SetBorderParent(BurningEmbers[#BurningEmbers])
+
+				local size, offset = self:GetBorderSize()
+				local inset = floor(size * -0.2)
+				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", BurningEmbers, -offset, offset)
+				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", BurningEmbers, offset, offset)
+			else
+				self:SetBorderParent(self.overlay)
+				if not self.changingBorderSize then
+					self.changingBorderSize = true
+					self:SetBorderSize()
+					self.changingBorderSize = nil
+				end
+			end
+		end
+
+		local p = BurningEmbers.PostUpdate
+		function BurningEmbers:PostUpdate(...)
+			p(self, ...)
+			UpdateEmbersBorder()
+		end
 
 		local o = self.SetBorderSize
 		function self:SetBorderSize(size, offset)
 			o(self, size, offset)
-			if druidMana:IsShown() then
+			UpdateEmbersBorder()
+		end
+		self:SetBorderSize()
+	end
+
+	-----------------------------
+	-- DruidMana / DemonicFury --
+	-----------------------------
+
+	if unit == "player" and (playerClass == "WARLOCK" or (playerClass == "DRUID" and config.druidMana)) then
+		local otherPower = ns.CreateStatusBar(self, 16, "CENTER")
+		otherPower:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
+		otherPower:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
+		otherPower:SetHeight(FRAME_HEIGHT * config.powerHeight)
+
+		otherPower.value:SetPoint("CENTER", 0, 1)
+		otherPower.value:Hide()
+		table.insert(self.mouseovers, otherPower.value)
+
+		otherPower.colorPower = true
+		otherPower.bg.multiplier = config.powerBG
+
+		if playerClass == "DRUID" then
+			otherPower.PostUpdate = ns.PostUpdateDruidMana
+			self.DruidMana = otherPower
+		else
+			otherPower.PostUpdate = ns.PostUpdateDemonicFury
+			self.DemonicFury = otherPower
+		end
+
+		local o = self.SetBorderSize
+		function self:SetBorderSize(size, offset)
+			o(self, size, offset)
+			if otherPower:IsShown() then
 				local size, offset = self:GetBorderSize()
 				local inset = floor(size * -0.2)
-				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", druidMana, -offset, offset + 1)
-				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", druidMana, offset, offset + 1)
+				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", otherPower, -offset, offset + 1)
+				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", otherPower, offset, offset + 1)
 			end
 		end
-		druidMana:SetScript("OnShow", function(self)
+		otherPower:SetScript("OnShow", function(self)
 			local frame = self.__owner
 			frame:SetBorderParent(self)
 			frame:SetBorderSize()
 		end)
-
-		druidMana:SetScript("OnHide", function(self)
+		otherPower:SetScript("OnHide", function(self)
 			local frame = self.__owner
 			frame:SetBorderParent(frame.overlay)
 			frame:SetBorderSize()
@@ -644,26 +707,19 @@ local function Spawn(self, unit, isSingle)
 	----------------
 
 	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
-		local eclipseBar = private.CreateEclipseBar(self, config.statusbar, config.eclipseBarIcons)
+		local eclipseBar = ns.CreateEclipseBar(self, config.statusbar, config.eclipseBarIcons)
 		eclipseBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
 		eclipseBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
 		eclipseBar:SetHeight(FRAME_HEIGHT * config.powerHeight + 1)
 
-		table.insert(private.statusbars, eclipseBar.bg)
-		table.insert(private.statusbars, eclipseBar.lunarBG)
-		table.insert(private.statusbars, eclipseBar.solarBG)
+		tinsert(ns.statusbars, eclipseBar.bg)
+		tinsert(ns.statusbars, eclipseBar.lunarBG)
+		tinsert(ns.statusbars, eclipseBar.solarBG)
 
-		local eclipseText = private.CreateFontString(eclipseBar, 16, "CENTER")
-		eclipseText:SetPoint("CENTER", eclipseBar, "CENTER", 0, 1)
-		eclipseText:Hide()
-		self:Tag(eclipseText, "[pereclipse]%")
-		table.insert(self.mouseovers, eclipseText)
-		eclipseBar.value = eclipseText
---[[
-		private.CreateBorder(eclipseBar)
-		eclipseBar.BorderTextures.LEFT:Hide()
-		eclipseBar.BorderTextures.RIGHT:Hide()
-]]
+		eclipseBar.value:Hide()
+		self:Tag(eclipseBar.value, "[pereclipse]%")
+		table.insert(self.mouseovers, eclipseBar.value)
+
 		local o = self.SetBorderSize
 		function self:SetBorderSize(size, offset)
 			o(self, size, offset)
@@ -686,8 +742,8 @@ local function Spawn(self, unit, isSingle)
 			frame:SetBorderSize()
 		end)
 
-		eclipseBar:SetScript("OnEnter", private.UnitFrame_OnEnter)
-		eclipseBar:SetScript("OnLeave", private.UnitFrame_OnLeave)
+		eclipseBar:SetScript("OnEnter", ns.UnitFrame_OnEnter)
+		eclipseBar:SetScript("OnLeave", ns.UnitFrame_OnLeave)
 
 		self.EclipseBar = eclipseBar
 	end
@@ -697,7 +753,7 @@ local function Spawn(self, unit, isSingle)
 	-----------
 
 	if unit == "player" and playerClass == "DEATHKNIGHT" and config.runeBars then
-		local Runes = private.CreateRunes(self)
+		local Runes = ns.CreateRunes(self)
 		Runes:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -1)
 		Runes:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -1)
 		Runes:SetHeight(FRAME_HEIGHT * config.powerHeight + 2)
@@ -750,7 +806,7 @@ local function Spawn(self, unit, isSingle)
 	------------
 
 	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
-		local Totems = private.CreateTotems(self)
+		local Totems = ns.CreateTotems(self)
 
 		local N = #Totems
 		local TOTEM_WIDTH = (FRAME_WIDTH - (1 * (N + 1))) / N
@@ -768,7 +824,7 @@ local function Spawn(self, unit, isSingle)
 			bar:SetWidth(TOTEM_WIDTH)
 
 			bar.iconFrame:SetSize(TOTEM_WIDTH / 2, TOTEM_WIDTH / 2)
-			private.CreateBorder(bar.iconFrame)
+			ns.CreateBorder(bar.iconFrame)
 
 			bar.bg.multiplier = config.powerBG
 
@@ -844,7 +900,7 @@ local function Spawn(self, unit, isSingle)
 	if uconfig.castbar then
 		local height = FRAME_HEIGHT * (1 - config.powerHeight)
 
-		local Castbar = private.CreateStatusBar(self)
+		local Castbar = ns.CreateStatusBar(self)
 		Castbar:SetPoint("TOPLEFT", self, "BOTTOMLEFT", height, -10)
 		Castbar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -10)
 		Castbar:SetHeight(height)
@@ -862,15 +918,15 @@ local function Spawn(self, unit, isSingle)
 			SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
 			Castbar.SafeZone = SafeZone
 
-			Castbar.Time = private.CreateFontString(Castbar, 20, "RIGHT")
+			Castbar.Time = ns.CreateFontString(Castbar, 20, "RIGHT")
 			Castbar.Time:SetPoint("RIGHT", Castbar, "RIGHT", -4, 0)
 
 		elseif (uconfig.width or 1) > 0.75 then
-			Castbar.Text = private.CreateFontString(Castbar, 16, "LEFT")
+			Castbar.Text = ns.CreateFontString(Castbar, 16, "LEFT")
 			Castbar.Text:SetPoint("LEFT", Castbar, "LEFT", 4, 0)
 		end
 
-		private.CreateBorder(Castbar, nil, nil, nil, "OVERLAY")
+		ns.CreateBorder(Castbar, nil, nil, nil, "OVERLAY")
 
 		local _, d = Castbar:GetBorderSize()
 		Castbar.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Castbar.Icon, "TOPLEFT", -d, d)
@@ -885,10 +941,10 @@ local function Spawn(self, unit, isSingle)
 			self.BorderTextures.BOTTOMLEFT:SetPoint("BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d)
 		end
 
-		Castbar.PostCastStart = private.PostCastStart
-		Castbar.PostChannelStart = private.PostChannelStart
-		Castbar.CustomDelayText = private.CustomDelayText
-		Castbar.CustomTimeText = private.CustomTimeText
+		Castbar.PostCastStart = ns.PostCastStart
+		Castbar.PostChannelStart = ns.PostChannelStart
+		Castbar.CustomDelayText = ns.CustomDelayText
+		Castbar.CustomTimeText = ns.CustomTimeText
 
 		self.Castbar = Castbar
 	end
@@ -919,7 +975,7 @@ local function Spawn(self, unit, isSingle)
 	----------------------
 
 	if unit == "player" or unit == "party" then
-		self.AFK = private.CreateFontString(self.overlay, 12, "CENTER")
+		self.AFK = ns.CreateFontString(self.overlay, 12, "CENTER")
 		self.AFK:SetPoint("CENTER", self.Health, "BOTTOM", 0, -2)
 		self.AFK.fontFormat = "AFK %s:%s"
 	end
@@ -929,7 +985,7 @@ local function Spawn(self, unit, isSingle)
 	-------------------------------
 
 	self.DispelHighlight = {
-		Override = private.UpdateDispelHighlight,
+		Override = ns.UpdateDispelHighlight,
 		filter = true,
 	}
 
@@ -938,14 +994,14 @@ local function Spawn(self, unit, isSingle)
 	-------------------------------
 
 	self.threatLevel = 0
-	self.ThreatHighlight = private.UpdateThreatHighlight
+	self.ThreatHighlight = ns.UpdateThreatHighlight
 
 	---------------------------
 	-- Element: ResInfo text --
 	---------------------------
 
 	if not strmatch(unit, ".target$") and not strmatch(unit, "^[ab][ro][es][ns]a?") then -- ignore arena, boss, *target
-		self.ResInfo = private.CreateFontString(self.overlay, 16, "CENTER")
+		self.ResInfo = ns.CreateFontString(self.overlay, 16, "CENTER")
 		self.ResInfo:SetPoint("CENTER", 0, 1)
 	end
 
@@ -954,7 +1010,7 @@ local function Spawn(self, unit, isSingle)
 	--------------------------------
 
 	if IsAddOnLoaded("oUF_CombatFeedback") and not strmatch(unit, ".target$") then
-		self.CombatFeedbackText = private.CreateFontString(self.overlay, 24, "CENTER")
+		self.CombatFeedbackText = ns.CreateFontString(self.overlay, 24, "CENTER")
 		self.CombatFeedbackText:SetPoint("CENTER", 0, 1)
 	end
 
@@ -976,7 +1032,7 @@ end
 ------------------------------------------------------------------------
 
 oUF:Factory(function(oUF)
-	config = private.config
+	config = ns.config
 
 	for _, menu in pairs(UnitPopupMenus) do
 		for i = #menu, 1, -1 do
@@ -998,7 +1054,7 @@ oUF:Factory(function(oUF)
 		self:SetHeight(%d)
 	]]
 
-	for u, udata in pairs(private.uconfig) do
+	for u, udata in pairs(ns.uconfig) do
 		local name = "oUFPhanx" .. u:gsub("%a", strupper, 1):gsub("target", "Target"):gsub("pet", "Pet")
 		if udata.point then
 			if udata.attributes then
@@ -1006,27 +1062,27 @@ oUF:Factory(function(oUF)
 				local w = config.width  * (udata.width  or 1)
 				local h = config.height * (udata.height or 1)
 
-				private.headers[u] = oUF:SpawnHeader(name, nil, udata.visible,
+				ns.headers[u] = oUF:SpawnHeader(name, nil, udata.visible,
 					"oUF-initialConfigFunction", format(initialConfigFunction, w, w, h, h),
 					unpack(udata.attributes))
 			else
 				-- print("generating frame for", u)
-				private.frames[u] = oUF:Spawn(u, name)
+				ns.frames[u] = oUF:Spawn(u, name)
 			end
 		end
 	end
 
-	for u, f in pairs(private.frames) do
-		local udata = private.uconfig[u]
+	for u, f in pairs(ns.frames) do
+		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
 		f:ClearAllPoints()
-		f:SetPoint(p1, private.headers[parent] or private.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 	end
-	for u, f in pairs(private.headers) do
-		local udata = private.uconfig[u]
+	for u, f in pairs(ns.headers) do
+		local udata = ns.uconfig[u]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
 		f:ClearAllPoints()
-		f:SetPoint(p1, private.headers[parent] or private.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 	end
 
 	for i = 1, 3 do
@@ -1061,7 +1117,7 @@ oUF:Factory(function(oUF)
 		bar.bar:SetStatusBarTexture(config.statusbar)
 		--bar.bar:SetAlpha(0.8) -- I don't remember why I did this?
 
-		private.CreateBorder(bar, nil, nil, bar.bar, "OVERLAY")
+		ns.CreateBorder(bar, nil, nil, bar.bar, "OVERLAY")
 	end
 
 	local fixer = CreateFrame("Frame")
@@ -1072,7 +1128,7 @@ oUF:Factory(function(oUF)
 			self:Hide()
 			self:SetScript("OnUpdate", nil)
 			fixertimer, fixer = nil, nil
-			for _, object in pairs(private.objects) do
+			for _, object in pairs(ns.objects) do
 				object:UpdateAllElements("ForceUpdate")
 			end
 		end
