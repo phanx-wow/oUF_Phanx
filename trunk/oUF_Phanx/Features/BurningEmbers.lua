@@ -12,7 +12,7 @@ if select(2, UnitClass("player")) ~= "WARLOCK" then return end
 local _, ns = ...
 local BurningEmbers
 
-local color = { 1, 0.5, 0 }
+local color = { 1, 0.6, 0.2 }
 oUF.colors.power.BURNING_EMBERS = color
 
 local function PostUpdate(element, embers, embersMax, powerType)
@@ -27,8 +27,8 @@ local function PostUpdate(element, embers, embersMax, powerType)
 			bar:SetStatusBarColor(r * 0.65, g * 0.65, b * 0.65)
 		end
 
-		local m = bar.bg.multiplier or 0.2
-		bar.bg:SetVertexColor(r * m, g * m, b * m)
+		-- Ignore any .multiplier and just use something that looks good
+		bar.bg:SetVertexColor(r * 0.3, g * 0.3, b * 0.3)
 	end
 end
 
