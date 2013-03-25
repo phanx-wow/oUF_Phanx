@@ -8,7 +8,6 @@
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
-local SharedMedia
 
 ------------------------------------------------------------------------
 --	Units
@@ -174,157 +173,47 @@ do
 end
 
 ------------------------------------------------------------------------
---	End configuration
+--	Default configuration
+--	After the first time you have loaded the addon, you must edit your
+--	SavedVariables file to change these values, not this file.
 ------------------------------------------------------------------------
 
-function ns.SetAllFonts(file, flag)
-	if not file then file = ns.config.font end
-	if not flag then flag = ns.config.fontOutline end
+ns.defaultDB = {
+	width = 225,
+	height = 30,
+	powerHeight = 0.2,				-- how much of the frame's height should be occupied by the power bar
 
-	for _, v in ipairs(ns.fontstrings) do
-		local _, size = v:GetFont()
-		v:SetFont(file, size, flag)
-	end
+	backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
+	backdropColor = { 32/256, 32/256, 32/256, 1 },
 
-	for i = 1, 3 do
-		local bar = _G["MirrorTimer" .. i]
-		local _, size = bar.text:GetFont()
-		bar.text:SetFont(file, size, flag)
-	end
-end
+	statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
 
-function ns.SetAllStatusBarTextures(file)
-	if not file then file = ns.config.statusbar end
+	font = [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]],
+	fontOutline = "OUTLINE",
 
-	for _, v in ipairs(ns.statusbars) do
-		if v.SetStatusBarTexture then
-			v:SetStatusBarTexture(file)
-		else
-			v:SetTexture(file)
-		end
-		if v.bg then
-			v.bg:SetTexture(file)
-		end
-	end
+	dispelFilter = true,			-- only highlight the frame for debuffs you can dispel
+	ignoreOwnHeals = false,			-- only show incoming heals from other players
+	threatLevels = true,			-- show threat levels instead of binary aggro
 
-	for i = 1, 3 do
-		local bar = _G["MirrorTimer" .. i]
-		bar.bg:SetTexture(file)
-		bar.bar:SetStatusBarTexture(file)
-	end
-end
+	druidMana = false,				-- [druid] show a mana bar in cat/bear forms
+	eclipseBar = true,				-- [druid] show an eclipse bar
+	eclipseBarIcons = false,		-- [druid] show animated icons on the eclipse bar
+	runeBars = true,				-- [deathknight] show rune cooldown bars
+	totemBars = true,				-- [shaman] show totem duration bars
 
-------------------------------------------------------------------------
---	Load stuff
-------------------------------------------------------------------------
+	healthColor = { 0.2, 0.2, 0.2 },
+	healthColorMode = "CUSTOM",
+	healthBG = 2,
 
-ns.loadFuncs = {}
+	powerColor = { 0.8, 0.8, 0.8 },
+	powerColorMode = "CLASS",
+	powerBG = 0.25,
 
-ns.loader = CreateFrame("Frame")
-ns.loader:RegisterEvent("ADDON_LOADED")
-ns.loader:SetScript("OnEvent", function(self, event, addon)
-	if addon ~= "oUF_Phanx" then return end
+	borderColor = { 0.5, 0.5, 0.5 },
+	borderSize = 16,
 
-	local defaults = {
-		width = 225,
-		height = 30,
-		powerHeight = 0.2,				-- how much of the frame's height should be occupied by the power bar
-
-		backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
-		backdropColor = { 32/256, 32/256, 32/256, 1 },
-
-		statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
-
-		font = [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]],
-		fontOutline = "OUTLINE",
-
-		dispelFilter = true,			-- only highlight the frame for debuffs you can dispel
-		ignoreOwnHeals = false,			-- only show incoming heals from other players
-		threatLevels = true,			-- show threat levels instead of binary aggro
-
-		druidMana = false,				-- [druid] show a mana bar in cat/bear forms
-		eclipseBar = true,				-- [druid] show an eclipse bar
-		eclipseBarIcons = false,		-- [druid] show animated icons on the eclipse bar
-		runeBars = true,				-- [deathknight] show rune cooldown bars
-		totemBars = true,				-- [shaman] show totem duration bars
-
-		healthColor = { 0.2, 0.2, 0.2 },
-		healthColorMode = "CUSTOM",
-		healthBG = 2,
-
-		powerColor = { 0.8, 0.8, 0.8 },
-		powerColorMode = "CLASS",
-		powerBG = 0.25,
-
-		borderColor = { 0.5, 0.5, 0.5 },
-		borderSize = 16,
-
-		PVP = false, -- enable PVP mode, currently only affects aura filtering
-
-		--DBVERSION = 0,
-	}
-
-	-- Global settings:
-	oUFPhanxConfig = PoUFDB or oUFPhanxConfig or {} -- upgrade old settings
-	for k, v in pairs(defaults) do
-		if type(oUFPhanxConfig[k]) ~= type(v) then
-			oUFPhanxConfig[k] = v
-		end
-	end
-	ns.config = oUFPhanxConfig
-
-	-- Aura settings stored per character:
-	oUFPhanxAuraConfig = oUFPhanxAuraConfig or {}
-	ns.UpdateAuraList()
-
-	SharedMedia = LibStub("LibSharedMedia-3.0", true)
-	if SharedMedia then
-		SharedMedia:Register("font", "PT Sans Bold", [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]])
-
-		SharedMedia:Register("statusbar", "Flat", [[Interface\BUTTONS\WHITE8X8]])
-		SharedMedia:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
-
-		for i, v in pairs(SharedMedia:List("font")) do
-			tinsert(ns.fontList, v)
-		end
-		table.sort(ns.fontList)
-
-		for i, v in pairs(SharedMedia:List("statusbar")) do
-			tinsert(ns.statusbarList, v)
-		end
-		table.sort(ns.statusbarList)
-
-		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_Registered", function(type)
-			if type == "font" then
-				wipe(ns.fontList)
-				for i, v in pairs(SharedMedia:List("font")) do
-					tinsert(ns.fontList, v)
-				end
-				table.sort(ns.fontList)
-			elseif type == "statusbar" then
-				wipe(ns.statusbarList)
-				for i, v in pairs(SharedMedia:List("statusbar")) do
-					tinsert(ns.statusbarList, v)
-				end
-				table.sort(ns.statusbarList)
-			end
-		end)
-
-		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_SetGlobal", function(_, type)
-			if type == "font" then
-				ns.SetAllFonts()
-			elseif type == "statusbar" then
-				ns.SetAllStatusBarTextures()
-			end
-		end)
-	end
-
-	for i, f in ipairs(ns.loadFuncs) do f() end
-	ns.loadFuncs = nil
-
-	self:UnregisterAllEvents()
-	self:SetScript("OnEvent", nil)
-end)
+	PVP = false, -- enable PVP mode, currently only affects aura filtering
+}
 
 ------------------------------------------------------------------------
 --	Options panel
@@ -345,6 +234,8 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	local CreateDropdown = LibStub("PhanxConfig-Dropdown").CreateDropdown
 	local CreateScrollingDropdown = LibStub("PhanxConfig-ScrollingDropdown").CreateScrollingDropdown
 	local CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
+
+	local SharedMedia = LibStub("LibSharedMedia-3.0", true)
 
 	--------------------------------------------------------------------
 

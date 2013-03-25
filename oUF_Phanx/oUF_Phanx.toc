@@ -25,7 +25,18 @@
 ## SavedVariables: oUFPhanxConfig
 ## SavedVariablesPerCharacter: oUFPhanxAuraConfig
 
-Core.xml
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibAboutPanel\LibAboutPanel.lua
+Libs\LibResInfo-1.0\LibResInfo-1.0.lua
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
+Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
+Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
+Libs\PhanxConfig-Header\PhanxConfig-Header.lua
+Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
+Libs\PhanxConfig-ScrollingDropdown\PhanxConfig-ScrollingDropdown.lua
+Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 
 Locales\Locale-en.lua
 Locales\Locale-de.lua
@@ -34,26 +45,32 @@ Locales\Locale-fr.lua
 Locales\Locale-pt.lua
 Locales\Locale-zhCN.lua
 
-Plugins\AFK.lua
-Plugins\DispelHighlight.lua
-Plugins\DruidMushrooms.lua
-Plugins\PowerStack.lua
-Plugins\Resurrection.lua
-Plugins\ThreatHighlight.lua
-Plugins\WarlockPower.lua
+Elements\AFK.lua
+Elements\BurningEmbers.lua
+Elements\DemonicFury.lua
+Elements\DispelHighlight.lua
+Elements\PowerStack.lua
+Elements\Resurrection.lua
+Elements\SoulShards.lua
+Elements\ThreatHighlight.lua
+Elements\WildMushrooms.lua
 
-AuraFilters.lua
-Border.lua
-Orbs.lua
-Role.lua
-Tags.lua
+Features\Border.lua
+Features\BurningEmbers.lua
+Features\EclipseBar.lua
+Features\Orbs.lua
+Features\Runes.lua
+Features\Tags.lua
+Features\Totems.lua
 
-Elements\EclipseBar.lua
-Elements\Runes.lua
-Elements\Totems.lua
-
-Config.lua
 Core.lua
+
+Auras.lua
+Functions.lua
+Role.lua
+
+Frames.xml
 Frames.lua
 
-ConfigAuras.lua
+Config.lua
+Config-Auras.lua

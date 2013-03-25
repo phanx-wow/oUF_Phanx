@@ -1,5 +1,5 @@
 --[[--------------------------------------------------------------------
-	oUF_DruidMushrooms
+	oUF_WildMushrooms
 	by Phanx <addons@phanx.net>
 	Adds basic ClassIcons-style support for druid mushrooms.
 
@@ -9,12 +9,12 @@
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-assert(oUF, "oUF_DruidMushrooms requires oUF")
+assert(oUF, "oUF_WildMushrooms requires oUF")
 
 local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
 function UpdateVisibility(self, event)
-	local element = self.DruidMushrooms
+	local element = self.WildMushrooms
 
 	local spec = GetSpecialization()
 	if spec == 2 or spec == 3 or UnitHasVehicleUI("player") then
@@ -32,7 +32,7 @@ function UpdateVisibility(self, event)
 end
 
 function Update(self, event)
-	local element = self.DruidMushrooms
+	local element = self.WildMushrooms
 	if element.disabled then return end
 
 	if element.PreUpdate then
@@ -54,7 +54,7 @@ function Update(self, event)
 end
 
 function Path(self, ...)
-	return (self.DruidMushrooms.Override or Update)(self, ...)
+	return (self.WildMushrooms.Override or Update)(self, ...)
 end
 
 function ForceUpdate(element)
@@ -62,7 +62,7 @@ function ForceUpdate(element)
 end
 
 function Enable(self)
-	local element = self.DruidMushrooms
+	local element = self.WildMushrooms
 	if not element then return end
 
 	element.__owner = self
@@ -85,7 +85,7 @@ function Enable(self)
 end
 
 function Disable(self)
-	local element = self.DruidMushrooms
+	local element = self.WildMushrooms
 	if not element then return end
 
 	self:UnregisterEvent("PLAYER_TOTEM_UPDATE", Update)
@@ -113,4 +113,4 @@ function Disable(self)
 	TotemFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
 end
 
-oUF:AddElement("DruidMushrooms", Path, Enable, Disable)
+oUF:AddElement("WildMushrooms", Path, Enable, Disable)
