@@ -1,7 +1,20 @@
+--[[--------------------------------------------------------------------
+	oUF_Phanx
+	Fully-featured PVE-oriented layout for oUF.
+	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	http://www.curse.com/addons/wow/ouf-phanx
+------------------------------------------------------------------------
+	Element to display demonic fury on oUF frames.
+
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone plugin.
+----------------------------------------------------------------------]]
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-assert(oUF, "oUF is missing!")
+assert(oUF, "DemonicFury element requires oUF")
 
 local SPEC_WARLOCK_DEMONOLOGY = SPEC_WARLOCK_DEMONOLOGY
 local SPELL_POWER_DEMONIC_FURY = SPELL_POWER_DEMONIC_FURY
@@ -12,41 +25,33 @@ local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 function UpdateVisibility(self, event, unit)
 	local element = self.DemonicFury
 
-	self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
-	self:UnregisterEvent("UNIT_POWER", Path)
+	if UnitHasVehicleUI("player") or GetSpecialization() ~= SPEC_WARLOCK_DEMONOLOGY then
+		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
+		self:UnregisterEvent("UNIT_POWER", Path)
 
-	element:Hide()
-
-	element.disabled = true
-
-	if SecureCmdOptionParse("[overridebar][possessbar][vehicleui][@vehicle,exists]hide") == "hide" then
+		element:Hide()
 		return
 	end
-	if GetSpecialization() ~= SPEC_WARLOCK_DEMONOLOGY then
-		return
-	end
-
-	element.disabled = nil
 
 	element:Show()
 
 	self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
 	self:RegisterEvent("UNIT_POWER", Path)
-	element:ForceUpdate()
+
+	Update(element, "UpdateVisibility", element.__owner.unit)
 end
 
 function Update(self, event, unit, powerType)
-	if unit ~= self.unit or (powerType and powerType ~= SPELL_POWER_DEMONIC_FURY) then return end
-	if not powerType then powerType = SPELL_POWER_DEMONIC_FURY end
+	if unit ~= self.unit or (powerType and powerType ~= "DEMONIC_FURY") then return end
 	local element = self.DemonicFury
-	if element.disabled then return end
+	if not element:IsShown() then return end
 
 	if element.PreUpdate then
 		element:PreUpdate()
 	end
 
-	local fury = UnitPower(unit, powerType)
-	local furyMax = UnitPowerMax(unit, powerType)
+	local fury = UnitPower(unit, SPELL_POWER_DEMONIC_FURY)
+	local furyMax = UnitPowerMax(unit, SPELL_POWER_DEMONIC_FURY)
 
 	element:SetMinMaxValues(0, furyMax)
 	element:SetValue(fury)
@@ -54,7 +59,7 @@ function Update(self, event, unit, powerType)
 	element.activated = not not UnitBuff(unit, WARLOCK_METAMORPHOSIS)
 
 	if element.PostUpdate then
-		element:PostUpdate(fury, furyMax, powerType)
+		element:PostUpdate(fury, furyMax, SPELL_POWER_DEMONIC_FURY)
 	end
 end
 
@@ -68,32 +73,36 @@ end
 
 function Enable(self, unit)
 	local element = self.DemonicFury
-	if element then
-		element.__owner = self
-		element.ForceUpdate = ForceUpdate
+	if not element then return end
 
-		self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
-		self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
-		self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
+	element.__owner = self
+	element.ForceUpdate = ForceUpdate
 
-		UpdateVisibility(self, nil, "player")
-
-		return true
+	if element:IsObjectType("StatusBar") and not element:GetStatusBarTexture() then
+		element:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 	end
+
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
+	self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
+	self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
+
+	UpdateVisibility(self, nil, "player")
+
+	return true
 end
 
 function Disable(self)
 	local element = self.DemonicFury
-	if element then
-		self:UnregisterEvent("UNIT_POWER", Path)
-		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
+	if not element then return end
 
-		self:UnregisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility)
-		self:UnregisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
-		self:UnregisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
+	self:UnregisterEvent("UNIT_POWER", Path)
+	self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
 
-		element:Hide()
-	end
+	self:UnregisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility)
+	self:UnregisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
+	self:UnregisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
+
+	element:Hide()
 end
 
 oUF:AddElement("DemonicFury", Path, Enable, Disable)

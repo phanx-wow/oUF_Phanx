@@ -1,48 +1,52 @@
 --[[--------------------------------------------------------------------
-	oUF_AFK
-	Based on oUF_Smurf's AFK module by Merl@chainweb.net.
+	oUF_Phanx
+	Fully-featured PVE-oriented layout for oUF.
+	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	http://www.curse.com/addons/wow/ouf-phanx
+------------------------------------------------------------------------
+	Element to display AFK times on oUF frames.
+	Based on code from oUF_Smurf by Merl@chainweb.net.
 	Written and distributed with permission.
 
 	Usage:
-		self.AFK = self:CreateFontString(nil, "OVERLAY")
-		self.AFK:SetFont("Fonts\\ARIALN.TTF", 10)
-		self.AFK:SetPoint("BOTTOM", self, "TOP")
-		self.AFK:SetWidth(10)
-		self.AFK:SetHeight(10)
+	frame.AFK = frame:CreateFontString(nil, "OVERLAY")
+	frame.AFK:SetPoint("CENTER")
 ----------------------------------------------------------------------]]
 
-if not oUF then return end
-if IsAddOnLoaded("oUF_AFK") then return end
+if select(4, GetAddOnInfo(("oUF_AFK")) then return end
+
+local _, ns = ...
+local oUF = ns.oUF or oUF
+assert(oUF, "AFK element requires oUF")
 
 local times = {}
-local objects = {}
+local elements = {}
+
 local updater = CreateFrame("Frame")
-local lastupdate = 0
-
 updater:Hide()
+
+local lastUpdate = 0
+local floor, mod, next, pairs, GetTime = floor, mod, next, pairs, GetTime
 updater:SetScript("OnUpdate", function(self, elapsed)
-	lastupdate = lastupdate + elapsed
-	if lastupdate < 0.2 then return end
-
-	local n = 0
-
-	for object, unit in pairs(objects) do
-		local t = times[unit]
-		if t then
-			t = GetTime() - t
-			object:SetFormattedText("AFK %d:%02.0f", floor(t / 60), mod(t, 60))
-			n = n + 1
-		else
-			object:SetText(nil)
-			objects[object] = nil
+	lastUpdate = lastUpdate + elapsed
+	if lastUpdate > 0.2 then
+		lastUpdate = 0
+		for element, unit in pairs(elements) do
+			local t = times[unit]
+			if t then
+				t = GetTime() - t
+				element:SetFormattedText("AFK %d:%02.0f", floor(t / 60), mod(t, 60))
+			else
+				elements[element] = nil
+				element:SetText("") -- nil gives it 0 height which might disturb the layout
+			end
+		end
+		if not next(times) then
+			self:Hide()
 		end
 	end
-
-	if n == 0 then
-		self:Hide()
-	end
-
-	lastupdate = 0
 end)
 
 local function Update(self, event, unit)
@@ -50,29 +54,40 @@ local function Update(self, event, unit)
 
 	local afk = UnitIsAFK(unit)
 
-	if afk then
-		if not times[unit] then
-			times[unit] = GetTime()
-		end
-		objects[self.AFK] = unit
+	if afk and not times[unit] then
+		times[unit] = GetTime()
+		elements[self.AFK] = unit
 		updater:Show()
-	else
+	elseif times[unit] and not afk then
 		times[unit] = nil
 	end
 end
 
+local ForceUpdate = function(element)
+	return Update(element.__owner, "ForceUpdate", element.__owner.unit)
+end
+
 local function Enable(self)
-	if not self.AFK or not self.AFK.SetFormattedText then return end
+	local element = self.AFK
+	if not element then return end
+
+	element.__owner = self
+	element.ForceUpdate = Update
+
+	if element:IsObjectType("FontString") and not element:GetFont() then
+		element:SetFontObject("GameFontHighlightSmall")
+	end
 
 	self:RegisterEvent("PLAYER_FLAGS_CHANGED", Update)
+	return true
 end
 
 local function Disable(self)
-	if not self.AFK or not self.AFK.SetFormattedText then return end
+	local element = self.AFK
+	if not element then return end
 
 	self:UnregisterEvent("PLAYER_FLAGS_CHANGED", Update)
-
-	self.AFK:SetFormattedText("")
+	element:Hide()
 end
 
 oUF:AddElement("AFK", Update, Enable, Disable)

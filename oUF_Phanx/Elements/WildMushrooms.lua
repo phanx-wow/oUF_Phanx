@@ -1,10 +1,24 @@
 --[[--------------------------------------------------------------------
-	oUF_WildMushrooms
-	by Phanx <addons@phanx.net>
-	Adds basic ClassIcons-style support for druid mushrooms.
+	oUF_Phanx
+	Fully-featured PVE-oriented layout for oUF.
+	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	http://www.curse.com/addons/wow/ouf-phanx
+------------------------------------------------------------------------
+	Element to show Wild Mushrooms like combo points.
 
-	You may embed this module in your own layout,
-	but please do not distribute it as a standalone plugin.
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone module.
+
+	Usage:
+
+	frame.WildMushrooms = {}
+	for i = 1, MAX_TOTEMS do
+		frame.WildMushrooms[i] = frame:CreateTexture(nil, "OVERLAY")
+	end
+
+	Supports PreUpdate, PostUpdate, and Override.
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
@@ -19,21 +33,21 @@ function UpdateVisibility(self, event)
 	local spec = GetSpecialization()
 	if spec == 2 or spec == 3 or UnitHasVehicleUI("player") then
 		self:UnregisterEvent("PLAYER_TOTEM_UPDATE", Path)
+		element.__disabled = true
 		for i = 1, #element do
 			element[i]:Hide()
 		end
-		element.disabled = true
 		return
 	end
 
-	element.disabled = nil
+	element.__disabled = nil
 	self:RegisterEvent("PLAYER_TOTEM_UPDATE", Path, true)
 	Update(self, "UpdateVisibility")
 end
 
 function Update(self, event)
 	local element = self.WildMushrooms
-	if element.disabled then return end
+	if element.__disabled then return end
 
 	if element.PreUpdate then
 		element:PreUpdate()
@@ -68,10 +82,20 @@ function Enable(self)
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 
+	for i = 1, #element do
+		local obj = element[i]
+		if obj:IsObjectType("Texture") and not obj:GetTexture() then
+			obj:SetTexture([[Interface\ComboFrame\ComboPoint]])
+			obj:SetTexCoord(0, 0.375, 0, 1)
+		end
+		if i > MAX_TOTEMS then
+			obj:Hide()
+		end
+	end
+
 	self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
 	self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
 	self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
-	UpdateVisibility(self, "Enable")
 
 	TotemFrame.Show = TotemFrame.Hide
 	TotemFrame:Hide()
@@ -94,14 +118,7 @@ function Disable(self)
 	self:UnregisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
 
 	for i = 1, #element do
-		local obj = element[i]
-		if obj:IsObjectType("Texture") and not obj:GetTexture() then
-			obj:SetTexture([[Interface\ComboFrame\ComboPoint]])
-			obj:SetTexCoord(0, 0.375, 0, 1)
-		end
-		if i > MAX_TOTEMS then
-			obj:Hide()
-		end
+		element[i]:Hide()
 	end
 
 	TotemFrame.Show = nil

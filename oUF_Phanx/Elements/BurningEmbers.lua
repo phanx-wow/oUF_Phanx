@@ -1,34 +1,42 @@
+--[[--------------------------------------------------------------------
+	oUF_Phanx
+	Fully-featured PVE-oriented layout for oUF.
+	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	http://www.curse.com/addons/wow/ouf-phanx
+------------------------------------------------------------------------
+	Element to display burning embers on oUF frames.
+
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone plugin.
+----------------------------------------------------------------------]]
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-assert(oUF, "oUF is missing!")
+assert(oUF, "BurningEmbers element requires oUF")
 
-local SPEC_WARLOCK_DESTRUCTION = SPEC_WARLOCK_DESTRUCTION
-local WARLOCK_BURNING_EMBERS = WARLOCK_BURNING_EMBERS
-local SPELL_POWER_BURNING_EMBERS = SPELL_POWER_BURNING_EMBERS
 local MAX_POWER_PER_EMBER = MAX_POWER_PER_EMBER
+local SPEC_WARLOCK_DESTRUCTION = SPEC_WARLOCK_DESTRUCTION
+local SPELL_POWER_BURNING_EMBERS = SPELL_POWER_BURNING_EMBERS
+local WARLOCK_BURNING_EMBERS = WARLOCK_BURNING_EMBERS
 
 local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
 function UpdateVisibility(self, event, unit)
 	local element = self.BurningEmbers
 
-	if GetSpecialization() ~= SPEC_WARLOCK_DESTRUCTION or not IsPlayerSpell(WARLOCK_BURNING_EMBERS)
-	or SecureCmdOptionParse("[overridebar][possessbar][vehicleui][@vehicle,exists]hide") == "hide" then
+	if UnitHasVehicleUI(unit) or GetSpecialization() ~= SPEC_WARLOCK_DESTRUCTION or not IsPlayerSpell(WARLOCK_BURNING_EMBERS) then
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
 		self:UnregisterEvent("UNIT_POWER", Path)
 
-		if element.Hide then
-			element:Hide()
-		end
 		for i = 1, #element do
 			element[i]:Hide()
 		end
-
-		element.disabled = true
+		if element.Hide then
+			element:Hide()
+		end
 	end
-
-	element.disabled = nil
 
 	if element.Show then
 		element:Show()
@@ -37,13 +45,13 @@ function UpdateVisibility(self, event, unit)
 	self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
 	self:RegisterEvent("UNIT_POWER", Path)
 
-	element:ForceUpdate()
+	Update(element, "UpdateVisibility", element.__owner.unit)
 end
 
 function Update(self, event, unit, powerType)
-	if (unit and unit ~= self.unit) or (powerType and powerType ~= "BURNING_EMBERS") then return end
+	if unit ~= self.unit or (powerType and powerType ~= "BURNING_EMBERS") then return end
 	local element = self.BurningEmbers
-	if element.disabled then return end
+	if not element:IsShown() then return end
 
 	if element.PreUpdate then
 		element:PreUpdate()
@@ -65,41 +73,35 @@ function Update(self, event, unit, powerType)
 			local ember = element[i]
 			ember.activated = false
 			if i > wholeMax then
-				--print(i, "Hide")
+				--print(i, "Unused")
 				ember:Hide()
-			else
-				--print(i, "Show")
-				if rest >= MAX_POWER_PER_EMBER then
-					--print(i, "Full")
-					if ember.SetValue then
-						ember:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
-						ember:SetValue(MAX_POWER_PER_EMBER)
-					else
-						ember:SetAlpha(1)
-					end
-					ember.activated = true
-					ember:Show()
-					rest = rest - MAX_POWER_PER_EMBER
-				elseif rest > 0 then
-					--print(i, "Partial", rest, parts)
-					if ember.SetValue then
-						ember:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
-						ember:SetValue(rest)
-					else
-						ember:SetAlpha(1 - (0.75 * (rest / MAX_POWER_PER_EMBER)))
-					end
-					ember:Show()
-					rest = 0
+			elseif rest >= MAX_POWER_PER_EMBER then
+				--print(i, "Full")
+				if ember.SetValue then
+					ember:SetValue(MAX_POWER_PER_EMBER)
 				else
-					--print(i, "Empty")
-					if ember.SetValue then
-						ember:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
-						ember:SetValue(0)
-					else
-						ember:SetAlpha(0.25)
-					end
-					ember:Show()
+					ember:SetAlpha(1)
 				end
+				ember.activated = true
+				ember:Show()
+				rest = rest - MAX_POWER_PER_EMBER
+			elseif rest > 0 then
+				--print(i, "Partial", rest, parts)
+				if ember.SetValue then
+					ember:SetValue(rest)
+				else
+					ember:SetAlpha(1 - (0.75 * (rest / MAX_POWER_PER_EMBER)))
+				end
+				ember:Show()
+				rest = 0
+			else
+				--print(i, "Empty")
+				if ember.SetValue then
+					ember:SetValue(0)
+				else
+					ember:SetAlpha(0.25)
+				end
+				ember:Show()
 			end
 		end
 	end
@@ -119,43 +121,45 @@ end
 
 function Enable(self, unit)
 	local element = self.BurningEmbers
-	if element and unit == "player" then
-		element.__owner = self
-		element.ForceUpdate = ForceUpdate
+	if not element then return end
 
-		for i = 1, #element do
-			if element.SetValue then
-				element:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
+	element.__owner = self
+	element.ForceUpdate = ForceUpdate
+
+	for i = 1, #element do
+		if element:IsObjectType("StatusBar") then
+			if not element:GetStatusBarTexture() then
+				element:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 			end
+			element:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
 		end
-
-		self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
-		self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
-		self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
-
-		UpdateVisibility(self, nil, "player")
-
-		return true
 	end
+
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
+	self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
+	self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
+
+	UpdateVisibility(self, "Enable", "player")
+
+	return true
 end
 
 function Disable(self)
 	local element = self.BurningEmbers
-	if element then
-		self:UnregisterEvent("UNIT_POWER", Path)
-		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
+	if not element then return end
 
-		self:UnregisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility)
-		self:UnregisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
-		self:UnregisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
+	self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
+	self:UnregisterEvent("UNIT_POWER", Path)
 
-		if element.Hide then
-			element:Hide()
-		else
-			for i = 1, #element do
-				element[i]:Hide()
-			end
-		end
+	self:UnregisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility)
+	self:UnregisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
+	self:UnregisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
+
+	for i = 1, #element do
+		element[i]:Hide()
+	end
+	if element.Hide then
+		element:Hide()
 	end
 end
 

@@ -1,7 +1,31 @@
+--[[--------------------------------------------------------------------
+	oUF_Phanx
+	Fully-featured PVE-oriented layout for oUF.
+	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	http://www.curse.com/addons/wow/ouf-phanx
+------------------------------------------------------------------------
+	Element to display soul shards on oUF frames.
+
+	You may embed this module in your own layout, but please do not
+	distribute it as a standalone plugin.
+------------------------------------------------------------------------
+	Usage #1:
+
+	self.SoulShards = {} -- may also be a frame
+	for i = 1, 5 do
+		self.SoulShards[i] = self:CreateTexture(nil, "OVERLAY")
+	end
+------------------------------------------------------------------------
+	Usage #2:
+
+	self.SoulShards = CreateFrame("StatusBar", nil, self)
+----------------------------------------------------------------------]]
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-assert(oUF, "oUF is missing!")
+assert(oUF, "SoulShards element requires oUF")
 
 local SPEC_WARLOCK_AFFLICTION = SPEC_WARLOCK_AFFLICTION
 local SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS
@@ -12,31 +36,21 @@ local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 function UpdateVisibility(self, event, unit)
 	local element = self.SoulShards
 
-	self:UnregisterEvent("SPELLS_CHANGED", UpdateVisibility)
-	self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
-	self:UnregisterEvent("UNIT_POWER", Path)
+	if UnitHasVehicleUI("player") or GetSpecialization() ~= SPEC_WARLOCK_AFFLICTION or not IsPlayerSpell(WARLOCK_SOULBURN) then
+		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
+		self:UnregisterEvent("UNIT_POWER", Path)
 
-	if element.Hide then
-		element:Hide()
-	end
-	for i = 1, #element do
-		element[i]:Hide()
-	end
+		element.__disabled = true
 
-	element.disabled = true
-
-	if SecureCmdOptionParse("[overridebar][possessbar][vehicleui][@vehicle,exists]hide") == "hide" then
-		return
-	end
-	if GetSpecialization() ~= SPEC_WARLOCK_AFFLICTION then
-		return
-	end
-	if not IsPlayerSpell(WARLOCK_SOULBURN) then
-		self:RegisterEvent("SPELLS_CHANGED", UpdateVisibility)
-		return
+		for i = 1, #element do
+			element[i]:Hide()
+		end
+		if element.Hide then
+			element:Hide()
+		end
 	end
 
-	element.disabled = nil
+	element.__disabled = nil
 
 	if element.Show then
 		element:Show()
@@ -44,14 +58,14 @@ function UpdateVisibility(self, event, unit)
 
 	self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
 	self:RegisterEvent("UNIT_POWER", Path)
+
 	element:ForceUpdate()
 end
 
 function Update(self, event, unit, powerType)
-	if unit ~= self.unit or (powerType and powerType ~= SPELL_POWER_SOUL_SHARDS) then return end
-	if not powerType then powerType = SPELL_POWER_SOUL_SHARDS end
+	if unit ~= self.unit or (powerType and powerType ~= "SOUL_SHARDS") then return end
 	local element = self.SoulShards
-	if element.disabled then return end
+	if element.__disabled then return end
 
 	if element.PreUpdate then
 		element:PreUpdate()
