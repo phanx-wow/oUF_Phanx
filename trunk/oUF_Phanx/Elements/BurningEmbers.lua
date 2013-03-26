@@ -23,12 +23,14 @@ local WARLOCK_BURNING_EMBERS = WARLOCK_BURNING_EMBERS
 
 local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
-function UpdateVisibility(self, event, unit)
+function UpdateVisibility(self, event)
 	local element = self.BurningEmbers
 
-	if UnitHasVehicleUI(unit) or GetSpecialization() ~= SPEC_WARLOCK_DESTRUCTION or not IsPlayerSpell(WARLOCK_BURNING_EMBERS) then
+	if UnitHasVehicleUI("player") or GetSpecialization() ~= SPEC_WARLOCK_DESTRUCTION or not IsPlayerSpell(WARLOCK_BURNING_EMBERS) then
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
 		self:UnregisterEvent("UNIT_POWER", Path)
+
+		element.__disabled = true
 
 		for i = 1, #element do
 			element[i]:Hide()
@@ -36,7 +38,11 @@ function UpdateVisibility(self, event, unit)
 		if element.Hide then
 			element:Hide()
 		end
+
+		return
 	end
+
+	element.__disabled = nil
 
 	if element.Show then
 		element:Show()
@@ -45,20 +51,20 @@ function UpdateVisibility(self, event, unit)
 	self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
 	self:RegisterEvent("UNIT_POWER", Path)
 
-	Update(element, "UpdateVisibility", element.__owner.unit)
+	Update(self, "UpdateVisibility", "player")
 end
 
 function Update(self, event, unit, powerType)
-	if unit ~= self.unit or (powerType and powerType ~= "BURNING_EMBERS") then return end
+	if powerType and powerType ~= "BURNING_EMBERS" then return end
 	local element = self.BurningEmbers
-	if not element:IsShown() then return end
+	if element.__disabled then return end
 
 	if element.PreUpdate then
 		element:PreUpdate()
 	end
 
-	local embers = UnitPower(unit, SPELL_POWER_BURNING_EMBERS, true)
-	local embersMax = UnitPowerMax(unit, SPELL_POWER_BURNING_EMBERS, true)
+	local embers = UnitPower("player", SPELL_POWER_BURNING_EMBERS, true)
+	local embersMax = UnitPowerMax("player", SPELL_POWER_BURNING_EMBERS, true)
 
 	local whole = floor(embers / MAX_POWER_PER_EMBER)
 	local wholeMax = floor(embersMax / MAX_POWER_PER_EMBER)
@@ -78,6 +84,7 @@ function Update(self, event, unit, powerType)
 			elseif rest >= MAX_POWER_PER_EMBER then
 				--print(i, "Full")
 				if ember.SetValue then
+					ember:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
 					ember:SetValue(MAX_POWER_PER_EMBER)
 				else
 					ember:SetAlpha(1)
@@ -88,6 +95,7 @@ function Update(self, event, unit, powerType)
 			elseif rest > 0 then
 				--print(i, "Partial", rest, parts)
 				if ember.SetValue then
+					ember:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
 					ember:SetValue(rest)
 				else
 					ember:SetAlpha(1 - (0.75 * (rest / MAX_POWER_PER_EMBER)))
@@ -97,6 +105,7 @@ function Update(self, event, unit, powerType)
 			else
 				--print(i, "Empty")
 				if ember.SetValue then
+					ember:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
 					ember:SetValue(0)
 				else
 					ember:SetAlpha(0.25)
@@ -119,19 +128,17 @@ function ForceUpdate(element)
 	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
-function Enable(self, unit)
+function Enable(self)
 	local element = self.BurningEmbers
-	if not element then return end
+	if not element or self.unit ~= "player" then return end
 
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 
 	for i = 1, #element do
-		if element:IsObjectType("StatusBar") then
-			if not element:GetStatusBarTexture() then
-				element:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
-			end
-			element:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
+		local ember = element[i]
+		if ember.GetStatusBarTexture and not ember:GetStatusBarTexture() then
+			ember:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 		end
 	end
 
@@ -139,8 +146,7 @@ function Enable(self, unit)
 	self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
 	self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
 
-	UpdateVisibility(self, "Enable", "player")
-
+	UpdateVisibility(self, "Enable")
 	return true
 end
 

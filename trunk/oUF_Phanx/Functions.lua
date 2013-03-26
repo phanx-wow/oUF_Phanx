@@ -458,12 +458,15 @@ end
 --	DispelHighlight
 ------------------------------------------------------------------------
 
-function ns.UpdateDispelHighlight(self, debuffType, canDispel)
-	-- print("UpdateDispelHighlight", debuffType, canDispel)
+function ns.DispelHighlightOverride(element, debuffType, canDispel)
+	local frame = element.__owner
 
-	local frame = self.__owner
+	if frame.debuffType == debuffType then return end
+	-- print("DispelHighlightOverride", unit, debuffType, canDispel)
+
 	frame.debuffType = debuffType
 	frame.debuffDispellable = canDispel
+
 	frame:UpdateBorder()
 end
 
@@ -471,21 +474,18 @@ end
 --	ThreatHighlight
 ------------------------------------------------------------------------
 
-function ns.UpdateThreatHighlight(self, unit)
-	if unit ~= self.unit then return end
-
-	local status = UnitThreatSituation(unit) or 0
-	-- print("UpdateThreatHighlight", unit, status)
-
-	if not ns.config.threatLevels then
+function ns.ThreatHighlightOverride(element, status)
+	if status and not ns.config.threatLevels then
 		status = status > 1 and 3 or 0
 	end
 
-	if self.threatLevel == status then return end
-	-- print("New threat status:", status)
+	local frame = element.__owner
+	if frame.threatLevel == status then return end
+	-- print("ThreatHighlightOverride", frame.unit, status)
 
-	self.threatLevel = status
-	self:UpdateBorder()
+	frame.threatLevel = status
+
+	frame:UpdateBorder()
 end
 
 ------------------------------------------------------------------------

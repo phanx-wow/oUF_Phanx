@@ -20,6 +20,12 @@ local SPEC_WARLOCK_DEMONOLOGY = SPEC_WARLOCK_DEMONOLOGY
 local SPELL_POWER_DEMONIC_FURY = SPELL_POWER_DEMONIC_FURY
 local WARLOCK_METAMORPHOSIS = GetSpellInfo(WARLOCK_METAMORPHOSIS)
 
+local color = { 247/255, 40/255, 255/255 }
+oUF.colors.power.DEMONIC_FURY = color
+
+local metacolor = { 132/255, 235/255, 41/255 }
+oUF.colors.power.METAMORPHOSIS = color
+
 local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
 function UpdateVisibility(self, event, unit)
@@ -42,7 +48,7 @@ function UpdateVisibility(self, event, unit)
 end
 
 function Update(self, event, unit, powerType)
-	if unit ~= self.unit or (powerType and powerType ~= "DEMONIC_FURY") then return end
+	if powerType and powerType ~= "DEMONIC_FURY" then return end
 	local element = self.DemonicFury
 	if not element:IsShown() then return end
 
@@ -56,10 +62,16 @@ function Update(self, event, unit, powerType)
 	element:SetMinMaxValues(0, furyMax)
 	element:SetValue(fury)
 
-	element.activated = not not UnitBuff(unit, WARLOCK_METAMORPHOSIS)
+	if UnitBuff(unit, WARLOCK_METAMORPHOSIS) then
+		element.activated = true
+		element:SetStatusBarColor(metacolor[1], metacolor[2], metacolor[3])
+	else
+		element.activated = nil
+		element:SetStatusBarColor(color[1], color[2], color[3])
+	end
 
 	if element.PostUpdate then
-		element:PostUpdate(fury, furyMax, SPELL_POWER_DEMONIC_FURY)
+		element:PostUpdate(fury, furyMax, powerType)
 	end
 end
 
@@ -73,12 +85,12 @@ end
 
 function Enable(self, unit)
 	local element = self.DemonicFury
-	if not element then return end
+	if not element or self.unit ~= "player" then return end
 
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 
-	if element:IsObjectType("StatusBar") and not element:GetStatusBarTexture() then
+	if element.GetStatusBarTexture and not element:GetStatusBarTexture() then
 		element:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
 	end
 
@@ -86,8 +98,7 @@ function Enable(self, unit)
 	self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
 	self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
 
-	UpdateVisibility(self, nil, "player")
-
+	UpdateVisibility(self, "Enable", "player")
 	return true
 end
 

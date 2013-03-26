@@ -15,7 +15,7 @@
 	frame.AFK:SetPoint("CENTER")
 ----------------------------------------------------------------------]]
 
-if select(4, GetAddOnInfo(("oUF_AFK")) then return end
+if select(4, GetAddOnInfo("oUF_AFK")) then return end
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
