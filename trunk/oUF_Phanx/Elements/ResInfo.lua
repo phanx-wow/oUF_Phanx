@@ -1,28 +1,28 @@
 --[[--------------------------------------------------------------------
-	oUF_ResInfo
-	by Phanx <addons@phanx.net>
-	Adds resurrection status text to oUF frames.
-	Loosely based on GridStatusRes.
+	oUF_Phanx
+	Fully-featured PVE-oriented layout for oUF.
+	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	http://www.curse.com/addons/wow/ouf-phanx
+------------------------------------------------------------------------
+	Element to display incoming resurrections on oUF frames.
 
 	You may embed this module in your own layout, but please do not
 	distribute it as a standalone plugin.
+------------------------------------------------------------------------
+	Usage:
 
-	Usage
-
-	frame.ResInfo = frame.Health:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	frame.ResInfo = frame.Health:CreateFontString(nil, "OVERLAY")
 	frame.ResInfo:SetPoint("CENTER")
-
-	Options
-
-	frame.ResInfo.ignoreSoulstone = true -- NOT YET IMPLEMENTED
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-assert(oUF, "oUF_ResInfo requires oUF")
+assert(oUF, "ResInfo element requires oUF")
 
 local LibResInfo = LibStub("LibResInfo-1.0", true)
-assert(LibResInfo, "oUF_ResInfo requires LibResInfo-1.0")
+assert(LibResInfo, "ResInfo element requires LibResInfo-1.0")
 
 local Update, Path, ForceUpdate, Enable, Disable
 
@@ -40,10 +40,8 @@ function Update(self, event, unit)
 		element:PreUpdate(unit)
 	end
 
-	local status, endTime, casterUnit, casterGUID = LibStub("LibResInfo-1.0"):UnitHasIncomingRes(unit)
-	local text = status and displayText[status]
-
-	element:SetText(text)
+	local status, endTime, casterUnit, casterGUID = LibResInfo:UnitHasIncomingRes(unit)
+	element:SetText(status and displayText[status] or "") -- nil causes 0 height which might disrupt layouts
 
 	if element.PostUpdate then
 		element:PostUpdate(unit, status, text)
@@ -60,10 +58,16 @@ end
 
 function Enable(self)
 	local element = self.ResInfo
-	if not element or not element.SetText then return end
+	if not element then return end
+
+	if element:IsObjectType("FontString") and not element:GetFont() then
+		element:SetFontObject("GameFontHighlightSmall")
+	end
 
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
+
+	element:Show()
 
 	return true
 end
@@ -73,15 +77,13 @@ function Disable(self)
 	if not element then return end
 
 	element:Hide()
-
-	return true
 end
 
 oUF:AddElement("ResInfo", Update, Enable, Disable)
 
 ------------------------------------------------------------------------
 
-local function UpdateAll(event, unit, guid)
+local function Callback(event, unit, guid)
 	for i = 1, #oUF.objects do
 		local frame = oUF.objects[i]
 		if frame.unit and frame.ResInfo then
@@ -90,8 +92,8 @@ local function UpdateAll(event, unit, guid)
 	end
 end
 
-LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResCastStarted", UpdateAll)
-LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResCastCancelled", UpdateAll)
-LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResPending", UpdateAll)
-LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResUsed", UpdateAll)
-LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResExpired", UpdateAll)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResCastStarted", Callback)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResCastCancelled", Callback)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResPending", Callback)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResUsed", Callback)
+LibResInfo.RegisterCallback("oUF_ResInfo", "LibResInfo_ResExpired", Callback)

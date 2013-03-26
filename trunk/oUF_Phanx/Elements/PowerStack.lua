@@ -1,53 +1,51 @@
 --[[--------------------------------------------------------------------
-	oUF_PowerStack
-	by Phanx <addons@phanx.net>
-	Adds a graphical counter element for stacking self-buffs such as
-	Maelstrom Weapon and Shadow Orb.
+	oUF_Phanx
+	Fully-featured PVE-oriented layout for oUF.
+	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	See the accompanying README and LICENSE files for more information.
+	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	http://www.curse.com/addons/wow/ouf-phanx
+------------------------------------------------------------------------
+	Element to track stacking self-buffs like combo points.
 
 	You may embed this module in your own layout, but please do not
 	distribute it as a standalone plugin.
+------------------------------------------------------------------------
+	Usage:
 
-	Basic example:
-
-		self.PowerStack = {
-			buff = GetSpellInfo(53817) -- Gets localized spell name for Maelstrom Weapon
-		}
-		for i = 1, 5 do
-			self.PowerStack[i] = CreateTexture(nil, "OVERLAY")
-			self.PowerStack[i]:SetSize(20, 20)
-			if i == 1 then
-				self.PowerStack[i]:SetPoint("LEFT", self, "BOTTOMLEFT", 5, 0)
-			else
-				self.PowerStack[i]:SetPoint("LEFT", self.PowerStack[i][i-1], "RIGHT", 0, 0)
-			end
+	self.PowerStack = {
+		buff = GetSpellInfo(53817) -- Gets localized spell name for Maelstrom Weapon
+	}
+	for i = 1, 5 do
+		self.PowerStack[i] = CreateTexture(nil, "OVERLAY")
+		self.PowerStack[i]:SetSize(20, 20)
+		if i == 1 then
+			self.PowerStack[i]:SetPoint("LEFT", self, "BOTTOMLEFT", 5, 0)
+		else
+			self.PowerStack[i]:SetPoint("LEFT", self.PowerStack[i-1], "RIGHT", 0, 0)
 		end
+	end
+------------------------------------------------------------------------
+	Notes:
 
-	Additional notes:
+	Only works for the player unit. Only supports one buff per frame.
 
-		This element only works for buffs on the player unit, and
-		currently only supports one buff per frame.
+	Spell IDs are *not* currently supported, as the WoW API does not
+	support looking up buffs directly by ID.
 
-		Spell IDs are *not* currently supported, as the WoW aura API
-		does not support looking up buffs directly by ID.
+	Override function is supported. PreUpdate/PostUpdate are not.
 
-		You can override the default update function by adding an
-		Override key in the PowerStack element table. PreUpdate and
-		PostUpdate are *not* currently supported.
+	The individual objects do not have to be textures. They can be
+	frames, fontstrings, or even basic tables, as long as they have
+	Show, Hide, SetAlpha, and IsObjectType methods.
 
-		The individual objects do not have to be textures. They can also
-		be frames or font strings, or even basic tables, as long as they
-		have Show, Hide, SetAlpha, and IsObjectType methods.
-
-		If the counter objects are textures, but do not have a texture
-		set, they will be given the standard combo point texture.
-
-		The buff to track can be changed dynamically (for example, when
-		the player's spec changes) by the layout.
+	The buff to track can be changed dynamically (for example, when
+	the player's spec changes) by the layout.
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-assert(oUF, "oUF_PowerStack requires oUF.")
+assert(oUF, "PowerStack element requires oUF")
 
 local UnitBuff = UnitBuff
 
@@ -61,9 +59,11 @@ function UpdateVisibility(self, event)
 		for i = 1, #element do
 			element[i]:Hide()
 		end
+		element.__inVehicle = true
 		return
 	end
 
+	element.__inVehicle = false
 	self:RegisterEvent("UNIT_AURA", Path)
 	Update(self, "UpdateVisibility", self.unit)
 end
@@ -71,23 +71,19 @@ end
 function Update(self, event, unit)
 	if unit ~= self.unit then return end
 	local element = self.PowerStack
+	if element.__inVehicle then return end
 
 	if element.PreUpdate then
 		element:PreUpdate()
 	end
 
-	local count
-	if element.power then
-		count = UnitPower("player", element.power)
-	else
-		local _, _, _, stacks = UnitBuff("player", element.buff)
-		count = stacks or 0
-	end
+	local _, _, _, count = UnitBuff("player", element.buff)
+	count = count or 0
 
-	if count == element.count then
+	if count == element.__count then
 		return
 	end
-	element.count = count
+	element.__count = count
 
 	for i = 1, #element do
 		local obj = element[i]

@@ -994,7 +994,9 @@ local function Spawn(self, unit, isSingle)
 	-------------------------------
 
 	self.threatLevel = 0
-	self.ThreatHighlight = ns.UpdateThreatHighlight
+	self.ThreatHighlight = {
+		Override = ns.UpdateThreatHighlight,
+	}
 
 	---------------------------
 	-- Element: ResInfo text --
