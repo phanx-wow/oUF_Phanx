@@ -48,6 +48,8 @@ function UpdateVisibility(self, event, unit)
 		if element.Hide then
 			element:Hide()
 		end
+
+		return
 	end
 
 	element.__disabled = nil
@@ -115,21 +117,20 @@ function ForceUpdate(element)
 	return Path(element.__owner, "ForceUpdate", element.__owner.unit)
 end
 
-function Enable(self, unit)
+function Enable(self)
 	local element = self.SoulShards
-	if element and unit == "player" then
-		element.__owner = self
-		element.ForceUpdate = ForceUpdate
+	if not element or self.unit ~= "player" then return end
 
-		self:RegisterEvent("PLAYER_ENTERING_WORLD", UpdateVisibility, true)
-		self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
-		self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
-		self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
+	element.__owner = self
+	element.ForceUpdate = ForceUpdate
 
-		UpdateVisibility(self, nil, "player")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", UpdateVisibility, true)
+	self:RegisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility, true)
+	self:RegisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
+	self:RegisterEvent("UNIT_EXITED_VEHICLE", UpdateVisibility)
 
-		return true
-	end
+	UpdateVisibility(self, "Enable")
+	return true
 end
 
 function Disable(self)

@@ -666,6 +666,7 @@ local function Spawn(self, unit, isSingle)
 		otherPower:SetHeight(FRAME_HEIGHT * config.powerHeight)
 
 		otherPower.value:SetPoint("CENTER", 0, 1)
+		otherPower.value:SetParent(self.overlay)
 		otherPower.value:Hide()
 		table.insert(self.mouseovers, otherPower.value)
 
@@ -673,9 +674,13 @@ local function Spawn(self, unit, isSingle)
 		otherPower.bg.multiplier = config.powerBG
 
 		if playerClass == "DRUID" then
+			local color = oUF.colors.power.MANA
+			otherPower.value:SetTextColor(color[1], color[2], color[3])
 			otherPower.PostUpdate = ns.PostUpdateDruidMana
 			self.DruidMana = otherPower
 		else
+			local color = oUF.colors.power.DEMONIC_FURY
+			otherPower.value:SetTextColor(color[1], color[2], color[3])
 			otherPower.PostUpdate = ns.PostUpdateDemonicFury
 			self.DemonicFury = otherPower
 		end
@@ -692,12 +697,12 @@ local function Spawn(self, unit, isSingle)
 		end
 		otherPower:SetScript("OnShow", function(self)
 			local frame = self.__owner
-			frame:SetBorderParent(self)
+			--frame:SetBorderParent(self)
 			frame:SetBorderSize()
 		end)
 		otherPower:SetScript("OnHide", function(self)
 			local frame = self.__owner
-			frame:SetBorderParent(frame.overlay)
+			--frame:SetBorderParent(frame.overlay)
 			frame:SetBorderSize()
 		end)
 	end
@@ -985,7 +990,7 @@ local function Spawn(self, unit, isSingle)
 	-------------------------------
 
 	self.DispelHighlight = {
-		Override = ns.UpdateDispelHighlight,
+		Override = ns.DispelHighlightOverride,
 		filter = true,
 	}
 
@@ -993,9 +998,8 @@ local function Spawn(self, unit, isSingle)
 	-- Element: Threat highlight --
 	-------------------------------
 
-	self.threatLevel = 0
 	self.ThreatHighlight = {
-		Override = ns.UpdateThreatHighlight,
+		Override = ns.ThreatHighlightOverride,
 	}
 
 	---------------------------

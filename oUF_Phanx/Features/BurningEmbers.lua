@@ -24,11 +24,11 @@ local function PostUpdate(element, embers, embersMax, powerType)
 		if bar.activated then
 			bar:SetStatusBarColor(r, g, b)
 		else
-			bar:SetStatusBarColor(r * 0.65, g * 0.65, b * 0.65)
+			bar:SetStatusBarColor(r * 0.5, g * 0.5, b * 0.5)
 		end
 
 		-- Ignore any .multiplier and just use something that looks good
-		bar.bg:SetVertexColor(r * 0.3, g * 0.3, b * 0.3)
+		bar.bg:SetVertexColor(r * 0.25, g * 0.25, b * 0.25)
 	end
 end
 

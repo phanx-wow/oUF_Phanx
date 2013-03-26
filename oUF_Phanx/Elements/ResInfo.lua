@@ -41,7 +41,7 @@ function Update(self, event, unit)
 	end
 
 	local status, endTime, casterUnit, casterGUID = LibResInfo:UnitHasIncomingRes(unit)
-	element:SetText(status and displayText[status] or "") -- nil causes 0 height which might disrupt layouts
+	element:SetText(displayText[status or ""] or "") -- nil causes 0 height which might disrupt layouts
 
 	if element.PostUpdate then
 		element:PostUpdate(unit, status, text)

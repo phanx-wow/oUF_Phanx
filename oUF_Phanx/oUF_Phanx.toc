@@ -50,7 +50,7 @@ Elements\BurningEmbers.lua
 Elements\DemonicFury.lua
 Elements\DispelHighlight.lua
 Elements\PowerStack.lua
-Elements\Resurrection.lua
+Elements\ResInfo.lua
 Elements\SoulShards.lua
 Elements\ThreatHighlight.lua
 Elements\WildMushrooms.lua
