@@ -94,7 +94,7 @@ ns.CreateTotems = function(frame)
 	Totems.PostUpdate = Totems_PostUpdate
 
 	for i = 1, MAX_TOTEMS do
-		local bar = ns.CreateStatusBar(Totems, 16, "CENTER", true)
+		local bar = ns.CreateStatusBar(Totems, 16, "CENTER")
 		bar:SetHitRectInsets(0, 0, -10, 0)
 		bar.__owner = frame
 

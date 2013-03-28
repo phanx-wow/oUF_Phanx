@@ -144,20 +144,20 @@ end
 ------------------------------------------------------------------------
 
 do
-	local function SetStatusBarValue(self, value)
-		local min, max = self:GetMinMaxValues()
-		if value > 0 and value <= max then
-			self:GetStatusBarTexture():SetTexCoord(0, (value - min) / (max - min), 0, 1)
-		end
-		self.__SetValue(self, value)
+	local function SetStatusBarTexCoord(self, v)
+		local mn, mx = self:GetMinMaxValues()
+		self.tex:SetTexCoord(0, (v - mn) / (mx - mn), 0, 1)
 	end
 
-	function ns.CreateStatusBar(parent, size, justify, noTexCoordFix)
+	function ns.CreateStatusBar(parent, size, justify)
 		local sb = CreateFrame("StatusBar", nil, parent)
 		sb:SetStatusBarTexture(ns.config.statusbar)
-		sb:GetStatusBarTexture():SetDrawLayer("BORDER")
-		sb:GetStatusBarTexture():SetHorizTile(false)
-		sb:GetStatusBarTexture():SetVertTile(false)
+
+		sb.tex = sb:GetStatusBarTexture()
+		sb.tex:SetDrawLayer("BORDER")
+		sb.tex:SetHorizTile(false)
+		sb.tex:SetVertTile(false)
+		hooksecurefunc(sb, "SetValue", SetStatusBarTexCoord)
 
 		sb.bg = sb:CreateTexture(nil, "BACKGROUND")
 		sb.bg:SetTexture(ns.config.statusbar)
@@ -165,11 +165,6 @@ do
 
 		if size then
 			sb.value = ns.CreateFontString(sb, size, justify)
-		end
-
-		if not noTexCoordFix then
-			sb.__SetValue = sb.SetValue
-			sb.SetValue = SetStatusBarValue
 		end
 
 		tinsert(ns.statusbars, sb)
