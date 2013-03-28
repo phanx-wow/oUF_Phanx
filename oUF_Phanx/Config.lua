@@ -425,7 +425,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	--------------------------------------------------------------------
 
 	local borderColor = CreateColorPicker(self, L.BorderColor, L.BorderColor_Desc)
-	borderColor:SetPoint("LEFT", borderSize, "RIGHT", 24, -2)
+	borderColor:SetPoint("LEFT", borderSize, "RIGHT", 24, -4)
 
 	function borderColor:GetColor()
 		return unpack(db.borderColor)
@@ -562,7 +562,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	--------------------------------------------------------------------
 
 	healthColor = CreateColorPicker(self, L.HealthColorCustom)
-	healthColor:SetPoint("LEFT", healthColorMode, "RIGHT", 24, -6)
+	healthColor:SetPoint("LEFT", healthColorMode, "RIGHT", 24, -8)
 	function healthColor:GetColor()
 		return unpack(db.healthColor)
 	end

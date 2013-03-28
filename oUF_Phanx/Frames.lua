@@ -595,64 +595,7 @@ local function Spawn(self, unit, isSingle)
 	-------------------
 
 	if unit == "player" and playerClass == "WARLOCK" then
-		local BurningEmbers = ns.SetupBurningEmbers(self)
-		self.BurningEmbers = BurningEmbers
-
-		BurningEmbers:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -1)
-		BurningEmbers:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -1)
-		BurningEmbers:SetHeight(FRAME_HEIGHT * config.powerHeight + 2)
-
-		BurningEmbers:SetBackdrop(config.backdrop)
-		BurningEmbers:SetBackdropColor(0, 0, 0, 1)
-		BurningEmbers:SetBackdropBorderColor(unpack(config.borderColor))
-
-		local N = #BurningEmbers
-		local W = (FRAME_WIDTH - (1 * (N + 1))) / N -- 1x looks awkward, but gap can be bigger than 1 also
-
-		for i = 1, N do
-			local bar = BurningEmbers[i]
-			bar:SetReverseFill(true)
-			bar:SetWidth(W)
-			if i > 1 then
-				bar:SetPoint("TOPRIGHT", BurningEmbers[i-1], "TOPLEFT", -1, 0)
-				bar:SetPoint("BOTTOMRIGHT", BurningEmbers[i-1], "BOTTOMLEFT", -1, 0)
-			else
-				bar:SetPoint("TOPRIGHT", BurningEmbers, -1, -1)
-				bar:SetPoint("BOTTOMRIGHT", BurningEmbers, -1, 1)
-			end
-			bar.bg.multiplier = config.powerBG
-		end
-
-		local function UpdateEmbersBorder()
-			if BurningEmbers:IsShown() then
-				self:SetBorderParent(BurningEmbers[#BurningEmbers])
-
-				local size, offset = self:GetBorderSize()
-				local inset = floor(size * -0.2)
-				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", BurningEmbers, -offset, offset)
-				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", BurningEmbers, offset, offset)
-			else
-				self:SetBorderParent(self.overlay)
-				if not self.changingBorderSize then
-					self.changingBorderSize = true
-					self:SetBorderSize()
-					self.changingBorderSize = nil
-				end
-			end
-		end
-
-		local p = BurningEmbers.PostUpdate
-		function BurningEmbers:PostUpdate(...)
-			p(self, ...)
-			UpdateEmbersBorder()
-		end
-
-		local o = self.SetBorderSize
-		function self:SetBorderSize(size, offset)
-			o(self, size, offset)
-			UpdateEmbersBorder()
-		end
-		self:SetBorderSize()
+		self.BurningEmbers = ns.CreateBurningEmbers(self)
 	end
 
 	-----------------------------
@@ -712,45 +655,7 @@ local function Spawn(self, unit, isSingle)
 	----------------
 
 	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
-		local eclipseBar = ns.CreateEclipseBar(self, config.statusbar, config.eclipseBarIcons)
-		eclipseBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
-		eclipseBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
-		eclipseBar:SetHeight(FRAME_HEIGHT * config.powerHeight + 1)
-
-		tinsert(ns.statusbars, eclipseBar.bg)
-		tinsert(ns.statusbars, eclipseBar.lunarBG)
-		tinsert(ns.statusbars, eclipseBar.solarBG)
-
-		eclipseBar.value:Hide()
-		self:Tag(eclipseBar.value, "[pereclipse]%")
-		table.insert(self.mouseovers, eclipseBar.value)
-
-		local o = self.SetBorderSize
-		function self:SetBorderSize(size, offset)
-			o(self, size, offset)
-			if eclipseBar:IsShown() then
-				local size, offset = self:GetBorderSize()
-				local inset = floor(size * -0.2)
-				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", eclipseBar, -offset, offset)
-				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", eclipseBar, offset, offset)
-			end
-		end
-		eclipseBar:SetScript("OnShow", function(self)
-			local frame = self.__owner
-			frame:SetBorderParent(self)
-			frame:SetBorderSize()
-		end)
-
-		eclipseBar:SetScript("OnHide", function(self)
-			local frame = self.__owner
-			frame:SetBorderParent(frame.overlay)
-			frame:SetBorderSize()
-		end)
-
-		eclipseBar:SetScript("OnEnter", ns.UnitFrame_OnEnter)
-		eclipseBar:SetScript("OnLeave", ns.UnitFrame_OnLeave)
-
-		self.EclipseBar = eclipseBar
+		self.EclipseBar = ns.CreateEclipseBar(self)
 	end
 
 	-----------
