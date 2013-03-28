@@ -74,7 +74,7 @@ ns.CreateRunes = function(frame)
 	Runes = CreateFrame("Frame", nil, frame)
 
 	for i = 1, 6 do
-		local bar = ns.CreateStatusBar(Runes, 16, "CENTER", true)
+		local bar = ns.CreateStatusBar(Runes, 16, "CENTER")
 
 		bar:EnableMouse(true)
 		bar:SetScript("OnEnter", Rune_OnEnter)
