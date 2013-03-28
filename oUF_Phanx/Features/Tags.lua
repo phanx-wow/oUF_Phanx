@@ -11,6 +11,9 @@ local _, ns = ...
 
 local GetLootMethod, IsResting, UnitAffectingCombat, UnitBuff, UnitClass, UnitInRaid, UnitIsConnected, UnitIsDeadOrGhost, UnitIsEnemy, UnitIsGroupAssistant, UnitIsGroupLeader, UnitIsPlayer, UnitIsTapped, UnitIsTappedByPlayer, UnitIsUnit, UnitPowerType, UnitReaction = GetLootMethod, IsResting, UnitAffectingCombat, UnitBuff, UnitClass, UnitInRaid, UnitIsConnected, UnitIsDeadOrGhost, UnitIsEnemy, UnitIsGroupAssistant, UnitIsGroupLeader, UnitIsPlayer, UnitIsTapped, UnitIsTappedByPlayer, UnitIsUnit, UnitPowerType, UnitReaction
 
+------------------------------------------------------------------------
+--	Colors
+
 oUF.Tags.Events["unitcolor"] = "UNIT_HEALTH UNIT_CLASSIFICATION UNIT_REACTION"
 oUF.Tags.Methods["unitcolor"] = function(unit)
 	local color
@@ -35,6 +38,9 @@ oUF.Tags.Methods["powercolor"] = function(unit)
 	local color = ns.colors.power[type] or ns.colors.power.FUEL
 	return format("|cff%02x%02x%02x", color[1] * 255, color[2] * 255, color[3] * 255)
 end
+
+------------------------------------------------------------------------
+--	Icons
 
 oUF.Tags.Events["combaticon"] = "PLAYER_REGEN_DISABLED PLAYER_REGEN_ENABLED"
 oUF.Tags.SharedEvents["PLAYER_REGEN_DISABLED"] = true
@@ -84,6 +90,40 @@ oUF.Tags.Methods["restingicon"] = function(unit)
 	end
 end
 
+oUF.Tags.Methods["battlepeticon"] = function(unit)
+	if UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit) then
+		local petType = UnitBattlePetType(unit)
+		return [[|TInterface\TargetingFrame\PetBadge-]] .. PET_TYPE_SUFFIX[petType]
+	end
+end
+
+------------------------------------------------------------------------
+--	Threat
+
+do
+	local colors = setmetatable({}, { __index = function(t, i)
+		local r, g, b = GetThreatStatusColor(i)
+		if r then
+			t[i] = format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
+			return t[i]
+		end
+	end })
+	oUF.Tags.Events["threatpct"] = "UNIT_THREAT_SITUATION_UPDATE UNIT_THREAT_LIST_UPDATE"
+	oUF.Tags.Methods["threatpct"] = function(unit)
+		local isTanking, status, percentage, rawPercentage = UnitDetailedThreatSituation(unit, unit.."target")
+		local text = rawPercentage
+		if isTanking then
+			text = UnitThreatPercentageOfLead(unit, unit.."target")
+		end
+		if text and text ~= 0 then
+			return format("%s%d%%|r", colors[status] or "", text)
+		end
+	end
+end
+
+------------------------------------------------------------------------
+--	Buffs
+
 do
 	local EVANGELISM = GetSpellInfo(81661) -- 81660 for rank 1
 	local DARK_EVANGELISM = GetSpellInfo(87118) -- 87117 for rank 1
@@ -94,6 +134,17 @@ do
 			if name then return count end
 
 			name, _, icon, count = UnitBuff("player", DARK_EVANGELISM)
+			return name and count
+		end
+	end
+end
+
+do
+	local MAELSTROM_WEAPON = GetSpellInfo(53817)
+	oUF.Tags.Events["maelstrom"] = "UNIT_AURA"
+	oUF.Tags.Methods["maelstrom"] = function(unit)
+		if unit == "player" then
+			local name, _, icon, count = UnitBuff("player", MAELSTROM_WEAPON)
 			return name and count
 		end
 	end
@@ -129,17 +180,6 @@ do
 			if name then
 				return WATER_TEXT[count]
 			end
-		end
-	end
-end
-
-do
-	local MAELSTROM_WEAPON = GetSpellInfo(53817)
-	oUF.Tags.Events["maelstrom"] = "UNIT_AURA"
-	oUF.Tags.Methods["maelstrom"] = function(unit)
-		if unit == "player" then
-			local name, _, icon, count = UnitBuff("player", MAELSTROM_WEAPON)
-			return name and count
 		end
 	end
 end
