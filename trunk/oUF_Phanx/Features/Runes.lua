@@ -85,10 +85,7 @@ ns.CreateRunes = function(frame)
 
 		Runes[i] = bar
 	end
---[[
-	ns.CreateBorder(Runes)
-	Runes:SetBorderParent(Runes[#Runes])
-]]
+
 	Runes.PostUpdateRune = PostUpdateRune
 	return Runes
 end

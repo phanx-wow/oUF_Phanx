@@ -146,7 +146,9 @@ end
 do
 	local function SetStatusBarTexCoord(self, v)
 		local mn, mx = self:GetMinMaxValues()
-		self.tex:SetTexCoord(0, (v - mn) / (mx - mn), 0, 1)
+		if v > 0 and v > mn and v <= mx then
+			self.tex:SetTexCoord(0, (v - mn) / (mx - mn), 0, 1)
+		end
 	end
 
 	function ns.CreateStatusBar(parent, size, justify)

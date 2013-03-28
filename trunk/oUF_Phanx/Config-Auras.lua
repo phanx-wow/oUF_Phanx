@@ -62,9 +62,10 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	panel.Dialog = dialog
 
 	dialog.Title, dialog.Notes = LibStub("PhanxConfig-Header").CreateHeader(dialog, L.AddAura, L.AddAura_Info)
+	dialog.Notes:SetHeight(16) -- only one line
 
 	local dialogBox = CreateFrame("EditBox", nil, dialog, "InputBoxTemplate")
-	dialogBox:SetPoint("TOPLEFT", dialog.Notes, "BOTTOMLEFT", 10, -24)
+	dialogBox:SetPoint("TOPLEFT", dialog.Notes, "BOTTOMLEFT", 6, -12)
 	dialogBox:SetSize(160, 24)
 	dialogBox:SetAltArrowKeyMode(false)
 	dialogBox:SetAutoFocus(false)
@@ -123,7 +124,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	dialog.Text = dialogText
 
 	local dialogHelp = dialog:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	dialogHelp:SetPoint("TOPLEFT", dialogBox, "BOTTOMLEFT", -10, -24)
+	dialogHelp:SetPoint("TOPLEFT", dialogBox, "BOTTOMLEFT", -6, -16)
 	dialogHelp:SetPoint("RIGHT", dialog, -16, 0)
 	dialogHelp:SetHeight(32)
 	dialogHelp:SetJustifyH("LEFT")
@@ -339,6 +340,10 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 			scrollChild:SetHeight(100)
 			dialog:Show()
 			add:Hide()
+		end
+
+		for i = 1, #oUF.objects do
+			oUF.objects[i]:UpdateAllElements("OptionsRefresh")
 		end
 	end
 

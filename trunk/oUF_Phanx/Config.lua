@@ -448,7 +448,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	--------------------------------------------------------------------
 
 	local dispelFilter = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
-	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 10, -24)
+	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 	dispelFilter.Text:SetText(L.FilterDebuffHighlight)
 	dispelFilter.tooltipText = L.FilterDebuffHighlight_Desc
 	dispelFilter:SetScript("OnClick", function(this)
@@ -466,7 +466,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	--------------------------------------------------------------------
 
 	local healFilter = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
-	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -8)
+	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -12)
 	healFilter.Text:SetText(L.IgnoreOwnHeals)
 	healFilter.tooltipText = L.IgnoreOwnHeals_Desc
 	healFilter:SetScript("OnClick", function(this)
@@ -478,12 +478,12 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 				frame.HealPrediction:ForceUpdate()
 			end
 		end
-	end
+	end)
 
 	--------------------------------------------------------------------
 
 	local threatLevels = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
-	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -8)
+	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -12)
 	threatLevels.Text:SetText(L.ThreatLevels)
 	threatLevels.tooltipText = L.ThreatLevels_Desc
 	threatLevels:SetScript("OnClick", function(this)
@@ -495,7 +495,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 				frame.ThreatHighlight:ForceUpdate()
 			end
 		end
-	end
+	end)
 
 	--------------------------------------------------------------------
 
@@ -562,7 +562,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	--------------------------------------------------------------------
 
 	healthColor = CreateColorPicker(self, L.HealthColorCustom)
-	healthColor:SetPoint("LEFT", healthColorMode, "RIGHT", 24, eclipseBarIcons and -10 or -6)
+	healthColor:SetPoint("LEFT", healthColorMode, "RIGHT", 24, -6)
 	function healthColor:GetColor()
 		return unpack(db.healthColor)
 	end
@@ -675,7 +675,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	--------------------------------------------------------------------
 
 	powerColor = CreateColorPicker(self, L.PowerColorCustom)
-	powerColor:SetPoint("LEFT", powerColorMode, "RIGHT", 24, eclipseBarIcons and -10 or -6)
+	powerColor:SetPoint("LEFT", powerColorMode, "RIGHT", 24, -4)
 
 	function powerColor:GetColor()
 		return unpack(db.powerColor)
@@ -725,7 +725,14 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 				DruidMana:ForceUpdate()
 			end
 
-			-- #TODO: Runes?
+			local Runes = frame.Runes
+			if Runes then
+				for i = 1, #Runes do
+					local r, g, b = Runes[i]:GetStatusBarColor()
+					Runes[i].bg:SetVertexColor(r * value, g * value, b * value)
+					Runes[i].bg.multiplier = value
+				end
+			end
 
 			local Totems = frame.Totems
 			if Totems then
@@ -789,6 +796,10 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		powerBG:SetValue(db.powerBG)
 
 		borderColor:SetColor(unpack(db.borderColor))
+
+		for i = 1, #oUF.objects do
+			oUF.objects[i]:UpdateAllElements("OptionsRefresh")
+		end
 	end
 end)
 
