@@ -26,7 +26,7 @@ local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 function UpdateVisibility(self, event)
 	local element = self.BurningEmbers
 
-	if UnitHasVehicleUI("player") or GetSpecialization() ~= SPEC_WARLOCK_DESTRUCTION or not IsPlayerSpell(WARLOCK_BURNING_EMBERS) then
+	if UnitInVehicle("player") or UnitHasVehicleUI("player") or GetSpecialization() ~= SPEC_WARLOCK_DESTRUCTION or not IsPlayerSpell(WARLOCK_BURNING_EMBERS) then
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
 		self:UnregisterEvent("UNIT_POWER", Path)
 

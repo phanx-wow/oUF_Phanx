@@ -40,7 +40,7 @@ ns.SetupBurningEmbers = function(frame)
 
 	BurningEmbers = CreateFrame("Frame", nil, frame)
 	for i = 1, 4 do
-		local bar = ns.CreateStatusBar(BurningEmbers, nil, nil, true)
+		local bar = ns.CreateStatusBar(BurningEmbers)
 		bar.__owner = frame
 		BurningEmbers[i] = bar
 	end

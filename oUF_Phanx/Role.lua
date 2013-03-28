@@ -90,6 +90,7 @@ if getRole then
 	eventFrame:SetScript("OnEvent", function(_, event, ...)
 		local role = getRole() or "DPS"
 		if role ~= CURRENT_ROLE then
+			--print(event, CURRENT_ROLE, "->", role)
 			CURRENT_ROLE = role
 			for _, frame in pairs(ns.objects) do
 				if frame.updateOnRoleChange then
