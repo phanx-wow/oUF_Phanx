@@ -447,7 +447,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local dispelFilter = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+	local dispelFilter = CreateFrame("CheckButton", "oUFPCDispelFilter", self, "InterfaceOptionsCheckButtonTemplate")
 	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 	dispelFilter.Text:SetText(L.FilterDebuffHighlight)
 	dispelFilter.tooltipText = L.FilterDebuffHighlight_Desc
@@ -465,7 +465,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local healFilter = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+	local healFilter = CreateFrame("CheckButton", "oUFPCHealFilter", self, "InterfaceOptionsCheckButtonTemplate")
 	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -12)
 	healFilter.Text:SetText(L.IgnoreOwnHeals)
 	healFilter.tooltipText = L.IgnoreOwnHeals_Desc
@@ -482,7 +482,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local threatLevels = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+	local threatLevels = CreateFrame("CheckButton", "oUFPCThreatLevels", self, "InterfaceOptionsCheckButtonTemplate")
 	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -12)
 	threatLevels.Text:SetText(L.ThreatLevels)
 	threatLevels.tooltipText = L.ThreatLevels_Desc

@@ -53,7 +53,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 	local RuneBars, DruidMana, EclipseBar, EclipseBarIcons, TotemBars
 
 	if playerClass == "DEATHKNIGHT" then
-		RuneBars = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+		RuneBars = CreateFrame("CheckButton", "oUFPCRuneBars", self, "InterfaceOptionsCheckButtonTemplate")
 		RuneBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 		RuneBars.Text:SetText(L.RuneBars)
 		RuneBars.tooltipText = L.RuneBars_Desc
@@ -64,7 +64,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		end)
 
 	elseif playerClass == "DRUID" then
-		DruidMana = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+		DruidMana = CreateFrame("CheckButton", "oUFPCDruidMana", self, "InterfaceOptionsCheckButtonTemplate")
 		DruidMana:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 		DruidMana.Text:SetText(L.DruidManaBar)
 		DruidMana.tooltipText = L.DruidManaBar_Desc
@@ -74,7 +74,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 			ns.config.druidMana = checked
 		end)
 
-		EclipseBar = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+		EclipseBar = CreateFrame("CheckButton", "oUFPCEclipseBar", self, "InterfaceOptionsCheckButtonTemplate")
 		EclipseBar:SetPoint("TOPLEFT", DruidMana, "BOTTOMLEFT", 0, -12)
 		EclipseBar.Text:SetText(L.EclipseBar)
 		EclipseBar.tooltipText = L.EclipseBar_Desc
@@ -85,7 +85,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 			EclipseBarIcons:SetEnabled(checked)
 		end)
 
-		EclipseBarIcons = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+		EclipseBarIcons = CreateFrame("CheckButton", "oUFPCEclipseBarIcons", self, "InterfaceOptionsCheckButtonTemplate")
 		EclipseBarIcons:SetPoint("TOPLEFT", EclipseBar, "BOTTOMLEFT", 0, -12)
 		EclipseBarIcons.Text:SetText(L.EclipseBarIcons)
 		EclipseBarIcons.tooltipText = L.EclipseBarIcons_Desc
@@ -96,7 +96,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		end)
 
 	elseif playerClass == "SHAMAN" then
-		TotemBars = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+		TotemBars = CreateFrame("CheckButton", "oUFPCTotemBars", self, "InterfaceOptionsCheckButtonTemplate")
 		TotemBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 		TotemBars.Text:SetText(L.TotemBars)
 		TotemBars.tooltipText = L.TotemBars_Desc
@@ -107,6 +107,17 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		end)
 
 	end
+
+	--------------------------------------------------------------------
+
+	local Reload = CreateFrame("Button", "oUFPCReloadButton", self, "UIPanelButtonTemplate")
+	Reload:SetPoint("BOTTOMRIGHT", -16, 16)
+	Reload:SetWidth(80)
+	Reload:SetText(L.ReloadUI)
+	Reload:SetAlpha(0.5)
+	Reload:SetScript("OnEnter", function(this) this:SetAlpha(1) end)
+	Reload:SetScript("OnLeave", function(this) this:SetAlpha(0.1) end)
+	Reload:SetScript("OnClick", ReloadUI)
 
 	--------------------------------------------------------------------
 

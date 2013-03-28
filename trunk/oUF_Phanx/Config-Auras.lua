@@ -13,7 +13,7 @@ local L = ns.L
 LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", function(panel)
 	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.Auras_Info)
 
-	local scrollFrame = CreateFrame("ScrollFrame", "$parentScrollFrame", panel, "UIPanelScrollFrameTemplate")
+	local scrollFrame = CreateFrame("ScrollFrame", "oUFPCAuraScrollFrame", panel, "UIPanelScrollFrameTemplate")
 	scrollFrame:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -16)
 	scrollFrame:SetPoint("BOTTOMRIGHT", -38, 16)
 	panel.ScrollFrame = scrollFrame
@@ -64,7 +64,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	dialog.Title, dialog.Notes = LibStub("PhanxConfig-Header").CreateHeader(dialog, L.AddAura, L.AddAura_Info)
 	dialog.Notes:SetHeight(16) -- only one line
 
-	local dialogBox = CreateFrame("EditBox", nil, dialog, "InputBoxTemplate")
+	local dialogBox = CreateFrame("EditBox", "oUFPCAuraEditBox", dialog, "InputBoxTemplate")
 	dialogBox:SetPoint("TOPLEFT", dialog.Notes, "BOTTOMLEFT", 6, -12)
 	dialogBox:SetSize(160, 24)
 	dialogBox:SetAltArrowKeyMode(false)
@@ -106,7 +106,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	end)
 	dialog.EditBox = dialogBox
 
-	local dialogButton = CreateFrame("Button", nil, dialog, "UIPanelButtonTemplate")
+	local dialogButton = CreateFrame("Button", "oUFPCAuraAddButton", dialog, "UIPanelButtonTemplate")
 	dialogButton:SetPoint("LEFT", dialogBox, "RIGHT", 12, 0)
 	dialogButton:SetWidth(80)
 	dialogButton:SetText(OKAY)
@@ -148,7 +148,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 
 	--------------------------------------------------------------------
 
-	local add = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	local add = CreateFrame("Button", "oUFPCAuraPanelButton", panel, "UIPanelButtonTemplate")
 	add:SetText("|TInterface\\LFGFRAME\\LFGROLE_BW:0:0:0:0:64:16:48:64:0:16:255:255:153|t " .. L.AddAura)
 	add:SetPoint("TOPRIGHT", title, "BOTTOMRIGHT", 0, -8)
 	add:SetSize(160, 32)
@@ -260,7 +260,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		highlight:Hide()
 		row.highlight = highlight
 
-		local delete = CreateFrame("Button", nil, row, "UIPanelCloseButton")
+		local delete = CreateFrame("Button", "oUFPCAuraDelete"..i, row, "UIPanelCloseButton")
 		delete:SetPoint("LEFT", 0, -1)
 		delete:SetSize(32, 32)
 		delete:SetScript("OnClick", Delete_OnClick)
