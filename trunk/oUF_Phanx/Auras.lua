@@ -786,7 +786,7 @@ end
 --	Weakened Armor
 
 if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
-	-- druids need to keep Faerie Fire/Swarm up anyway, no need to see both
+	-- druids need to keep Faerie Fire/Swarm up anyway, no need to see both, this has the shorter duration
 	BaseAuras[113746] = 1 -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
 end
 

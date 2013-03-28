@@ -7,11 +7,34 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
 
+if select(2, UnitClass("player")) ~= "DRUID" then return end
+
 local _, ns = ...
+local EclipseBar
 
 local ECLIPSE_MARKER_COORDS = ECLIPSE_MARKER_COORDS
 local SPELL_POWER_ECLIPSE = SPELL_POWER_ECLIPSE
 local GetEclipseDirection = GetEclipseDirection
+
+local function EclipseBar_OnShow(self)
+	local frame = self.__owner
+	frame:SetBorderParent(self)
+	frame:SetBorderSize()
+end
+
+local function EclipseBar_OnHide(self)
+	local frame = self.__owner
+	frame:SetBorderParent(frame.overlay)
+	frame:SetBorderSize()
+end
+
+local function Frame_SetBorderSize(self, size, offset)
+	if EclipseBar:IsShown() then
+		local _, offset = self:GetBorderSize()
+		self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", EclipseBar, -offset, offset)
+		self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", EclipseBar, offset, offset)
+	end
+end
 
 local function EclipseBar_PostUpdatePower(self, unit)
 	local cur = UnitPower(unit, SPELL_POWER_ECLIPSE)
@@ -106,86 +129,92 @@ local function EclipseBar_PostUnitAura(self, unit)
 	self:PostUpdatePower(unit)
 end
 
-local eclipseBar
-function ns.CreateEclipseBar(self, texture, useEclipseBarIcons)
-	if eclipseBar then
-		eclipseBar:SetParent(self)
-		if eclipseBar.glow then
-			EclipseBarFrame:SetParent(self)
-		end
-		return eclipseBar
+function ns.CreateEclipseBar(self)
+	if EclipseBar then
+		return EclipseBar
 	end
 
-	eclipseBar = CreateFrame("Frame", nil, self)
+	EclipseBar = CreateFrame("Frame", nil, self)
+	EclipseBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
+	EclipseBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
+	EclipseBar:SetHeight(self:GetHeight() * ns.config.powerHeight + 1)
 
-	local bg = eclipseBar:CreateTexture(nil, "BACKGROUND")
+	local texture = ns.config.statusbar
+
+	local bg = EclipseBar:CreateTexture(nil, "BACKGROUND")
 	bg:SetAllPoints(true)
 	bg:SetTexture(texture)
 	bg:SetVertexColor(0, 0, 0, 1)
-	eclipseBar.bg = bg
+	tinsert(ns.statusbars, bg)
+	EclipseBar.bg = bg
 
-	local lunarBG = eclipseBar:CreateTexture(nil, "BACKGROUND", nil, 1)
-	lunarBG:SetPoint("TOPLEFT", eclipseBar, 1, -1)
-	lunarBG:SetPoint("BOTTOMRIGHT", eclipseBar, "BOTTOM")
+	local lunarBG = EclipseBar:CreateTexture(nil, "BACKGROUND", nil, 1)
+	lunarBG:SetPoint("TOPLEFT", EclipseBar, 1, -1)
+	lunarBG:SetPoint("BOTTOMRIGHT", EclipseBar, "BOTTOM")
 	lunarBG:SetTexture(texture)
 	lunarBG:SetVertexColor(0, 0.6, 1)
-	eclipseBar.lunarBG = lunarBG
+	tinsert(ns.statusbars, lunarBG)
+	EclipseBar.lunarBG = lunarBG
 
-	local solarBG = eclipseBar:CreateTexture(nil, "BACKGROUND", nil, 1)
-	solarBG:SetPoint("TOPRIGHT", eclipseBar, 1, 1)
-	solarBG:SetPoint("BOTTOMLEFT", eclipseBar, "BOTTOM")
+	local solarBG = EclipseBar:CreateTexture(nil, "BACKGROUND", nil, 1)
+	solarBG:SetPoint("TOPRIGHT", EclipseBar, 1, 1)
+	solarBG:SetPoint("BOTTOMLEFT", EclipseBar, "BOTTOM")
 	solarBG:SetTexture(texture)
 	solarBG:SetVertexColor(1, 0.8, 0)
-	eclipseBar.solarBG = solarBG
+	tinsert(ns.statusbars, solarBG)
+	EclipseBar.solarBG = solarBG
 
-	local eclipseArrow = eclipseBar:CreateTexture(nil, "OVERLAY")
+	local eclipseArrow = EclipseBar:CreateTexture(nil, "OVERLAY")
 	eclipseArrow:SetSize(24, 24)
 	eclipseArrow:SetTexture([[Interface\PlayerFrame\UI-DruidEclipse]])
 	eclipseArrow:SetBlendMode("ADD")
-	eclipseBar.directionArrow = eclipseArrow
+	EclipseBar.directionArrow = eclipseArrow
 
-	local eclipseText = ns.CreateFontString(eclipseBar, 16, "CENTER")
-	eclipseText:SetPoint("CENTER", eclipseBar, "CENTER", 0, 1)
-	eclipseBar.value = eclipseText
+	local eclipseText = ns.CreateFontString(EclipseBar, 16, "CENTER")
+	eclipseText:SetPoint("CENTER", EclipseBar, "CENTER", 0, 1)
+	eclipseText:Hide()
+	self:Tag(eclipseText, "[pereclipse]%")
+	tinsert(self.mouseovers, eclipseText)
+	EclipseBar.value = eclipseText
 
-	if useEclipseBarIcons then
+	if ns.config.eclipseBarIcons then
 		local moon = EclipseBarFrame.moon
 		moon:ClearAllPoints()
-		moon:SetParent(eclipseBar)
-		moon:SetPoint("CENTER", eclipseBar, "LEFT", -8, 0)
+		moon:SetParent(EclipseBar)
+		moon:SetPoint("CENTER", EclipseBar, "LEFT", -8, 0)
 		moon:SetDrawLayer("OVERLAY", 1)
-		eclipseBar.moon = moon
+		EclipseBar.moon = moon
 
 		local darkMoon = EclipseBarFrame.darkMoon
 		darkMoon:ClearAllPoints()
-		darkMoon:SetParent(eclipseBar)
+		darkMoon:SetParent(EclipseBar)
 		darkMoon:SetPoint("CENTER", moon)
 		darkMoon:SetDrawLayer("OVERLAY", 1)
-		eclipseBar.darkMoon = darkMoon
+		EclipseBar.darkMoon = darkMoon
 
 		local sun = EclipseBarFrame.sun
 		sun:ClearAllPoints()
-		sun:SetParent(eclipseBar)
-		sun:SetPoint("CENTER", eclipseBar, "RIGHT", 8, 0)
+		sun:SetParent(EclipseBar)
+		sun:SetPoint("CENTER", EclipseBar, "RIGHT", 8, 0)
 		sun:SetDrawLayer("OVERLAY")
-		eclipseBar.sun = sun
+		EclipseBar.sun = sun
 
 		local darkSun = EclipseBarFrame.darkSun
 		darkSun:ClearAllPoints()
-		darkSun:SetParent(eclipseBar)
+		darkSun:SetParent(EclipseBar)
 		darkSun:SetPoint("CENTER", sun)
 		darkSun:SetDrawLayer("OVERLAY", 1)
-		eclipseBar.darkSun = darkSun
+		EclipseBar.darkSun = darkSun
 
 		local glow = EclipseBarFrame.glow
-		glow:SetParent(eclipseBar)
+		glow:SetParent(EclipseBar)
 		glow:SetDrawLayer("OVERLAY", 2)
-		eclipseBar.glow = glow
+		EclipseBar.glow = glow
 
-		eclipseBar.moonActivate = EclipseBarFrame.moonActivate
-		eclipseBar.moonDeactivate = EclipseBarFrame.moonDeactivate
-		eclipseBar.sunActivate = EclipseBarFrame.sunActivate
-		eclipseBar.sunDeactivate = EclipseBarFrame.sunDeactivate
+		EclipseBar.moonActivate = EclipseBarFrame.moonActivate
+		EclipseBar.moonDeactivate = EclipseBarFrame.moonDeactivate
+		EclipseBar.sunActivate = EclipseBarFrame.sunActivate
+		EclipseBar.sunDeactivate = EclipseBarFrame.sunDeactivate
 
 		EclipseBarFrame:EnableMouse(false)
 		EclipseBarFrame:SetParent(self)
@@ -203,9 +232,13 @@ function ns.CreateEclipseBar(self, texture, useEclipseBarIcons)
 		EclipseBarFrame.hasSolarEclipse = false
 	end
 
-	eclipseBar.PostDirectionChange = EclipseBar_PostUnitAura
-	eclipseBar.PostUnitAura = EclipseBar_PostUnitAura
-	eclipseBar.PostUpdatePower = EclipseBar_PostUpdatePower
+	EclipseBar:SetScript("OnEnter", ns.UnitFrame_OnEnter)
+	EclipseBar:SetScript("OnLeave", ns.UnitFrame_OnLeave)
+	hooksecurefunc(self, "SetBorderSize", Frame_SetBorderSize)
 
-	return eclipseBar
+	EclipseBar.PostDirectionChange = EclipseBar_PostUnitAura
+	EclipseBar.PostUnitAura = EclipseBar_PostUnitAura
+	EclipseBar.PostUpdatePower = EclipseBar_PostUpdatePower
+
+	return EclipseBar
 end
