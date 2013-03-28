@@ -71,7 +71,7 @@ local function Spawn(self, unit, isSingle)
 	-- Health bar and text --
 	-------------------------
 
-	local health = ns.CreateStatusBar(self, 24, "RIGHT", true)
+	local health = ns.CreateStatusBar(self, 24, "RIGHT")
 	health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -1)
 	health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
 	health:SetPoint("BOTTOM", self, "BOTTOM", 0, 1)
@@ -125,7 +125,7 @@ local function Spawn(self, unit, isSingle)
 	------------------------
 
 	if uconfig.power then
-		local power = ns.CreateStatusBar(self, (uconfig.width or 1) > 0.75 and 16, "LEFT", true)
+		local power = ns.CreateStatusBar(self, (uconfig.width or 1) > 0.75 and 16, "LEFT")
 		power:SetFrameLevel(self.Health:GetFrameLevel() + 2)
 		power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
 		power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)

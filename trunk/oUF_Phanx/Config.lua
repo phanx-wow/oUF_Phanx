@@ -229,7 +229,6 @@ ns.fontList, ns.statusbarList = {}, {}
 ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	local db = ns.config
 
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local CreateColorPicker = LibStub("PhanxConfig-ColorPicker").CreateColorPicker
 	local CreateDropdown = LibStub("PhanxConfig-Dropdown").CreateDropdown
 	local CreateScrollingDropdown = LibStub("PhanxConfig-ScrollingDropdown").CreateScrollingDropdown
@@ -448,9 +447,13 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local dispelFilter = CreateCheckbox(self, L.FilterDebuffHighlight, L.FilterDebuffHighlight_Desc)
-	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-	function dispelFilter:OnClick(checked)
+	local dispelFilter = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 10, -24)
+	dispelFilter.Text:SetText(L.FilterDebuffHighlight)
+	dispelFilter.tooltipText = L.FilterDebuffHighlight_Desc
+	dispelFilter:SetScript("OnClick", function(this)
+		local checked = not not this:GetChecked()
+		PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
 		db.dispelFilter = checked
 		for _, frame in ipairs(ns.objects) do
 			if frame.DispelHighlight then
@@ -458,13 +461,17 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 				frame.DispelHighlight:ForceUpdate()
 			end
 		end
-	end
+	end)
 
 	--------------------------------------------------------------------
 
-	local healFilter = CreateCheckbox(self, L.IgnoreOwnHeals, L.IgnoreOwnHeals_Desc)
-	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -6)
-	function healFilter:OnClick(checked)
+	local healFilter = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -8)
+	healFilter.Text:SetText(L.IgnoreOwnHeals)
+	healFilter.tooltipText = L.IgnoreOwnHeals_Desc
+	healFilter:SetScript("OnClick", function(this)
+		local checked = not not this:GetChecked()
+		PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
 		db.ignoreOwnHeals = checked
 		for _, frame in ipairs(oUF.objects) do
 			if frame.HealPrediction and frame:IsShown() then
@@ -475,10 +482,14 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local threatLevels = CreateCheckbox(self, L.ThreatLevels, L.ThreatLevels_Desc)
-	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -6)
-	function threatLevels:OnClick(checked)
-		db.threatLevels = checked
+	local threatLevels = CreateFrame("CheckButton", nil, self, "InterfaceOptionsCheckButtonTemplate")
+	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -8)
+	threatLevels.Text:SetText(L.ThreatLevels)
+	threatLevels.tooltipText = L.ThreatLevels_Desc
+	threatLevels:SetScript("OnClick", function(this)
+		local checked = not not this:GetChecked()
+		PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
+		db.ignoreOwnHeals = checked
 		for _, frame in ipairs(oUF.objects) do
 			if frame.ThreatHighlight and frame:IsShown() then
 				frame.ThreatHighlight:ForceUpdate()
@@ -487,55 +498,6 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	end
 
 	--------------------------------------------------------------------
-
-	local _, CLASS = UnitClass("player")
-
-	local druidMana, eclipseBar, eclipseBarIcons
-	if CLASS == "DRUID" then
-		druidMana = CreateCheckbox(self, L.DruidManaBar, L.DruidManaBar_Desc .. "\n\n" .. L.OptionRequiresReload)
-		druidMana:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -6)
-		function druidMana:OnClick(checked)
-			db.druidMana = checked
-		end
-
-		eclipseBar = CreateCheckbox(self, L.EclipseBar, L.EclipseBar_Desc .. "\n\n" .. L.OptionRequiresReload)
-		eclipseBar:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -6)
-		function eclipseBar:OnClick(checked)
-			db.eclipseBar = checked
-			if checked then
-				eclipseBarIcons:Enable()
-			else
-				eclipseBarIcons:Disable()
-			end
-		end
-
-		eclipseBarIcons = CreateCheckbox(self, L.EclipseBarIcons, L.EclipseBarIcons_Desc .. "\n\n" .. L.OptionRequiresReload)
-		eclipseBarIcons:SetPoint("TOPLEFT", eclipseBar, "BOTTOMLEFT", 0, -6)
-		function eclipseBarIcons:OnClick(checked)
-			db.eclipseBarIcons = checked
-		end
-
-		borderColor:ClearAllPoints()
-		borderColor:SetPoint("TOPLEFT", eclipseBarIcons, "BOTTOMLEFT", 0, -5)
-	end
-
-	local totemBars
-	if CLASS == "SHAMAN" then
-		totemBars = CreateCheckbox(self, L.TotemBars, L.TotemBars_Desc .. "\n\n" .. L.OptionRequiresReload)
-		totemBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -6)
-		function totemBars:OnClick(checked)
-			db.totemBars = checked
-		end
-	end
-
-	local runeBars
-	if CLASS == "DEATHKNIGHT" then
-		runeBars = CreateCheckbox(self, L.RuneBars, L.RuneBars_Desc  .. "\n\n" .. L.OptionRequiresReload)
-		runeBars:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -6)
-		function runeBars:OnClick(checked)
-			db.runeBars = checked
-		end
-	end
 
 	local healthColor
 
@@ -807,25 +769,6 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		dispelFilter:SetChecked(db.dispelFilter)
 		healFilter:SetChecked(db.ignoreOwnHeals)
 		threatLevels:SetChecked(db.threatLevels)
-
-		if druidMana then
-			druidMana:SetChecked(db.druidMana)
-		end
-		if eclipseBar then
-			eclipseBar:SetChecked(db.eclipseBar)
-			eclipseBarIcons:SetChecked(db.eclipseBarIcons)
-			if db.eclipseBar then
-				eclipseBarIcons:Enable()
-			else
-				eclipseBarIcons:Disable()
-			end
-		end
-		if totemBars then
-			totemBars:SetChecked(db.totemBars)
-		end
-		if runeBars then
-			runeBars:SetChecked(db.runeBars)
-		end
 
 		healthColorMode:SetValue(db.healthColorMode, healthColorModes[db.healthColorMode])
 		healthColor:SetColor(unpack(db.healthColor))

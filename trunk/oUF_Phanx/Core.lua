@@ -144,13 +144,15 @@ end
 ------------------------------------------------------------------------
 
 do
-	local function SetStatusBarValue(self, cur)
+	local function SetStatusBarValue(self, value)
 		local min, max = self:GetMinMaxValues()
-		self:GetStatusBarTexture():SetTexCoord(0, (cur - min) / (max - min), 0, 1)
-		self.__SetValue(self, cur)
+		if value > 0 and value <= max then
+			self:GetStatusBarTexture():SetTexCoord(0, (value - min) / (max - min), 0, 1)
+		end
+		self.__SetValue(self, value)
 	end
 
-	function ns.CreateStatusBar(parent, size, justify, nohook)
+	function ns.CreateStatusBar(parent, size, justify, noTexCoordFix)
 		local sb = CreateFrame("StatusBar", nil, parent)
 		sb:SetStatusBarTexture(ns.config.statusbar)
 		sb:GetStatusBarTexture():SetDrawLayer("BORDER")
@@ -165,7 +167,7 @@ do
 			sb.value = ns.CreateFontString(sb, size, justify)
 		end
 
-		if not nohook then
+		if not noTexCoordFix then
 			sb.__SetValue = sb.SetValue
 			sb.SetValue = SetStatusBarValue
 		end

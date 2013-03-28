@@ -60,31 +60,29 @@ end
 --	Health
 ------------------------------------------------------------------------
 
-function ns.PostUpdateHealth(self, unit, cur, max)
+function ns.PostUpdateHealth(bar, unit, cur, max)
 	if not UnitIsConnected(unit) then
 		local color = colors.disconnected
-		local power = self.__owner.Power
+		local power = bar.__owner.Power
 		if power then
 			power:SetValue(0)
 			if power.value then
 				power.value:SetText(nil)
 			end
 		end
-		return self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, PLAYER_OFFLINE)
+		bar:SetValue(0) -- 5.2: UnitHealth sometimes returns > 0 for dead units???
+		return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, PLAYER_OFFLINE)
 	elseif UnitIsDeadOrGhost(unit) then
 		local color = colors.disconnected
-		local power = self.__owner.Power
+		local power = bar.__owner.Power
 		if power then
 			power:SetValue(0)
 			if power.value then
 				power.value:SetText(nil)
 			end
 		end
-		return self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, UnitIsGhost(unit) and GHOST or DEAD)
-	end
-
-	if cur > 0 then
-		self:GetStatusBarTexture():SetTexCoord(0, cur / max, 0, 1)
+		bar:SetValue(0) -- 5.2: UnitHealth sometimes returns > 0 for dead units???
+		return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, UnitIsGhost(unit) and GHOST or DEAD)
 	end
 
 	local color
@@ -104,20 +102,20 @@ function ns.PostUpdateHealth(self, unit, cur, max)
 
 	if cur < max then
 		if ns.GetPlayerRole() == "HEAL" and UnitCanAssist("player", unit) then
-			if self.__owner.isMouseOver and not strmatch(unit, "party%d") then
-				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
+			if bar.__owner.isMouseOver and not strmatch(unit, "party%d") then
+				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
 			else
-				self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit) - UnitHealthMax(unit)))
+				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit) - UnitHealthMax(unit)))
 			end
-		elseif self.__owner.isMouseOver then
-			self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
+		elseif bar.__owner.isMouseOver then
+			bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
 		else
-			self.value:SetFormattedText("|cff%02x%02x%02x%d%%|r", color[1] * 255, color[2] * 255, color[3] * 255, floor(UnitHealth(unit) / UnitHealthMax(unit) * 100 + 0.5))
+			bar.value:SetFormattedText("|cff%02x%02x%02x%d%%|r", color[1] * 255, color[2] * 255, color[3] * 255, floor(UnitHealth(unit) / UnitHealthMax(unit) * 100 + 0.5))
 		end
-	elseif self.__owner.isMouseOver then
-		self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealthMax(unit)))
+	elseif bar.__owner.isMouseOver then
+		bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealthMax(unit)))
 	else
-		self.value:SetText(nil)
+		bar.value:SetText(nil)
 	end
 end
 
@@ -175,10 +173,6 @@ function ns.PostUpdatePower(self, unit, cur, max)
 			self.value:SetText(nil)
 		end
 		return
-	end
-
-	if cur > 0 and cur <= max then
-		self:GetStatusBarTexture():SetTexCoord(0, cur / max, 0, 1)
 	end
 
 	if not self.value then return end
@@ -475,13 +469,15 @@ end
 ------------------------------------------------------------------------
 
 function ns.ThreatHighlightOverride(element, status)
-	if status and not ns.config.threatLevels then
+	if not status then
+		status = 0
+	elseif not ns.config.threatLevels then
 		status = status > 1 and 3 or 0
 	end
 
 	local frame = element.__owner
 	if frame.threatLevel == status then return end
-	-- print("ThreatHighlightOverride", frame.unit, status)
+	--print("ThreatHighlightOverride", frame.unit, status)
 
 	frame.threatLevel = status
 

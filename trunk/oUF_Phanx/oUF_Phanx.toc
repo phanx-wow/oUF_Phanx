@@ -30,7 +30,6 @@ Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibAboutPanel\LibAboutPanel.lua
 Libs\LibResInfo-1.0\LibResInfo-1.0.lua
 Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
-Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
 Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
 Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
 Libs\PhanxConfig-Header\PhanxConfig-Header.lua
@@ -73,4 +72,5 @@ Frames.xml
 Frames.lua
 
 Config.lua
+Config-More.lua
 Config-Auras.lua
