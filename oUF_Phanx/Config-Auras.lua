@@ -50,16 +50,36 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	--------------------------------------------------------------------
 
 	-- Dialog for adding an aura:
-	local dialog = CreateFrame("Frame", nil, scrollFrame)
-	dialog:SetAllPoints(true)
+	local dialog = CreateFrame("Frame", nil, panel)
+	dialog:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -16)
+	dialog:SetPoint("BOTTOMRIGHT", -16, 16)
 	dialog:SetBackdrop({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Backdrop", tile = true, tileSize = 16,
 		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16,
-		insets = { left = 5, right = 5, top = 5, bottom = 5 },
 	})
-	dialog:SetBackdropColor(0, 0, 0, 0.75)
-	dialog:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+	dialog:SetBackdropBorderColor(1, 0.82, 0, 0.8)
 	panel.Dialog = dialog
+
+	dialog.bg = dialog:CreateTexture(nil, "BACKGROUND")
+	dialog.bg:SetPoint("BOTTOMLEFT", 3, 3)
+	dialog.bg:SetPoint("TOPRIGHT", -3, -3)
+	dialog.bg:SetTexture("Interface\\FrameGeneral\\UI-Background-Rock", true, true)
+	dialog.bg:SetHorizTile(true)
+	dialog.bg:SetVertTile(true)
+	dialog.bg:SetVertexColor(0.4, 0.4, 0.4, 0.8)
+
+	dialog:Hide()
+	dialog:SetScript("OnShow", function(self)
+		self:GetParent().ScrollFrame:Hide()
+		self.EditBox:SetText("")
+		self.Text:SetText("")
+		self.EditBox:SetFocus()
+	end)
+	dialog:SetScript("OnHide", function(self)
+		self:GetParent().ScrollFrame:Show()
+		self.EditBox:SetText("")
+		self.Text:SetText("")
+		panel.refresh()
+	end)
 
 	dialog.Title, dialog.Notes = LibStub("PhanxConfig-Header").CreateHeader(dialog, L.AddAura, L.AddAura_Info)
 	dialog.Notes:SetHeight(16) -- only one line
@@ -79,7 +99,6 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		self:SetCursorPosition(self:GetNumLetters())
 
 		local spell = self:GetNumber()
-
 		if spell == 0 then
 			dialog.Text:SetText("")
 			dialog.Button:SetEnabled(false)
@@ -97,7 +116,6 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	end)
 	dialogBox:SetScript("OnEnterPressed", function(self)
 		if not dialog.Button:IsEnabled() then return end
-
 		local id = tonumber(self:GetText())
 		if id and id > 0 and GetSpellInfo(id) then
 			oUFPhanxAuraConfig[id] = 1
@@ -132,19 +150,6 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	dialogHelp:SetNonSpaceWrap(true)
 	dialogHelp:SetText(L.AddAura_Note)
 	dialog.HelpText = dialogHelp
-
-	dialog:Hide()
-
-	dialog:SetScript("OnShow", function(self)
-		self.EditBox:SetText("")
-		self.Text:SetText("")
-		self.EditBox:SetFocus()
-	end)
-	dialog:SetScript("OnHide", function(self)
-		self.EditBox:SetText("")
-		self.Text:SetText("")
-		panel.refresh()
-	end)
 
 	--------------------------------------------------------------------
 
