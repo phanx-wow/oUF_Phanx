@@ -795,13 +795,13 @@ end
 
 if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
 	-- druids need to keep Thrash up anyway, no need to see both
-	tinsert(updateFuncs, function(a)
+	tinsert(updateFuncs, function(auraList)
 		if ns.GetPlayerRole() == "TANK" then
-			print("Adding Weakened Blows")
-			a[109466] = 1 -- Curse of Enfeeblement (warlock)
-			a[60256]  = 1 -- Demoralizing Roar (hunter bear)
-			a[24423]  = 1 -- Demoralizing Screech (hunter carrion bird)
-			a[115798] = 1 -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
+			--print("Adding Weakened Blows")
+			auraList[109466] = 1 -- Curse of Enfeeblement (warlock)
+			auraList[60256]  = 1 -- Demoralizing Roar (hunter bear)
+			auraList[24423]  = 1 -- Demoralizing Screech (hunter carrion bird)
+			auraList[115798] = 1 -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
 		end
 	end)
 end
@@ -809,39 +809,37 @@ end
 ------------------------------------------------------------------------
 --	PvP
 
-tinsert(updateFuncs, function(a)
+tinsert(updateFuncs, function(auraList)
 	if ns.config.PVP then
-		print("Adding PVP auras")
-
+		--print("Adding PVP auras")
 		-- Disarmed
-		a[50541]  = 1 -- Clench (hunter scorpid)
-		a[676]    = 1 -- Disarm (warrior)
-		a[51722]  = 1 -- Dismantle (rogue)
-		a[117368] = 1 -- Grapple Weapon (monk)
-		a[91644]  = 1 -- Snatch (hunter bird of prey)
-
+		auraList[50541]  = 1 -- Clench (hunter scorpid)
+		auraList[676]    = 1 -- Disarm (warrior)
+		auraList[51722]  = 1 -- Dismantle (rogue)
+		auraList[117368] = 1 -- Grapple Weapon (monk)
+		auraList[91644]  = 1 -- Snatch (hunter bird of prey)
 		--	Silenced
-		a[25046]  = 1 -- Arcane Torrent (blood elf - rogue)
-		a[28730]  = 1 -- Arcane Torrent (blood elf - mage, paladin, priest, warlock)
-		a[50613]  = 1 -- Arcane Torrent (blood elf - death knight)
-		a[69179]  = 1 -- Arcane Torrent (blood elf - warrior)
-		a[80483]  = 1 -- Arcane Torrent (blood elf - hunter)
-		a[129597] = 1 -- Arcane Torrent (blood elf - monk)
-		a[31935]  = 1 -- Avenger's Shield (paladin)
-		a[102051] = 1 -- Frostjaw (mage)
-		a[1330]   = 1 -- Garrote - Silence (rogue)
-		a[50479]  = 1 -- Nether Shock (hunter nether ray)
-		a[15487]  = 1 -- Silence (priest)
-		a[18498]  = 1 -- Silenced - Gag Order (warrior)
-		a[34490]  = 1 -- Silencing Shot (hunter)
-		a[78675]  = 1 -- Solar Beam (druid)
-		a[97547]  = 1 -- Solar Beam (druid)
-		a[113286] = 1 -- Solar Beam (symbiosis)
-		a[113287] = 1 -- Solar Beam (symbiosis)
-		a[113288] = 1 -- Solar Beam (symbiosis)
-		a[116709] = 1 -- Spear Hand Strike (monk)
-		a[24259]  = 1 -- Spell Lock (warlock felhunter)
-		a[47476]  = 1 -- Strangulate (death knight)
+		auraList[25046]  = 1 -- Arcane Torrent (blood elf - rogue)
+		auraList[28730]  = 1 -- Arcane Torrent (blood elf - mage, paladin, priest, warlock)
+		auraList[50613]  = 1 -- Arcane Torrent (blood elf - death knight)
+		auraList[69179]  = 1 -- Arcane Torrent (blood elf - warrior)
+		auraList[80483]  = 1 -- Arcane Torrent (blood elf - hunter)
+		auraList[129597] = 1 -- Arcane Torrent (blood elf - monk)
+		auraList[31935]  = 1 -- Avenger's Shield (paladin)
+		auraList[102051] = 1 -- Frostjaw (mage)
+		auraList[1330]   = 1 -- Garrote - Silence (rogue)
+		auraList[50479]  = 1 -- Nether Shock (hunter nether ray)
+		auraList[15487]  = 1 -- Silence (priest)
+		auraList[18498]  = 1 -- Silenced - Gag Order (warrior)
+		auraList[34490]  = 1 -- Silencing Shot (hunter)
+		auraList[78675]  = 1 -- Solar Beam (druid)
+		auraList[97547]  = 1 -- Solar Beam (druid)
+		auraList[113286] = 1 -- Solar Beam (symbiosis)
+		auraList[113287] = 1 -- Solar Beam (symbiosis)
+		auraList[113288] = 1 -- Solar Beam (symbiosis)
+		auraList[116709] = 1 -- Spear Hand Strike (monk)
+		auraList[24259]  = 1 -- Spell Lock (warlock felhunter)
+		auraList[47476]  = 1 -- Strangulate (death knight)
 	end
 end)
 
@@ -860,12 +858,12 @@ if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MON
 	}
 	tinsert(updateFuncs, function(auraList)
 		if ns.config.PVP then
-			print("Removing taunts for PVP")
+			--print("Removing taunts for PVP")
 			for aura in pairs(Taunts) do
 				BaseAuras[aura] = nil
 			end
 		else
-			print("Adding taunts")
+			--print("Adding taunts")
 			for aura, filter in pairs(Taunts) do
 				auraList[aura] = filter
 			end
@@ -912,6 +910,7 @@ local auraList = {}
 ns.AuraList = auraList
 
 ns.UpdateAuraList = function()
+	--print("UpdateAuraList")
 	wipe(auraList)
 	-- Add base auras
 	for aura, filter in pairs(BaseAuras) do
@@ -929,13 +928,12 @@ ns.UpdateAuraList = function()
 	for _, obj in pairs(oUF.objects) do
 		if obj.Auras then
 			obj.Auras:ForceUpdate()
-		else
-			if obj.Buffs then
-				obj.Buffs:ForceUpdate()
-			end
-			if obj.Debuffs then
-				obj.Debuffs:ForceUpdate()
-			end
+		end
+		if obj.Buffs then
+			obj.Buffs:ForceUpdate()
+		end
+		if obj.Debuffs then
+			obj.Debuffs:ForceUpdate()
 		end
 	end
 end
