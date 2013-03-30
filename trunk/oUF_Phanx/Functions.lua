@@ -410,6 +410,7 @@ function ns.PostCastStart(self, unit, name, rank, castid)
 			safezone:Hide()
 		end
 	end
+	self.__castType = "CAST"
 end
 
 function ns.PostChannelStart(self, unit, name, rank, text)
@@ -438,10 +439,11 @@ function ns.PostChannelStart(self, unit, name, rank, text)
 			safezone:Hide()
 		end
 	end
+	self.__castType = "CHANNEL"
 end
 
 function ns.CustomDelayText(self, duration)
-	self.Time:SetFormattedText("%.1f|cffff0000-%.1f|r", self.max - duration, self.delay)
+	self.Time:SetFormattedText("%.1f|cffff0000%.1f|r", self.max - duration, -self.delay)
 end
 
 function ns.CustomTimeText(self, duration)

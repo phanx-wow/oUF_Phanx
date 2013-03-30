@@ -27,7 +27,13 @@ local unpack = unpack
 
 local function Totems_OnShow(element)
 	local frame = element.__owner
-	frame:SetBorderParent(element[#element])
+	local totem
+	for i = 1, #element do
+		if element[i]:IsShown() then
+			totem = element[i]
+		end
+	end
+	frame:SetBorderParent(totem)
 	frame:SetBorderSize()
 end
 
@@ -97,12 +103,12 @@ local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 		bar.scripted = true
 	end
 
+	element:Hide()
 	for i = 1, #element do
 		if element[i]:IsShown() then
 			return element:Show()
 		end
 	end
-	element:Hide()
 end
 
 ns.CreateTotems = function(frame)
@@ -121,7 +127,7 @@ ns.CreateTotems = function(frame)
 	Totems:SetHeight(frame:GetHeight() * ns.config.powerHeight + 2)
 
 	local totemGap = 1
-	local totemWidth = (frame:GetHeight() - (totemGap * (MAX_TOTEMS + 1))) / MAX_TOTEMS
+	local totemWidth = (frame:GetWidth() - (totemGap * (MAX_TOTEMS + 1))) / MAX_TOTEMS
 
 	for i = 1, MAX_TOTEMS do
 		local bar = ns.CreateStatusBar(Totems, 16, "CENTER")
@@ -129,6 +135,7 @@ ns.CreateTotems = function(frame)
 		bar:SetHitRectInsets(0, 0, -10, 0)
 
 		bar:EnableMouse(true)
+		bar:Hide()
 		bar:SetScript("OnUpdate", Totem_OnUpdate)
 
 		if i > 1 then
@@ -139,10 +146,12 @@ ns.CreateTotems = function(frame)
 			bar:SetPoint("BOTTOMLEFT", Totems, 1, 1)
 		end
 
+		local mu, co = ns.config.powerBG, oUF.colors.totems[i]
+		bar.bg.multiplier = mu
 		bar.bg:SetParent(Totems)
 		bar.bg:SetDrawLayer("ARTWORK")
-		bar.bg:SetVertexColor(oUF.colors.totems[i][1] * config.powerBG, oUF.colors.totems[i][2] * config.powerBG, oUF.colors.totems[i][3] * config.powerBG)
-		bar.bg.multiplier = config.powerBG
+		bar.bg:SetVertexColor(co[1] * mu, co[2] * mu, co[3] * mu)
+		bar.bg:Show()
 
 		bar.iconFrame = CreateFrame("Frame", nil, bar)
 		bar.iconFrame:SetPoint("CENTER")

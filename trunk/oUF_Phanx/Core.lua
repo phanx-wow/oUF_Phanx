@@ -147,7 +147,11 @@ do
 	local function SetStatusBarTexCoord(self, v)
 		local mn, mx = self:GetMinMaxValues()
 		if v > 0 and v > mn and v <= mx then
-			self.tex:SetTexCoord(0, (v - mn) / (mx - mn), 0, 1)
+			if self:GetReverseFill() then
+				self.tex:SetTexCoord((v - mn) / (mx - mn), 1, 0, 1)
+			else
+				self.tex:SetTexCoord(0, (v - mn) / (mx - mn), 0, 1)
+			end
 		end
 	end
 
