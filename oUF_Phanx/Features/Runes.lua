@@ -32,6 +32,26 @@ local ColorGradient = oUF.ColorGradient
 local SMOOTH_COLORS = oUF.colors.smooth
 local unpack = unpack
 
+local function Runes_OnShow(element)
+	local frame = element.__owner
+	frame:SetBorderParent(element[#element])
+	frame:SetBorderSize()
+end
+
+local function Runes_OnHide(element)
+	local frame = element.__owner
+	frame:SetBorderParent(frame.overlay)
+	frame:SetBorderSize()
+end
+
+local function Frame_SetBorderSize(frame, size, offset)
+	if Runes:IsShown() then
+		local _, offset = frame:GetBorderSize()
+		frame.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Totems, -offset, offset)
+		frame.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", Totems, offset, offset)
+	end
+end
+
 local function Rune_OnUpdate(bar, elapsed)
 	if bar.mouseover then
 		local duration, max = bar.duration, bar.max
@@ -72,19 +92,51 @@ ns.CreateRunes = function(frame)
 	end
 
 	Runes = CreateFrame("Frame", nil, frame)
+	Runes:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, -1)
+	Runes:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, -1)
+	Runes:SetHeight(frame:GetHeight() * ns.config.powerHeight + 2)
 
-	for i = 1, 6 do
+	Runes:SetBackdrop(ns.config.backdrop)
+	Runes:SetBackdropColor(0, 0, 0, 1)
+	Runes:SetBackdropBorderColor(unpack(ns.config.borderColor))
+
+	local MAX_RUNES = 6
+	local runeGap = 1
+	local runeWidth = (frame:GetWidth() - (runeGap * (MAX_RUNES + 1))) / MAX_RUNES
+
+	for i = 1, MAX_RUNES do
 		local bar = ns.CreateStatusBar(Runes, 16, "CENTER")
+		bar:SetWidth(runeWidth)
+		if i > 1 then
+			bar:SetPoint("TOPLEFT", Runes[i-1], "TOPRIGHT", 1, 0)
+			bar:SetPoint("BOTTOMLEFT", Runes[i-1], "BOTTOMRIGHT", 1, 0)
+		else
+			bar:SetPoint("TOPLEFT", Runes, 1, -1)
+			bar:SetPoint("BOTTOMLEFT", Runes, 1, 1)
+		end
 
-		bar:EnableMouse(true)
+		bar:EnableMouse(false)
 		bar:SetScript("OnEnter", Rune_OnEnter)
 		bar:SetScript("OnLeave", Rune_OnLeave)
+
+		bar.bg.multiplier = config.powerBG
 
 		bar.value:Hide()
 		bar.value:SetPoint("CENTER", 0, 1)
 
 		Runes[i] = bar
 	end
+
+	Runes:SetScript("OnShow", Runes_OnShow)
+	Runes:SetScript("OnHide", Runes_OnHide)
+	hooksecurefunc(frame, "SetBorderSize", Frame_SetBorderSize)
+
+	tinsert(frame.mouseovers, function(self, isMouseOver)
+		local func = isMouseOver and Rune_OnEnter or Rune_OnLeave
+		for i = 1, #Runes do
+			func(Runes[i])
+		end
+	end)
 
 	Runes.PostUpdateRune = PostUpdateRune
 	return Runes

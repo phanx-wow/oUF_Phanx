@@ -663,52 +663,7 @@ local function Spawn(self, unit, isSingle)
 	-----------
 
 	if unit == "player" and playerClass == "DEATHKNIGHT" and config.runeBars then
-		local Runes = ns.CreateRunes(self)
-		Runes:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -1)
-		Runes:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -1)
-		Runes:SetHeight(FRAME_HEIGHT * config.powerHeight + 2)
-
-		Runes:SetBackdrop(config.backdrop)
-		Runes:SetBackdropColor(0, 0, 0, 1)
-		Runes:SetBackdropBorderColor(unpack(config.borderColor))
-
-		local N = #Runes
-		local RUNE_WIDTH = (FRAME_WIDTH - (1 * (N + 1))) / N
-
-		for i = 1, N do
-			local bar = Runes[i]
-			bar:SetWidth(RUNE_WIDTH)
-			bar:EnableMouse(false)
-			bar.bg.multiplier = config.powerBG
-			if i > 1 then
-				bar:SetPoint("TOPLEFT", Runes[i-1], "TOPRIGHT", 1, 0)
-				bar:SetPoint("BOTTOMLEFT", Runes[i-1], "BOTTOMRIGHT", 1, 0)
-			else
-				bar:SetPoint("TOPLEFT", Runes, 1, -1)
-				bar:SetPoint("BOTTOMLEFT", Runes, 1, 1)
-			end
-		end
-
-		tinsert(self.mouseovers, function(self, isMouseOver)
-			local script = isMouseOver and "OnEnter" or "OnLeave"
-			for i = 1, N do
-				Runes[i]:GetScript(script)(Runes[i])
-			end
-		end)
-
-		local o = self.SetBorderSize
-		function self:SetBorderSize(size, offset)
-			o(self, size, offset)
-			self:SetBorderParent(Runes[N])
-
-			local size, offset = self:GetBorderSize()
-			local inset = floor(size * -0.2)
-			self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Runes, -offset, offset)
-			self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", Runes, offset, offset)
-		end
-		self:SetBorderSize()
-
-		self.Runes = Runes
+		self.Runes = ns.CreateRunes(self)
 	end
 
 	------------
@@ -716,91 +671,7 @@ local function Spawn(self, unit, isSingle)
 	------------
 
 	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
-		local Totems = ns.CreateTotems(self)
-
-		local N = #Totems
-		local TOTEM_WIDTH = (FRAME_WIDTH - (1 * (N + 1))) / N
-
-		Totems:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -1)
-		Totems:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -1)
-		Totems:SetHeight(FRAME_HEIGHT * config.powerHeight + 2)
-
-		Totems:SetBackdrop(config.backdrop)
-		Totems:SetBackdropColor(0, 0, 0, 1)
-		Totems:SetBackdropBorderColor(unpack(config.borderColor))
-
-		for i = 1, N do
-			local bar = Totems[i]
-			bar:SetWidth(TOTEM_WIDTH)
-
-			bar.iconFrame:SetSize(TOTEM_WIDTH / 2, TOTEM_WIDTH / 2)
-			ns.CreateBorder(bar.iconFrame)
-
-			bar.bg.multiplier = config.powerBG
-
-			bar.bg:SetParent(Totems)
-			bar.bg:SetVertexColor(oUF.colors.totems[i][1] * config.powerBG, oUF.colors.totems[i][2] * config.powerBG, oUF.colors.totems[i][3] * config.powerBG)
-			bar.bg:Show()
-
-			if i > 1 then
-				bar:SetPoint("TOPLEFT", Totems[i-1], "TOPRIGHT", 1, 0)
-				bar:SetPoint("BOTTOMLEFT", Totems[i-1], "BOTTOMRIGHT", 1, 0)
-			else
-				bar:SetPoint("TOPLEFT", Totems, 1, -1)
-				bar:SetPoint("BOTTOMLEFT", Totems, 1, 1)
-			end
-		end
-
-		tinsert(self.mouseovers, function(self, isMouseOver)
-			if isMouseOver then
-				for i =1, N do
-					Totems[i].value:Show()
-				end
-			else
-				for i = 1, N do
-					Totems[i].value:Hide()
-				end
-			end
-		end)
-
-		local function UpdateTotemBorders()
-			if Totems:IsShown() then
-				local totem
-				for i = 1, N do
-					if Totems[i]:IsShown() then
-						totem = Totems[i]
-					end
-				end
-				self:SetBorderParent(totem)
-
-				local size, offset = self:GetBorderSize()
-				local inset = floor(size * -0.2)
-				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Totems, -offset, offset)
-				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", Totems, offset, offset)
-			else
-				self:SetBorderParent(self.overlay)
-				if not self.changingBorderSize then
-					self.changingBorderSize = true
-					self:SetBorderSize()
-					self.changingBorderSize = nil
-				end
-			end
-		end
-
-		local p = Totems.PostUpdate
-		function Totems:PostUpdate(...)
-			p(self, ...)
-			UpdateTotemBorders()
-		end
-
-		local o = self.SetBorderSize
-		function self:SetBorderSize(size, offset)
-			o(self, size, offset)
-			UpdateTotemBorders()
-		end
-		self:SetBorderSize()
-
-		self.Totems = Totems
+		self.Totems = ns.CreateTotems(self)
 	end
 
 	------------------------------
@@ -837,19 +708,12 @@ local function Spawn(self, unit, isSingle)
 		end
 
 		ns.CreateBorder(Castbar, nil, nil, nil, "OVERLAY")
-
-		local _, d = Castbar:GetBorderSize()
-		Castbar.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Castbar.Icon, "TOPLEFT", -d, d)
-		Castbar.BorderTextures.BOTTOMLEFT:SetPoint("BOTTOMLEFT", Castbar.Icon, "BOTTOMLEFT", -d, -d)
-
-		local o = Castbar.SetBorderSize
-		function Castbar:SetBorderSize(size, offset)
-			o(self, size, offset)
-
+		hooksecurefunc(Castbar, "SetBorderSize", function(size, offset)
 			local _, d = Castbar:GetBorderSize()
 			self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", self.Icon, "TOPLEFT", -d, d)
 			self.BorderTextures.BOTTOMLEFT:SetPoint("BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d)
 		end
+		Castbar:SetBorderSize()
 
 		Castbar.PostCastStart = ns.PostCastStart
 		Castbar.PostChannelStart = ns.PostChannelStart
@@ -1031,7 +895,7 @@ oUF:Factory(function(oUF)
 		ns.CreateBorder(bar, nil, nil, bar.bar, "OVERLAY")
 	end
 
-	local fixer = CreateFrame("Frame")
+	local fixer = CreateFrame("Frame") -- I don't understand why this is necessary...
 	local fixertimer = 2
 	fixer:SetScript("OnUpdate", function(self, elapsed)
 		fixertimer = fixertimer - elapsed
