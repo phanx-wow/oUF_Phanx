@@ -43,11 +43,9 @@ local function Spawn(self, unit, isSingle)
 	local FRAME_HEIGHT = config.height * (uconfig.height or 1)
 
 	if isSingle then
-		self:SetAttribute("*type2", "menu")
-
+--		self:SetAttribute("*type2", "menu")
 		self:SetAttribute("initial-width", FRAME_WIDTH)
 		self:SetAttribute("initial-height", FRAME_HEIGHT)
-
 		self:SetWidth(FRAME_WIDTH)
 		self:SetHeight(FRAME_HEIGHT)
 	else
@@ -60,7 +58,6 @@ local function Spawn(self, unit, isSingle)
 	-------------------------
 
 	ns.CreateBorder(self)
-	self:SetBorderParent(self.overlay)
 	self.UpdateBorder = ns.UpdateBorder
 
 	self:SetBackdrop(config.backdrop)
@@ -168,6 +165,7 @@ local function Spawn(self, unit, isSingle)
 	self.overlay:SetFrameLevel(self.Health:GetFrameLevel() + (self.Power and 3 or 2))
 
 	health.value:SetParent(self.overlay)
+	self:SetBorderParent(self.overlay)
 
 	--------------------------
 	-- Element: Threat text -- NOT YET IMPLEMENTED
@@ -390,7 +388,7 @@ local function Spawn(self, unit, isSingle)
 		self.PhaseIcon:SetPoint("TOP", self, "TOP", 0, -4)
 		self.PhaseIcon:SetPoint("BOTTOM", self, "BOTTOM", 0, 4)
 		self.PhaseIcon:SetWidth(self.PhaseIcon:GetHeight())
-		self.PhaseIcon:SetTexture([[Interface\Icons\Spell_Frost_Stun]])
+		self.PhaseIcon:SetTexture("Interface\\Icons\\Spell_Frost_Stun")
 		self.PhaseIcon:SetTexCoord(0.05, 0.95, 0.5 - 0.25 * 0.9, 0.5 + 0.25 * 0.9)
 		self.PhaseIcon:SetDesaturated(true)
 		self.PhaseIcon:SetBlendMode("ADD")
@@ -640,12 +638,12 @@ local function Spawn(self, unit, isSingle)
 		end
 		otherPower:SetScript("OnShow", function(self)
 			local frame = self.__owner
-			--frame:SetBorderParent(self)
+			frame:SetBorderParent(self)
 			frame:SetBorderSize()
 		end)
 		otherPower:SetScript("OnHide", function(self)
 			local frame = self.__owner
-			--frame:SetBorderParent(frame.overlay)
+			frame:SetBorderParent(frame.overlay)
 			frame:SetBorderSize()
 		end)
 	end
@@ -708,11 +706,11 @@ local function Spawn(self, unit, isSingle)
 		end
 
 		ns.CreateBorder(Castbar, nil, nil, nil, "OVERLAY")
-		hooksecurefunc(Castbar, "SetBorderSize", function(size, offset)
-			local _, d = Castbar:GetBorderSize()
+		hooksecurefunc(Castbar, "SetBorderSize", function(self, size, offset)
+			local _, d = self:GetBorderSize()
 			self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", self.Icon, "TOPLEFT", -d, d)
 			self.BorderTextures.BOTTOMLEFT:SetPoint("BOTTOMLEFT", self.Icon, "BOTTOMLEFT", -d, -d)
-		end
+		end)
 		Castbar:SetBorderSize()
 
 		Castbar.PostCastStart = ns.PostCastStart
@@ -813,7 +811,7 @@ oUF:Factory(function(oUF)
 		for i = #menu, 1, -1 do
 			local name = menu[i]
 			if name == "SET_FOCUS" or name == "CLEAR_FOCUS" or name:match("^LOCK_%u+_FRAME$") or name:match("^UNLOCK_%u+_FRAME$") or name:match("^MOVE_%u+_FRAME$") or name:match("^RESET_%u+_FRAME_POSITION") then
-				table.remove(menu, i)
+				tremove(menu, i)
 			end
 		end
 	end
@@ -822,12 +820,11 @@ oUF:Factory(function(oUF)
 	oUF:SetActiveStyle("Phanx")
 
 	local initialConfigFunction = [[
-		self:SetAttribute("*type2", "menu")
 		self:SetAttribute("initial-width", %d)
-		self:SetWidth(%d)
 		self:SetAttribute("initial-height", %d)
+		self:SetWidth(%d)
 		self:SetHeight(%d)
-	]]
+	]] -- self:SetAttribute("*type2", "menu")
 
 	for u, udata in pairs(ns.uconfig) do
 		local name = "oUFPhanx" .. u:gsub("%a", strupper, 1):gsub("target", "Target"):gsub("pet", "Pet")
@@ -838,7 +835,7 @@ oUF:Factory(function(oUF)
 				local h = config.height * (udata.height or 1)
 
 				ns.headers[u] = oUF:SpawnHeader(name, nil, udata.visible,
-					"oUF-initialConfigFunction", format(initialConfigFunction, w, w, h, h),
+					"oUF-initialConfigFunction", format(initialConfigFunction, w, h, w, h),
 					unpack(udata.attributes))
 			else
 				-- print("generating frame for", u)

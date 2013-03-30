@@ -62,8 +62,11 @@ end
 local function SetBorderParent(self, parent)
 	local t = self.BorderTextures
 	if not t then return end
+	if not parent then
+		parent = type(self.overlay) == "frame" and self.overlay or self
+	end
 	for pos, tex in pairs(t) do
-		tex:SetParent(parent or self)
+		tex:SetParent(parent)
 	end
 end
 
@@ -177,15 +180,15 @@ function ns.CreateBorder(self, size, offset, parent, layer)
 	if self.SetBackdropBorderColor then
 		self.SetBackdropBorderColor = SetBorderColor
 	end
-
+--[[
 	local glow = self:CreateTexture(nil, "BACKGROUND")
 	glow:SetPoint("CENTER")
-	glow:SetTexture([[Interface\AddOns\oUF_Phanx\media\frameGlow]])
+	glow:SetTexture("Interface\\AddOns\\oUF_Phanx\\media\\frameGlow")
 	glow:SetWidth(self:GetWidth() / 225 * 256)
 	glow:SetHeight(self:GetHeight() / 30 * 64)
 	glow:Hide()
 	self.Glow = glow
-
+]]
 	tinsert(ns.borderedObjects, self)
 
 	self:SetBorderColor()

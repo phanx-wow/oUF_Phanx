@@ -56,6 +56,7 @@ ns.CreateBurningEmbers = function(frame)
 	if BurningEmbers then
 		return BurningEmbers
 	end
+
 	BurningEmbers = CreateFrame("Frame", nil, frame)
 	BurningEmbers:Hide()
 
