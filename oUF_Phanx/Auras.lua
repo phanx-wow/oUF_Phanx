@@ -633,6 +633,7 @@ if playerClass == "WARLOCK" then
 	BaseAuras[48181]  = 2 -- Haunt
 	BaseAuras[5484]   = 2 -- Howl of Terror
 	BaseAuras[348]    = 2 -- Immolate
+	BaseAuras[108686] = 2 -- Immolate <= Fire and Brimstone
 	BaseAuras[103103] = 2 -- Malefic Grasp
 	BaseAuras[6789]   = 2 -- Mortal Coil
 	BaseAuras[60947]  = 2 -- Nightmare
