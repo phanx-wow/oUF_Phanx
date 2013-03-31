@@ -90,13 +90,9 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	dialogBox:SetAltArrowKeyMode(false)
 	dialogBox:SetAutoFocus(false)
 	dialogBox:SetMaxLetters(6)
+	dialogBox:SetNumeric(true)
 	dialogBox:SetScript("OnTextChanged", function(self, userInput)
 		if not userInput then return end
-
-		local text = self:GetText() or ""
-		text = gsub(text, "%D", "")
-		self:SetText(text)
-		self:SetCursorPosition(self:GetNumLetters())
 
 		local spell = self:GetNumber()
 		if spell == 0 then
@@ -116,7 +112,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	end)
 	dialogBox:SetScript("OnEnterPressed", function(self)
 		if not dialog.Button:IsEnabled() then return end
-		local id = tonumber(self:GetText())
+		local id = self:GetNumber()
 		if id and id > 0 and GetSpellInfo(id) then
 			oUFPhanxAuraConfig[id] = 1
 			dialog:Hide()
