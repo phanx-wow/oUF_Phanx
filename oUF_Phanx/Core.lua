@@ -144,13 +144,17 @@ end
 ------------------------------------------------------------------------
 
 do
-	local function SetStatusBarTexCoord(self, v)
+	local function SetReverseFill(self, reverse)
+		self.__reverse = reverse
+	end
+	local function SetTexCoord(self, v)
 		local mn, mx = self:GetMinMaxValues()
 		if v > 0 and v > mn and v <= mx then
-			if self:GetReverseFill() then
-				self.tex:SetTexCoord((v - mn) / (mx - mn), 1, 0, 1)
+			local pct = (v - mn) / (mx - mn)
+			if self.__reverse then
+				self.tex:SetTexCoord(1 - pct, 1, 0, 1)
 			else
-				self.tex:SetTexCoord(0, (v - mn) / (mx - mn), 0, 1)
+				self.tex:SetTexCoord(0, pct, 0, 1)
 			end
 		end
 	end
@@ -163,7 +167,8 @@ do
 		sb.tex:SetDrawLayer("BORDER")
 		sb.tex:SetHorizTile(false)
 		sb.tex:SetVertTile(false)
-		hooksecurefunc(sb, "SetValue", SetStatusBarTexCoord)
+		hooksecurefunc(sb, "SetReverseFill", SetReverseFill)
+		hooksecurefunc(sb, "SetValue", SetTexCoord)
 
 		sb.bg = sb:CreateTexture(nil, "BACKGROUND")
 		sb.bg:SetTexture(ns.config.statusbar)
