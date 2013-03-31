@@ -11,15 +11,6 @@ local _, ns = ...
 local _, playerClass = UnitClass("player")
 local L = ns.L
 
-L.MoreSettings = "More Settings"
-L.MoreSettings_Desc = "These settings will not take effect until the next time you reload your UI."
-L.FrameWidth = "Base frame width"
-L.FrameWidth_Desc = "Set the base frame width. Some frames are proportionally wider or narrower."
-L.FrameHeight = "Base frame height"
-L.FrameHeight_Desc = "Set the base frame height."
-L.PowerHeight = "Power bar height"
-L.PowerHeight_Desc = "Set the height of the power bar, as a percent of the total frame height."
-
 LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phanx", function(self)
 	local CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
 
