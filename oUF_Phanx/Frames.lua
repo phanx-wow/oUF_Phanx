@@ -594,7 +594,6 @@ local function Spawn(self, unit, isSingle)
 
 	if unit == "player" and playerClass == "WARLOCK" then
 		self.BurningEmbers = ns.CreateBurningEmbers(self)
-		self.BurningEmbers:Hide()
 	end
 
 	-----------------------------
@@ -656,7 +655,6 @@ local function Spawn(self, unit, isSingle)
 
 	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
 		self.EclipseBar = ns.CreateEclipseBar(self)
-		self.EclipseBar:Hide()
 	end
 
 	-----------
@@ -665,7 +663,6 @@ local function Spawn(self, unit, isSingle)
 
 	if unit == "player" and playerClass == "DEATHKNIGHT" and config.runeBars then
 		self.Runes = ns.CreateRunes(self)
-		self.Runes:Hide()
 	end
 
 	------------
@@ -674,7 +671,6 @@ local function Spawn(self, unit, isSingle)
 
 	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
 		self.Totems = ns.CreateTotems(self)
-		self.Totems:Hide()
 	end
 
 	------------------------------

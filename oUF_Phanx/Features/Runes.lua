@@ -34,7 +34,13 @@ local unpack = unpack
 
 local function Runes_OnShow(element)
 	local frame = element.__owner
-	frame:SetBorderParent(element[#element])
+	local rune
+	for i = 1, #element do
+		if element[i]:IsShown() then
+			rune = element[i]
+		end
+	end
+	frame:SetBorderParent(rune)
 	frame:SetBorderSize()
 end
 
@@ -47,8 +53,8 @@ end
 local function Frame_SetBorderSize(frame, size, offset)
 	if Runes:IsShown() then
 		local _, offset = frame:GetBorderSize()
-		frame.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Totems, -offset, offset)
-		frame.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", Totems, offset, offset)
+		frame.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Runes, -offset, offset)
+		frame.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", Runes, offset, offset)
 	end
 end
 
@@ -83,6 +89,13 @@ local function PostUpdateRune(element, bar, id, start, duration, ready)
 		bar:SetAlpha(1)
 	else
 		bar:SetAlpha(0.5)
+	end
+
+	element:Hide()
+	for i = 1, #element do
+		if element[i]:IsShown() then
+			return element:Show()
+		end
 	end
 end
 
@@ -119,7 +132,7 @@ ns.CreateRunes = function(frame)
 		bar:SetScript("OnEnter", Rune_OnEnter)
 		bar:SetScript("OnLeave", Rune_OnLeave)
 
-		bar.bg.multiplier = config.powerBG
+		bar.bg.multiplier = ns.config.powerBG
 
 		bar.value:Hide()
 		bar.value:SetPoint("CENTER", 0, 1)
