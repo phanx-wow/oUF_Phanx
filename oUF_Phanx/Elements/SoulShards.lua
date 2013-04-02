@@ -61,7 +61,7 @@ function UpdateVisibility(self, event, unit)
 	self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
 	self:RegisterEvent("UNIT_POWER", Path)
 
-	element:ForceUpdate()
+	Update(self, "UpdateVisibility", unit)
 end
 
 function Update(self, event, unit, powerType)
@@ -73,8 +73,8 @@ function Update(self, event, unit, powerType)
 		element:PreUpdate()
 	end
 
-	local shards = UnitPower(unit, powerType)
-	local shardsMax = UnitPowerMax(unit, powerType)
+	local shards = UnitPower(unit, SPELL_POWER_SOUL_SHARDS)
+	local shardsMax = UnitPowerMax(unit, SPELL_POWER_SOUL_SHARDS)
 
 	if element.SetValue then
 		element:SetMinMaxValues(0, shardsMax)
@@ -105,7 +105,7 @@ function Update(self, event, unit, powerType)
 	end
 
 	if element.PostUpdate then
-		element:PostUpdate(shards, shardsMax, powerType)
+		element:PostUpdate(shards, shardsMax, SPELL_POWER_SOUL_SHARDS)
 	end
 end
 
