@@ -53,6 +53,7 @@ local function Update(self, event, unit)
 	if unit ~= self.unit then return end
 
 	local afk = UnitIsAFK(unit)
+	--print("AFK", event, unit, afk, times[unit])
 
 	if afk and not times[unit] then
 		times[unit] = GetTime()

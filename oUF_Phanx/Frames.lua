@@ -91,6 +91,11 @@ local function Spawn(self, unit, isSingle)
 		health.bg:SetVertexColor(r * healthBG, g * healthBG, b * healthBG)
 	end
 
+	if strmatch(unit, "^boss%d$") then
+		-- Blizzard bug, UNIT_HEALTH not firing for bossN units in 5.2
+		health.frequentUpdates = true
+	end
+
 	health.PostUpdate = ns.PostUpdateHealth
 	tinsert(self.mouseovers, health)
 
