@@ -103,16 +103,18 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 
 	local Reload = CreateFrame("Button", "oUFPCReloadButton", self, "UIPanelButtonTemplate")
 	Reload:SetPoint("BOTTOMRIGHT", -16, 16)
-	Reload:SetWidth(80)
+	Reload:SetSize(96, 22)
 	Reload:SetText(L.ReloadUI)
-	Reload:SetAlpha(0.5)
+	Reload:SetAlpha(0.75)
 	Reload:SetScript("OnEnter", function(this) this:SetAlpha(1) end)
-	Reload:SetScript("OnLeave", function(this) this:SetAlpha(0.1) end)
+	Reload:SetScript("OnLeave", function(this) this:SetAlpha(0.75) end)
 	Reload:SetScript("OnClick", ReloadUI)
 
 	--------------------------------------------------------------------
 
 	function self:refresh()
+		Reload:SetWidth(max(96, Reload:GetFontString():GetStringWidth() + 16))
+
 		FrameWidth:SetValue(ns.config.width)
 		FrameHeight:SetValue(ns.config.height)
 		PowerHeight:SetValue(ns.config.powerHeight)
