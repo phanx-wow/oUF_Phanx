@@ -69,6 +69,7 @@ L.Options_Desc = "oUF_Phanx ist ein Layout für Haste's oUF Framework. Nutze die
 --L.PowerColorCustom = "Custom power bar color"
 --L.PowerHeight = "Power Bar Height"
 --L.PowerHeight_Desc = "Set the height of the power bar, as a percent of the total frame height."
+--L.ReloadUI = "Reload UI"
 L.RuneBars = "Zeige Runenleiste"
 --L.RuneBars_Desc = "Show cooldown timer bars for your runes above the player frame."
 L.Texture = "Textur"
