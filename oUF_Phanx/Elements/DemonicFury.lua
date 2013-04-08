@@ -44,7 +44,7 @@ function UpdateVisibility(self, event, unit)
 	self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
 	self:RegisterEvent("UNIT_POWER", Path)
 
-	Update(element, "UpdateVisibility", element.__owner.unit)
+	Update(self, "UpdateVisibility", "player")
 end
 
 function Update(self, event, unit, powerType)
@@ -56,13 +56,13 @@ function Update(self, event, unit, powerType)
 		element:PreUpdate()
 	end
 
-	local fury = UnitPower(unit, SPELL_POWER_DEMONIC_FURY)
-	local furyMax = UnitPowerMax(unit, SPELL_POWER_DEMONIC_FURY)
+	local fury = UnitPower("player", SPELL_POWER_DEMONIC_FURY)
+	local furyMax = UnitPowerMax("player", SPELL_POWER_DEMONIC_FURY)
 
 	element:SetMinMaxValues(0, furyMax)
 	element:SetValue(fury)
 
-	if UnitBuff(unit, WARLOCK_METAMORPHOSIS) then
+	if UnitBuff("player", WARLOCK_METAMORPHOSIS) then
 		element.activated = true
 		element:SetStatusBarColor(metacolor[1], metacolor[2], metacolor[3])
 	else
