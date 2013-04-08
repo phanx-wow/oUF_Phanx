@@ -69,6 +69,7 @@ L.PowerColor_Desc = "Modifie la manière dont les barres de puissance sont color
 L.PowerColorCustom = "Couleur personnalisée de puissance"
 --L.PowerHeight = "Power Bar Height"
 --L.PowerHeight_Desc = "Set the height of the power bar, as a percent of the total frame height."
+--L.ReloadUI = "Reload UI"
 L.RuneBars = "Barres de runes"
 L.RuneBars_Desc = "Affiche des barres de temps pour vos runes au-dessus du cadre du joueur."
 L.Texture = "Texture"
