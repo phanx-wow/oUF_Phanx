@@ -94,14 +94,18 @@ function ns.si(value, raw)
 
 	local str, val
 
-	if absvalue >= 10000000 then
-		str, val = "%.1fm", value / 1000000
-	elseif absvalue >= 1000000 then
-		str, val = "%.2fm", value / 1000000
-	elseif absvalue >= 100000 then
-		str, val = "%.0fk", value / 1000
-	elseif absvalue >= 1000 then
-		str, val = "%.1fk", value / 1000
+	if absvalue >= 1e10 then
+		str, val = "%.0fb", value / 1e9
+	elseif absvalue >= 1e9 then
+		str, val = "%.1fb", value / 1e9
+	elseif absvalue >= 1e7 then
+		str, val = "%.1fm", value / 1e6
+	elseif absvalue >= 1e6 then
+		str, val = "%.2fm", value / 1e6
+	elseif absvalue >= 1e5 then
+		str, val = "%.0fk", value / 1e3
+	elseif absvalue >= 1e3 then
+		str, val = "%.1fk", value / 1e3
 	else
 		str, val = "%d", value
 	end
