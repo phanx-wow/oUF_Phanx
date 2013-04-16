@@ -105,6 +105,7 @@ function Enable(self)
 	TotemFrame:UnregisterEvent("UPDATE_SHAPESHIFT_FORM")
 	TotemFrame:UnregisterEvent("PLAYER_TALENT_UPDATE")
 
+	UpdateVisibility(self, "Enable")
 	return true
 end
 

@@ -75,7 +75,7 @@ local function Spawn(self, unit, isSingle)
 	self.Health = health
 
 	health:GetStatusBarTexture():SetDrawLayer("ARTWORK")
-	health.value:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, FRAME_HEIGHT * config.powerHeight - 2)
+	health.value:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, FRAME_HEIGHT * config.powerHeight - 4)
 
 	local healthColorMode = config.healthColorMode
 	health.colorClass = healthColorMode == "CLASS"
