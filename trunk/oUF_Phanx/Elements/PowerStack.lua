@@ -54,7 +54,7 @@ local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 function UpdateVisibility(self, event)
 	local element = self.PowerStack
 
-	if UnitInVehicle("player") or UnitHasVehicleUI("player") then
+	if UnitHasVehicleUI("player") then
 		self:UnregisterEvent("UNIT_AURA", Path)
 		for i = 1, #element do
 			element[i]:Hide()

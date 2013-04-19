@@ -31,7 +31,7 @@ function UpdateVisibility(self, event)
 	local element = self.WildMushrooms
 
 	local spec = GetSpecialization()
-	if spec == 2 or spec == 3 or UnitInVehicle("player") or UnitHasVehicleUI("player") then
+	if spec == 2 or spec == 3 or UnitHasVehicleUI("player") then
 		self:UnregisterEvent("PLAYER_TOTEM_UPDATE", Path)
 		element.__disabled = true
 		for i = 1, #element do

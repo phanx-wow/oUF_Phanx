@@ -36,7 +36,7 @@ local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 function UpdateVisibility(self, event, unit)
 	local element = self.SoulShards
 
-	if UnitInVehicle("player") or UnitHasVehicleUI("player") or GetSpecialization() ~= SPEC_WARLOCK_AFFLICTION or not IsPlayerSpell(WARLOCK_SOULBURN) then
+	if UnitHasVehicleUI("player") or GetSpecialization() ~= SPEC_WARLOCK_AFFLICTION or not IsPlayerSpell(WARLOCK_SOULBURN) then
 		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
 		self:UnregisterEvent("UNIT_POWER", Path)
 
