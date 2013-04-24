@@ -615,6 +615,7 @@ if playerClass == "WARLOCK" then
 	BaseAuras[119049] = 4 -- Kil'jaeden's Cunning
 	BaseAuras[126090] = 4 -- Molten Core -- NEEDS CHECK
 	BaseAuras[122355] = 4 -- Molten Core -- NEEDS CHECK
+	BaseAuras[104232] = 4 -- Rain of Fire
 	BaseAuras[86211]  = 4 -- Soul Swap
 
 	BaseAuras[980]    = 2 -- Agony
@@ -871,6 +872,11 @@ if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MON
 		end
 	end)
 end
+
+------------------------------------------------------------------------
+--	Random quest related auras
+
+BaseAuras[127372] = 2 -- Unstable Serum (Klaxxi Enhancement: Raining Blood)
 
 ------------------------------------------------------------------------
 --	Boss debuffs that Blizzard forgot to flag
