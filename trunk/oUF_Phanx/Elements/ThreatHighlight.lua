@@ -28,7 +28,8 @@ function Update(self, event, unit)
 	if not unit or self.unit ~= unit then return end
 	local element = self.ThreatHighlight
 
-	local status = UnitThreatSituation(unit)
+	local ok, status = pcall(UnitThreatSituation, unit)
+	if not ok then return end -- WTF???
 	-- print("ThreatHighlight Update", event, unit, status)
 
 	if element.Override then
