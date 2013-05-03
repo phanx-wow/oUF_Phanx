@@ -630,6 +630,7 @@ if playerClass == "WARLOCK" then
 	BaseAuras[18223]  = 2 -- Curse of Exhaustion
 	BaseAuras[1490]   = 2 -- Curse of the Elements
 	BaseAuras[603]    = 2 -- Doom
+	BaseAuras[1098]   = 2 -- Enslave Demon
 	BaseAuras[5782]   = 2 -- Fear
 	BaseAuras[48181]  = 2 -- Haunt
 	BaseAuras[5484]   = 2 -- Howl of Terror
