@@ -510,9 +510,9 @@ local function Spawn(self, unit, isSingle)
 	elseif unit == "target" then
 		local GAP = 6
 
-		local MAX_ICONS = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP)) - 1
-		local NUM_BUFFS = math.max(2, floor(MAX_ICONS * 0.25))
-		local NUM_DEBUFFS = math.min(MAX_ICONS - 2, floor(MAX_ICONS * 0.75))
+		local MAX_ICONS = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP))
+		local NUM_BUFFS = 2
+		local NUM_DEBUFFS = MAX_ICONS - 2
 		local ROW_HEIGHT = (FRAME_HEIGHT * 2) + (GAP * 2)
 
 		self.Debuffs = CreateFrame("Frame", nil, self)
