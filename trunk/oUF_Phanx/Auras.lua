@@ -46,7 +46,8 @@ local BaseAuras = {
 	[76780]  = 1, -- Bind Elemental
 	[33786]  = 1, -- Cyclone
 	[339]    = 1, -- Entangling Roots
-	[5782]   = 1, -- Fear
+	[5782]   = 1, -- Fear -- NEEDS CHECK
+	[118699] = 1, -- Fear
 	[3355]   = 1, -- Freezing Trap, -- NEEDS CHECK
 	[43448]  = 1, -- Freezing Trap, -- NEEDS CHECK
 	[51514]  = 1, -- Hex
@@ -542,50 +543,52 @@ if playerClass == "SHAMAN" then
 	BaseAuras[114051] = 4 -- Ascendance (enhancement)
 	BaseAuras[114052] = 4 -- Ascendance (restoration)
 	BaseAuras[108271] = 4 -- Astral Shift
-	BaseAuras[118522] = 4 -- Elemental Blast
+	--BaseAuras[118522] = 4 -- Elemental Blast -- cooldown is longer than duration, just cast on cooldown
 	BaseAuras[16166]  = 4 -- Elemental Mastery
-	BaseAuras[6196]   = 4 -- Far Sight
+	--BaseAuras[6196]   = 4 -- Far Sight -- obvious
 	BaseAuras[77762]  = 4 -- Lava Surge
 	BaseAuras[31616]  = 4 -- Nature's Guardian
---	BaseAuras[77661]  = 4 -- Searing Flames
+	--BaseAuras[77661]  = 4 -- Searing Flames
 	BaseAuras[30823]  = 4 -- Shamanistic Rage
 	BaseAuras[58876]  = 4 -- Spirit Walk
 	BaseAuras[79206]  = 4 -- Spiritwalker's Grace
 	BaseAuras[53390]  = 4 -- Tidal Waves
-	BaseAuras[73683]  = 4 -- Unleash Flame
-	BaseAuras[73681]  = 4 -- Unleash Wind
-	BaseAuras[118474] = 4 -- Unleashed Fury (frostbrand)
-	BaseAuras[118475] = 4 -- Unleashed Fury (rockbiter)
-	BaseAuras[118472] = 4 -- Unleashed Fury (windfury)
+	--BaseAuras[73683]  = 4 -- Unleash Flame
+	--BaseAuras[73681]  = 4 -- Unleash Wind
+	--BaseAuras[118474] = 4 -- Unleashed Fury (frostbrand)
+	--BaseAuras[118475] = 4 -- Unleashed Fury (rockbiter)
+	--BaseAuras[118472] = 4 -- Unleashed Fury (windfury)
 
 	BaseAuras[76780]  = 1 -- Bind Elemental
+	BaseAuras[51514]  = 1 -- Hex
+
 	BaseAuras[3600]   = 1 -- Earthbind <= Earthbind Totem
 	BaseAuras[64695]  = 1 -- Earthgrab <= Earthgrab Totem
-	BaseAuras[61882]  = 2 -- Earthquake
-	BaseAuras[8050]   = 2 -- Flame Shock
 	BaseAuras[8056]   = 1 -- Frost Shock
 	BaseAuras[8034]   = 2 -- Frostbrand Attack <= Frostbrand Weapon
 	BaseAuras[63685]  = 1 -- Freeze <= Frozen Power
-	BaseAuras[51514]  = 1 -- Hex
-	BaseAuras[8178]   = 1 -- Grounding Totem Effect
-	BaseAuras[89523]  = 1 -- Grounding Totem (reflect)
 	BaseAuras[118905] = 1 -- Static Charge <= Capacitor Totem
-	BaseAuras[115356] = 2 -- Stormblast
-	BaseAuras[120676] = 1 -- Stormlash Totem
-	BaseAuras[17364]  = 2 -- Stormstrike
-	BaseAuras[51490]  = 1 -- Thunderstorm
-	BaseAuras[73684]  = 2 -- Unleash Earth
-	BaseAuras[73682]  = 2 -- Unleash Frost
-	BaseAuras[118740] = 2 -- Unleashed Fury (flametongue)
+	--BaseAuras[51490]  = 1 -- Thunderstorm
 
-	BaseAuras[2825]   = 3 -- Bloodlust (shaman)
+	BaseAuras[61882]  = 2 -- Earthquake
+	BaseAuras[8050]   = 2 -- Flame Shock
+	BaseAuras[115356] = 2 -- Stormblast
+	BaseAuras[17364]  = 2 -- Stormstrike
+	--BaseAuras[73684]  = 2 -- Unleash Earth
+	BaseAuras[73682]  = 2 -- Unleash Frost
+	BaseAuras[118470] = 2 -- Unleashed Fury (flametongue)
+
+	--BaseAuras[2825]   = 3 -- Bloodlust (shaman) -- show all
 	BaseAuras[32182]  = 3 -- Heroism (shaman)
 	BaseAuras[974]    = 2 -- Earth Shield
+	BaseAuras[8178]   = 1 -- Grounding Totem Effect
+	BaseAuras[89523]  = 1 -- Grounding Totem (reflect)
 	BaseAuras[119523] = 3 -- Healing Stream Totem (resistance)
 	BaseAuras[16191]  = 3 -- Mana Tide
 	BaseAuras[61295]  = 2 -- Riptide
 	BaseAuras[98007]  = 3 -- Spirit Link Totem
 	BaseAuras[114893] = 3 -- Stone Bulwark
+	--BaseAuras[120676] = 1 -- Stormlash Totem -- see totem timer
 	BaseAuras[73685]  = 4 -- Unleash Life
 	BaseAuras[118473] = 2 -- Unleashed Fury (earthliving)
 	BaseAuras[114896] = 3 -- Windwalk Totem
@@ -595,8 +598,7 @@ end
 --	Warlock
 
 if playerClass == "WARLOCK" then
-	BaseAuras[116198] = 2 -- Aura of Enfeeblement -- NEEDS CHECK
-	BaseAuras[119652] = 2 -- Aura of Enfeeblement -- NEEDS CHECK
+	BaseAuras[116198] = 2 -- Aura of Enfeeblement
 	BaseAuras[116202] = 2 -- Aura of the Elements
 	BaseAuras[117828] = 4 -- Backdraft
 	BaseAuras[111400] = 4 -- Burning Rush
@@ -611,39 +613,41 @@ if playerClass == "WARLOCK" then
 	BaseAuras[126]    = 4 -- Eye of Kilrogg
 	BaseAuras[108683] = 4 -- Fire and Brimstone
 	BaseAuras[119839] = 4 -- Fury Ward
-	BaseAuras[80240]  = 4 -- Havoc
 	BaseAuras[119049] = 4 -- Kil'jaeden's Cunning
 	BaseAuras[126090] = 4 -- Molten Core -- NEEDS CHECK
 	BaseAuras[122355] = 4 -- Molten Core -- NEEDS CHECK
 	BaseAuras[104232] = 4 -- Rain of Fire
+	BaseAuras[108416] = 4 -- Sacrificial Pact
 	BaseAuras[86211]  = 4 -- Soul Swap
+	BaseAuras[104773] = 4 -- Unending Resolve
+
+	BaseAuras[20707]  = 1 -- Soulstone
+
+	BaseAuras[170]    = 2 -- Banish
+	BaseAuras[111397] = 2 -- Blood Fear
+	BaseAuras[137143] = 2 -- Blood Horror
+	BaseAuras[1098]   = 2 -- Enslave Demon
+	BaseAuras[5782]   = 2 -- Fear
+	BaseAuras[5484]   = 2 -- Howl of Terror
+	BaseAuras[6789]   = 2 -- Mortal Coil
 
 	BaseAuras[980]    = 2 -- Agony
 	BaseAuras[108505] = 2 -- Archimonde's Vengeance
-	BaseAuras[170]    = 2 -- Banish
-	BaseAuras[111397] = 2 -- Blood Fear
-	BaseAuras[124915] = 2 -- Chaos Wave -- NEEDS CHECK
-	BaseAuras[129347] = 2 -- Chaos Wave -- NEEDS CHECK
+	BaseAuras[124915] = 2 -- Chaos Wave
 	BaseAuras[17962]  = 2 -- Conflagrate (slow)
 	BaseAuras[172]    = 2 -- Corruption
 	BaseAuras[109466] = 2 -- Curse of Enfeeblement
 	BaseAuras[18223]  = 2 -- Curse of Exhaustion
 	BaseAuras[1490]   = 2 -- Curse of the Elements
 	BaseAuras[603]    = 2 -- Doom
-	BaseAuras[1098]   = 2 -- Enslave Demon
-	BaseAuras[5782]   = 2 -- Fear
 	BaseAuras[48181]  = 2 -- Haunt
-	BaseAuras[5484]   = 2 -- Howl of Terror
+	BaseAuras[80240]  = 2 -- Havoc
 	BaseAuras[348]    = 2 -- Immolate
 	BaseAuras[108686] = 2 -- Immolate <= Fire and Brimstone
-	BaseAuras[103103] = 2 -- Malefic Grasp
-	BaseAuras[6789]   = 2 -- Mortal Coil
 	BaseAuras[60947]  = 2 -- Nightmare
-	BaseAuras[108416] = 2 -- Sacrificial Pact
 	BaseAuras[30108]  = 2 -- Seed of Corruption
 	BaseAuras[47960]  = 2 -- Shadowflame
 	BaseAuras[30283]  = 2 -- Shadowfury
-	BaseAuras[104773] = 2 -- Unending Resolve
 	BaseAuras[27243]  = 2 -- Unstable Affliction
 end
 
@@ -948,6 +952,8 @@ end
 
 ------------------------------------------------------------------------
 
+local IsInInstance, UnitCanAttack, UnitIsUnit, UnitPlayerControlled = IsInInstance, UnitCanAttack, UnitIsUnit, UnitPlayerControlled
+
 local unitIsPlayer = { player = true, pet = true, vehicle = true }
 
 local filters = {
@@ -988,6 +994,9 @@ ns.CustomAuraFilters = {
 			-- print("filter", v)
 			return filters[v](self, unit, caster)
 	]]
+		elseif not caster and not IsInInstance() then
+			-- test
+			return
 		elseif UnitCanAttack("player", unit) and not UnitPlayerControlled(unit) then
 			-- Hostile NPC. Show boss debuffs, auraList cast by the unit, or auras cast by the player's vehicle.
 			-- print("hostile NPC")
