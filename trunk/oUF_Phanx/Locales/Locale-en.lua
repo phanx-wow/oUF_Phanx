@@ -8,7 +8,6 @@
 ------------------------------------------------------------------------
 	English localization
 	These strings are used if no localized versions override them.
-	***
 ----------------------------------------------------------------------]]
 
 local _, private = ...

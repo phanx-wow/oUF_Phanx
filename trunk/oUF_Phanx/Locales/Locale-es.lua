@@ -7,8 +7,7 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
 	Spanish localization
-	Last updated 2011-02-22 by Akkorian
-	***
+	Contributors: Akkorian
 ----------------------------------------------------------------------]]
 
 if not strmatch(GetLocale(), "^es") then return end

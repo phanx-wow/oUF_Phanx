@@ -7,8 +7,7 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
 	Simplified Chinese localization
-	Last updated 2011-12-25 by wowuicn
-	***
+	Contributors: wowuicn
 ----------------------------------------------------------------------]]
 
 if GetLocale() ~= "zhCN" then return end
