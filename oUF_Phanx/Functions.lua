@@ -48,14 +48,6 @@ function ns.UpdateBorder(self)
 	end
 end
 
-function ns.UpdatePlayerRole(self, role)
-	if self.updateOnRoleChange then
-		for _, func in pairs(self.updateOnRoleChange) do
-			func(self, role)
-		end
-	end
-end
-
 ------------------------------------------------------------------------
 --	Health
 ------------------------------------------------------------------------
@@ -101,8 +93,9 @@ function ns.PostUpdateHealth(bar, unit, cur, max)
 	-- OTHER:  percent, current on mouseover
 
 	if cur < max then
-		if ns.GetPlayerRole() == "HEAL" and UnitCanAssist("player", unit) then
+		if ns.GetPlayerRole() == "HEALER" and UnitCanAssist("player", unit) then
 			if bar.__owner.isMouseOver and not strmatch(unit, "party%d") then
+				-- don't change text on party frames, it's annoying for click-cast or mouseover healing
 				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
 			else
 				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit) - UnitHealthMax(unit)))
