@@ -7,8 +7,7 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
 	French localization
-	Last updated 2012-12-07 by Strigx
-	***
+	Contributors: Strigx
 ----------------------------------------------------------------------]]
 
 if GetLocale() ~= "frFR" then return end
