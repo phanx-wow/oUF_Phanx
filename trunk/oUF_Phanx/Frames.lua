@@ -516,14 +516,10 @@ local function Spawn(self, unit, isSingle)
 		local ROW_HEIGHT = (FRAME_HEIGHT * 2) + (GAP * 2)
 
 		self.Debuffs = CreateFrame("Frame", nil, self)
-		self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
-		self.Debuffs:SetWidth((FRAME_HEIGHT * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)))
 		self.Debuffs:SetHeight(ROW_HEIGHT)
+		self.Debuffs.parent = self
 
-		self.Debuffs["growth-x"] = "RIGHT"
 		self.Debuffs["growth-y"] = "UP"
-		self.Debuffs["initialAnchor"] = "BOTTOMLEFT"
-		self.Debuffs["num"] = NUM_DEBUFFS
 		self.Debuffs["showType"] = true
 		self.Debuffs["size"] = FRAME_HEIGHT
 		self.Debuffs["spacing-x"] = GAP
@@ -534,17 +530,11 @@ local function Spawn(self, unit, isSingle)
 		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 		self.Debuffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
 
-		self.Debuffs.parent = self
-
 		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
-		self.Buffs:SetWidth((FRAME_HEIGHT * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)))
 		self.Buffs:SetHeight(ROW_HEIGHT)
+		self.Buffs.parent = self
 
-		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "UP"
-		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
-		self.Buffs["num"] = NUM_BUFFS
 		self.Buffs["showType"] = false
 		self.Buffs["size"] = FRAME_HEIGHT
 		self.Buffs["spacing-x"] = GAP
@@ -554,43 +544,39 @@ local function Spawn(self, unit, isSingle)
 		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
 		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
 
-		self.Buffs.parent = self
+		local function UpdateAurasForRole(self, role, initial)
+			--print("Updating auras for new role:", role)
+
+			local a, b
+			if role == "HEALER" then
+				a, b = self.Buffs, self.Debuffs
+			else
+				a, b = self.Debuffs, self.Buffs
+			end
+
+			a:ClearAllPoints()
+			a:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
+			a:SetWidth((FRAME_HEIGHT * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)))
+			a["growth-x"] = "RIGHT"
+			a["initialAnchor"] = "BOTTOMLEFT"
+			a["num"] = NUM_DEBUFFS
+
+			b:ClearAllPoints()
+			b:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
+			b:SetWidth((FRAME_HEIGHT * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)))
+			b["growth-x"] = "LEFT"
+			b["initialAnchor"] = "BOTTOMRIGHT"
+			b["num"] = NUM_BUFFS
+
+			if not initial then
+				a:ForceUpdate()
+				b:ForceUpdate()
+			end
+		end
 
 		self.updateOnRoleChange = self.updateOnRoleChange or {}
-		tinsert(self.updateOnRoleChange, function(self, role)
-			if role == "HEAL" then
-				self.Debuffs:ClearAllPoints()
-				self.Debuffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
-				self.Debuffs:SetWidth((FRAME_HEIGHT * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)))
-				self.Debuffs["growth-x"] = "LEFT"
-				self.Debuffs["growth-y"] = "UP"
-				self.Debuffs["initialAnchor"] = "BOTTOMRIGHT"
-				self.Debuffs["num"] = NUM_BUFFS
-
-				self.Buffs:ClearAllPoints()
-				self.Buffs:SetWidth((FRAME_HEIGHT * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)))
-				self.Buffs["growth-x"] = "RIGHT"
-				self.Buffs["growth-y"] = "UP"
-				self.Buffs["initialAnchor"] = "BOTTOMLEFT"
-				self.Buffs["num"] = NUM_DEBUFFS
-			else
-				self.Debuffs:ClearAllPoints()
-				self.Debuffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
-				self.Debuffs:SetWidth((FRAME_HEIGHT * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)))
-				self.Debuffs["growth-x"] = "RIGHT"
-				self.Debuffs["growth-y"] = "UP"
-				self.Debuffs["initialAnchor"] = "BOTTOMLEFT"
-				self.Debuffs["num"] = NUM_DEBUFFS
-
-				self.Buffs:ClearAllPoints()
-				self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
-				self.Buffs:SetWidth((FRAME_HEIGHT * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)))
-				self.Buffs["growth-x"] = "LEFT"
-				self.Buffs["growth-y"] = "UP"
-				self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
-				self.Buffs["num"] = NUM_BUFFS
-			end
-		end)
+		tinsert(self.updateOnRoleChange, UpdateAurasForRole)
+		UpdateAurasForRole(self, ns.GetPlayerRole(), true) -- default is DAMAGER
 	end
 
 	-------------------

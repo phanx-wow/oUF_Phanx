@@ -1,5 +1,5 @@
-## Interface: 50200
-## Version: 5.2.0.wowi:revision
+## Interface: 50300
+## Version: 5.3.0.wowi:revision
 
 ## Title: oUF: Phanx
 ## Notes: oUF unit frames with many features and a few options.
