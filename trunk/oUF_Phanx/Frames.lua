@@ -25,8 +25,6 @@ local function Spawn(self, unit, isSingle)
 	local uconfig = ns.uconfig[unit]
 	self.spawnunit = unit
 
-	unit = gsub(unit, "%d", "") -- turn "boss2" into "boss" for example
-
 	-- print("Spawn", self:GetName(), unit)
 	tinsert(ns.objects, self)
 
@@ -43,7 +41,6 @@ local function Spawn(self, unit, isSingle)
 	local FRAME_HEIGHT = config.height * (uconfig.height or 1)
 
 	if isSingle then
---		self:SetAttribute("*type2", "menu")
 		self:SetAttribute("initial-width", FRAME_WIDTH)
 		self:SetAttribute("initial-height", FRAME_HEIGHT)
 		self:SetWidth(FRAME_WIDTH)
@@ -53,10 +50,12 @@ local function Spawn(self, unit, isSingle)
 		self.isGroupFrame = true
 	end
 
+	-- turn "boss2" into "boss" for example
+	unit = gsub(unit, "%d", "")
+
 	-------------------------
 	-- Border and backdrop --
 	-------------------------
-
 	ns.CreateBorder(self)
 	self.UpdateBorder = ns.UpdateBorder
 
@@ -67,7 +66,6 @@ local function Spawn(self, unit, isSingle)
 	-------------------------
 	-- Health bar and text --
 	-------------------------
-
 	local health = ns.CreateStatusBar(self, 24, "RIGHT")
 	health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -1)
 	health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
@@ -91,10 +89,8 @@ local function Spawn(self, unit, isSingle)
 		health.bg:SetVertexColor(r * healthBG, g * healthBG, b * healthBG)
 	end
 
-	if unit == "boss" then
-		-- Blizzard bug, UNIT_HEALTH not firing for bossN units in 5.2+
-		health.frequentUpdates = true
-	end
+	-- Blizzard bug, UNIT_HEALTH doesn't fire for bossN units in 5.2+
+	health.frequentUpdates = unit == "boss"
 
 	health.PostUpdate = ns.PostUpdateHealth
 	tinsert(self.mouseovers, health)
@@ -102,7 +98,6 @@ local function Spawn(self, unit, isSingle)
 	---------------------------
 	-- Predicted healing bar --
 	---------------------------
-
 	local heals = ns.CreateStatusBar(self)
 	heals:SetAllPoints(self.Health)
 	heals:SetAlpha(0.25)
@@ -125,7 +120,6 @@ local function Spawn(self, unit, isSingle)
 	------------------------
 	-- Power bar and text --
 	------------------------
-
 	if uconfig.power then
 		local power = ns.CreateStatusBar(self, (uconfig.width or 1) > 0.75 and 16, "LEFT")
 		power:SetFrameLevel(self.Health:GetFrameLevel() + 2)
@@ -157,14 +151,13 @@ local function Spawn(self, unit, isSingle)
 			power.bg:SetVertexColor(r / powerBG, g / powerBG, b / powerBG)
 		end
 
-		power.frequentUpdates = unit == "player"
+		power.frequentUpdates = unit == "player" or unit == "boss"
 		power.PostUpdate = ns.PostUpdatePower
 	end
 
 	-----------------------------------------------------------
 	-- Overlay to avoid reparenting stuff on powerless units --
 	-----------------------------------------------------------
-
 	self.overlay = CreateFrame("Frame", nil, self)
 	self.overlay:SetAllPoints(self)
 	self.overlay:SetFrameLevel(self.Health:GetFrameLevel() + (self.Power and 3 or 2))
@@ -184,20 +177,12 @@ local function Spawn(self, unit, isSingle)
 	---------------------------
 	-- Name text, Level text --
 	---------------------------
-
 	if unit == "target" or unit == "focus" then
 		self.Level = ns.CreateFontString(self.overlay, 16, "LEFT")
 		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -3)
 
 		self:Tag(self.Level, "[difficulty][level][shortclassification]")
---[[
-		if unit == "target" then
-			self.RareElite = self.overlay:CreateTexture(nil, "ARTWORK")
-			self.RareElite:SetPoint("TOPRIGHT", self, "TOPRIGHT", 10, 10)
-			self.RareElite:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 10, -10)
-			self.RareElite:SetTexture("Interface\\AddOns\\oUF_Phanx\\media\\Elite")
-		end
-]]
+
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
 		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, -1)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4)
@@ -214,7 +199,6 @@ local function Spawn(self, unit, isSingle)
 	------------------
 	-- Combo points --
 	------------------
-
 	if unit == "target" then
 		local t = ns.Orbs.Create(self.overlay, MAX_COMBO_POINTS, 20)
 		for i = MAX_COMBO_POINTS, 1, -1 do
@@ -234,7 +218,6 @@ local function Spawn(self, unit, isSingle)
 	------------------------------
 	-- Class-specific resources --
 	------------------------------
-
 	if unit == "player" and (playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "WARLOCK") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 		local element, powerType, updateFunc = "ClassIcons"
@@ -318,7 +301,6 @@ local function Spawn(self, unit, isSingle)
 	--------------------
 	-- Stacking buffs --
 	--------------------
-
 	if unit == "player" and playerClass == "SHAMAN" then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 
@@ -363,7 +345,6 @@ local function Spawn(self, unit, isSingle)
 	-----------------------
 	-- Status icons --
 	-----------------------
-
 	if unit == "player" then
 		self.Status = ns.CreateFontString(self.overlay, 16, "LEFT")
 		self.Status:SetPoint("LEFT", self.Health, "TOPLEFT", 2, 2)
@@ -387,7 +368,6 @@ local function Spawn(self, unit, isSingle)
 	----------------
 	-- Phase icon --
 	----------------
-
 	if unit == "party" or unit == "target" or unit == "focus" then
 		self.PhaseIcon = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.PhaseIcon:SetPoint("TOP", self, "TOP", 0, -4)
@@ -403,7 +383,6 @@ local function Spawn(self, unit, isSingle)
 	---------------------
 	-- Quest boss icon --
 	---------------------
-
 	if unit == "target" then
 		self.QuestIcon = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.QuestIcon:SetPoint("CENTER", self, "LEFT", 0, 0)
@@ -413,7 +392,6 @@ local function Spawn(self, unit, isSingle)
 	-----------------------
 	-- Raid target icons --
 	-----------------------
-
 	self.RaidIcon = self.overlay:CreateTexture(nil, "OVERLAY")
 	self.RaidIcon:SetPoint("CENTER", self, 0, 0)
 	self.RaidIcon:SetSize(32, 32)
@@ -421,7 +399,6 @@ local function Spawn(self, unit, isSingle)
 	----------------------
 	-- Ready check icon --
 	----------------------
-
 	if unit == "player" or unit == "party" then
 		self.ReadyCheck = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.ReadyCheck:SetPoint("CENTER", self)
@@ -431,7 +408,6 @@ local function Spawn(self, unit, isSingle)
 	----------------
 	-- Role icons --
 	----------------
-
 	if unit == "player" or unit == "party" then
 		self.LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and -2 or 2, 0)
@@ -441,7 +417,6 @@ local function Spawn(self, unit, isSingle)
 	----------------
 	-- Aura icons --
 	----------------
-
 	if unit == "player" then
 		local GAP = 6
 
@@ -582,7 +557,6 @@ local function Spawn(self, unit, isSingle)
 	-------------------
 	-- BurningEmbers --
 	-------------------
-
 	if unit == "player" and playerClass == "WARLOCK" then
 		self.BurningEmbers = ns.CreateBurningEmbers(self)
 	end
@@ -590,7 +564,6 @@ local function Spawn(self, unit, isSingle)
 	-----------------------------
 	-- DruidMana / DemonicFury --
 	-----------------------------
-
 	if unit == "player" and (playerClass == "WARLOCK" or (playerClass == "DRUID" and config.druidMana)) then
 		local otherPower = ns.CreateStatusBar(self, 16, "CENTER")
 		otherPower:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
@@ -643,7 +616,6 @@ local function Spawn(self, unit, isSingle)
 	----------------
 	-- EclipseBar --
 	----------------
-
 	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
 		self.EclipseBar = ns.CreateEclipseBar(self)
 	end
@@ -651,7 +623,6 @@ local function Spawn(self, unit, isSingle)
 	-----------
 	-- Runes --
 	-----------
-
 	if unit == "player" and playerClass == "DEATHKNIGHT" and config.runeBars then
 		self.Runes = ns.CreateRunes(self)
 	end
@@ -659,7 +630,6 @@ local function Spawn(self, unit, isSingle)
 	------------
 	-- Totems --
 	------------
-
 	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
 		self.Totems = ns.CreateTotems(self)
 	end
@@ -667,7 +637,6 @@ local function Spawn(self, unit, isSingle)
 	------------------------------
 	-- Cast bar, icon, and text --
 	------------------------------
-
 	if uconfig.castbar then
 		local height = FRAME_HEIGHT * (1 - config.powerHeight)
 
