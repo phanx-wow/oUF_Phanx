@@ -53,6 +53,10 @@ local function Spawn(self, unit, isSingle)
 	-- turn "boss2" into "boss" for example
 	unit = gsub(unit, "%d", "")
 
+	for k, v in pairs(ns.framePrototype) do
+		self[k] = v
+	end
+
 	-------------------------
 	-- Border and backdrop --
 	-------------------------
@@ -93,7 +97,7 @@ local function Spawn(self, unit, isSingle)
 	health.frequentUpdates = unit == "boss"
 
 	health.PostUpdate = ns.PostUpdateHealth
-	tinsert(self.mouseovers, health)
+	self:RegisterForMouseover(health)
 
 	---------------------------
 	-- Predicted healing bar --
@@ -133,8 +137,7 @@ local function Spawn(self, unit, isSingle)
 		if power.value then
 			power.value:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 4, FRAME_HEIGHT * config.powerHeight - 2)
 			power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -8, 0)
-
-			tinsert(self.mouseovers, power)
+			self:RegisterForMouseover(power)
 		end
 
 		local powerColorMode = config.powerColorMode
@@ -549,8 +552,7 @@ local function Spawn(self, unit, isSingle)
 			end
 		end
 
-		self.updateOnRoleChange = self.updateOnRoleChange or {}
-		tinsert(self.updateOnRoleChange, UpdateAurasForRole)
+		self:RegisterForRoleChange(UpdateAurasForRole)
 		UpdateAurasForRole(self, ns.GetPlayerRole(), true) -- default is DAMAGER
 	end
 
@@ -574,22 +576,10 @@ local function Spawn(self, unit, isSingle)
 		otherPower.value:SetPoint("CENTER", 0, 1)
 		otherPower.value:SetParent(self.overlay)
 		otherPower.value:Hide()
-		table.insert(self.mouseovers, otherPower.value)
+		self:RegisterForMouseover(otherPower.value)
 
 		otherPower.colorPower = true
 		otherPower.bg.multiplier = config.powerBG
-
-		if playerClass == "DRUID" then
-			local color = oUF.colors.power.MANA
-			otherPower.value:SetTextColor(color[1], color[2], color[3])
-			otherPower.PostUpdate = ns.PostUpdateDruidMana
-			self.DruidMana = otherPower
-		else
-			local color = oUF.colors.power.DEMONIC_FURY
-			otherPower.value:SetTextColor(color[1], color[2], color[3])
-			otherPower.PostUpdate = ns.PostUpdateDemonicFury
-			self.DemonicFury = otherPower
-		end
 
 		local o = self.SetBorderSize
 		function self:SetBorderSize(size, offset)
@@ -611,6 +601,18 @@ local function Spawn(self, unit, isSingle)
 			frame:SetBorderParent(frame.overlay)
 			frame:SetBorderSize()
 		end)
+
+		if playerClass == "DRUID" then
+			local color = oUF.colors.power.MANA
+			otherPower.value:SetTextColor(color[1], color[2], color[3])
+			otherPower.PostUpdate = ns.PostUpdateDruidMana
+			self.DruidMana = otherPower
+		else
+			local color = oUF.colors.power.DEMONIC_FURY
+			otherPower.value:SetTextColor(color[1], color[2], color[3])
+			otherPower.PostUpdate = ns.PostUpdateDemonicFury
+			self.DemonicFury = otherPower
+		end
 	end
 
 	----------------
@@ -685,7 +687,6 @@ local function Spawn(self, unit, isSingle)
 	----------------------------
 	-- Plugin: oUF_SpellRange --
 	----------------------------
-
 	if IsAddOnLoaded("oUF_SpellRange") then
 		self.SpellRange = {
 			insideAlpha = 1,
@@ -695,7 +696,6 @@ local function Spawn(self, unit, isSingle)
 	-----------
 	-- Range --
 	-----------
-
 	elseif unit == "pet" or unit == "party" or unit == "partypet" then
 		self.Range = {
 			insideAlpha = 1,
@@ -706,7 +706,6 @@ local function Spawn(self, unit, isSingle)
 	----------------------
 	-- Element: AFK text --
 	----------------------
-
 	if unit == "player" or unit == "party" then
 		self.AFK = ns.CreateFontString(self.overlay, 12, "CENTER")
 		self.AFK:SetPoint("CENTER", self.Health, "BOTTOM", 0, -2)
@@ -716,7 +715,6 @@ local function Spawn(self, unit, isSingle)
 	-------------------------------
 	-- Element: Dispel highlight --
 	-------------------------------
-
 	self.DispelHighlight = {
 		Override = ns.DispelHighlightOverride,
 		filter = true,
@@ -725,7 +723,6 @@ local function Spawn(self, unit, isSingle)
 	-------------------------------
 	-- Element: Threat highlight --
 	-------------------------------
-
 	self.ThreatHighlight = {
 		Override = ns.ThreatHighlightOverride,
 	}
@@ -733,7 +730,6 @@ local function Spawn(self, unit, isSingle)
 	---------------------------
 	-- Element: ResInfo text --
 	---------------------------
-
 	if not strmatch(unit, ".target$") and not strmatch(unit, "^[ab][ro][es][ns]a?") then -- ignore arena, boss, *target
 		self.ResInfo = ns.CreateFontString(self.overlay, 16, "CENTER")
 		self.ResInfo:SetPoint("CENTER", 0, 1)
@@ -742,7 +738,6 @@ local function Spawn(self, unit, isSingle)
 	--------------------------------
 	-- Plugin: oUF_CombatFeedback --
 	--------------------------------
-
 	if IsAddOnLoaded("oUF_CombatFeedback") and not strmatch(unit, ".target$") then
 		self.CombatFeedbackText = ns.CreateFontString(self.overlay, 24, "CENTER")
 		self.CombatFeedbackText:SetPoint("CENTER", 0, 1)
@@ -751,7 +746,6 @@ local function Spawn(self, unit, isSingle)
 	------------------------
 	-- Plugin: oUF_Smooth --
 	------------------------
-
 	if IsAddOnLoaded("oUF_Smooth") and not strmatch(unit, ".target$") then
 		self.Health.Smooth = true
 		if self.Power then

@@ -135,6 +135,8 @@ function ns.CreateEclipseBar(self)
 	end
 
 	EclipseBar = CreateFrame("Frame", nil, self)
+	EclipseBar:Hide()
+
 	EclipseBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
 	EclipseBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
 	EclipseBar:SetHeight(self:GetHeight() * ns.config.powerHeight + 1)
