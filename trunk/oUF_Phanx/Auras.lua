@@ -71,6 +71,7 @@ local BaseAuras = {
 --	Death Knight
 
 if playerClass == "DEATHKNIGHT" then
+	-- Self Buffs
 	BaseAuras[48707]  = 4 -- Anti-Magic Shell
 	BaseAuras[49222]  = 4 -- Bone Shield
 	BaseAuras[53386]  = 4 -- Cinderglacier
@@ -95,6 +96,13 @@ if playerClass == "DEATHKNIGHT" then
 	BaseAuras[81162]  = 4 -- Will of the Necropolis (damage reduction)
 	BaseAuras[96171]  = 4 -- Will of the Necropolis (free Rune Tap)
 
+	-- Pet Buffs
+	BaseAuras[63560]  = 2 -- Dark Transformation
+
+	-- Buffs
+	BaseAuras[49016]  = 3 -- Unholy Frenzy
+
+	-- Debuffs
 	BaseAuras[108194] = 1 -- Asphyxiate
 	BaseAuras[55078]  = 2 -- Blood Plague
 	BaseAuras[45524]  = 1 -- Chains of Ice
@@ -111,15 +119,13 @@ if playerClass == "DEATHKNIGHT" then
 	BaseAuras[130736] = 2 -- Soul Reaper (unholy)
 	BaseAuras[47476]  = 1 -- Strangulate
 
-	BaseAuras[49016]  = 3 -- Unholy Frenzy
-
-	BaseAuras[63560]  = 2 -- Dark Transformation
 end
 
 ------------------------------------------------------------------------
 --	Druid
 
 if playerClass == "DRUID" then
+	-- Self Buffs
 	BaseAuras[22812]  = 4 -- Barkskin
 	BaseAuras[106951] = 4 -- Berserk (cat)
 	BaseAuras[50334]  = 4 -- Berserk (bear)
@@ -153,6 +159,21 @@ if playerClass == "DRUID" then
 	BaseAuras[5217]   = 4 -- Tiger's Fury
 	BaseAuras[102416] = 4 -- Wild Charge (aquatic)
 
+	-- Buffs
+	BaseAuras[102351] = 2 -- Cenarion Ward (buff)
+	BaseAuras[102352] = 2 -- Cenarion Ward (heal)
+	BaseAuras[29166]  = 3 -- Innervate
+	BaseAuras[102342] = 3 -- Ironbark
+	BaseAuras[33763]  = 2 -- Lifebloom
+	BaseAuras[94447]  = 2 -- Lifebloom (tree)
+	BaseAuras[8936]   = 2 -- Regrowth
+	BaseAuras[774]    = 2 -- Rejuvenation
+	BaseAuras[77761]  = 3 -- Stampeding Roar (bear)
+	BaseAuras[77764]  = 3 -- Stampeding Roar (cat)
+	BaseAuras[106898] = 3 -- Stampeding Roar (caster)
+	BaseAuras[48438]  = 2 -- Wild Growth
+
+	-- Debuffs
 	BaseAuras[102795] = 1 -- Bear Hug
 	BaseAuras[33786]  = 1 -- Cyclone
 	BaseAuras[99]     = 1 -- Disorienting Roar
@@ -185,24 +206,13 @@ if playerClass == "DRUID" then
 		BaseAuras[102355] = 1 -- Faerie Swarm
 	end
 ]]
-	BaseAuras[102351] = 2 -- Cenarion Ward (buff)
-	BaseAuras[102352] = 2 -- Cenarion Ward (heal)
-	BaseAuras[29166]  = 3 -- Innervate
-	BaseAuras[102342] = 3 -- Ironbark
-	BaseAuras[33763]  = 2 -- Lifebloom
-	BaseAuras[94447]  = 2 -- Lifebloom (tree)
-	BaseAuras[8936]   = 2 -- Regrowth
-	BaseAuras[774]    = 2 -- Rejuvenation
-	BaseAuras[77761]  = 3 -- Stampeding Roar (bear)
-	BaseAuras[77764]  = 3 -- Stampeding Roar (cat)
-	BaseAuras[106898] = 3 -- Stampeding Roar (caster)
-	BaseAuras[48438]  = 2 -- Wild Growth
 end
 
 ------------------------------------------------------------------------
 --	Hunter
 
 if playerClass == "HUNTER" then
+	-- Self Buffs
 	BaseAuras[83559]  = 4 -- Black Ice
 --	BaseAuras[82921]  = 4 -- Bombardment
 --	BaseAuras[53257]  = 4 -- Cobra Strikes
@@ -224,6 +234,16 @@ if playerClass == "HUNTER" then
 	BaseAuras[34471]  = 4 -- The Beast Within
 	BaseAuras[34720]  = 4 -- Thrill of the Hunt
 
+	-- Pet Buffs
+	BaseAuras[19615]  = 2 -- Frenzy
+	BaseAuras[19574]  = 2 -- Bestial Wrath
+	BaseAuras[136]    = 2 -- Mend Pet
+
+	-- Buffs
+	BaseAuras[34477]  = 1 -- Misdirection (30 sec threat)
+	BaseAuras[35079]  = 1 -- Misdirection (4 sec transfer)
+
+	-- Debuffs
 	BaseAuras[131894] = 2 -- BaseAuras Murder of Crows
 	BaseAuras[117526] = 2 -- Binding Shot (stun)
 	BaseAuras[117405] = 2 -- Binding Shot (tether)
@@ -252,19 +272,13 @@ if playerClass == "HUNTER" then
 	BaseAuras[34490]  = 2 -- Silencing Shot
 	BaseAuras[82654]  = 2 -- Widow Venom
 	BaseAuras[19386]  = 2 -- Wyvern Sting
-
-	BaseAuras[19615]  = 2 -- Frenzy
---	BaseAuras[118455] = 2 -- Beast Cleave
-	BaseAuras[19574]  = 2 -- Bestial Wrath
-	BaseAuras[136]    = 2 -- Mend Pet
-	BaseAuras[34477]  = 1 -- Misdirection (30 sec threat)
-	BaseAuras[35079]  = 1 -- Misdirection (4 sec transfer)
 end
 
 ------------------------------------------------------------------------
 --	Mage
 
 if playerClass == "MAGE" then
+	-- Self Buffs
 	BaseAuras[110909] = 4 -- Alter Time
 	BaseAuras[36032]  = 4 -- Arcane Charge
 	BaseAuras[12042]  = 4 -- Arcane Power
@@ -287,6 +301,7 @@ if playerClass == "MAGE" then
 	BaseAuras[115610] = 4 -- Temporal Shield (shield)
 	BaseAuras[115611] = 4 -- Temporal Shield (heal)
 
+	-- Debuffs
 	BaseAuras[34356]  = 2 -- Blizzard (slow) -- NEEDS CHECK
 	BaseAuras[83853]  = 2 -- Combustion
 	BaseAuras[120]    = 2 -- Cone of Cold
@@ -319,10 +334,9 @@ end
 --	Monk
 
 if playerClass == "MONK" then
-	BaseAuras[126050] = 4 -- Adaptation
+	-- Self Buffs
 	BaseAuras[122278] = 4 -- Dampen Harm
 	BaseAuras[121125] = 4 -- Death Note
-	BaseAuras[122465] = 4 -- Dematerialize
 	BaseAuras[122783] = 4 -- Diffuse Magic
 	BaseAuras[128939] = 4 -- Elusive Brew (stack)
 	BaseAuras[115308] = 4 -- Elusive Brew (consume)
@@ -342,18 +356,23 @@ if playerClass == "MONK" then
 	BaseAuras[122470] = 4 -- Touch of Karma
 	BaseAuras[118674] = 4 -- Vital Mists
 
-	BaseAuras[128531] = 2 -- Blackout Kick
+	-- Buffs
+	BaseAuras[132120] = 2 -- Enveloping Mist
+	BaseAuras[116849] = 3 -- Life Cocoon
+	BaseAuras[119607] = 2 -- Renewing Mist (jump)
+	BaseAuras[119611] = 2 -- Renewing Mist (hot)
+	BaseAuras[124081] = 2 -- Zen Sphere
+
+	-- Debuffs
 	BaseAuras[123393] = 2 -- Breath of Fire (disorient)
 	BaseAuras[123725] = 2 -- Breath of Fire (dot)
 	BaseAuras[119392] = 2 -- Charging Ox Wave
 	BaseAuras[122242] = 2 -- Clash (stun) -- NEEDS CHECK
 	BaseAuras[126451] = 2 -- Clash (stun) -- NEEDS CHECK
 	BaseAuras[128846] = 2 -- Clash (stun) -- NEEDS CHECK
-	BaseAuras[125647] = 2 -- Crackling Jade Lightning (+damage)
 	BaseAuras[116095] = 2 -- Disable
 	BaseAuras[116330] = 2 -- Dizzying Haze -- NEEDS CHECK
 	BaseAuras[123727] = 2 -- Dizzying Haze -- NEEDS CHECK
-	BaseAuras[123586] = 4 -- Flying Serpent Kick
 	BaseAuras[117368] = 2 -- Grapple Weapon
 	BaseAuras[118585] = 2 -- Leer of the Ox
 	BaseAuras[119381] = 2 -- Leg Sweep
@@ -364,18 +383,13 @@ if playerClass == "MONK" then
 	BaseAuras[116847] = 2 -- Rushing Jade Wind
 	BaseAuras[116709] = 2 -- Spear Hand Strike
 	BaseAuras[123407] = 2 -- Spinning Fire Blossom
-
-	BaseAuras[132120] = 2 -- Enveloping Mist
-	BaseAuras[116849] = 3 -- Life Cocoon
-	BaseAuras[119607] = 2 -- Renewing Mist (jump)
-	BaseAuras[119611] = 2 -- Renewing Mist (hot)
-	BaseAuras[124081] = 2 -- Zen Sphere
 end
 
 ------------------------------------------------------------------------
 --	Paladin
 
 if playerClass == "PALADIN" then
+	-- Self Buffs
 	BaseAuras[121467] = 4 -- Alabaster Shield
 	BaseAuras[31850]  = 4 -- Ardent Defender
 	BaseAuras[31884]  = 4 -- Avenging Wrath
@@ -399,19 +413,7 @@ if playerClass == "PALADIN" then
 	BaseAuras[85499]  = 4 -- Speed of Light
 	BaseAuras[94686]  = 4 -- Supplication
 
-	BaseAuras[31935]  = 2 -- Avenger's Shield
---	BaseAuras[110300] = 2 -- Burden of Guilt
-	BaseAuras[105421] = 2 -- Blinding Light
-	BaseAuras[31803]  = 2 -- Censure
-	BaseAuras[63529]  = 2 -- Dazed - Avenger's Shield
-	BaseAuras[2812]   = 2 -- Denounce
-	BaseAuras[114916] = 2 -- Execution Sentence
-	BaseAuras[105593] = 2 -- Fist of Justice
-	BaseAuras[853]    = 2 -- Hammer of Justice
-	BaseAuras[119072] = 2 -- Holy Wrath
-	BaseAuras[20066]  = 2 -- Repentance
-	BaseAuras[10326]  = 2 -- Turn Evil
-
+	-- Buffs
 	BaseAuras[31821]  = 3 -- Devotion Aura
 	BaseAuras[114163] = 3 -- Eternal Flame
 	BaseAuras[1044]   = 3 -- Hand of Freedom
@@ -424,13 +426,29 @@ if playerClass == "PALADIN" then
 	BaseAuras[20170]  = 3 -- Seal of Justice
 	BaseAuras[114917] = 3 -- Stay of Execution
 
+	-- Buff Debuffs
 	BaseAuras[25771]  = 3 -- Forbearace
+
+	-- Debuffs
+	BaseAuras[31935]  = 2 -- Avenger's Shield
+--	BaseAuras[110300] = 2 -- Burden of Guilt
+	BaseAuras[105421] = 2 -- Blinding Light
+	BaseAuras[31803]  = 2 -- Censure
+	BaseAuras[63529]  = 2 -- Dazed - Avenger's Shield
+	BaseAuras[2812]   = 2 -- Denounce
+	BaseAuras[114916] = 2 -- Execution Sentence
+	BaseAuras[105593] = 2 -- Fist of Justice
+	BaseAuras[853]    = 2 -- Hammer of Justice
+	BaseAuras[119072] = 2 -- Holy Wrath
+	BaseAuras[20066]  = 2 -- Repentance
+	BaseAuras[10326]  = 2 -- Turn Evil
 end
 
 ------------------------------------------------------------------------
 --	Priest
 
 if playerClass == "PRIEST" then
+	-- Self Buffs
 --	BaseAuras[114214] = 4 -- Angelic Bulwark
 	BaseAuras[81700]  = 4 -- Archangel
 --	BaseAuras[59889]  = 4 -- Borrowed Time
@@ -445,14 +463,30 @@ if playerClass == "PRIEST" then
 	BaseAuras[10060]  = 4 -- Power Infusion
 	BaseAuras[63735]  = 4 -- Serendipity
 	BaseAuras[112833] = 4 -- Spectral Guise
-	BaseAuras[109964] = 4 -- Spirit Shell
+	BaseAuras[109964] = 4 -- Spirit Shell (self)
 	BaseAuras[87160]  = 4 -- Surge of Darkness
 	BaseAuras[114255] = 4 -- Surge of Light
 	BaseAuras[123254] = 4 -- Twist of Fate
 	BaseAuras[15286]  = 4 -- Vampiric Embrace
 
+	-- Buffs
+	BaseAuras[47753]  = 2 -- Divine Aegis
+	BaseAuras[77613]  = 2 -- Grace
+	BaseAuras[47788]  = 3 -- Guardian Spirit
+	BaseAuras[88684]  = 3 -- Holy Word: Serenity
+	BaseAuras[33206]  = 3 -- Pain Suppression
+	BaseAuras[81782]  = 3 -- Power Word: Barrier
+	BaseAuras[17]     = 3 -- Power Word: Shield
+	BaseAuras[41635]  = 3 -- Prayer of Mending
+	BaseAuras[139]    = 3 -- Renew
+	BaseAuras[114908] = 4 -- Spirit Shell (shield)
+
+	-- Buff Debuffs
+	BaseAuras[6788]   = 1 -- Weakened Soul
+
+	-- Debuffs
 	BaseAuras[2944]   = 2 -- Devouring Plague
---	BaseAuras[14914]  = 2 -- Holy Fire
+	BaseAuras[14914]  = 2 -- Holy Fire
 	BaseAuras[88625]  = 2 -- Holy Word: Chastise
 	BaseAuras[89485]  = 2 -- Inner Focus
 	BaseAuras[64044]  = 2 -- Psychic Horror (horror)
@@ -463,23 +497,13 @@ if playerClass == "PRIEST" then
 	BaseAuras[589]    = 2 -- Shadow Word: Pain
 	BaseAuras[15487]  = 2 -- Silence
 	BaseAuras[34914]  = 2 -- Vampiric Touch
-
-	BaseAuras[77613]  = 3 -- Grace
-	BaseAuras[47788]  = 3 -- Guardian Spirit
-	BaseAuras[88684]  = 3 -- Holy Word: Serenity
-	BaseAuras[33206]  = 3 -- Pain Suppression
-	BaseAuras[81782]  = 3 -- Power Word: Barrier
-	BaseAuras[17]     = 3 -- Power Word: Shield
-	BaseAuras[41635]  = 3 -- Prayer of Mending
-	BaseAuras[139]    = 3 -- Renew
-
-	BaseAuras[6788]   = 3 -- Weakened Soul
 end
 
 ------------------------------------------------------------------------
 --	Rogue
 
 if playerClass == "ROGUE" then
+	-- Self Buffs
 	BaseAuras[13750]  = 4 -- Adrenaline Rush
 	BaseAuras[115189] = 4 -- Anticipation
 	BaseAuras[18377]  = 4 -- Blade Flurry
@@ -508,6 +532,7 @@ if playerClass == "ROGUE" then
 	BaseAuras[57934]  = 4 -- Tricks of the Trade
 	BaseAuras[1856]   = 4 -- Vanish
 
+	-- Debuffs
 	BaseAuras[2094]   = 2 -- Blind
 	BaseAuras[1833]   = 2 -- Cheap Shot
 --	BaseAuras[122233] = 2 -- Crimson Tempest
@@ -537,15 +562,14 @@ end
 --	Shaman
 
 if playerClass == "SHAMAN" then
+	-- Self Buffs
 	BaseAuras[108281] = 4 -- Ancestral Guidance
 	BaseAuras[16188]  = 4 -- Ancestral Swiftness
 	BaseAuras[114050] = 4 -- Ascendance (elemental)
 	BaseAuras[114051] = 4 -- Ascendance (enhancement)
 	BaseAuras[114052] = 4 -- Ascendance (restoration)
 	BaseAuras[108271] = 4 -- Astral Shift
-	--BaseAuras[118522] = 4 -- Elemental Blast -- cooldown is longer than duration, just cast on cooldown
 	BaseAuras[16166]  = 4 -- Elemental Mastery
-	--BaseAuras[6196]   = 4 -- Far Sight -- obvious
 	BaseAuras[77762]  = 4 -- Lava Surge
 	BaseAuras[31616]  = 4 -- Nature's Guardian
 	--BaseAuras[77661]  = 4 -- Searing Flames
@@ -553,31 +577,8 @@ if playerClass == "SHAMAN" then
 	BaseAuras[58876]  = 4 -- Spirit Walk
 	BaseAuras[79206]  = 4 -- Spiritwalker's Grace
 	BaseAuras[53390]  = 4 -- Tidal Waves
-	--BaseAuras[73683]  = 4 -- Unleash Flame
-	--BaseAuras[73681]  = 4 -- Unleash Wind
-	--BaseAuras[118474] = 4 -- Unleashed Fury (frostbrand)
-	--BaseAuras[118475] = 4 -- Unleashed Fury (rockbiter)
-	--BaseAuras[118472] = 4 -- Unleashed Fury (windfury)
 
-	BaseAuras[76780]  = 1 -- Bind Elemental
-	BaseAuras[51514]  = 1 -- Hex
-
-	BaseAuras[3600]   = 1 -- Earthbind <= Earthbind Totem
-	BaseAuras[64695]  = 1 -- Earthgrab <= Earthgrab Totem
-	BaseAuras[8056]   = 1 -- Frost Shock
-	BaseAuras[8034]   = 2 -- Frostbrand Attack <= Frostbrand Weapon
-	BaseAuras[63685]  = 1 -- Freeze <= Frozen Power
-	BaseAuras[118905] = 1 -- Static Charge <= Capacitor Totem
-	--BaseAuras[51490]  = 1 -- Thunderstorm
-
-	BaseAuras[61882]  = 2 -- Earthquake
-	BaseAuras[8050]   = 2 -- Flame Shock
-	BaseAuras[115356] = 2 -- Stormblast
-	BaseAuras[17364]  = 2 -- Stormstrike
-	--BaseAuras[73684]  = 2 -- Unleash Earth
-	BaseAuras[73682]  = 2 -- Unleash Frost
-	BaseAuras[118470] = 2 -- Unleashed Fury (flametongue)
-
+	-- Buffs
 	--BaseAuras[2825]   = 3 -- Bloodlust (shaman) -- show all
 	BaseAuras[32182]  = 3 -- Heroism (shaman)
 	BaseAuras[974]    = 2 -- Earth Shield
@@ -592,12 +593,35 @@ if playerClass == "SHAMAN" then
 	BaseAuras[73685]  = 4 -- Unleash Life
 	BaseAuras[118473] = 2 -- Unleashed Fury (earthliving)
 	BaseAuras[114896] = 3 -- Windwalk Totem
+
+	-- Debuffs
+	BaseAuras[61882]  = 2 -- Earthquake
+	BaseAuras[8050]   = 2 -- Flame Shock
+	BaseAuras[115356] = 2 -- Stormblast
+	BaseAuras[17364]  = 2 -- Stormstrike
+	--BaseAuras[73684]  = 2 -- Unleash Earth
+	BaseAuras[73682]  = 2 -- Unleash Frost
+	BaseAuras[118470] = 2 -- Unleashed Fury (flametongue)
+
+	-- Debuffs - Crowd Control
+	BaseAuras[76780]  = 1 -- Bind Elemental
+	BaseAuras[51514]  = 1 -- Hex
+
+	-- Debuffs - Root/Slow
+	BaseAuras[3600]   = 1 -- Earthbind <= Earthbind Totem
+	BaseAuras[64695]  = 1 -- Earthgrab <= Earthgrab Totem
+	BaseAuras[8056]   = 1 -- Frost Shock
+	BaseAuras[8034]   = 2 -- Frostbrand Attack <= Frostbrand Weapon
+	BaseAuras[63685]  = 1 -- Freeze <= Frozen Power
+	BaseAuras[118905] = 1 -- Static Charge <= Capacitor Totem
+	--BaseAuras[51490]  = 1 -- Thunderstorm
 end
 
 ------------------------------------------------------------------------
 --	Warlock
 
 if playerClass == "WARLOCK" then
+	-- Self Buffs
 	BaseAuras[116198] = 2 -- Aura of Enfeeblement
 	BaseAuras[116202] = 2 -- Aura of the Elements
 	BaseAuras[117828] = 4 -- Backdraft
@@ -621,16 +645,10 @@ if playerClass == "WARLOCK" then
 	BaseAuras[86211]  = 4 -- Soul Swap
 	BaseAuras[104773] = 4 -- Unending Resolve
 
+	-- Buffs
 	BaseAuras[20707]  = 1 -- Soulstone
 
-	BaseAuras[170]    = 2 -- Banish
-	BaseAuras[111397] = 2 -- Blood Fear
-	BaseAuras[137143] = 2 -- Blood Horror
-	BaseAuras[1098]   = 2 -- Enslave Demon
-	BaseAuras[5782]   = 2 -- Fear
-	BaseAuras[5484]   = 2 -- Howl of Terror
-	BaseAuras[6789]   = 2 -- Mortal Coil
-
+	-- Debuffs
 	BaseAuras[980]    = 2 -- Agony
 	BaseAuras[108505] = 2 -- Archimonde's Vengeance
 	BaseAuras[124915] = 2 -- Chaos Wave
@@ -649,12 +667,22 @@ if playerClass == "WARLOCK" then
 	BaseAuras[47960]  = 2 -- Shadowflame
 	BaseAuras[30283]  = 2 -- Shadowfury
 	BaseAuras[27243]  = 2 -- Unstable Affliction
+
+	-- Debuffs - Crowd Control
+	BaseAuras[170]    = 2 -- Banish
+	BaseAuras[111397] = 2 -- Blood Fear
+	BaseAuras[137143] = 2 -- Blood Horror
+	BaseAuras[1098]   = 2 -- Enslave Demon
+	BaseAuras[5782]   = 2 -- Fear
+	BaseAuras[5484]   = 2 -- Howl of Terror
+	BaseAuras[6789]   = 2 -- Mortal Coil
 end
 
 ------------------------------------------------------------------------
 --	Warrior
 
 if playerClass == "WARRIOR" then
+	-- Self Buffs
 	BaseAuras[107574] = 4 -- Avatar
 	BaseAuras[18499]  = 4 -- Berserker Rage
 	BaseAuras[46924]  = 4 -- Bladestorm
@@ -683,6 +711,12 @@ if playerClass == "WARRIOR" then
 	BaseAuras[125831] = 4 -- Taste for Blood
 	BaseAuras[122510] = 4 -- Ultimatum
 
+	-- Buffs
+	BaseAuras[46947]  = 3 -- Safeguard (damage reduction)
+	BaseAuras[114029] = 3 -- Safeguard (intercept)
+	BaseAuras[114030] = 3 -- Vigilance
+
+	-- Debuffs
 	BaseAuras[86346]  = 2 -- Colossus Smash
 	BaseAuras[114205] = 2 -- Demoralizing Banner
 	BaseAuras[1160]   = 2 -- Demoralizing Shout
@@ -699,10 +733,6 @@ if playerClass == "WARRIOR" then
 	BaseAuras[107570] = 2 -- Storm Bolt
 	BaseAuras[355]    = 2 -- Taunt
 	BaseAuras[105771] = 2 -- Warbringer
-
-	BaseAuras[46947]  = 3 -- Safeguard (damage reduction)
-	BaseAuras[114029] = 3 -- Safeguard (intercept)
-	BaseAuras[114030] = 3 -- Vigilance
 end
 
 ------------------------------------------------------------------------
@@ -870,7 +900,7 @@ if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MON
 				BaseAuras[aura] = nil
 			end
 		else
-			--print("Adding taunts")
+			--print("Adding taunts for PVE")
 			for aura, filter in pairs(Taunts) do
 				auraList[aura] = filter
 			end
@@ -952,7 +982,8 @@ end
 
 ------------------------------------------------------------------------
 
-local IsInInstance, UnitCanAttack, UnitIsUnit, UnitPlayerControlled = IsInInstance, UnitCanAttack, UnitIsUnit, UnitPlayerControlled
+local IsInInstance, UnitCanAttack, UnitIsUnit, UnitPlayerControlled
+	= IsInInstance, UnitCanAttack, UnitIsUnit, UnitPlayerControlled
 
 local unitIsPlayer = { player = true, pet = true, vehicle = true }
 

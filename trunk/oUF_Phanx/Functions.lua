@@ -15,6 +15,35 @@ local playerUnits = { player = true, pet = true, vehicle = true }
 local si = ns.si
 
 ------------------------------------------------------------------------
+
+ns.framePrototype = {
+	RegisterForMouseover = function(self, element)
+		if not self.mouseovers then
+			self.mouseovers = {}
+		else
+			for i, obj in pairs(self.mouseovers) do
+				if element == obj then
+					return
+				end
+			end
+		end
+		tinsert(self.mouseovers, element)
+	end,
+	RegisterForRoleChange = function(self, func)
+		if not self.updateOnRoleChange then
+			self.updateOnRoleChange = {}
+		else
+			for i, ufunc in pairs(self.updateOnRoleChange) do
+				if func == ufunc then
+					return
+				end
+			end
+		end
+		tinsert(self.updateOnRoleChange, func)
+	end,
+}
+
+------------------------------------------------------------------------
 --	Border
 ------------------------------------------------------------------------
 
@@ -502,13 +531,15 @@ function ns.UnitFrame_OnEnter(self)
 	end
 
 	self.isMouseOver = true
-	for _, element in pairs(self.mouseovers) do
-		if type(element) == "function" then
-			element(self, true)
-		elseif element.ForceUpdate then
-			element:ForceUpdate()
-		else
-			element:Show()
+	if self.mouseovers then
+		for _, element in pairs(self.mouseovers) do
+			if type(element) == "function" then
+				element(self, true)
+			elseif element.ForceUpdate then
+				element:ForceUpdate()
+			else
+				element:Show()
+			end
 		end
 	end
 
@@ -530,13 +561,15 @@ function ns.UnitFrame_OnLeave(self)
 	UnitFrame_OnLeave(self)
 
 	self.isMouseOver = nil
-	for _, element in pairs(self.mouseovers) do
-		if type(element) == "function" then
-			element(self)
-		elseif element.ForceUpdate then
-			element:ForceUpdate()
-		else
-			element:Hide()
+	if self.mouseovers then
+		for _, element in pairs(self.mouseovers) do
+			if type(element) == "function" then
+				element(self)
+			elseif element.ForceUpdate then
+				element:ForceUpdate()
+			else
+				element:Hide()
+			end
 		end
 	end
 

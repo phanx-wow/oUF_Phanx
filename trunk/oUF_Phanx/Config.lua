@@ -778,7 +778,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		threatLevels:SetChecked(db.threatLevels)
 
 		healthColorMode:SetValue(db.healthColorMode, healthColorModes[db.healthColorMode])
-		healthColor:SetColor(unpack(db.healthColor))
+		healthColor:SetValue(unpack(db.healthColor))
 		if db.healthColorMode == "CUSTOM" then
 			healthColor:Show()
 		else
@@ -787,7 +787,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		healthBG:SetValue(db.healthBG)
 
 		powerColorMode:SetValue(db.powerColorMode, powerColorModes[db.powerColorMode])
-		powerColor:SetColor(unpack(db.powerColor))
+		powerColor:SetValue(unpack(db.powerColor))
 		if db.powerColorMode == "CUSTOM" then
 			powerColor:Show()
 		else
@@ -795,7 +795,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		end
 		powerBG:SetValue(db.powerBG)
 
-		borderColor:SetColor(unpack(db.borderColor))
+		borderColor:SetValue(unpack(db.borderColor))
 
 		for i = 1, #oUF.objects do
 			oUF.objects[i]:UpdateAllElements("OptionsRefresh")
