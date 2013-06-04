@@ -320,6 +320,7 @@ local function Spawn(self, unit, isSingle)
 		end
 
 		local t = ns.Orbs.Create(self.overlay, 5, 20)
+		t.buff = GetSpellInfo(53817) -- Maelstrom Weapon
 		for i = 1, 5 do
 			local orb = t[i]
 			if i == 1 then
@@ -331,13 +332,11 @@ local function Spawn(self, unit, isSingle)
 			orb.fg:SetVertexColor(color.r, color.g, color.b)
 			orb.SetAlpha = SetAlpha
 		end
-
-		t.buff = GetSpellInfo(53817)
-		self.PowerStack = t
+		self.BuffStack = t
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
-				local color = CUSTOM_CLASS_COLORS[playerClass]
+				color = CUSTOM_CLASS_COLORS[playerClass]
 				for i = 1, #t do
 					t.fg:SetVertexColor(color.r, color.g, color.b)
 				end
