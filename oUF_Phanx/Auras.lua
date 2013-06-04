@@ -479,7 +479,7 @@ if playerClass == "PRIEST" then
 	BaseAuras[17]     = 3 -- Power Word: Shield
 	BaseAuras[41635]  = 3 -- Prayer of Mending
 	BaseAuras[139]    = 3 -- Renew
-	BaseAuras[114908] = 4 -- Spirit Shell (shield)
+	BaseAuras[114908] = 2 -- Spirit Shell (shield)
 
 	-- Buff Debuffs
 	BaseAuras[6788]   = 1 -- Weakened Soul
@@ -572,7 +572,7 @@ if playerClass == "SHAMAN" then
 	BaseAuras[16166]  = 4 -- Elemental Mastery
 	BaseAuras[77762]  = 4 -- Lava Surge
 	BaseAuras[31616]  = 4 -- Nature's Guardian
-	--BaseAuras[77661]  = 4 -- Searing Flames
+	BaseAuras[77661]  = 4 -- Searing Flames
 	BaseAuras[30823]  = 4 -- Shamanistic Rage
 	BaseAuras[58876]  = 4 -- Spirit Walk
 	BaseAuras[79206]  = 4 -- Spiritwalker's Grace

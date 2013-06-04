@@ -13,48 +13,48 @@
 ------------------------------------------------------------------------
 	Usage:
 
-	self.PowerStack = {
+	self.BuffStack = {
 		buff = GetSpellInfo(53817) -- Gets localized spell name for Maelstrom Weapon
 	}
 	for i = 1, 5 do
-		self.PowerStack[i] = CreateTexture(nil, "OVERLAY")
-		self.PowerStack[i]:SetSize(20, 20)
+		self.BuffStack[i] = CreateTexture(nil, "OVERLAY")
+		self.BuffStack[i]:SetSize(20, 20)
 		if i == 1 then
-			self.PowerStack[i]:SetPoint("LEFT", self, "BOTTOMLEFT", 5, 0)
+			self.BuffStack[i]:SetPoint("LEFT", self, "BOTTOMLEFT", 5, 0)
 		else
-			self.PowerStack[i]:SetPoint("LEFT", self.PowerStack[i-1], "RIGHT", 0, 0)
+			self.BuffStack[i]:SetPoint("LEFT", self.BuffStack[i-1], "RIGHT", 0, 0)
 		end
 	end
 ------------------------------------------------------------------------
 	Notes:
 
-	Only works for the player unit. Only supports one buff per frame.
+	Only supports one buff per frame.
 
-	Spell IDs are *not* currently supported, as the WoW API does not
-	support looking up buffs directly by ID.
+	Supports Override or PreUpdate/PostUpdate.
 
-	Override function is supported. PreUpdate/PostUpdate are not.
+	Does not support spell IDs, as the WoW API cannot look up a buff
+	directly by its ID and looping is not desirable here.
+
+	The buff to track can be changed dynamically (for example, when
+	the player's spec changes) by the layout.
 
 	The individual objects do not have to be textures. They can be
 	frames, fontstrings, or even basic tables, as long as they have
 	Show, Hide, SetAlpha, and IsObjectType methods.
-
-	The buff to track can be changed dynamically (for example, when
-	the player's spec changes) by the layout.
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-assert(oUF, "PowerStack element requires oUF")
+assert(oUF, "BuffStack element requires oUF")
 
 local UnitBuff = UnitBuff
 
 local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
 function UpdateVisibility(self, event)
-	local element = self.PowerStack
+	local element = self.BuffStack
 
-	if UnitHasVehicleUI("player") then
+	if UnitHasVehicleUI(self.unit) then
 		self:UnregisterEvent("UNIT_AURA", Path)
 		for i = 1, #element do
 			element[i]:Hide()
@@ -70,19 +70,18 @@ end
 
 function Update(self, event, unit)
 	if unit ~= self.unit then return end
-	local element = self.PowerStack
-	if element.__disabled then return end
+	local element = self.BuffStack
+	if element.__disabled or not element.buff then return end
+
+	local _, _, _, count = UnitBuff(unit, element.buff)
+	count = count or 0
+
+	if count == element.__count then return end
 
 	if element.PreUpdate then
 		element:PreUpdate()
 	end
 
-	local _, _, _, count = UnitBuff("player", element.buff)
-	count = count or 0
-
-	if count == element.__count then
-		return
-	end
 	element.__count = count
 
 	for i = 1, #element do
@@ -101,7 +100,7 @@ function Update(self, event, unit)
 end
 
 function Path(self, ...)
-	return (self.PowerStack.Override or Update)(self, ...)
+	return (self.BuffStack.Override or Update)(self, ...)
 end
 
 function ForceUpdate(element)
@@ -109,7 +108,7 @@ function ForceUpdate(element)
 end
 
 function Enable(self)
-	local element = self.PowerStack
+	local element = self.BuffStack
 	if not element then return end
 
 	element.__owner = self
@@ -135,7 +134,7 @@ function Enable(self)
 end
 
 function Disable(self)
-	local element = self.PowerStack
+	local element = self.BuffStack
 	if not element then return end
 
 	self:UnregisterEvent("UNIT_AURA", Path)
@@ -147,4 +146,4 @@ function Disable(self)
 	end
 end
 
-oUF:AddElement("PowerStack", Path, Enable, Disable)
+oUF:AddElement("BuffStack", Path, Enable, Disable)

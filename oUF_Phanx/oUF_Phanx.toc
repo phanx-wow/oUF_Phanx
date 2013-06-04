@@ -45,10 +45,10 @@ Locales\Locale-pt.lua
 Locales\Locale-zhCN.lua
 
 Elements\AFK.lua
+Elements\BuffStack.lua
 Elements\BurningEmbers.lua
 Elements\DemonicFury.lua
 Elements\DispelHighlight.lua
-Elements\PowerStack.lua
 Elements\ResInfo.lua
 Elements\SoulShards.lua
 Elements\ThreatHighlight.lua
