@@ -470,7 +470,7 @@ if playerClass == "PRIEST" then
 	BaseAuras[15286]  = 4 -- Vampiric Embrace
 
 	-- Buffs
-	BaseAuras[47753]  = 2 -- Divine Aegis
+	BaseAuras[47753]  = 3 -- Divine Aegis
 	BaseAuras[77613]  = 2 -- Grace
 	BaseAuras[47788]  = 3 -- Guardian Spirit
 	BaseAuras[88684]  = 3 -- Holy Word: Serenity
@@ -479,7 +479,7 @@ if playerClass == "PRIEST" then
 	BaseAuras[17]     = 3 -- Power Word: Shield
 	BaseAuras[41635]  = 3 -- Prayer of Mending
 	BaseAuras[139]    = 3 -- Renew
-	BaseAuras[114908] = 2 -- Spirit Shell (shield)
+	BaseAuras[114908] = 3 -- Spirit Shell (shield)
 
 	-- Buff Debuffs
 	BaseAuras[6788]   = 1 -- Weakened Soul
@@ -921,6 +921,18 @@ BaseAuras[106784] = 1 -- Brew Explosion (Ook Ook in Stormsnout Brewery)
 BaseAuras[123059] = 1 -- Destabilize (Amber-Shaper Un'sok)
 
 ------------------------------------------------------------------------
+--	Enchant procs that Blizzard failed to flag with their caster
+
+BaseAuras[116631] = 0 -- Colossus
+BaseAuras[118334] = 0 -- Dancing Steel (agi)
+BaseAuras[118335] = 0 -- Dancing Steel (str)
+BaseAuras[104993] = 0 -- Jade Spirit
+BaseAuras[116660] = 0 -- River's Song
+BaseAuras[104509] = 0 -- Windsong (crit)
+BaseAuras[104423] = 0 -- Windsong (haste)
+BaseAuras[104510] = 0 -- Windsong (mastery)
+
+------------------------------------------------------------------------
 --	NPC buffs that are completely useless
 
 BaseAuras[63501] = 0 -- Argent Crusade Champion's Pennant
@@ -982,8 +994,8 @@ end
 
 ------------------------------------------------------------------------
 
-local IsInInstance, UnitCanAttack, UnitIsUnit, UnitPlayerControlled
-	= IsInInstance, UnitCanAttack, UnitIsUnit, UnitPlayerControlled
+local IsInInstance, UnitCanAttack, UnitIsFriend, UnitIsUnit, UnitPlayerControlled
+	= IsInInstance, UnitCanAttack, UnitIsFriend, UnitIsUnit, UnitPlayerControlled
 
 local unitIsPlayer = { player = true, pet = true, vehicle = true }
 
@@ -997,7 +1009,13 @@ ns.CustomAuraFilters = {
 	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
 		-- print("CustomAuraFilter", self.__owner:GetName(), "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, caster == "vehicle")
 		local v = auraList[spellID]
-		return (v and v > 0) or (caster and UnitIsUnit(caster, "vehicle"))
+		if v and filters[v] then
+			return filters[v](self, unit, caster)
+		elseif v then
+			return v > 0
+		else
+			return caster and UnitIsUnit(caster, "vehicle")
+		end
 	end,
 	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
 		return caster and unitIsPlayer[caster] and auraList[spellID] == 2
@@ -1005,26 +1023,10 @@ ns.CustomAuraFilters = {
 	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
 		-- print("CustomAuraFilter", unit, spellID, name, caster, v)
-		if v then
-			if filters[v] then
-				return filters[v](self, unit, caster)
-			else
-				return v > 0
-			end
-	--[[
-		if v == 1 then
-			-- Whitelist
-			-- print("whitelist")
-			return true
-		elseif v == 0 then
-			-- Blacklist
-			-- print("blacklist")
-			return false
-		elseif v and filters[v] then
-			-- Specific filter
-			-- print("filter", v)
+		if v and filters[v] then
 			return filters[v](self, unit, caster)
-	]]
+		elseif v then
+			return v > 0
 		elseif not caster and not IsInInstance() then
 			-- test
 			return
