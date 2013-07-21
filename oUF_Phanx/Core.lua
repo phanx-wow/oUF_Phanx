@@ -55,14 +55,14 @@ Loader:SetScript("OnEvent", function(self, event, addon)
 		end
 		table.sort(ns.statusbarList)
 
-		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_Registered", function(type)
-			if type == "font" then
+		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_Registered", function(callback, mediaType, name)
+			if mediaType == "font" then
 				wipe(ns.fontList)
 				for i, v in pairs(SharedMedia:List("font")) do
 					tinsert(ns.fontList, v)
 				end
 				table.sort(ns.fontList)
-			elseif type == "statusbar" then
+			elseif mediaType == "statusbar" then
 				wipe(ns.statusbarList)
 				for i, v in pairs(SharedMedia:List("statusbar")) do
 					tinsert(ns.statusbarList, v)
@@ -71,10 +71,10 @@ Loader:SetScript("OnEvent", function(self, event, addon)
 			end
 		end)
 
-		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_SetGlobal", function(_, type)
-			if type == "font" then
+		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_SetGlobal", function(callback, mediaType)
+			if mediaType == "font" then
 				ns.SetAllFonts()
-			elseif type == "statusbar" then
+			elseif mediaType == "statusbar" then
 				ns.SetAllStatusBarTextures()
 			end
 		end)

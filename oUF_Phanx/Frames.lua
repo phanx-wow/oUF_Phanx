@@ -338,7 +338,7 @@ local function Spawn(self, unit, isSingle)
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				color = CUSTOM_CLASS_COLORS[playerClass]
 				for i = 1, #t do
-					t.fg:SetVertexColor(color.r, color.g, color.b)
+					t[i].fg:SetVertexColor(color.r, color.g, color.b)
 				end
 			end)
 		end

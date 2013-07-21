@@ -371,16 +371,17 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 	--------------------------------------------------------------------
 
 	local outline
-	local outlines = {
+	local outlineValues = {
 		NONE = L.None,
 		OUTLINE = L.Thin,
 		THICKOUTLINE = L.Thick,
 	}
 	do
 		local function OnClick(self)
-			db.fontOutline = self.value
+			local value = self.value
+			outline:SetValue(value, outlineValues[value])
+			db.fontOutline = value
 			ns.SetAllFonts()
-			outline:SetValue(self.value, self.text)
 		end
 
 		outline = CreateDropdown(self, L.Outline, nil, function()
@@ -515,8 +516,8 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		local info = {}
 		info.func = function(self)
 			local value = self.value
-			db.healthColorMode = value
 			healthColorMode:SetValue(value, healthColorModes[value])
+			db.healthColorMode = value
 			for _, frame in ipairs(ns.objects) do
 				local health = frame.Health
 				if type(health) == "table" then
@@ -769,7 +770,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 				font.valueText:SetFont(v, height, flags)
 			end
 		end
-		outline:SetValue(db.fontOutline, outlines[db.fontOutline])
+		outline:SetValue(db.fontOutline, outlineValues[db.fontOutline])
 
 		borderSize:SetValue(db.borderSize)
 
