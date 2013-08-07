@@ -414,6 +414,7 @@ if playerClass == "PALADIN" then
 	BaseAuras[94686]  = 4 -- Supplication
 
 	-- Buffs
+	BaseAuras[53563]  = 3 -- Beacon of Light
 	BaseAuras[31821]  = 3 -- Devotion Aura
 	BaseAuras[114163] = 3 -- Eternal Flame
 	BaseAuras[1044]   = 3 -- Hand of Freedom
