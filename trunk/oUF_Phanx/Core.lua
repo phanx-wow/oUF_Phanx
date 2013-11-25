@@ -134,8 +134,8 @@ function ns.SetAllFonts(file, flag)
 	if not flag then flag = ns.config.fontOutline end
 
 	for _, v in ipairs(ns.fontstrings) do
-		local _, size = v:GetFont()
-		v:SetFont(file, size, flag)
+		local _, size, flag = v:GetFont()
+		v:SetFont(file, size or 18, flag)
 	end
 
 	for i = 1, 3 do
