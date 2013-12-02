@@ -148,6 +148,8 @@ ns.uconfig = {
 --	Colors
 ------------------------------------------------------------------------
 
+oUF.colors.fallback = { 1, 1, 0.8 }
+
 oUF.colors.uninterruptible = { 1, 0.7, 0 }
 
 oUF.colors.threat = {}

@@ -22,7 +22,11 @@ ns.statusbars = {}
 
 local Loader = CreateFrame("Frame")
 Loader:RegisterEvent("ADDON_LOADED")
-Loader:SetScript("OnEvent", function(self, event, addon)
+Loader:SetScript("OnEvent", function(self, event, ...)
+	return self[event] and self[event](self, event, ...)
+end)
+
+function Loader:ADDON_LOADED(event, addon)
 	if addon ~= "oUF_Phanx" then return end
 
 	-- Global settings:
@@ -83,9 +87,41 @@ Loader:SetScript("OnEvent", function(self, event, addon)
 	for i, f in ipairs(ns.loadFuncs) do f() end
 	ns.loadFuncs = nil
 
-	self:UnregisterAllEvents()
-	self:SetScript("OnEvent", nil)
-end)
+	self:UnregisterEvent(event)
+	self:RegisterEvent("PLAYER_REGEN_DISABLED")
+	self:RegisterEvent("PLAYER_REGEN_ENABLED")
+	if not UnitAffectingCombat("player") then
+		self:RegisterEvent("MODIFIER_STATE_CHANGED")
+	end
+end
+
+function Loader:PLAYER_REGEN_DISABLED(event)
+	self:UnregisterEvent("MODIFIER_STATE_CHANGED")
+end
+
+function Loader:PLAYER_REGEN_ENABLED(event)
+	self:RegisterEvent("MODIFIER_STATE_CHANGED")
+end
+
+function Loader:MODIFIER_STATE_CHANGED(event, key, state)
+	if key ~= "LSHIFT" and key ~= "RSHIFT" then
+		return
+	end
+	if state == 1 then
+		a, b = "CustomFilter", "__CustomFilter"
+	else
+		a, b = "__CustomFilter", "CustomFilter"
+	end
+	for i = 1, #oUF.objects do
+		local object = oUF.objects[i]
+		local buffs = object.Auras or object.Buffs
+		if buffs and buffs[a] then
+			buffs[b] = buffs[a]
+			buffs[a] = nil
+			buffs:ForceUpdate()
+		end
+	end
+end
 
 ------------------------------------------------------------------------
 
