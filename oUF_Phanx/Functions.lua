@@ -117,6 +117,9 @@ function ns.PostUpdateHealth(bar, unit, cur, max)
 	else
 		color = colors.reaction[UnitReaction(unit, "player") or 5] or colors.reaction[5]
 	end
+	if not color then
+		color = colors.fallback
+	end
 
 	-- HEALER: deficit, percent on mouseover
 	-- OTHER:  percent, current on mouseover
@@ -542,15 +545,6 @@ function ns.UnitFrame_OnEnter(self)
 			end
 		end
 	end
-
-	if IsShiftKeyDown() and not UnitAffectingCombat("player") then
-		local buffs = self.Buffs or self.Auras
-		if buffs and buffs.CustomFilter then
-			buffs.__CustomFilter = buffs.CustomFilter
-			buffs.CustomFilter = nil
-			buffs:ForceUpdate()
-		end
-	end
 end
 
 function ns.UnitFrame_OnLeave(self)
@@ -571,13 +565,6 @@ function ns.UnitFrame_OnLeave(self)
 				element:Hide()
 			end
 		end
-	end
-
-	local buffs = self.Buffs or self.Auras
-	if buffs and buffs.__CustomFilter then
-		buffs.CustomFilter = buffs.__CustomFilter
-		buffs.__CustomFilter = nil
-		buffs:ForceUpdate()
 	end
 end
 
