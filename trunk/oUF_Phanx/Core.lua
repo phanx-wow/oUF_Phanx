@@ -95,12 +95,16 @@ function Loader:ADDON_LOADED(event, addon)
 	end
 end
 
+------------------------------------------------------------------------
+
 function Loader:PLAYER_REGEN_DISABLED(event)
 	self:UnregisterEvent("MODIFIER_STATE_CHANGED")
+	self:MODIFIER_STATE_CHANGED(event, "LSHIFT", 0)
 end
 
 function Loader:PLAYER_REGEN_ENABLED(event)
 	self:RegisterEvent("MODIFIER_STATE_CHANGED")
+	self:MODIFIER_STATE_CHANGED(event, "LSHIFT", IsShiftKeyDown() and 1 or 0)
 end
 
 function Loader:MODIFIER_STATE_CHANGED(event, key, state)
