@@ -13,6 +13,7 @@ local colors = oUF.colors
 local noop = function() return end
 local playerUnits = { player = true, pet = true, vehicle = true }
 local si = ns.si
+ns.noop = noop
 
 ------------------------------------------------------------------------
 
@@ -509,6 +510,26 @@ function ns.ThreatHighlightOverride(element, status)
 	frame.threatLevel = status
 
 	frame:UpdateBorder()
+end
+
+------------------------------------------------------------------------
+--	PvP icon
+------------------------------------------------------------------------
+
+local PLAYER_FACTION = UnitFactionGroup("player")
+
+function ns.PvPPostUpdate(element, status)
+	--print("PvP PostUpdate", element.__owner.unit, status)
+	if not status then return end
+	if status == PLAYER_FACTION then
+		return element:Hide()
+	elseif status == "ffa" then
+		return element:SetTextColor(0.8, 0.4, 0, 0.75)
+	elseif status == "Alliance" then
+		return element:SetTextColor(0.2, 0.4, 1, 0.75)
+	elseif status == "Horde" then
+		return element:SetTextColor(0.6, 0, 0, 0.75)
+	end
 end
 
 ------------------------------------------------------------------------
