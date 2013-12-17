@@ -654,7 +654,9 @@ if playerClass == "WARLOCK" then
 	BaseAuras[108505] = 2 -- Archimonde's Vengeance
 	BaseAuras[124915] = 2 -- Chaos Wave
 	BaseAuras[17962]  = 2 -- Conflagrate (slow)
-	BaseAuras[172]    = 2 -- Corruption
+	BaseAuras[172]    = 2 -- Corruption -- NEEDS CHECK
+	BaseAuras[131740] = 2 -- Corruption -- NEEDS CHECK
+	BaseAuras[146739] = 2 -- Corruption -- NEEDS CHECK
 	BaseAuras[109466] = 2 -- Curse of Enfeeblement
 	BaseAuras[18223]  = 2 -- Curse of Exhaustion
 	BaseAuras[1490]   = 2 -- Curse of the Elements
