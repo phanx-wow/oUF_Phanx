@@ -728,7 +728,7 @@ local function Spawn(self, unit, isSingle)
 	--------------------------
 	if config.combatText and not strmatch(unit, ".target$") then
 		self.CombatText = ns.CreateFontString(self.overlay, 24, "CENTER")
-		self.CombatText:SetPoint("CENTER", 0, 1)
+		self.CombatText:SetPoint("CENTER", 0, 0)
 	end
 
 	-------------------------------
