@@ -10,7 +10,7 @@
 	Based on code from oUF_Smurf by Merl@chainweb.net.
 	Written and distributed with permission.
 
-	Usage:
+	Minimal usage:
 	frame.AFK = frame:CreateFontString(nil, "OVERLAY")
 	frame.AFK:SetPoint("CENTER")
 ----------------------------------------------------------------------]]
@@ -33,6 +33,9 @@ updater:SetScript("OnUpdate", function(self, elapsed)
 	lastUpdate = lastUpdate + elapsed
 	if lastUpdate > 0.2 then
 		lastUpdate = 0
+		if not next(times) then
+			self:Hide()
+		end
 		for element, unit in pairs(elements) do
 			local t = times[unit]
 			if t then
@@ -43,24 +46,23 @@ updater:SetScript("OnUpdate", function(self, elapsed)
 				element:SetText("") -- nil gives it 0 height which might disturb the layout
 			end
 		end
-		if not next(times) then
-			self:Hide()
-		end
 	end
 end)
 
 local function Update(self, event, unit)
 	if unit ~= self.unit then return end
 
+	local element = self.AFK
 	local afk = UnitIsAFK(unit)
 	--print("AFK", event, unit, afk, times[unit])
 
 	if afk and not times[unit] then
 		times[unit] = GetTime()
-		elements[self.AFK] = unit
+		elements[element] = unit
 		updater:Show()
 	elseif times[unit] and not afk then
 		times[unit] = nil
+		element:SetText("")
 	end
 end
 
@@ -75,7 +77,7 @@ local function Enable(self)
 	element.__owner = self
 	element.ForceUpdate = Update
 
-	if element:IsObjectType("FontString") and not element:GetFont() then
+	if not element:GetFont() then
 		element:SetFontObject("GameFontHighlightSmall")
 	end
 

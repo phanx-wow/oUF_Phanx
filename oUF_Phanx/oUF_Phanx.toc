@@ -31,6 +31,7 @@ Libs\LibAboutPanel\LibAboutPanel.lua
 Libs\LibResInfo-1.0\LibResInfo-1.0.lua
 Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
+Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
 Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
 Libs\PhanxConfig-Header\PhanxConfig-Header.lua
 Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
@@ -47,6 +48,7 @@ Locales\Locale-zhCN.lua
 Elements\AFK.lua
 Elements\BuffStack.lua
 Elements\BurningEmbers.lua
+Elements\CombatText.lua
 Elements\DemonicFury.lua
 Elements\DispelHighlight.lua
 Elements\ResInfo.lua
@@ -72,5 +74,5 @@ Frames.xml
 Frames.lua
 
 Config.lua
-Config-More.lua
 Config-Auras.lua
+Config-More.lua

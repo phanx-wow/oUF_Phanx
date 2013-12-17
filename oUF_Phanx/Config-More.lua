@@ -12,6 +12,7 @@ local _, playerClass = UnitClass("player")
 local L = ns.L
 
 LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phanx", function(self)
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
 
 	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(self, self.name, L.MoreSettings_Desc)
@@ -41,67 +42,56 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 
 	--------------------------------------------------------------------
 
+	local CombatText = CreateCheckbox(self, L.CombatText, L.CombatText_Desc)
+	CombatText:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+	function CombatText:OnValueChanged(value)
+		ns.config.combatText = value
+	end
+
 	local RuneBars, DruidMana, EclipseBar, EclipseBarIcons, TotemBars
 
 	if playerClass == "DEATHKNIGHT" then
-		RuneBars = CreateFrame("CheckButton", "oUFPCRuneBars", self, "InterfaceOptionsCheckButtonTemplate")
-		RuneBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-		RuneBars.Text:SetText(L.RuneBars)
-		RuneBars.tooltipText = L.RuneBars_Desc
-		RuneBars:SetScript("OnClick", function(this)
-			local checked = not not this:GetChecked()
-			PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-			ns.config.runeBars = checked
-		end)
+
+		RuneBars = CreateCheckbox(self, L.RuneBars, L.RuneBars_Desc)
+		RuneBars:SetPoint("TOPLEFT", CombatText, "BOTTOMLEFT", 0, -12)
+		function RuneBars:OnValueChanged(value)
+			ns.config.runeBars = value
+		end
 
 	elseif playerClass == "DRUID" then
-		DruidMana = CreateFrame("CheckButton", "oUFPCDruidMana", self, "InterfaceOptionsCheckButtonTemplate")
-		DruidMana:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-		DruidMana.Text:SetText(L.DruidManaBar)
-		DruidMana.tooltipText = L.DruidManaBar_Desc
-		DruidMana:SetScript("OnClick", function(this)
-			local checked = not not this:GetChecked()
-			PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-			ns.config.druidMana = checked
-		end)
 
-		EclipseBar = CreateFrame("CheckButton", "oUFPCEclipseBar", self, "InterfaceOptionsCheckButtonTemplate")
+		DruidMana = CreateCheckbox(self, L.DruidMana, L.DruidMana_Desc)
+		DruidMana:SetPoint("TOPLEFT", CombatText, "BOTTOMLEFT", 0, -12)
+		function DruidMana:OnValueChanged(value)
+			ns.config.druidMana = value
+		end
+
+		EclipseBar = CreateCheckbox(self, L.EclipseBar, L.EclipseBar_Desc)
 		EclipseBar:SetPoint("TOPLEFT", DruidMana, "BOTTOMLEFT", 0, -12)
-		EclipseBar.Text:SetText(L.EclipseBar)
-		EclipseBar.tooltipText = L.EclipseBar_Desc
-		EclipseBar:SetScript("OnClick", function(this)
-			local checked = not not this:GetChecked()
-			PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-			ns.config.eclipseBar = checked
-			EclipseBarIcons:SetEnabled(checked)
-		end)
+		function EclipseBar:OnValueChanged(value)
+			ns.config.eclipseBar = value
+			EclipseBarIcons:SetEnabled(value)
+		end
 
-		EclipseBarIcons = CreateFrame("CheckButton", "oUFPCEclipseBarIcons", self, "InterfaceOptionsCheckButtonTemplate")
+		EclipseBarIcons = CreateCheckbox(self, L.EclipseBarIcons, L.EclipseBarIcons_Desc)
 		EclipseBarIcons:SetPoint("TOPLEFT", EclipseBar, "BOTTOMLEFT", 0, -12)
-		EclipseBarIcons.Text:SetText(L.EclipseBarIcons)
-		EclipseBarIcons.tooltipText = L.EclipseBarIcons_Desc
-		EclipseBarIcons:SetScript("OnClick", function(this)
-			local checked = not not this:GetChecked()
-			PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-			ns.config.eclipseBarIcons = checked
-		end)
+		function EclipseBarIcons:OnValueChanged(value)
+			ns.config.eclipseBarIcons = value
+		end
 
 	elseif playerClass == "SHAMAN" then
-		TotemBars = CreateFrame("CheckButton", "oUFPCTotemBars", self, "InterfaceOptionsCheckButtonTemplate")
-		TotemBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-		TotemBars.Text:SetText(L.TotemBars)
-		TotemBars.tooltipText = L.TotemBars_Desc
-		TotemBars:SetScript("OnClick", function(this)
-			local checked = not not this:GetChecked()
-			PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-			ns.config.totemBars = checked
-		end)
+
+		TotemBars = CreateCheckbox(self, L.TotemBars, L.TotemBars_Desc)
+		TotemBars:SetPoint("TOPLEFT", CombatText, "BOTTOMLEFT", 0, -12)
+		function TotemBars:OnValueChanged(value)
+			ns.config.totemBars = value
+		end
 
 	end
 
 	--------------------------------------------------------------------
 
-	local Reload = CreateFrame("Button", "oUFPCReloadButton", self, "UIPanelButtonTemplate")
+	local Reload = CreateFrame("Button", "oUFPhanxOptionsReloadButton", self, "UIPanelButtonTemplate")
 	Reload:SetPoint("BOTTOMRIGHT", -16, 16)
 	Reload:SetSize(96, 22)
 	Reload:SetText(L.ReloadUI)
@@ -119,18 +109,18 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		FrameHeight:SetValue(ns.config.height)
 		PowerHeight:SetValue(ns.config.powerHeight)
 
+		CombatText:SetValue(ns.config.combatText)
+
 		if RuneBars then
 			RuneBars:SetChecked(ns.config.runeBars)
-		end
 
-		if DruidMana then
+		elseif DruidMana then
 			DruidMana:SetChecked(ns.config.druidMana)
 			EclipseBar:SetChecked(ns.config.eclipseBar)
 			EclipseBarIcons:SetChecked(ns.config.eclipseBarIcons)
 			EclipseBarIcons:SetEnabled(ns.config.eclipseBar)
-		end
 
-		if TotemBars then
+		elseif TotemBars then
 			TotemBars:SetChecked(ns.config.totemBars)
 		end
 

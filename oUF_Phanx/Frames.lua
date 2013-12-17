@@ -723,6 +723,14 @@ local function Spawn(self, unit, isSingle)
 		self.AFK.fontFormat = "AFK %s:%s"
 	end
 
+	--------------------------
+	-- Element: Combat text --
+	--------------------------
+	if config.combatText and not strmatch(unit, ".target$") then
+		self.CombatText = ns.CreateFontString(self.overlay, 24, "CENTER")
+		self.CombatText:SetPoint("CENTER", 0, 1)
+	end
+
 	-------------------------------
 	-- Element: Dispel highlight --
 	-------------------------------
@@ -744,14 +752,6 @@ local function Spawn(self, unit, isSingle)
 	if not strmatch(unit, ".target$") and not strmatch(unit, "^[ab][ro][es][ns]a?") then -- ignore arena, boss, *target
 		self.ResInfo = ns.CreateFontString(self.overlay, 16, "CENTER")
 		self.ResInfo:SetPoint("CENTER", 0, 1)
-	end
-
-	--------------------------------
-	-- Plugin: oUF_CombatFeedback --
-	--------------------------------
-	if IsAddOnLoaded("oUF_CombatFeedback") and not strmatch(unit, ".target$") then
-		self.CombatFeedbackText = ns.CreateFontString(self.overlay, 24, "CENTER")
-		self.CombatFeedbackText:SetPoint("CENTER", 0, 1)
 	end
 
 	------------------------
@@ -792,35 +792,36 @@ oUF:Factory(function(oUF)
 		self:SetHeight(%d)
 	]] -- self:SetAttribute("*type2", "menu")
 
-	for u, udata in pairs(ns.uconfig) do
-		local name = "oUFPhanx" .. u:gsub("%a", strupper, 1):gsub("target", "Target"):gsub("pet", "Pet")
-		if udata.point then
-			if udata.attributes then
-				-- print("generating header for", u)
-				local w = config.width  * (udata.width  or 1)
-				local h = config.height * (udata.height or 1)
-
-				ns.headers[u] = oUF:SpawnHeader(name, nil, udata.visible,
-					"oUF-initialConfigFunction", format(initialConfigFunction, w, h, w, h),
-					unpack(udata.attributes))
-			else
-				-- print("generating frame for", u)
-				ns.frames[u] = oUF:Spawn(u, name)
+	for unit, udata in pairs(ns.uconfig) do
+		if not udata.disabled then
+			local name = "oUFPhanx" .. unit:gsub("%a", strupper, 1):gsub("target", "Target"):gsub("pet", "Pet")
+			if udata.point then
+				if udata.attributes then
+					-- print("generating header for", unit)
+					local w = config.width  * (udata.width  or 1)
+					local h = config.height * (udata.height or 1)
+					ns.headers[unit] = oUF:SpawnHeader(name, nil, udata.visible,
+						"oUF-initialConfigFunction", format(initialConfigFunction, w, h, w, h),
+						unpack(udata.attributes))
+				else
+					-- print("generating frame for", unit)
+					ns.frames[unit] = oUF:Spawn(unit, name)
+				end
 			end
 		end
 	end
 
-	for u, f in pairs(ns.frames) do
-		local udata = ns.uconfig[u]
+	for unit, object in pairs(ns.frames) do
+		local udata = ns.uconfig[unit]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
-		f:ClearAllPoints()
-		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+		object:ClearAllPoints()
+		object:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 	end
-	for u, f in pairs(ns.headers) do
-		local udata = ns.uconfig[u]
+	for unit, object in pairs(ns.headers) do
+		local udata = ns.uconfig[unit]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
-		f:ClearAllPoints()
-		f:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
+		object:ClearAllPoints()
+		object:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 	end
 
 	for i = 1, 3 do
@@ -858,8 +859,8 @@ oUF:Factory(function(oUF)
 		ns.CreateBorder(bar, nil, nil, bar.bar, "OVERLAY")
 	end
 
-	local fixer = CreateFrame("Frame") -- I don't understand why this is necessary...
 	local fixertimer = 2
+	local fixer = CreateFrame("Frame") -- I don't understand why this is necessary... but it is.
 	fixer:SetScript("OnUpdate", function(self, elapsed)
 		fixertimer = fixertimer - elapsed
 		if fixertimer <= 0 then
