@@ -7,10 +7,10 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
 	German localization
-	Contributors: Grafotz
+	Contributors: Phanx, Grafotz
 ----------------------------------------------------------------------]]
 
---if GetLocale() ~= "deDE" then return end
+if GetLocale() ~= "deDE" then return end
 local _, private = ...
 local L = private.L
 
