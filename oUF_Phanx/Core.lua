@@ -173,9 +173,10 @@ function ns.SetAllFonts(file, flag)
 	if not file then file = ns.config.font end
 	if not flag then flag = ns.config.fontOutline end
 
-	for _, v in ipairs(ns.fontstrings) do
-		local _, size, flag = v:GetFont()
-		v:SetFont(file, size or 18, flag)
+	for i = 1, #ns.fontstrings do
+		local fs = ns.fontstrings[i]
+		local _, size, flag = fs:GetFont()
+		fs:SetFont(file, size or 18, flag)
 	end
 
 	for i = 1, 3 do
@@ -230,14 +231,15 @@ end
 function ns.SetAllStatusBarTextures(file)
 	if not file then file = ns.config.statusbar end
 
-	for _, v in ipairs(ns.statusbars) do
-		if v.SetStatusBarTexture then
-			v:SetStatusBarTexture(file)
+	for i = 1, #ns.statusbars do
+		local sb = ns.statusbars[i]
+		if sb.SetStatusBarTexture then
+			sb:SetStatusBarTexture(file)
 		else
-			v:SetTexture(file)
+			sb:SetTexture(file)
 		end
-		if v.bg then
-			v.bg:SetTexture(file)
+		if sb.bg then
+			sb.bg:SetTexture(file)
 		end
 	end
 
