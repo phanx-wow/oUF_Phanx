@@ -26,7 +26,9 @@
 	}
 ----------------------------------------------------------------------]]
 
-if select(4, GetAddOnInfo("oUF_CombatFeedback")) then return end
+if select(4, GetAddOnInfo("oUF_CombatFeedback")) then
+	DisableAddOn("oUF_CombatFeedback")
+end
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
@@ -82,8 +84,11 @@ end)
 local seentypes = {
 	["DODGE"] = true,
 	["HEAL"] = true,
+	["HEAL CRITICAL"] = true,
+	["IMMUNE"] = true,
 	["WOUND"] = true,
 	["WOUND CRITICAL"] = true,
+	["WOUND GLANCING"] = true,
 }
 ]]
 local Update = function(self, event, unit, combatEvent, flags, amount, school)
