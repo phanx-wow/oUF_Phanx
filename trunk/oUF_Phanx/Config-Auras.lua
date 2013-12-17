@@ -200,8 +200,11 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	end
 	local function Delete_OnEnter(self)
 		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+		GameTooltip:SetText(L.DeleteAura_Desc)
+		--[[
 		GameTooltip:SetText(L.DeleteAura)
 		GameTooltip:AddLine(L.DeleteAura_Desc)
+		]]
 		GameTooltip:Show()
 	end
 
