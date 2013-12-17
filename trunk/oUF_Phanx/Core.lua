@@ -84,14 +84,63 @@ function Loader:ADDON_LOADED(event, addon)
 		end)
 	end
 
-	for i, f in ipairs(ns.loadFuncs) do f() end
+	for i = 1, #ns.loadFuncs do
+		ns.loadFuncs[i]()
+	end
 	ns.loadFuncs = nil
 
 	self:UnregisterEvent(event)
+
+	self:RegisterEvent("PLAYER_TARGET_CHANGED")
+	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
+	self:RegisterUnitEvent("UNIT_FACTION", "player")
+
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	if not UnitAffectingCombat("player") then
 		self:RegisterEvent("MODIFIER_STATE_CHANGED")
+	end
+end
+
+------------------------------------------------------------------------
+
+function Loader:PLAYER_FOCUS_CHANGED(event)
+	if UnitExists("focus") then
+		if UnitIsEnemy("focus", "player") then
+			PlaySound("igCreatureAggroSelect")
+		elseif UnitIsFriend("player", "focus") then
+			PlaySound("igCharacterNPCSelect")
+		else
+			PlaySound("igCreatureNeutralSelect")
+		end
+	else
+		PlaySound("INTERFACESOUND_LOSTTARGETUNIT")
+	end
+end
+
+function Loader:PLAYER_TARGET_CHANGED(event)
+	if UnitExists("target") then
+		if UnitIsEnemy("target", "player") then
+			PlaySound("igCreatureAggroSelect")
+		elseif UnitIsFriend("player", "target") then
+			PlaySound("igCharacterNPCSelect")
+		else
+			PlaySound("igCreatureNeutralSelect")
+		end
+	else
+		PlaySound("INTERFACESOUND_LOSTTARGETUNIT")
+	end
+end
+
+local announcedPVP
+function Loader:UNIT_FACTION(event, unit)
+	if UnitIsPVPFreeForAll("player") or UnitIsPVP("player") then
+		if not announcedPVP then
+			announcedPVP = true
+			PlaySound("igPVPUpdate")
+		end
+	else
+		announcedPVP = nil
 	end
 end
 
