@@ -11,7 +11,7 @@ local _, ns = ...
 local L = ns.L
 
 LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", function(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.Auras_Info)
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.Auras_Desc)
 
 	local scrollFrame = CreateFrame("ScrollFrame", "oUFPCAuraScrollFrame", panel, "UIPanelScrollFrameTemplate")
 	scrollFrame:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -16)
@@ -81,7 +81,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		panel.refresh()
 	end)
 
-	dialog.Title, dialog.Notes = LibStub("PhanxConfig-Header").CreateHeader(dialog, L.AddAura, L.AddAura_Info)
+	dialog.Title, dialog.Notes = LibStub("PhanxConfig-Header").CreateHeader(dialog, L.AddAura, L.AddAura_Desc)
 	dialog.Notes:SetHeight(16) -- only one line
 
 	local dialogBox = CreateFrame("EditBox", "oUFPCAuraEditBox", dialog, "InputBoxTemplate")
@@ -201,7 +201,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	local function Delete_OnEnter(self)
 		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
 		GameTooltip:SetText(L.DeleteAura)
-		GameTooltip:AddLine(L.DeleteAura_Info)
+		GameTooltip:AddLine(L.DeleteAura_Desc)
 		GameTooltip:Show()
 	end
 

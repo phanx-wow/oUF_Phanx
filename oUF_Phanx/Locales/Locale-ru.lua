@@ -15,7 +15,7 @@ local _, private = ...
 local L = private.L
 
 --L.AddAura = "Add Aura"
---L.AddAura_Info = "Enter a Spell ID and press Enter."
+--L.AddAura_Desc = "Enter a Spell ID and press Enter."
 --L.AddAura_Invalid = "That is not a valid Spell ID!"
 --L.AddAura_Note = "To find the Spell ID for a spell, look it up on Wowhead.com and copy the number out of the UR--L."
 --L.AuraFilter0 = "Never show"
@@ -24,7 +24,7 @@ local L = private.L
 --L.AuraFilter3 = "Only show on friendly units"
 --L.AuraFilter4 = "Only show on myself"
 --L.Auras = "Auras"
---L.Auras_Info = "Add new buffs and debuffs to show, or change the filtering behavior of predefined auras."
+--L.Auras_Desc = "Add new buffs and debuffs to show, or change the filtering behavior of predefined auras."
 L.BorderColor = "Цвет рамки"
 L.BorderColor_Desc = "Изменить цвет рамки окна."
 L.BorderSize = "Размер рамки"
