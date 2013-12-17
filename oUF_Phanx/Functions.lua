@@ -22,8 +22,8 @@ ns.framePrototype = {
 		if not self.mouseovers then
 			self.mouseovers = {}
 		else
-			for i, obj in pairs(self.mouseovers) do
-				if element == obj then
+			for i = 1, #self.mouseovers do
+				if self.mouseovers[i] == element then
 					return
 				end
 			end
@@ -34,8 +34,8 @@ ns.framePrototype = {
 		if not self.updateOnRoleChange then
 			self.updateOnRoleChange = {}
 		else
-			for i, ufunc in pairs(self.updateOnRoleChange) do
-				if func == ufunc then
+			for i = 1, #self.updateOnRoleChange do
+				if self.updateOnRoleChange[i] == func then
 					return
 				end
 			end
