@@ -78,23 +78,23 @@ updater:SetScript("OnUpdate", function(self)
 		end
 	end
 end)
-
+--[[
 local seentypes = {
 	["DODGE"] = true,
 	["HEAL"] = true,
 	["WOUND"] = true,
 	["WOUND CRITICAL"] = true,
 }
-
+]]
 local Update = function(self, event, unit, combatEvent, flags, amount, school)
 	if not combatEvent or unit ~= self.unit then return end
-
-	local logentry = flags and (combatEvent .. " " .. flags) or flags
+--[[
+	local logentry = (flags and strlen(flags) > 0) and (combatEvent .. " " .. flags) or flags
 	if not seentypes[logentry] then
 		seentypes[logentry] = true
 		print(logentry)
 	end
-
+]]
 	local element = self.CombatText
 	if combatEvent == "WOUND" and amount < 1 then
 		combatEvent = flags
