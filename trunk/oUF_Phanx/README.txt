@@ -15,18 +15,21 @@ oUF_Phanx is a PvE-oriented layout for oUF.
 
 ### Features:
 
-* Aggro highlighting.
-* Filtered buffs and debuffs for all classes.
-* Debuff highlighting with defensive and offensive dispel priorities.
-* Incoming heals overlaid on health bars.
-* Bars for druid mana, eclipse, runes, and totems.
-* Orbs for chi, holy power, shadow orbs, burning embers, demonic fury,
-  soul shards, and Maelstom Weapon stacks.
-* Casting bars on player, pet, target, and focus frames.
-* Incoming resurrection display.
-* AFK timers on player and party frames.
-* More detailed text shown on mouseover.
+* Aggro highlighting
+* Buff and debuff filtering, with in-game options
+* Debuff highlighting, with defensive and offensive dispel priorities
+* Incoming heals overlaid on health bars
+* Bar display for druid mana, eclipse power, runes, and totems
+* Combo-point style display for chi, holy power, shadow orbs, burning
+  embers, demonic fury, soul shards, and Maelstom Weapon stacks
+* Casting bars on player, pet, target, and focus frames
+* Resurrection and Soulstone status text
+* AFK timers on player and party frames
+* Optional combat feedback text
+* More detailed health and power text on mouseover
 
+Hold Shift out of combat to temporarily disable buff filtering.
+Some elements auto-adjust based on role (healer, tank, damage).
 No timers for druid mushrooms or death knight ghouls yet.
 
 
@@ -35,22 +38,23 @@ No timers for druid mushrooms or death knight ghouls yet.
 * Player
 * Pet
 * Target
-* Target's target
+* Target of target
 * Focus
-* Focus's target
+* Target of focus
 * Party
 * Party pets
 * Arena enemies
+* Arena enemy pets
 * Bosses
 
-Raid frames will *not* be added; use Grid, or another raid frame addon
+Raid frames will *not* be added; use Grid or another raid frame addon
 of your choice, or even the default raid frames if you like.
 
 
 ### Supported Plugins
 
-* oUF_CombatFeedback
-* oUF_Smooth
+* oUF_MovableFrames
+* oUF_SmoothUpdate
 * oUF_SpellRange
 
 If you’d like to see support for another plugin, please post a feature
@@ -87,10 +91,12 @@ http://www.wowinterface.com/downloads/info9994-oUF.html
 Localization
 ------------
 
-Compatible with English, Deutsch, Español (EU), Español (AL), Français,
-Italiano, Português, Русский, 한국어, 简体中文, and 繁體中文 game clients.
+Works in English, Deutsch, Español, Français, Italiano, Português,
+Русский, 한국어, 简体中文, and 繁體中文 game clients.
 
-Translated into English, Español, and 简体中文.
+Completely translated into English, Deutsch, and Español.
+
+Partially translated into Français, Português, Русский, and 简体中文.
 
 To add or update translations for any language, see the Localization tab
 on the CurseForge project page:

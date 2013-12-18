@@ -726,7 +726,7 @@ local function Spawn(self, unit, isSingle)
 	--------------------------
 	-- Element: Combat text --
 	--------------------------
-	if config.combatText and not strmatch(unit, ".target$") then
+	if uconfig.combatText and not strmatch(unit, ".target$") then
 		self.CombatText = ns.CreateFontString(self.overlay, 24, "CENTER")
 		self.CombatText:SetPoint("CENTER", 0, 0)
 	end
@@ -772,7 +772,9 @@ end
 
 oUF:Factory(function(oUF)
 	config = ns.config
+	uconfig = ns.uconfig
 
+	-- Remove irrelevant rightclick menu entries
 	for _, menu in pairs(UnitPopupMenus) do
 		for i = #menu, 1, -1 do
 			local name = menu[i]
@@ -782,6 +784,7 @@ oUF:Factory(function(oUF)
 		end
 	end
 
+	-- SPAWN MORE OVERLORDS!
 	oUF:RegisterStyle("Phanx", Spawn)
 	oUF:SetActiveStyle("Phanx")
 
@@ -792,8 +795,8 @@ oUF:Factory(function(oUF)
 		self:SetHeight(%d)
 	]] -- self:SetAttribute("*type2", "menu")
 
-	for unit, udata in pairs(ns.uconfig) do
-		if not udata.disabled then
+	for unit, udata in pairs(uconfig) do
+		if not udata.disable then
 			local name = "oUFPhanx" .. unit:gsub("%a", strupper, 1):gsub("target", "Target"):gsub("pet", "Pet")
 			if udata.point then
 				if udata.attributes then
@@ -812,18 +815,19 @@ oUF:Factory(function(oUF)
 	end
 
 	for unit, object in pairs(ns.frames) do
-		local udata = ns.uconfig[unit]
+		local udata = uconfig[unit]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
 		object:ClearAllPoints()
 		object:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 	end
 	for unit, object in pairs(ns.headers) do
-		local udata = ns.uconfig[unit]
+		local udata = uconfig[unit]
 		local p1, parent, p2, x, y = string.split(" ", udata.point)
 		object:ClearAllPoints()
 		object:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 	end
 
+	-- Fix default mirror timers to mach
 	for i = 1, 3 do
 		local barname = "MirrorTimer" .. i
 		local bar = _G[barname]
@@ -859,6 +863,14 @@ oUF:Factory(function(oUF)
 		ns.CreateBorder(bar, nil, nil, bar.bar, "OVERLAY")
 	end
 
+	--[[ Make sure Blizzard pet frame shows when PoUF pet frame is disabled
+	-- but PoUF player frame is enabled.
+	-- Nevermind, it's not movable on its own.
+	if uconfig.pet.disable and not uconfig.player.disable then
+		PetFrame:SetParent(UIParent)
+	end]]
+
+--[[ Seems no longer necessary?
 	local fixertimer = 2
 	local fixer = CreateFrame("Frame") -- I don't understand why this is necessary... but it is.
 	fixer:SetScript("OnUpdate", function(self, elapsed)
@@ -867,9 +879,10 @@ oUF:Factory(function(oUF)
 			self:Hide()
 			self:SetScript("OnUpdate", nil)
 			fixertimer, fixer = nil, nil
-			for _, object in pairs(ns.objects) do
-				object:UpdateAllElements("ForceUpdate")
+			for i = 1, #oUF.objects do
+				oUF.objects[i]:UpdateAllElements("ForceUpdate")
 			end
 		end
 	end)
+]]
 end)

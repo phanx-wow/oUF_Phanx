@@ -10,13 +10,55 @@
 local _, ns = ...
 
 ------------------------------------------------------------------------
---	Units
+--	Default configuration
 ------------------------------------------------------------------------
 
-ns.uconfig = {
+ns.configDefault = {
+	width = 225,
+	height = 30,
+	powerHeight = 0.2,				-- how much of the frame's height should be occupied by the power bar
+
+	backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
+	backdropColor = { 32/256, 32/256, 32/256, 1 },
+
+	statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
+
+	font = [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]],
+	fontOutline = "OUTLINE",
+
+	dispelFilter = true,				-- only highlight the frame for debuffs you can dispel
+	ignoreOwnHeals = false,			-- only show incoming heals from other players
+	threatLevels = true,				-- show threat levels instead of binary aggro
+
+	combatText = false,				-- show combat feedback text
+	druidMana = false,				-- [druid] show a mana bar in cat/bear forms
+	eclipseBar = true,				-- [druid] show an eclipse bar
+	eclipseBarIcons = false,		-- [druid] show animated icons on the eclipse bar
+	runeBars = true,					-- [deathknight] show rune cooldown bars
+	totemBars = true,					-- [shaman] show totem duration bars
+
+	healthColor = { 0.2, 0.2, 0.2 },
+	healthColorMode = "CUSTOM",
+	healthBG = 2,
+
+	powerColor = { 0.8, 0.8, 0.8 },
+	powerColorMode = "CLASS",
+	powerBG = 0.25,
+
+	borderColor = { 0.5, 0.5, 0.5 },
+	borderSize = 16,
+
+	PVP = false, -- enable PVP mode, currently only affects aura filtering
+}
+
+------------------------------------------------------------------------
+--	Default unit configuration
+------------------------------------------------------------------------
+
+ns.uconfigDefault = {
 	player = {
 		point = "BOTTOMRIGHT UIParent CENTER -200 -200",
-		width = 4/3,
+		width = 1.3,
 		power = true,
 		castbar = true,
 	},
@@ -28,7 +70,7 @@ ns.uconfig = {
 	},
 	target = {
 		point = "BOTTOMLEFT UIParent CENTER 200 -200",
-		width = 4/3,
+		width = 1.3,
 		power = true,
 		castbar = true,
 	},
@@ -69,21 +111,25 @@ ns.uconfig = {
 	boss2 = {
 		point = "TOPRIGHT boss1 BOTTOMRIGHT 0 -25",
 		width = 0.8,
+		height = 0.8,
 		power = true,
 	},
 	boss3 = {
 		point = "TOPRIGHT boss2 BOTTOMRIGHT 0 -25",
 		width = 0.8,
+		height = 0.8,
 		power = true,
 	},
 	boss4 = {
 		point = "TOPRIGHT boss3 BOTTOMRIGHT 0 -25",
 		width = 0.8,
+		height = 0.8,
 		power = true,
 	},
 	boss5 = {
 		point = "TOPRIGHT boss4 BOTTOMRIGHT 0 -25",
 		width = 0.8,
+		height = 0.8,
 		power = true,
 	},
 	-----------------------
@@ -92,26 +138,31 @@ ns.uconfig = {
 	arena1 = {
 		point = "TOPLEFT boss1",
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	arena2 = {
 		point = "TOPRIGHT arena1 BOTTOMRIGHT 0 -25",
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	arena3 = {
 		point = "TOPRIGHT arena2 BOTTOMRIGHT 0 -25",
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	arena4 = {
 		point = "TOPRIGHT arena3 BOTTOMRIGHT 0 -25",
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	arena5 = {
 		point = "TOPRIGHT arena4 BOTTOMRIGHT 0 -25",
 		width = 0.5,
+		height = 0.8,
 		power = true,
 	},
 	----------------------------
@@ -149,7 +200,6 @@ ns.uconfig = {
 ------------------------------------------------------------------------
 
 oUF.colors.fallback = { 1, 1, 0.8 }
-
 oUF.colors.uninterruptible = { 1, 0.7, 0 }
 
 oUF.colors.threat = {}
@@ -175,49 +225,6 @@ do
 end
 
 ------------------------------------------------------------------------
---	Default configuration
---	After the first time you have loaded the addon, you must edit your
---	SavedVariables file to change these values, not this file.
-------------------------------------------------------------------------
-
-ns.defaultDB = {
-	width = 225,
-	height = 30,
-	powerHeight = 0.2,				-- how much of the frame's height should be occupied by the power bar
-
-	backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
-	backdropColor = { 32/256, 32/256, 32/256, 1 },
-
-	statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
-
-	font = [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]],
-	fontOutline = "OUTLINE",
-
-	dispelFilter = true,			-- only highlight the frame for debuffs you can dispel
-	ignoreOwnHeals = false,			-- only show incoming heals from other players
-	threatLevels = true,			-- show threat levels instead of binary aggro
-
-	druidMana = false,				-- [druid] show a mana bar in cat/bear forms
-	eclipseBar = true,				-- [druid] show an eclipse bar
-	eclipseBarIcons = false,		-- [druid] show animated icons on the eclipse bar
-	runeBars = true,				-- [deathknight] show rune cooldown bars
-	totemBars = true,				-- [shaman] show totem duration bars
-
-	healthColor = { 0.2, 0.2, 0.2 },
-	healthColorMode = "CUSTOM",
-	healthBG = 2,
-
-	powerColor = { 0.8, 0.8, 0.8 },
-	powerColorMode = "CLASS",
-	powerBG = 0.25,
-
-	borderColor = { 0.5, 0.5, 0.5 },
-	borderSize = 16,
-
-	PVP = false, -- enable PVP mode, currently only affects aura filtering
-}
-
-------------------------------------------------------------------------
 --	Options panel
 ------------------------------------------------------------------------
 
@@ -228,9 +235,10 @@ ns.fontList, ns.statusbarList = {}, {}
 
 ------------------------------------------------------------------------
 
-ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
+ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 	local db = ns.config
 
+	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
 	local CreateColorPicker = LibStub("PhanxConfig-ColorPicker").CreateColorPicker
 	local CreateDropdown = LibStub("PhanxConfig-Dropdown").CreateDropdown
 	local CreateScrollingDropdown = LibStub("PhanxConfig-ScrollingDropdown").CreateScrollingDropdown
@@ -240,11 +248,11 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(self, self.name, L.Options_Desc)
+	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.Options_Desc)
 
 	--------------------------------------------------------------------
 
-	local statusbar = CreateScrollingDropdown(self, L.Texture, nil, ns.statusbarList)
+	local statusbar = CreateScrollingDropdown(panel, L.Texture, nil, ns.statusbarList)
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
 
@@ -318,7 +326,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local font = CreateScrollingDropdown(self, L.Font, nil, ns.fontList)
+	local font = CreateScrollingDropdown(panel, L.Font, nil, ns.fontList)
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
@@ -386,7 +394,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 			ns.SetAllFonts()
 		end
 
-		outline = CreateDropdown(self, L.Outline, nil, function()
+		outline = CreateDropdown(panel, L.Outline, nil, function()
 			local selected = db.fontOutline
 
 			local info = {}
@@ -413,7 +421,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local borderSize = CreateSlider(self, L.BorderSize, nil, 12, 24, 2)
+	local borderSize = CreateSlider(panel, L.BorderSize, nil, 12, 24, 2)
 	borderSize:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", 0, -12)
 	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -12)
 	function borderSize:OnValueChanged(value)
@@ -427,7 +435,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local borderColor = CreateColorPicker(self, L.BorderColor, L.BorderColor_Desc)
+	local borderColor = CreateColorPicker(panel, L.BorderColor, L.BorderColor_Desc)
 	borderColor:SetPoint("LEFT", borderSize, "RIGHT", 24, -4)
 
 	function borderColor:GetColor()
@@ -450,55 +458,43 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local dispelFilter = CreateFrame("CheckButton", "oUFPCDispelFilter", self, "InterfaceOptionsCheckButtonTemplate")
+	local dispelFilter = CreateCheckbox(panel, L.FilterDebuffHighlight, L.FilterDebuffHighlight_Desc)
 	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-	dispelFilter.Text:SetText(L.FilterDebuffHighlight)
-	dispelFilter.tooltipText = L.FilterDebuffHighlight_Desc
-	dispelFilter:SetScript("OnClick", function(this)
-		local checked = not not this:GetChecked()
-		PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-		db.dispelFilter = checked
+	function dispelFilter:OnValueChanged(value)
+		db.dispelFilter = value
 		for _, frame in ipairs(ns.objects) do
 			if frame.DispelHighlight then
-				frame.DispelHighlight.filter = checked
+				frame.DispelHighlight.filter = value
 				frame.DispelHighlight:ForceUpdate()
 			end
 		end
-	end)
+	end
 
 	--------------------------------------------------------------------
 
-	local healFilter = CreateFrame("CheckButton", "oUFPCHealFilter", self, "InterfaceOptionsCheckButtonTemplate")
+	local healFilter = CreateCheckbox(panel, L.IgnoreOwnHeals, L.IgnoreOwnHeals_Desc)
 	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -12)
-	healFilter.Text:SetText(L.IgnoreOwnHeals)
-	healFilter.tooltipText = L.IgnoreOwnHeals_Desc
-	healFilter:SetScript("OnClick", function(this)
-		local checked = not not this:GetChecked()
-		PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-		db.ignoreOwnHeals = checked
+	function healFilter:OnValueChanged(value)
+		db.ignoreOwnHeals = value
 		for _, frame in ipairs(oUF.objects) do
 			if frame.HealPrediction and frame:IsShown() then
 				frame.HealPrediction:ForceUpdate()
 			end
 		end
-	end)
+	end
 
 	--------------------------------------------------------------------
 
-	local threatLevels = CreateFrame("CheckButton", "oUFPCThreatLevels", self, "InterfaceOptionsCheckButtonTemplate")
+	local threatLevels = CreateCheckbox(panel, L.ThreatLevels, L.ThreatLevels_Desc)
 	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -12)
-	threatLevels.Text:SetText(L.ThreatLevels)
-	threatLevels.tooltipText = L.ThreatLevels_Desc
-	threatLevels:SetScript("OnClick", function(this)
-		local checked = not not this:GetChecked()
-		PlaySound(checked and "igMainMenuOptionCheckBoxOn" or "igMainmenuOptionCheckBoxOff")
-		db.ignoreOwnHeals = checked
+	function threatLevels:OnValueChanged(value)
+		db.ignoreOwnHeals = value
 		for _, frame in ipairs(oUF.objects) do
 			if frame.ThreatHighlight and frame:IsShown() then
 				frame.ThreatHighlight:ForceUpdate()
 			end
 		end
-	end)
+	end
 
 	--------------------------------------------------------------------
 
@@ -510,7 +506,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		CUSTOM = L.ColorCustom,
 	}
 
-	local healthColorMode = CreateDropdown(self, L.HealthColor, L.HealthColor_Desc)
+	local healthColorMode = CreateDropdown(panel, L.HealthColor, L.HealthColor_Desc)
 	healthColorMode:SetPoint("TOPLEFT", borderSize, "BOTTOMLEFT", 0, -12)
 	healthColorMode:SetPoint("TOPRIGHT", borderSize, "BOTTOMRIGHT", 0, -12)
 
@@ -564,7 +560,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	healthColor = CreateColorPicker(self, L.HealthColorCustom)
+	healthColor = CreateColorPicker(panel, L.HealthColorCustom)
 	healthColor:SetPoint("LEFT", healthColorMode, "RIGHT", 24, -8)
 	function healthColor:GetColor()
 		return unpack(db.healthColor)
@@ -585,7 +581,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local healthBG = CreateSlider(self, L.HealthBG, L.HealthBG_Desc, 0, 3, 0.05, true)
+	local healthBG = CreateSlider(panel, L.HealthBG, L.HealthBG_Desc, 0, 3, 0.05, true)
 	healthBG:SetPoint("TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12)
 	healthBG:SetPoint("TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12)
 
@@ -619,7 +615,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 		CUSTOM = L.ColorCustom,
 	}
 
-	local powerColorMode = CreateDropdown(self, L.PowerColor, L.PowerColor_Desc)
+	local powerColorMode = CreateDropdown(panel, L.PowerColor, L.PowerColor_Desc)
 	powerColorMode:SetPoint("TOPLEFT", healthBG, "BOTTOMLEFT", 0, -12)
 	powerColorMode:SetPoint("TOPRIGHT", healthBG, "BOTTOMRIGHT", 0, -12)
 
@@ -677,7 +673,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	powerColor = CreateColorPicker(self, L.PowerColorCustom)
+	powerColor = CreateColorPicker(panel, L.PowerColorCustom)
 	powerColor:SetPoint("LEFT", powerColorMode, "RIGHT", 24, -4)
 
 	function powerColor:GetColor()
@@ -700,7 +696,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local powerBG = CreateSlider(self, L.PowerBG, L.PowerBG_Desc, 0, 3, 0.05, true)
+	local powerBG = CreateSlider(panel, L.PowerBG, L.PowerBG_Desc, 0, 3, 0.05, true)
 	powerBG:SetPoint("TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -12)
 	powerBG:SetPoint("TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -12)
 
@@ -751,14 +747,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(self)
 
 	--------------------------------------------------------------------
 
-	local AboutPanel = LibStub("LibAboutPanel", true)
-	if AboutPanel then
-		ns.aboutPanel = AboutPanel.new(self.name, "oUF_Phanx")
-	end
-
-	--------------------------------------------------------------------
-
-	function self.refresh()
+	function panel.refresh()
 		for k, v in pairs(SharedMedia:HashTable("statusbar")) do
 			if v == db.statusbar or v:match("([^\\]+)$") == db.statusbar:match("([^\\]+)$") then
 				statusbar:SetValue(k)
@@ -810,7 +799,6 @@ end)
 
 SLASH_OUFPHANX1 = "/pouf"
 
-local testMode
 function SlashCmdList.OUFPHANX()
 	InterfaceOptionsFrame_OpenToCategory(ns.optionsPanel)
 end

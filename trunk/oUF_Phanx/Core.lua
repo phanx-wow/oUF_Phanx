@@ -11,7 +11,7 @@ local _, ns = ...
 ns.loadFuncs = {}
 
 ns.fontList = {}
-ns.statsubarList = {}
+ns.statusbarList = {}
 
 ns.fontstrings = {}
 ns.statusbars = {}
@@ -29,19 +29,31 @@ end)
 function Loader:ADDON_LOADED(event, addon)
 	if addon ~= "oUF_Phanx" then return end
 
-	-- Global settings:
-	oUFPhanxConfig = PoUFDB or oUFPhanxConfig or {} -- upgrade old settings
-	for k, v in pairs(ns.defaultDB) do
-		if type(oUFPhanxConfig[k]) ~= type(v) then
-			oUFPhanxConfig[k] = v
+	local function initDB(db, defaults)
+		if type(db) ~= "table" then db = {} end
+		if type(defaults) ~= "table" then return db end
+		for k, v in pairs(defaults) do
+			if type(v) == "table" then
+				db[k] = initDB(db[k], v)
+			elseif type(v) ~= type(db[k]) then
+				db[k] = v
+			end
 		end
+		return db
 	end
+
+	-- Global settings:
+	oUFPhanxConfig = initDB(oUFPhanxConfig, ns.configDefault)
 	ns.config = oUFPhanxConfig
 
+	-- Global unit settings:
+	oUFPhanxUnitConfig = initDB(oUFPhanxUnitConfig, ns.uconfigDefault)
+	ns.uconfig = oUFPhanxUnitConfig
+
 	-- Aura settings stored per character:
-	oUFPhanxAuraConfig = oUFPhanxAuraConfig or {}
 	ns.UpdateAuraList()
 
+	-- SharedMedia
 	local SharedMedia = LibStub("LibSharedMedia-3.0", true)
 	if SharedMedia then
 		SharedMedia:Register("font", "PT Sans Bold", [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]])
@@ -49,15 +61,15 @@ function Loader:ADDON_LOADED(event, addon)
 		SharedMedia:Register("statusbar", "Flat", [[Interface\BUTTONS\WHITE8X8]])
 		SharedMedia:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
 
-		for i, v in pairs(SharedMedia:List("font")) do
-			tinsert(ns.fontList, v)
+		for i, name in pairs(SharedMedia:List("font")) do
+			tinsert(ns.fontList, name)
 		end
-		table.sort(ns.fontList)
+		sort(ns.fontList)
 
-		for i, v in pairs(SharedMedia:List("statusbar")) do
-			tinsert(ns.statusbarList, v)
+		for i, name in pairs(SharedMedia:List("statusbar")) do
+			tinsert(ns.statusbarList, name)
 		end
-		table.sort(ns.statusbarList)
+		sort(ns.statusbarList)
 
 		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_Registered", function(callback, mediaType, name)
 			if mediaType == "font" then
@@ -65,13 +77,13 @@ function Loader:ADDON_LOADED(event, addon)
 				for i, v in pairs(SharedMedia:List("font")) do
 					tinsert(ns.fontList, v)
 				end
-				table.sort(ns.fontList)
+				sort(ns.fontList)
 			elseif mediaType == "statusbar" then
 				wipe(ns.statusbarList)
 				for i, v in pairs(SharedMedia:List("statusbar")) do
 					tinsert(ns.statusbarList, v)
 				end
-				table.sort(ns.statusbarList)
+				sort(ns.statusbarList)
 			end
 		end)
 
@@ -84,22 +96,58 @@ function Loader:ADDON_LOADED(event, addon)
 		end)
 	end
 
+	-- Miscellaneous
 	for i = 1, #ns.loadFuncs do
 		ns.loadFuncs[i]()
 	end
 	ns.loadFuncs = nil
 
-	self:UnregisterEvent(event)
+	-- Add about panel after all the other options panels
+	local AboutPanel = LibStub("LibAboutPanel", true)
+	if AboutPanel then
+		ns.aboutPanel = AboutPanel.new(ns.optionsPanel.name, "oUF_Phanx")
+	end
 
+	-- Cleanup
+	self:UnregisterEvent(event)
+	self.ADDON_LOADED = nil
+	self:RegisterEvent("PLAYER_LOGOUT")
+
+	-- Sounds for target/focus changing and PVP flagging
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 	self:RegisterUnitEvent("UNIT_FACTION", "player")
 
+	-- Shift to temporarily show all buffs
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	if not UnitAffectingCombat("player") then
 		self:RegisterEvent("MODIFIER_STATE_CHANGED")
 	end
+end
+
+------------------------------------------------------------------------
+
+function Loader:PLAYER_LOGOUT(event)
+	local function cleanDB(db, defaults)
+		if type(db) ~= "table" then return {} end
+		if type(defaults) ~= "table" then return db end
+		for k, v in pairs(db) do
+			if type(v) == "table" then
+				if not next(cleanDB(v, defaults[k])) then
+					-- Remove empty subtables
+					db[k] = nil
+				end
+			elseif v == defaults[k] then
+				-- Remove default values
+				db[k] = nil
+			end
+		end
+		return db
+	end
+
+	oUFPhanxConfig = cleanDB(oUFPhanxConfig, ns.configDefault)
+	oUFPhanxUnitConfig = cleanDB(oUFPhanxUnitConfig, ns.uconfigDefault)
 end
 
 ------------------------------------------------------------------------
@@ -241,6 +289,7 @@ do
 	local function SetReverseFill(self, reverse)
 		self.__reverse = reverse
 	end
+
 	local function SetTexCoord(self, v)
 		local mn, mx = self:GetMinMaxValues()
 		if v > 0 and v > mn and v <= mx then
@@ -278,7 +327,9 @@ do
 end
 
 function ns.SetAllStatusBarTextures(file)
-	if not file then file = ns.config.statusbar end
+	if not file then
+		file = ns.config.statusbar
+	end
 
 	for i = 1, #ns.statusbars do
 		local sb = ns.statusbars[i]
