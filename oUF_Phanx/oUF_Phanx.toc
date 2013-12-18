@@ -2,27 +2,26 @@
 ## Version: 5.4.1.wowi:revision
 
 ## Title: oUF: Phanx
-## Notes: oUF unit frames with many features and a few options.
-## Notes-deDE: Einheitenfenstern von oUF mit vielen Features und ein paar Optionen.
-## Notes-esES: Marcos de unidades de oUF con numerosas funciones y unas pocas opciones.
-## Notes-esMX: Marcos de unidades de oUF con numerosas funciones y unas pocas opciones.
-## Notes-frFR: Portraits d'unités avec nombreuses fonctionnalités et quelques options.
-## Notes-ptBR: Quadros de unidade de oUF com muitos funcionalidades e umas poucas opções.
-## Notes-ptPT: Quadros de unidade de oUF com muitos funcionalidades e umas poucas opções.
+## Notes: oUF unit frames with many PvE-oriented features and a few options.
+## Notes-deDE: oUF-Einheitenfenster mit vielen PvE-orientieren Funktionen und ein paar Optionen.
+## Notes-esES: Marcos de unidades de oUF con muchas funciones orientados a JcE y unas pocas opciones.
+## Notes-esMX: Marcos de unidades de oUF con muchas funciones orientados a JcE y unas pocas opciones.
+## Notes-frFR: Portraits d'unités avec nombreuses fonctionnalités visant à JcE et quelques options.
+## Notes-ptBR: Quadros de unidade de oUF com muitas funções orientadas o JxA e umas poucas opções.
 
 ## Author: Phanx
 ## X-Email: addons@phanx.net
 ## X-Copyright: Copyright (c) 2008-2013 Phanx. All rights reserved.
 ## X-License: See accompanying LICENSE file for details.
-## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ptPT, ruRU, zhCN, zhTW
-## X-Localizations: enUS, deDE, esES, esMX, frFR, ptBR, ptPT, zhCN
+## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW
+## X-Localizations: enUS, deDE, esES, esMX, frFR, ptBR, zhCN
 ## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 ## X-Curse-Project-ID: ouf-phanx
 ## X-WoWI-ID: 13993
 
 ## Dependencies: oUF
-## OptionalDependencies: LibAboutPanel, LibResComm-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
-## SavedVariables: oUFPhanxConfig
+## OptionalDependencies: LibAboutPanel, LibResInfo-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
+## SavedVariables: oUFPhanxConfig, oUFPhanxUnitConfig
 ## SavedVariablesPerCharacter: oUFPhanxAuraConfig
 
 Libs\LibStub\LibStub.lua
@@ -76,3 +75,4 @@ Frames.lua
 Config.lua
 Config-Auras.lua
 Config-More.lua
+Config-Units.lua
