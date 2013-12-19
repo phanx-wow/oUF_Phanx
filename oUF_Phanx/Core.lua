@@ -51,6 +51,7 @@ function Loader:ADDON_LOADED(event, addon)
 	ns.uconfig = oUFPhanxUnitConfig
 
 	-- Aura settings stored per character:
+	oUFPhanxAuraConfig = initDB(oUFPhanxAuraConfig)
 	ns.UpdateAuraList()
 
 	-- SharedMedia
