@@ -728,7 +728,11 @@ local function Spawn(self, unit, isSingle)
 	--------------------------
 	if uconfig.combatText and not strmatch(unit, ".target$") then
 		self.CombatText = ns.CreateFontString(self.overlay, 24, "CENTER")
-		self.CombatText:SetPoint("CENTER", 0, 0)
+		if unit == "pet" or unit == "party" then
+			self.CombatText:SetPoint("LEFT", 2, 0)
+		else
+			self.CombatText:SetPoint("CENTER", 0, 0)
+		end
 	end
 
 	-------------------------------
