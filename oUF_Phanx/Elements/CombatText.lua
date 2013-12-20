@@ -9,7 +9,7 @@
 	Element to display combat feedback text on oUF frames.
 
 	Concept inspired by oUF_CombatFeedback, by Ammo.
-	All code "liberated" from the Blizzard UI with minor modifications.
+	Code borrowed from the Blizzard UI, with minor modifications.
 
 	You may embed this module in your own layout, but please do not
 	distribute it as a standalone plugin.
@@ -19,8 +19,8 @@
 	self.CombatText:SetPoint("CENTER")
 
 	Advanced usage:
-	self.CombatText.maxAlpha = 1 -- default is 0.8
-	self.CombatText.ignore = { -- no defaults
+	self.CombatText.maxAlpha = 1   -- default is 0.6
+	self.CombatText.ignore = {     -- no defaults
 		BLOCK = true,
 		MISS = true,
 	}
@@ -34,21 +34,32 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, "CombatText element requires oUF")
 
+------------------------------------------------------------------------
+
 local si = AbbreviateLargeNumbers
 local L = CombatFeedbackText
+local AMOUNT_MINUS, AMOUNT_PLUS = "-%s", "+%s"
 
 local colors = {
-	DEFAULT     = { 1, 1, 1 },
-	WOUND       = { 1, 0, 0 },
-	HEAL        = { 0, 1, 0 },
-	ENERGIZE    = { 0.41, 0.8, 0.94 },
-	ABSORB      = { 0.6, 0.6, 0.6 },
-	BLOCK       = { 0.6, 0.6, 0.6 },
-	IMMUNE      = { 0.6, 0.6, 0.6 },
-	MISS        = { 0.6, 0.6, 0.6 },
-	RESIST      = { 0.6, 0.6, 0.6 },
+	DEFAULT   = { 1, 1, 1 },
+	WOUND     = { 1, 1, 0 },		-- no separate colors for CRITICAL, CRUSHING, GLANCING
+	HEAL      = { 0.2, 1, 0.2 },		-- no separate color for CRITICAL
+	ENERGIZE  = { 0.41, 0.8, 0.94 },	-- no separate color for CRITICAL
+	ABSORB    = { 0.8, 0.8, 0.8 },
+	BLOCK     = { 0.8, 0.8, 0.8 },
+	DEFLECT   = { 0.8, 0.8, 0.8 },
+	DODGE     = { 0.8, 0.8, 0.8 },
+	EVADE     = { 1, 1, 1 },
+	IMMUNE    = { 1, 1, 1 },
+	INTERRUPT = { 1, 1, 0 },
+	MISS      = { 0.8, 0.8, 0.8 },
+	PARRY     = { 0.8, 0.8, 0.8 },
+	RELFECT   = { 1, 1, 1 },
+	RESIST    = { 0.8, 0.8, 0.8 },
 }
-oUF.colors.combatfeedback = colors -- So layouts can modify them.
+oUF.colors.combatfeedback = colors
+
+------------------------------------------------------------------------
 
 local active = {}
 
@@ -80,26 +91,12 @@ updater:SetScript("OnUpdate", function(self)
 		end
 	end
 end)
---[[
-local seentypes = {
-	["DODGE"] = true,
-	["HEAL"] = true,
-	["HEAL CRITICAL"] = true,
-	["IMMUNE"] = true,
-	["WOUND"] = true,
-	["WOUND CRITICAL"] = true,
-	["WOUND GLANCING"] = true,
-}
-]]
+
+------------------------------------------------------------------------
+
 local Update = function(self, event, unit, combatEvent, flags, amount, school)
 	if not combatEvent or unit ~= self.unit then return end
---[[
-	local logentry = (flags and strlen(flags) > 0) and (combatEvent .. " " .. flags) or flags
-	if not seentypes[logentry] then
-		seentypes[logentry] = true
-		print(logentry)
-	end
-]]
+
 	local element = self.CombatText
 	if combatEvent == "WOUND" and amount < 1 then
 		combatEvent = flags
@@ -108,38 +105,37 @@ local Update = function(self, event, unit, combatEvent, flags, amount, school)
 	if element.ignore[combatEvent] then return end
 
 	local color = colors[combatEvent] or colors.DEFAULT
+	local text, text2 = L[combatEvent]
 	local size = element.baseSize
-	local text
 
 	if combatEvent == "WOUND" and amount > 0 then
+		text, text2 = AMOUNT_MINUS, si(amount)
 		if flags == "CRITICAL" or flags == "CRUSHING" then
-			size = size * 1.5
+			size = size * 1.33
 		elseif flags == "GLANCING" then
-			size = size * 0.75
+			size = size * 0.8
 		end
-		text = si(amount)
+		if school == SCHOOL_MASK_PHYSICAL then
+			color = colors.DEFAULT
+		end
 	elseif combatEvent == "HEAL" then
+		text, text2 = AMOUNT_PLUS, si(amount)
 		if flags == "CRITICAL" then
-			size = size * 1.5
+			size = size * 1.33
 		end
-		text = si(amount)
 	elseif combatEvent == "ENERGIZE" then
-		if flags == "CRITICAL" then
-			size = size * 1.5
-		end
 		text = si(amount)
-	elseif combatEvent == "IMMUNE" then
-		size = size * 0.5
-		text = L[combatEvent]
+		if flags == "CRITICAL" then
+			size = size * 1.33
+		end
 	else
-		size = size * 0.75
-		text = L[combatEvent]
+		size = size * 0.8
 	end
 
 	if text then
 		local font, _, flags = element:GetFont()
 		element:SetFont(font, size, flags)
-		element:SetText(text)
+		element:SetFormattedText(text, text2)
 		element:SetTextColor(color[1], color[2], color[3])
 		element:SetAlpha(0)
 		element:Show()
@@ -147,6 +143,8 @@ local Update = function(self, event, unit, combatEvent, flags, amount, school)
 		updater:Show()
 	end
 end
+
+------------------------------------------------------------------------
 
 local Enable = function(self)
 	local element = self.CombatText
@@ -169,9 +167,10 @@ local Enable = function(self)
 		local _, size = element:GetFont()
 		element.baseSize = size
 	end
+	print("CombatText Enable", self.unit, element.baseSize)
 
 	element.ignore = element.ignore or {}
-	element.maxAlpha = element.maxAlpha or 0.8
+	element.maxAlpha = element.maxAlpha or 0.75
 
 	self:RegisterEvent("UNIT_COMBAT", Update)
 	return true
