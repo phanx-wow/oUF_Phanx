@@ -97,21 +97,27 @@ end)
 local Update = function(self, event, unit, combatEvent, flags, amount, school)
 	if not combatEvent or unit ~= self.unit then return end
 
-	local element = self.CombatText
 	if combatEvent == "WOUND" and amount < 1 then
 		combatEvent = flags
 	end
 
+	local element = self.CombatText
 	if element.ignore[combatEvent] then return end
 
 	local color = colors[combatEvent] or colors.DEFAULT
 	local text, text2 = L[combatEvent]
+
 	local size = element.baseSize
+	if not size then
+		local _, baseSize = element:GetFont()
+		element.baseSize = baseSize
+		size = baseSize
+	end
 
 	if combatEvent == "WOUND" and amount > 0 then
 		text, text2 = AMOUNT_MINUS, si(amount)
 		if flags == "CRITICAL" or flags == "CRUSHING" then
-			size = size * 1.33
+			size = size * 1.25
 		elseif flags == "GLANCING" then
 			size = size * 0.8
 		end
@@ -121,12 +127,12 @@ local Update = function(self, event, unit, combatEvent, flags, amount, school)
 	elseif combatEvent == "HEAL" then
 		text, text2 = AMOUNT_PLUS, si(amount)
 		if flags == "CRITICAL" then
-			size = size * 1.33
+			size = size * 1.25
 		end
 	elseif combatEvent == "ENERGIZE" then
 		text = si(amount)
 		if flags == "CRITICAL" then
-			size = size * 1.33
+			size = size * 1.25
 		end
 	else
 		size = size * 0.8
@@ -162,12 +168,6 @@ local Enable = function(self)
 	if not element:GetFont() then
 		element:SetFontObject("GameFontHighlightMedium")
 	end
-
-	if not element.baseSize then
-		local _, size = element:GetFont()
-		element.baseSize = size
-	end
-	print("CombatText Enable", self.unit, element.baseSize)
 
 	element.ignore = element.ignore or {}
 	element.maxAlpha = element.maxAlpha or 0.75

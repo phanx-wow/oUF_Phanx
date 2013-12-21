@@ -1,5 +1,5 @@
 ## Interface: 50400
-## Version: 5.4.1.wowi:revision
+## Version: 5.4.2.wowi:revision
 
 ## Title: oUF: Phanx
 ## Notes: oUF unit frames with many PvE-oriented features and a few options.
