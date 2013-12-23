@@ -43,6 +43,7 @@ Locales\Locale-es.lua
 Locales\Locale-fr.lua
 Locales\Locale-pt.lua
 Locales\Locale-zhCN.lua
+Locales\Locale-zhTW.lua
 
 Elements\AFK.lua
 Elements\BuffStack.lua
