@@ -253,9 +253,9 @@ local function Spawn(self, unit, isSingle)
 			powerType = SPELL_POWER_SHADOW_ORBS
 			updateFunc = ns.UpdateShadowOrbs
 
-		-----------------------------------------------
-		-- Soul shards, demonic fury, burning embers --
-		-----------------------------------------------
+		-----------------
+		-- Soul shards --
+		-----------------
 		elseif playerClass == "WARLOCK" then
 			element = "SoulShards"
 			powerType = SPELL_POWER_SOUL_SHARDS
@@ -669,6 +669,7 @@ local function Spawn(self, unit, isSingle)
 			local SafeZone = Castbar:CreateTexture(nil, "BORDER")
 			SafeZone:SetTexture(config.statusbar)
 			SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
+			tinsert(ns.statusbars, SafeZone)
 			Castbar.SafeZone = SafeZone
 
 			Castbar.Time = ns.CreateFontString(Castbar, 20, "RIGHT")
@@ -836,7 +837,7 @@ oUF:Factory(function(oUF)
 		local barname = "MirrorTimer" .. i
 		local bar = _G[barname]
 
-		for i, region in pairs({ bar:GetRegions() }) do
+		for _, region in pairs({ bar:GetRegions() }) do
 			if region.GetTexture and region:GetTexture() == "SolidTexture" then
 				region:Hide()
 			end
@@ -849,6 +850,10 @@ oUF:Factory(function(oUF)
 		bar.bar = bar:GetChildren()
 		bar.bg, bar.text, bar.border = bar:GetRegions()
 
+		bar.bar:SetAllPoints(bar)
+		bar.bar:SetStatusBarTexture(config.statusbar)
+		--bar.bar:SetAlpha(0.8) -- I don't remember why I did this?
+
 		bar.bg:ClearAllPoints()
 		bar.bg:SetAllPoints(bar)
 		bar.bg:SetTexture(config.statusbar)
@@ -860,19 +865,8 @@ oUF:Factory(function(oUF)
 
 		bar.border:Hide()
 
-		bar.bar:SetAllPoints(bar)
-		bar.bar:SetStatusBarTexture(config.statusbar)
-		--bar.bar:SetAlpha(0.8) -- I don't remember why I did this?
-
 		ns.CreateBorder(bar, nil, nil, bar.bar, "OVERLAY")
 	end
-
-	--[[ Make sure Blizzard pet frame shows when PoUF pet frame is disabled
-	-- but PoUF player frame is enabled.
-	-- Nevermind, it's not movable on its own.
-	if uconfig.pet.disable and not uconfig.player.disable then
-		PetFrame:SetParent(UIParent)
-	end]]
 
 --[[ Seems no longer necessary?
 	local fixertimer = 2

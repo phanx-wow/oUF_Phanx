@@ -84,31 +84,29 @@ end
 
 local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 	local bar = element[id]
-
-	bar.duration = duration
-	bar.max = duration
-
-	if duration > 0 then
-		bar:SetMinMaxValues(0, duration)
-
-		local color = bar.color or TOTEM_COLORS[id]
-		local r, g, b, mu = color[1], color[2], color[3], bar.bg.multiplier or 1
-		bar:SetStatusBarColor(r, g, b)
-		bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
-	end
-
 	if not bar.scripted then
 		bar:HookScript("OnEnter", Totem_OnEnter)
 		bar:HookScript("OnLeave", Totem_OnLeave)
 		bar.scripted = true
 	end
 
-	element:Hide()
+	bar.duration = duration
+	bar.max = duration
+
+	if duration > 0 then
+		local color = bar.color or TOTEM_COLORS[id]
+		local r, g, b, mu = color[1], color[2], color[3], bar.bg.multiplier or 1
+		bar:SetMinMaxValues(0, duration)
+		bar:SetStatusBarColor(r, g, b)
+		bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
+	end
+
 	for i = 1, #element do
 		if element[i]:IsShown() then
 			return element:Show()
 		end
 	end
+	element:Hide()
 end
 
 ns.CreateTotems = function(frame)
@@ -146,11 +144,9 @@ ns.CreateTotems = function(frame)
 			bar:SetPoint("BOTTOMLEFT", Totems, 1, 1)
 		end
 
-		local mu, co = ns.config.powerBG, oUF.colors.totems[i]
-		bar.bg.multiplier = mu
+		bar.bg.multiplier = ns.config.powerBG
 		bar.bg:SetParent(Totems)
 		bar.bg:SetDrawLayer("ARTWORK")
-		bar.bg:SetVertexColor(co[1] * mu, co[2] * mu, co[3] * mu)
 		bar.bg:Show()
 
 		bar.iconFrame = CreateFrame("Frame", nil, bar)

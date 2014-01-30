@@ -231,8 +231,6 @@ end
 local L = ns.L
 local CreateOptionsPanel = LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel
 
-ns.fontList, ns.statusbarList = {}, {}
-
 ------------------------------------------------------------------------
 
 ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
