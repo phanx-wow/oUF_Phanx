@@ -272,9 +272,34 @@ function ns.SetAllFonts(file, flag)
 	if not flag then flag = ns.config.fontOutline end
 
 	for i = 1, #ns.fontstrings do
-		local fs = ns.fontstrings[i]
-		local _, size, flag = fs:GetFont()
-		fs:SetFont(file, size or 18, flag)
+		local fontstring = ns.fontstrings[i]
+		local _, size, flag = fontstring:GetFont()
+		if not size or size == 0 then
+			local element = fontstring:GetParent()
+
+			local frame = element:GetParent()
+			while frame and not frame:GetName() do
+				frame = frame:GetParent()
+			end
+
+			local found
+			for k, v in pairs(frame) do
+				if v == element then
+					for k2, v2 in pairs(element) do
+						if v2 == fontstring then
+							print("bad font height", tostring(size), "on", frame:GetName(), k, k2)
+							found = true
+						end
+					end
+				end
+			end
+			if not found then
+				print("bad font height", tostring(size), "on mystery fontstring", fontstring:GetText() or "<no text>")
+			end
+
+			size = 18
+		end
+		fontstring:SetFont(file, size, flag)
 	end
 
 	for i = 1, 3 do
@@ -346,7 +371,7 @@ function ns.SetAllStatusBarTextures(file)
 
 	for i = 1, 3 do
 		local bar = _G["MirrorTimer" .. i]
-		bar.bg:SetTexture(file)
 		bar.bar:SetStatusBarTexture(file)
+		bar.bg:SetTexture(file)
 	end
 end

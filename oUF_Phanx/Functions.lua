@@ -67,8 +67,6 @@ function ns.UpdateBorder(self)
 	elseif threat and threat > 0 then
 		-- print(self.unit, "has high threat")
 		color = colors.threat[threat]
-	else
-		-- print(self.unit, "is normal")
 	end
 
 	if color then
@@ -82,29 +80,27 @@ end
 --	Health
 ------------------------------------------------------------------------
 
+local GHOST = GetSpellInfo(8326)
+
 function ns.PostUpdateHealth(bar, unit, cur, max)
-	if not UnitIsConnected(unit) then
-		local color = colors.disconnected
-		local power = bar.__owner.Power
+	local frame = bar.__owner
+
+	local absent = not UnitIsConnected(unit) and PLAYER_OFFLINE or UnitIsGhost(unit) and GHOST or UnitIsDead(unit) and DEAD
+	if absent then
+		bar:SetValue(0) -- 5.2: UnitHealth is sometimes > 0 for dead units
+		local power = frame.Power
 		if power then
 			power:SetValue(0)
 			if power.value then
 				power.value:SetText(nil)
 			end
 		end
-		bar:SetValue(0) -- 5.2: UnitHealth sometimes returns > 0 for dead units???
-		return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, PLAYER_OFFLINE)
-	elseif UnitIsDeadOrGhost(unit) then
 		local color = colors.disconnected
-		local power = bar.__owner.Power
-		if power then
-			power:SetValue(0)
-			if power.value then
-				power.value:SetText(nil)
-			end
+		if frame.isMouseOver and max > 0 then -- max is 0 for offline units
+			return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(max))
+		else
+			return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, absent)
 		end
-		bar:SetValue(0) -- 5.2: UnitHealth sometimes returns > 0 for dead units???
-		return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, UnitIsGhost(unit) and GHOST or DEAD)
 	end
 
 	local color
@@ -127,19 +123,19 @@ function ns.PostUpdateHealth(bar, unit, cur, max)
 
 	if cur < max then
 		if ns.GetPlayerRole() == "HEALER" and UnitCanAssist("player", unit) then
-			if bar.__owner.isMouseOver and not strmatch(unit, "party%d") then
+			if frame.isMouseOver and not frame.isGroupFrame then
 				-- don't change text on party frames, it's annoying for click-cast or mouseover healing
-				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
+				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(cur))
 			else
-				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit) - UnitHealthMax(unit)))
+				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(cur - max))
 			end
-		elseif bar.__owner.isMouseOver then
-			bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealth(unit)))
+		elseif frame.isMouseOver then
+			bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(cur))
 		else
-			bar.value:SetFormattedText("|cff%02x%02x%02x%d%%|r", color[1] * 255, color[2] * 255, color[3] * 255, floor(UnitHealth(unit) / UnitHealthMax(unit) * 100 + 0.5))
+			bar.value:SetFormattedText("|cff%02x%02x%02x%d%%|r", color[1] * 255, color[2] * 255, color[3] * 255, floor(cur / max * 100 + 0.5))
 		end
-	elseif bar.__owner.isMouseOver then
-		bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitHealthMax(unit)))
+	elseif frame.isMouseOver then
+		bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(max))
 	else
 		bar.value:SetText(nil)
 	end
@@ -352,8 +348,6 @@ function ns.PostCreateAuraIcon(element, button)
 	button.overlay.Hide = AuraIconOverlay_SetBorderColor
 	button.overlay.SetVertexColor = AuraIconOverlay_SetBorderColor
 	button.overlay.Show = noop
-
-	button:SetScript("OnClick", nil) -- because oUF still tries to cancel buffs on right-click, and Blizzard thinks preventing this will stop botting?
 end
 
 function ns.PostUpdateAuraIcon(element, unit, button, index, offset)
