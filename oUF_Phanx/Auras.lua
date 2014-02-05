@@ -995,6 +995,8 @@ ns.UpdateAuraList = function()
 	end
 end
 
+ns.export.UpdateAuraList = ns.UpdateAuraList
+
 ------------------------------------------------------------------------
 
 local IsInInstance, UnitCanAttack, UnitIsFriend, UnitIsUnit, UnitPlayerControlled

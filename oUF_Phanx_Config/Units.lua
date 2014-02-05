@@ -77,9 +77,9 @@ local unitType = {
 local function GetUnitConfig(unit, key)
 	local children = unitType[unit]
 	if type(children) == "table" then
-		return ns.uconfig[children[1]][key]
+		return oUFPhanxUnitConfig[children[1]][key]
 	else
-		return ns.uconfig[unit][key]
+		return oUFPhanxUnitConfig[unit][key]
 	end
 end
 
@@ -88,10 +88,10 @@ local function SetUnitConfig(unit, key, value)
 	local children = unitType[unit]
 	if type(children) == "table" then
 		for i = 1, #children do
-			ns.uconfig[children[i]][key] = value
+			oUFPhanxUnitConfig[children[i]][key] = value
 		end
 	else
-		ns.uconfig[unit][key] = value
+		oUFPhanxUnitConfig[unit][key] = value
 	end
 end
 
