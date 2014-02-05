@@ -567,17 +567,17 @@ local function Spawn(self, unit, isSingle)
 		UpdateAurasForRole(self, ns.GetPlayerRole(), true) -- default is DAMAGER
 	end
 
-	-------------------
-	-- BurningEmbers --
-	-------------------
+	--------------------
+	-- Burning embers --
+	--------------------
 	if unit == "player" and playerClass == "WARLOCK" then
 		self.BurningEmbers = ns.CreateBurningEmbers(self)
 	end
 
-	-----------------------------
-	-- DruidMana / DemonicFury --
-	-----------------------------
-	if unit == "player" and (playerClass == "WARLOCK" or (playerClass == "DRUID" and config.druidMana)) then
+	----------------------------------------------
+	-- Demonic fury / Druid mana / Monk stagger --
+	----------------------------------------------
+	if unit == "player" and (playerClass == "WARLOCK" or (playerClass == "DRUID" and config.druidMana) or (playerClass == "MONK" and config.monkStagger)) then
 		local otherPower = ns.CreateStatusBar(self, 16, "CENTER")
 		otherPower:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
 		otherPower:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
@@ -618,6 +618,9 @@ local function Spawn(self, unit, isSingle)
 			otherPower.value:SetTextColor(color[1], color[2], color[3])
 			otherPower.PostUpdate = ns.PostUpdateDruidMana
 			self.DruidMana = otherPower
+		elseif playerClass == "MONK" then
+			otherPower.PostUpdate = ns.PostUpdateStagger
+			self.Stagger = otherPower
 		else
 			local color = oUF.colors.power.DEMONIC_FURY
 			otherPower.value:SetTextColor(color[1], color[2], color[3])

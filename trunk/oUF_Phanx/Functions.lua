@@ -219,7 +219,7 @@ function ns.PostUpdatePower(self, unit, cur, max)
 end
 
 ------------------------------------------------------------------------
---	DruidMana
+--	Druid mana
 ------------------------------------------------------------------------
 
 function ns.PostUpdateDruidMana(bar, unit, mana, maxMana)
@@ -245,7 +245,7 @@ function ns.UpdateMushrooms(self, event)
 end
 
 ------------------------------------------------------------------------
---	ClassIcons (monk)
+-- Monk chi
 ------------------------------------------------------------------------
 
 local SPELL_POWER_CHI = SPELL_POWER_CHI
@@ -261,7 +261,15 @@ function ns.UpdateChi(self, event, unit, powerType)
 end
 
 ------------------------------------------------------------------------
---	ClassIcons (paladin)
+--	Monk stagger
+------------------------------------------------------------------------
+
+function ns.PostUpdateStagger(bar, maxHealth, stagger, staggerPercent, r, g, b)
+	bar.value:SetFormattedText("%.0f%%", staggerPercent)
+end
+
+------------------------------------------------------------------------
+--	Paladin holy power
 ------------------------------------------------------------------------
 
 local SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER
@@ -277,7 +285,7 @@ function ns.UpdateHolyPower(self, event, unit, powerType)
 end
 
 ------------------------------------------------------------------------
---	ClassIcons (priest)
+--	Priest shadow orbs
 ------------------------------------------------------------------------
 
 local SPELL_POWER_SHADOW_ORBS = SPELL_POWER_SHADOW_ORBS
@@ -294,7 +302,7 @@ function ns.UpdateShadowOrbs(self, event, unit, powerType)
 end
 
 ------------------------------------------------------------------------
---	CPoints
+--	Combo points
 ------------------------------------------------------------------------
 
 function ns.UpdateComboPoints(self, event, unit)
@@ -311,7 +319,7 @@ function ns.UpdateComboPoints(self, event, unit)
 end
 
 ------------------------------------------------------------------------
---	Auras, Buffs, Debuffs
+--	Buffs & debuffs
 ------------------------------------------------------------------------
 
 local function AuraIconCD_OnShow(cd)
@@ -471,7 +479,7 @@ function ns.CustomTimeText(self, duration)
 end
 
 ------------------------------------------------------------------------
---	DispelHighlight
+--	Dispel highlight
 ------------------------------------------------------------------------
 
 function ns.DispelHighlightOverride(element, debuffType, canDispel)
@@ -487,7 +495,7 @@ function ns.DispelHighlightOverride(element, debuffType, canDispel)
 end
 
 ------------------------------------------------------------------------
---	ThreatHighlight
+--	Threat highlight
 ------------------------------------------------------------------------
 
 function ns.ThreatHighlightOverride(element, status)
