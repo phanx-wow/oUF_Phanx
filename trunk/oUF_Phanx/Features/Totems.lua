@@ -94,11 +94,7 @@ local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 	bar.max = duration
 
 	if duration > 0 then
-		local color = bar.color or TOTEM_COLORS[id]
-		local r, g, b, mu = color[1], color[2], color[3], bar.bg.multiplier or 1
 		bar:SetMinMaxValues(0, duration)
-		bar:SetStatusBarColor(r, g, b)
-		bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
 	end
 
 	for i = 1, #element do
@@ -162,6 +158,11 @@ ns.CreateTotems = function(frame)
 
 		bar.value:SetPoint("CENTER", 1, 1)
 		bar.value:Hide()
+
+		local color = bar.color or TOTEM_COLORS[i]
+		local r, g, b, mu = color[1], color[2], color[3], bar.bg.multiplier or 1
+		bar:SetStatusBarColor(r, g, b)
+		bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
 
 		tinsert(frame.mouseovers, bar.value)
 
