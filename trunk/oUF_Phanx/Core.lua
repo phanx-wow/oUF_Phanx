@@ -16,6 +16,224 @@ ns.statusbarList = {}
 ns.fontstrings = {}
 ns.statusbars = {}
 
+ns.export = {}
+oUFPhanx = ns.export
+
+------------------------------------------------------------------------
+--	Default configuration
+------------------------------------------------------------------------
+
+ns.configDefault = {
+	width = 225,
+	height = 30,
+	powerHeight = 0.2,				-- how much of the frame's height should be occupied by the power bar
+
+	backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
+	backdropColor = { 32/256, 32/256, 32/256, 1 },
+
+	statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
+
+	font = [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]],
+	fontOutline = "OUTLINE",
+
+	dispelFilter = true,				-- only highlight the frame for debuffs you can dispel
+	ignoreOwnHeals = false,			-- only show incoming heals from other players
+	threatLevels = true,				-- show threat levels instead of binary aggro
+
+	combatText = false,				-- show combat feedback text
+	druidMana = false,				-- [druid] show a mana bar in cat/bear forms
+	eclipseBar = true,				-- [druid] show an eclipse bar
+	eclipseBarIcons = false,		-- [druid] show animated icons on the eclipse bar
+	runeBars = true,					-- [deathknight] show rune cooldown bars
+	totemBars = true,					-- [shaman] show totem duration bars
+
+	healthColor = { 0.2, 0.2, 0.2 },
+	healthColorMode = "CUSTOM",
+	healthBG = 2,
+
+	powerColor = { 0.8, 0.8, 0.8 },
+	powerColorMode = "CLASS",
+	powerBG = 0.25,
+
+	borderColor = { 0.5, 0.5, 0.5 },
+	borderSize = 16,
+
+	PVP = false, -- enable PVP mode, currently only affects aura filtering
+}
+
+------------------------------------------------------------------------
+--	Default unit configuration
+------------------------------------------------------------------------
+
+ns.uconfigDefault = {
+	player = {
+		point = "BOTTOMRIGHT UIParent CENTER -200 -200",
+		width = 1.3,
+		power = true,
+		castbar = true,
+	},
+	pet = {
+		point = "RIGHT player LEFT -12 0",
+		width = 0.5,
+		power = true,
+		castbar = true,
+	},
+	target = {
+		point = "BOTTOMLEFT UIParent CENTER 200 -200",
+		width = 1.3,
+		power = true,
+		castbar = true,
+	},
+	targettarget = {
+		point = "LEFT target RIGHT 12 0",
+		width = 0.5,
+	},
+	focus = {
+		point = "TOPLEFT target BOTTOMLEFT 0 -60",
+		power = true,
+	},
+	focustarget = {
+		point = "LEFT focus RIGHT 12 0",
+		width = 0.5,
+	},
+	party = {
+		point = "TOPLEFT boss5 BOTTOMLEFT 0 -75", -- CHECK POSITION
+		width = 0.5,
+		power = true,
+		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25 },
+		visible = "party",
+	},
+	partypet = {
+		point = "TOPLEFT party TOPRIGHT 12 0",
+		width = 0.25,
+		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "useOwnerUnit", true, "unitsuffix", "pet" },
+		visible = "party",
+	},
+	-------------
+	--	Bosses --
+	-------------
+	boss1 = {
+		point = "TOPRIGHT UIParent TOPRIGHT -15 -250",
+		width = 0.8,
+		height = 0.8,
+		power = true,
+	},
+	boss2 = {
+		point = "TOPRIGHT boss1 BOTTOMRIGHT 0 -25",
+		width = 0.8,
+		height = 0.8,
+		power = true,
+	},
+	boss3 = {
+		point = "TOPRIGHT boss2 BOTTOMRIGHT 0 -25",
+		width = 0.8,
+		height = 0.8,
+		power = true,
+	},
+	boss4 = {
+		point = "TOPRIGHT boss3 BOTTOMRIGHT 0 -25",
+		width = 0.8,
+		height = 0.8,
+		power = true,
+	},
+	boss5 = {
+		point = "TOPRIGHT boss4 BOTTOMRIGHT 0 -25",
+		width = 0.8,
+		height = 0.8,
+		power = true,
+	},
+	-----------------------
+	--	Arena Oppnonents --
+	-----------------------
+	arena1 = {
+		point = "TOPLEFT boss1",
+		width = 0.5,
+		height = 0.8,
+		power = true,
+	},
+	arena2 = {
+		point = "TOPRIGHT arena1 BOTTOMRIGHT 0 -25",
+		width = 0.5,
+		height = 0.8,
+		power = true,
+	},
+	arena3 = {
+		point = "TOPRIGHT arena2 BOTTOMRIGHT 0 -25",
+		width = 0.5,
+		height = 0.8,
+		power = true,
+	},
+	arena4 = {
+		point = "TOPRIGHT arena3 BOTTOMRIGHT 0 -25",
+		width = 0.5,
+		height = 0.8,
+		power = true,
+	},
+	arena5 = {
+		point = "TOPRIGHT arena4 BOTTOMRIGHT 0 -25",
+		width = 0.5,
+		height = 0.8,
+		power = true,
+	},
+	----------------------------
+	--	Arena Opponents' Pets --
+	----------------------------
+	arenapet1 = {
+		point = "LEFT arena1 RIGHT 10 0",
+		width = 0.25,
+		height = 0.8,
+	},
+	arenapet2 = {
+		point = "LEFT arena2 RIGHT 10 0",
+		width = 0.25,
+		height = 0.8,
+	},
+	arenapet3 = {
+		point = "LEFT arena3 RIGHT 10 0",
+		width = 0.25,
+		height = 0.8,
+	},
+	arenapet4 = {
+		point = "LEFT arena4 RIGHT 10 0",
+		width = 0.25,
+		height = 0.8,
+	},
+	arenapet5 = {
+		point = "LEFT arena5 RIGHT 10 0",
+		width = 0.25,
+		height = 0.8,
+	},
+}
+
+------------------------------------------------------------------------
+--	Colors
+------------------------------------------------------------------------
+
+oUF.colors.fallback = { 1, 1, 0.8 }
+oUF.colors.uninterruptible = { 1, 0.7, 0 }
+
+oUF.colors.threat = {}
+for i = 1, 3 do
+	local r, g, b = GetThreatStatusColor(i)
+	oUF.colors.threat[i] = { r, g, b }
+end
+
+do
+	local pcolor = oUF.colors.power
+	pcolor.MANA[1], pcolor.MANA[2], pcolor.MANA[3] = 0, 0.8, 1
+	pcolor.RUNIC_POWER[1], pcolor.RUNIC_POWER[2], pcolor.RUNIC_POWER[3] = 0.8, 0, 1
+
+	local rcolor = oUF.colors.reaction
+	rcolor[1][1], rcolor[1][2], rcolor[1][3] = 1, 0.2, 0.2 -- Hated
+	rcolor[2][1], rcolor[2][2], rcolor[2][3] = 1, 0.2, 0.2 -- Hostile
+	rcolor[3][1], rcolor[3][2], rcolor[3][3] = 1, 0.6, 0.2 -- Unfriendly
+	rcolor[4][1], rcolor[4][2], rcolor[4][3] = 1,   1, 0.2 -- Neutral
+	rcolor[5][1], rcolor[5][2], rcolor[5][3] = 0.2, 1, 0.2 -- Friendly
+	rcolor[6][1], rcolor[6][2], rcolor[6][3] = 0.2, 1, 0.2 -- Honored
+	rcolor[7][1], rcolor[7][2], rcolor[7][3] = 0.2, 1, 0.2 -- Revered
+	rcolor[8][1], rcolor[8][2], rcolor[8][3] = 0.2, 1, 0.2 -- Exalted
+end
+
 ------------------------------------------------------------------------
 --	Load stuff
 ------------------------------------------------------------------------
