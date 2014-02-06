@@ -1,7 +1,7 @@
 ﻿oUF_Phanx
 =========
 
-* Copyright (c) 2008-2013 Phanx <addons@phanx.net>
+* Copyright (c) 2008-2014 Phanx <addons@phanx.net>
 * See the accompanying LICENSE file for more information
 * http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 * http://wow.curseforge.com/addons/ouf-phanx/

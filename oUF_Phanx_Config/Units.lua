@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2008-2014 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
@@ -10,41 +10,6 @@
 local _, ns = ...
 local _, playerClass = UnitClass("player")
 local L = ns.L
-
-L.UnitSettings = "Units"
--- Einheiten
-L.UnitSettings_Desc = "Change settings for individual unit frames."
--- Einstellungen der einzelnen Einheitfenster ändern.
-L.Unit_Player = "Player"
--- Spieler
-L.Unit_Pet = "Pet"
--- Haustier
-L.Unit_Target = "Target"
--- Ziel
-L.Unit_TargetTarget = "Target of Target"
-L.Unit_Focus = "Focus"
-L.Unit_FocusTarget = "Target of Focus"
-L.Unit_Party = "Party"
--- Gruppe
-L.Unit_PartyPet = "Party Pets"
--- Gruppenhaustiere
-L.Unit_Boss = "Bosses"
-L.Unit_Arena = "Arena Enemies"
-L.Unit_ArenaPet = "Arena Pets"
-L.EnableUnit = "Enable"
--- Aktivieren
-L.EnableUnit_Desc = "You can disable the oUF Phanx frame for this unit if you prefer to use the frame provided by the default UI or another addon."
--- Das Fenster dieser Einheit von oUF Phanx könnt Ihr deaktivieren, wann Ihr vorzieht, um das Fenster von den Standard-UI oder ein anderen Addon verwenden.
-L.Width = "Width"
-L.Width_Desc = "Set the width of this unit's frame relative to the layout's base width."
-L.Height = "Height"
-L.Height_Desc = "Set the height of this unit's frame relative to the layout's base height."
-L.Power = "Show power bar"
-L.Power_Desc = "Show a power bar on the frame for this unit."
-L.Castbar = "Show cast bar"
-L.Castbar_Desc = "Show a cast bar on the frame for this unit."
-
-L.CombatText_Desc = "Show combat feedback text on the frame for this unit."
 
 local unitLabel = {
 	player = L.Unit_Player,
@@ -97,11 +62,8 @@ end
 
 ------------------------------------------------------------------------
 
-LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.UnitSettings, "oUF Phanx", function(panel)
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
-	local CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
-
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.UnitSettings_Desc .. "\n" .. L.MoreSettings_Desc)
+LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(panel)
+	panel:CreateHeader(panel, panel.name, L.UnitSettings_Desc .. "\n" .. L.MoreSettings_Desc)
 
 	--------------------------------------------------------------------
 
@@ -186,41 +148,41 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.UnitSettings, "oUF Phan
 	unitSettings:SetBackdrop({ edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16 })
 	unitSettings:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
 
-	local unitTitle = LibStub("PhanxConfig-Header").CreateHeader(unitSettings, UNKNOWN)
+	local unitTitle = panel.CreateHeader(unitSettings, UNKNOWN)
 
-	local enable = CreateCheckbox(unitSettings, L.EnableUnit, L.EnableUnit_Desc)
+	local enable = panel.CreateCheckbox(unitSettings, L.EnableUnit, L.EnableUnit_Desc)
 	enable:SetPoint("TOPLEFT", unitTitle, "BOTTOMLEFT", 0, -12)
 	function enable:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "disable", not value or nil)
 	end
 
-	local power = CreateCheckbox(unitSettings, L.Power, L.Power_Desc)
+	local power = panel.CreateCheckbox(unitSettings, L.Power, L.Power_Desc)
 	power:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -12)
 	function power:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "power", value or nil)
 	end
 
-	local castbar = CreateCheckbox(unitSettings, L.Castbar, L.Castbar_Desc)
+	local castbar = panel.CreateCheckbox(unitSettings, L.Castbar, L.Castbar_Desc)
 	castbar:SetPoint("TOPLEFT", power, "BOTTOMLEFT", 0, -12)
 	function castbar:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "castbar", value or nil)
 	end
 
-	local combatText = CreateCheckbox(unitSettings, L.CombatText, L.CombatText_Desc)
+	local combatText = panel.CreateCheckbox(unitSettings, L.CombatText, L.CombatText_Desc)
 	combatText:SetPoint("TOPLEFT", castbar, "BOTTOMLEFT", 0, -12)
 	function combatText:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "combatText", value or nil)
 	end
 
 
-	local width = CreateSlider(unitSettings, L.Width, L.Width_Desc, 0.25, 2, 0.05, true)
+	local width = panel.CreateSlider(unitSettings, L.Width, L.Width_Desc, 0.25, 2, 0.05, true)
 	width:SetPoint("TOPLEFT", unitTitle, "BOTTOM", 8, -16)
 	width:SetPoint("TOPRIGHT", unitTitle, "BOTTOMRIGHT", 0, -16)
 	function width:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "width", value ~= 1 and value or nil)
 	end
 
-	local height = CreateSlider(unitSettings, L.Height, L.Height_Desc, 0.25, 2, 0.05, true)
+	local height = panel.CreateSlider(unitSettings, L.Height, L.Height_Desc, 0.25, 2, 0.05, true)
 	height:SetPoint("TOPLEFT", width, "BOTTOMLEFT", 0, -24)
 	height:SetPoint("TOPRIGHT", width, "BOTTOMRIGHT", 0, -24)
 	function height:OnValueChanged(value)
@@ -279,3 +241,10 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.UnitSettings, "oUF Phan
 		    height:SetValue(GetUnitConfig(unit, "height") or 1)
 	end
 end)
+
+------------------------------------------------------------------------
+
+local LAP = LibStub("LibAboutPanel", true)
+if LAP then
+	LAP.new("oUF Phanx", "oUF_Phanx")
+end

@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2008-2014 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
@@ -35,7 +35,7 @@ L.ColorPower = "Nach Energieart"
 L.Colors = "Farbe"
 L.Colors_Desc = "Diese Optionen ändern die Farben, die für verschiedene Teile der Einheitfenster verwendet werden."
 L.CombatText = "Kampfrückmeldungstext"
-L.CombatText_Desc = "Schadens-, Heilungs- und anderen Kampftext auf den Einheitfenstern anzeigen."
+L.CombatText_Desc = "Schadens-, Heilungs- und anderen Kampftext auf den Fenster dieser Einheit anzeigen."
 L.DeleteAura = "Aura löschen"
 L.DeleteAura_Desc = "Den benutzerdefinierten Filter für diese Aura löschen."
 L.DruidManaBar = "Druidmanabalken"
@@ -73,6 +73,8 @@ L.PowerHeight_Desc = "Die Höhe des Ressourcenbalkens festlegen, als ein Prozent
 L.ReloadUI = "UI neuladen"
 L.RuneBars = "Runenleiste anzeigen"
 L.RuneBars_Desc = "Abklingzeitleisten für Ihre Runen über dem Spielerfenster anzeigen."
+--L.StaggerBar = "Show stagger bar"
+--L.StaggerBar_Desc = "Show your staggered damage as a bar above the player frame."
 L.Texture = "Textur"
 L.Thick = "Dick"
 L.Thin = "Dünn"
@@ -80,3 +82,27 @@ L.ThreatLevels = "Bedrohungstufen anzeigen"
 L.ThreatLevels_Desc = "Detaillierte Bedrohungstufen anzeigen, statt einer einfachen Aggro-Status."
 L.TotemBars = "Totemleisten anzeigen"
 L.TotemBars_Desc = "Zeitleisten für Ihre Totems über dem Spielerfenster anzeigen."
+
+L.UnitSettings = "Einheiten"
+L.UnitSettings_Desc = "Einstellungen der einzelnen Einheitfenster ändern."
+L.Unit_Player = "Spieler"
+L.Unit_Pet = "Haustier"
+L.Unit_Target = "Ziel"
+L.Unit_TargetTarget = "Ziel von Ziel"
+L.Unit_Focus = "Fokus"
+L.Unit_FocusTarget = "Ziel of Fokus"
+L.Unit_Party = "Gruppe"
+L.Unit_PartyPet = "Gruppenhaustiere"
+L.Unit_Boss = "Bosse"
+L.Unit_Arena = "Arenagegner"
+L.Unit_ArenaPet = "Arenagegnershaustiere"
+L.EnableUnit = "Aktivieren"
+L.EnableUnit_Desc = "Das Fenster von oUF Phanx dieser Einheit könnt Ihr deaktivieren, falls Ihr vorzieht, das Fenster des Standard-UI oder eines anderen Addon verzuwenden."
+L.Width = "Relative Breite"
+L.Width_Desc = "Die Briete diesem Einheitfenster relativ zur Layoutsbasisbreite einstellen."
+L.Height = "Relative Höhe"
+L.Height_Desc = "Die Höhe diesem Einheitfenster relativ zur Layoutsbasisbreite einstellen."
+L.Power = "Ressourcenbalken"
+L.Power_Desc = "Eine Ressourcenbalken auf diesem Einheitfenster anzeigen."
+L.Castbar = "Zauberbalken"
+L.Castbar_Desc = "Eine Zauberbalken auf diesem Einheitfenster anzeigen."

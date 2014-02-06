@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2008-2014 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
@@ -10,32 +10,25 @@
 local _, ns = ...
 local L = ns.L
 
+-- import other ns and remove global
+setmetatable(ns, oUFPhanx)
+oUFPhanx = nil
+
 ------------------------------------------------------------------------
 --	Options panel
 ------------------------------------------------------------------------
 
-local CreateOptionsPanel = LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel
-
-------------------------------------------------------------------------
-
-ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
+LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	local db = oUFPhanxConfig
-
-	local CreateCheckbox = LibStub("PhanxConfig-Checkbox").CreateCheckbox
-	local CreateColorPicker = LibStub("PhanxConfig-ColorPicker").CreateColorPicker
-	local CreateDropdown = LibStub("PhanxConfig-Dropdown").CreateDropdown
-	local CreateScrollingDropdown = LibStub("PhanxConfig-ScrollingDropdown").CreateScrollingDropdown
-	local CreateSlider = LibStub("PhanxConfig-Slider").CreateSlider
-
 	local SharedMedia = LibStub("LibSharedMedia-3.0", true)
 
 	--------------------------------------------------------------------
 
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.Options_Desc)
+	local title, notes = panel:CreateHeader(panel.name, L.Options_Desc)
 
 	--------------------------------------------------------------------
 
-	local statusbar = CreateScrollingDropdown(panel, L.Texture, nil, ns.statusbarList)
+	local statusbar = panel:CreateScrollingDropdown(L.Texture, nil, ns.statusbarList)
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
 
@@ -109,7 +102,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local font = CreateScrollingDropdown(panel, L.Font, nil, ns.fontList)
+	local font = panel:CreateScrollingDropdown(L.Font, nil, ns.fontList)
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
@@ -177,7 +170,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 			ns.SetAllFonts()
 		end
 
-		outline = CreateDropdown(panel, L.Outline, nil, function()
+		outline = panel:CreateDropdown(L.Outline, nil, function()
 			local selected = db.fontOutline
 
 			local info = {}
@@ -204,7 +197,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local borderSize = CreateSlider(panel, L.BorderSize, nil, 12, 24, 2)
+	local borderSize = panel:CreateSlider(L.BorderSize, nil, 12, 24, 2)
 	borderSize:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", 0, -12)
 	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -12)
 	function borderSize:OnValueChanged(value)
@@ -218,7 +211,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local borderColor = CreateColorPicker(panel, L.BorderColor, L.BorderColor_Desc)
+	local borderColor = panel:CreateColorPicker(L.BorderColor, L.BorderColor_Desc)
 	borderColor:SetPoint("LEFT", borderSize, "RIGHT", 24, -4)
 
 	function borderColor:GetColor()
@@ -241,7 +234,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local dispelFilter = CreateCheckbox(panel, L.FilterDebuffHighlight, L.FilterDebuffHighlight_Desc)
+	local dispelFilter = panel:CreateCheckbox(L.FilterDebuffHighlight, L.FilterDebuffHighlight_Desc)
 	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 	function dispelFilter:OnValueChanged(value)
 		db.dispelFilter = value
@@ -255,7 +248,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local healFilter = CreateCheckbox(panel, L.IgnoreOwnHeals, L.IgnoreOwnHeals_Desc)
+	local healFilter = panel:CreateCheckbox(L.IgnoreOwnHeals, L.IgnoreOwnHeals_Desc)
 	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -12)
 	function healFilter:OnValueChanged(value)
 		db.ignoreOwnHeals = value
@@ -268,7 +261,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local threatLevels = CreateCheckbox(panel, L.ThreatLevels, L.ThreatLevels_Desc)
+	local threatLevels = panel:CreateCheckbox(L.ThreatLevels, L.ThreatLevels_Desc)
 	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -12)
 	function threatLevels:OnValueChanged(value)
 		db.ignoreOwnHeals = value
@@ -289,7 +282,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 		CUSTOM = L.ColorCustom,
 	}
 
-	local healthColorMode = CreateDropdown(panel, L.HealthColor, L.HealthColor_Desc)
+	local healthColorMode = panel:CreateDropdown(L.HealthColor, L.HealthColor_Desc)
 	healthColorMode:SetPoint("TOPLEFT", borderSize, "BOTTOMLEFT", 0, -12)
 	healthColorMode:SetPoint("TOPRIGHT", borderSize, "BOTTOMRIGHT", 0, -12)
 
@@ -343,7 +336,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	healthColor = CreateColorPicker(panel, L.HealthColorCustom)
+	healthColor = panel:CreateColorPicker(L.HealthColorCustom)
 	healthColor:SetPoint("LEFT", healthColorMode, "RIGHT", 24, -8)
 	function healthColor:GetColor()
 		return unpack(db.healthColor)
@@ -364,7 +357,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local healthBG = CreateSlider(panel, L.HealthBG, L.HealthBG_Desc, 0, 3, 0.05, true)
+	local healthBG = panel:CreateSlider(L.HealthBG, L.HealthBG_Desc, 0, 3, 0.05, true)
 	healthBG:SetPoint("TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12)
 	healthBG:SetPoint("TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12)
 
@@ -398,7 +391,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 		CUSTOM = L.ColorCustom,
 	}
 
-	local powerColorMode = CreateDropdown(panel, L.PowerColor, L.PowerColor_Desc)
+	local powerColorMode = panel:CreateDropdown(L.PowerColor, L.PowerColor_Desc)
 	powerColorMode:SetPoint("TOPLEFT", healthBG, "BOTTOMLEFT", 0, -12)
 	powerColorMode:SetPoint("TOPRIGHT", healthBG, "BOTTOMRIGHT", 0, -12)
 
@@ -456,7 +449,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	powerColor = CreateColorPicker(panel, L.PowerColorCustom)
+	powerColor = panel:CreateColorPicker(L.PowerColorCustom)
 	powerColor:SetPoint("LEFT", powerColorMode, "RIGHT", 24, -4)
 
 	function powerColor:GetColor()
@@ -479,7 +472,7 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local powerBG = CreateSlider(panel, L.PowerBG, L.PowerBG_Desc, 0, 3, 0.05, true)
+	local powerBG = panel:CreateSlider(L.PowerBG, L.PowerBG_Desc, 0, 3, 0.05, true)
 	powerBG:SetPoint("TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -12)
 	powerBG:SetPoint("TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -12)
 
@@ -577,11 +570,3 @@ ns.optionsPanel = CreateOptionsPanel("oUF Phanx", nil, function(panel)
 		end
 	end
 end)
-
-------------------------------------------------------------------------
-
-SLASH_OUFPHANX1 = "/pouf"
-
-function SlashCmdList.OUFPHANX()
-	InterfaceOptionsFrame_OpenToCategory(ns.optionsPanel)
-end

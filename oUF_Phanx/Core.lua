@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2008-2014 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
@@ -15,9 +15,6 @@ ns.statusbarList = {}
 
 ns.fontstrings = {}
 ns.statusbars = {}
-
-ns.export = {}
-oUFPhanx = ns.export
 
 ------------------------------------------------------------------------
 --	Default configuration
@@ -321,12 +318,6 @@ function Loader:ADDON_LOADED(event, addon)
 	end
 	ns.loadFuncs = nil
 
-	-- Add about panel after all the other options panels
-	local AboutPanel = LibStub("LibAboutPanel", true)
-	if AboutPanel then
-		ns.aboutPanel = AboutPanel.new(ns.optionsPanel.name, "oUF_Phanx")
-	end
-
 	-- Cleanup
 	self:UnregisterEvent(event)
 	self.ADDON_LOADED = nil
@@ -342,6 +333,28 @@ function Loader:ADDON_LOADED(event, addon)
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	if not UnitAffectingCombat("player") then
 		self:RegisterEvent("MODIFIER_STATE_CHANGED")
+	end
+
+	-- Load options on demand
+	local Options = CreateFrame("Frame", "oUFPhanxOptions")
+	Options.name = "oUF Phanx"
+	InterfaceOptions_AddCategory(Options)
+	Options:SetScript("OnShow", function(self)
+		oUFPhanx = ns
+		local loaded, reason = LoadAddOn("oUF_Phanx_Config")
+		if not loaded then
+			local text = self:CreateFontString(nil, nil, "GameFontHighlight")
+			text:SetPoint("BOTTOMLEFT", 16, 16)
+			text:SetPoint("TOPRIGHT", -16, -16)
+			text:SetFormattedText(ADDON_LOAD_FAILED, "oUF_Phanx_Config", _G[reason])
+			oUFPhanx = nil
+		end
+	end)
+
+	SLASH_OUFPHANX1 = "/pouf"
+	function SlashCmdList.OUFPHANX()
+		InterfaceOptionsFrame_OpenToCategory("oUF Phanx")
+		InterfaceOptionsFrame_OpenToCategory("oUF Phanx")
 	end
 end
 

@@ -1,13 +1,13 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2008-2014 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
 	Spanish localization
-	Contributors: Akkorian
+	Contributors: Akkorian, Phanx
 ----------------------------------------------------------------------]]
 
 if not strmatch(GetLocale(), "^es") then return end
@@ -35,7 +35,7 @@ L.ColorPower = "Colorear por tipo de poder"
 L.Colors = "Colores"
 L.Colors_Desc = "Estas opciones te permiten modificar los colores utilizados para las diferentes partes de los marcos."
 L.CombatText = "Texto de combate"
-L.CombatText_Desc = "Mostrar texto de daños, sanaciones y otros retroalimentaciones de combate en los marcos."
+L.CombatText_Desc = "Mostrar texto de daños, sanaciones y otros retroalimentaciones de combate en el marco para este unidad."
 L.DeleteAura = "Eliminar aura"
 L.DeleteAura_Desc = "Eliminar el filtro personalizado para este aura."
 L.DruidManaBar = "Barra de maná en formas"
@@ -73,6 +73,8 @@ L.PowerHeight_Desc = "Cambiar la talla de la barra de poder, como un porcentaje 
 L.ReloadUI = "Recargar IU"
 L.RuneBars = "Barras de runas"
 L.RuneBars_Desc = "Mostrar barras de tiempo de reutilización para tus runas sobre el maro de tu personaje."
+--L.StaggerBar = "Show stagger bar"
+--L.StaggerBar_Desc = "Show your staggered damage as a bar above the player frame."
 L.Texture = "Textura"
 L.Thick = "Grueso"
 L.Thin = "Fino"
@@ -80,3 +82,27 @@ L.ThreatLevels = "Niveles de amenaza"
 L.ThreatLevels_Desc = "Mostrar los niveles de amenaza en lugar del sólo agro."
 L.TotemBars = "Barras de totems"
 L.TotemBars_Desc = "Mostrar barras de tiempo para tus totems sobre el maro de tu personaje."
+
+L.UnitSettings = "Unidades"
+L.UnitSettings_Desc = "Cambiar la configuraciones de los marcos de unidad individuales."
+L.Unit_Player = "Jugador"
+L.Unit_Pet = "Mascota"
+L.Unit_Target = "Objetivo"
+L.Unit_TargetTarget = "Objetivo de objetivo"
+L.Unit_Focus = "Foco"
+L.Unit_FocusTarget = "Objetivo de foco"
+L.Unit_Party = "Grupo"
+L.Unit_PartyPet = "Mascotas de grupo"
+L.Unit_Boss = "Jefes"
+L.Unit_Arena = "Enemigos de arena"
+L.Unit_ArenaPet = "Mascotas de arena"
+L.EnableUnit = "Activar"
+L.EnableUnit_Desc = "Es posible desactivar el marco de oUF Phanx de esta unidad, con el fin de usar el marco de la interfaz por defecto o un otro addon."
+L.Width = "Anchura"
+L.Width_Desc = "Establecer la anchura del marco de esta unidad con relación a la anchura básica del diseño."
+L.Height = "Altura"
+L.Height_Desc = "Establecer la altura del marco de esta unidad con relación a la altura básica del diseño."
+L.Power = "Barra de poder"
+L.Power_Desc = "Mostrar una barra de poder (maná, energia, etc.) en el marco de esta unidad."
+L.Castbar = "Barra de lanzamiento"
+L.Castbar_Desc = "Mostrar una barra de lanzamiento en el marco de esta unidad."
