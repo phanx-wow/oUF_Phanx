@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Copyright (c) 2008-2013 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2008-2014 Phanx <addons@phanx.net>. All rights reserved.
 	See the accompanying README and LICENSE files for more information.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
@@ -11,7 +11,7 @@ local _, ns = ...
 local L = ns.L
 
 LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", function(panel)
-	local title, notes = LibStub("PhanxConfig-Header").CreateHeader(panel, panel.name, L.Auras_Desc)
+	local title, notes = panel:CreateHeader(panel.name, L.Auras_Desc)
 
 	local scrollFrame = CreateFrame("ScrollFrame", "oUFPCAuraScrollFrame", panel, "UIPanelScrollFrameTemplate")
 	scrollFrame:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -16)
@@ -81,7 +81,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		panel.refresh()
 	end)
 
-	dialog.Title, dialog.Notes = LibStub("PhanxConfig-Header").CreateHeader(dialog, L.AddAura, L.AddAura_Desc)
+	dialog.Title, dialog.Notes = panel.CreateHeader(dialog, L.AddAura, L.AddAura_Desc)
 	dialog.Notes:SetHeight(16) -- only one line
 
 	local dialogBox = CreateFrame("EditBox", "oUFPCAuraEditBox", dialog, "InputBoxTemplate")
@@ -283,7 +283,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		name:SetPoint("LEFT", icon, "RIGHT", 12, 0)
 		row.name = name
 
-		local filter = LibStub("PhanxConfig-Dropdown").CreateDropdown(row, nil, nil, Dropdown_Initialize)
+		local filter = panel.CreateDropdown(row, nil, nil, Dropdown_Initialize)
 		filter:SetPoint("RIGHT", 0, 5)
 		filter:SetWidth(200)
 		filter.OnEnter = Dropdown_OnEnter

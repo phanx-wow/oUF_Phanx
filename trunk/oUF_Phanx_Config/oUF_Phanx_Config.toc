@@ -21,6 +21,7 @@
 
 ## Dependencies: oUF_Phanx
 ## OptionalDependencies: LibAboutPanel, PhanxConfigWidgets
+## LoadOnDemand: 1
 
 Libs\LibAboutPanel\LibAboutPanel.lua
 Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
