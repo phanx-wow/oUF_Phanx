@@ -63,7 +63,7 @@ end
 ------------------------------------------------------------------------
 
 LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(panel)
-	panel:CreateHeader(panel, panel.name, L.UnitSettings_Desc .. "\n" .. L.MoreSettings_Desc)
+	local title, notes = panel:CreateHeader(panel.name, L.UnitSettings_Desc .. "\n" .. L.MoreSettings_Desc)
 
 	--------------------------------------------------------------------
 

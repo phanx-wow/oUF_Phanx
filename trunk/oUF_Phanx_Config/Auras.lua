@@ -115,7 +115,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		local id = self:GetNumber()
 		if id and id > 0 and GetSpellInfo(id) then
 			oUFPhanxAuraConfig[id] = 1
-			oUFPhanx.UpdateAuraList()
+			ns.UpdateAuraList()
 			dialog:Hide()
 		end
 	end)

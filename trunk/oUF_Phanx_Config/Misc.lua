@@ -12,6 +12,8 @@ local _, playerClass = UnitClass("player")
 local L = ns.L
 
 LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phanx", function(panel)
+	local db = oUFPhanxConfig
+
 	local title, notes = panel:CreateHeader(panel.name, L.MoreSettings_Desc)
 
 	--------------------------------------------------------------------
@@ -20,21 +22,21 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 	FrameWidth:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	FrameWidth:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
 	function FrameWidth:OnValueChanged(value)
-		ns.config.width = value
+		db.width = value
 	end
 
 	local FrameHeight = panel:CreateSlider(L.FrameHeight, L.FrameHeight_Desc, 10, 60, 5)
 	FrameHeight:SetPoint("TOPLEFT", FrameWidth, "BOTTOMLEFT", 0, -24)
 	FrameHeight:SetPoint("TOPRIGHT", FrameWidth, "BOTTOMRIGHT", 0, -24)
 	function FrameHeight:OnValueChanged(value)
-		ns.config.height = value
+		db.height = value
 	end
 
 	local PowerHeight = panel:CreateSlider(L.PowerHeight, L.PowerHeight_Desc, 0.1, 0.5, 0.05, true)
 	PowerHeight:SetPoint("TOPLEFT", FrameHeight, "BOTTOMLEFT", 0, -24)
 	PowerHeight:SetPoint("TOPRIGHT", FrameHeight, "BOTTOMRIGHT", 0, -24)
 	function PowerHeight:OnValueChanged(value)
-		ns.config.powerHeight = value
+		db.powerHeight = value
 	end
 
 	--------------------------------------------------------------------
@@ -46,7 +48,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		local RuneBars = panel:CreateCheckbox(L.RuneBars, L.RuneBars_Desc)
 		RuneBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 		function RuneBars:OnValueChanged(value)
-			ns.config.runeBars = value
+			db.runeBars = value
 		end
 		RuneBars.checkedKey = "runeBars"
 		tinsert(ClassFeatures, RuneBars)
@@ -56,7 +58,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		local DruidMana = panel:CreateCheckbox(L.DruidMana, L.DruidMana_Desc)
 		DruidMana:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 		function DruidMana:OnValueChanged(value)
-			ns.config.druidMana = value
+			db.druidMana = value
 		end
 		DruidMana.checkedKey = "druidMana"
 		tinsert(ClassFeatures, DruidMana)
@@ -64,7 +66,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		local EclipseBar = panel:CreateCheckbox(L.EclipseBar, L.EclipseBar_Desc)
 		EclipseBar:SetPoint("TOPLEFT", DruidMana, "BOTTOMLEFT", 0, -12)
 		function EclipseBar:OnValueChanged(value)
-			ns.config.eclipseBar = value
+			db.eclipseBar = value
 			EclipseBarIcons:SetEnabled(value)
 		end
 		EclipseBar.checkedKey = "eclipseBar"
@@ -73,7 +75,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		local EclipseBarIcons = panel:CreateCheckbox(L.EclipseBarIcons, L.EclipseBarIcons_Desc)
 		EclipseBarIcons:SetPoint("TOPLEFT", EclipseBar, "BOTTOMLEFT", 0, -12)
 		function EclipseBarIcons:OnValueChanged(value)
-			ns.config.eclipseBarIcons = value
+			db.eclipseBarIcons = value
 		end
 		EclipseBarIcons.checkedKey = "eclipseBarIcons"
 		EclipseBarIcons.enabledKey = "eclipseBar"
@@ -84,7 +86,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		local StaggerBar = panel:CreateCheckbox(L.StaggerBar, L.StaggerBar_Desc)
 		StaggerBar:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 		function StaggerBar:OnValueChanged(value)
-			ns.config.staggerBar = value
+			db.staggerBar = value
 		end
 		StaggerBar.checkedKey = "staggerBar"
 		tinsert(ClassFeatures, StaggerBar)
@@ -94,7 +96,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 		local TotemBars = panel:CreateCheckbox(L.TotemBars, L.TotemBars_Desc)
 		TotemBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 		function TotemBars:OnValueChanged(value)
-			ns.config.totemBars = value
+			db.totemBars = value
 		end
 		TotemBars.checkedKey = "totemBars"
 		tinsert(ClassFeatures, TotemBars)
@@ -116,14 +118,19 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 	--------------------------------------------------------------------
 
 	function panel:refresh()
-		FrameWidth:SetValue(ns.config.width)
-		FrameHeight:SetValue(ns.config.height)
-		PowerHeight:SetValue(ns.config.powerHeight)
+		oPCFrameWidth = FrameWidth
+		oPCFrameHeight = FrameHeight
+
+		FrameWidth:SetValue(db.width)
+		FrameHeight:SetValue(db.height)
+		PowerHeight:SetValue(db.powerHeight)
 
 		for i = 1, #ClassFeatures do
 			local box = ClassFeatures[i]
-			box:SetChecked(ns.config[box.checkedKey])
-			box:SetEnabled(box.enabledKey and ns.config[box.enabledKey] or true)
+			box:SetChecked(db[box.checkedKey])
+			if box.enabledKey then
+				box:SetEnabled(db[box.enabledKey])
+			end
 		end
 
 		for i = 1, #oUF.objects do
