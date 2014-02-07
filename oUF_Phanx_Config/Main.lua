@@ -11,7 +11,7 @@ local _, ns = ...
 local L = ns.L
 
 -- import other ns and remove global
-setmetatable(ns, oUFPhanx)
+setmetatable(ns, { __index = oUFPhanx })
 oUFPhanx = nil
 
 ------------------------------------------------------------------------

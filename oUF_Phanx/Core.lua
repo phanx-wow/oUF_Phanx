@@ -339,6 +339,7 @@ function Loader:ADDON_LOADED(event, addon)
 	local Options = CreateFrame("Frame", "oUFPhanxOptions")
 	Options.name = "oUF Phanx"
 	InterfaceOptions_AddCategory(Options)
+
 	Options:SetScript("OnShow", function(self)
 		oUFPhanx = ns
 		local loaded, reason = LoadAddOn("oUF_Phanx_Config")
