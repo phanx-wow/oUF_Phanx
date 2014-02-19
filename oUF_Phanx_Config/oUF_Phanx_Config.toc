@@ -1,13 +1,13 @@
 ## Interface: 50400
 ## Version: 5.4.2.wowi:revision
 
-## Title: oUF: Phanx (Config)
+## Title: oUF: Phanx Options
 ## Notes: Configuration UI for oUF Phanx.
-## Notes-deDE: Einstellungen für oUF Phanx.
-## Notes-esES: Configuración para oUF Phanx.
-## Notes-esMX: Configuración para oUF Phanx.
-## Notes-frFR: Réglages pour oUF Phanx.
-## Notes-ptBR: Configurações para oUF Phanx.
+## Notes-deDE: Konfigurationsinterface für oUF Phanx.
+## Notes-esES: Interfaz de configuración para oUF Phanx.
+## Notes-esMX: Interfaz de configuración para oUF Phanx.
+## Notes-frFR: Interface de configuration pour oUF Phanx.
+## Notes-ptBR: Interface de configuração para oUF Phanx.
 
 ## Author: Phanx
 ## X-Email: addons@phanx.net
