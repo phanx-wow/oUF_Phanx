@@ -353,9 +353,30 @@ function Loader:ADDON_LOADED(event, addon)
 	end)
 
 	SLASH_OUFPHANX1 = "/pouf"
-	function SlashCmdList.OUFPHANX()
-		InterfaceOptionsFrame_OpenToCategory("oUF Phanx")
-		InterfaceOptionsFrame_OpenToCategory("oUF Phanx")
+	SLASH_OUFPHANX2 = "/oufphanx"
+	function SlashCmdList.OUFPHANX(cmd)
+		cmd = strlower(cmd)
+		if cmd == "buffs" or cmd == "debuffs" then
+			local tmp = {}
+			local func = cmd == "buffs" and UnitBuff or UnitDebuff
+			for i = 1, 40 do
+				local name, _, _, _, _, _, _, _, _, _, id = func("target", i)
+				if not name then break end
+				tinsert(tmp, format("%s [%d]", name, id))
+			end
+			if #tmp > 0 then
+				sort(tmp)
+				print(format("|cff00ddbaoUF Phanx:|r Your current target has %d %s:", #tmp, cmd))
+				for i = 1, #tmp do
+					print("   ", tmp[i])
+				end
+			else
+				print(format("|cff00ddbaoUF Phanx:|r Your current target does not have any %s."))
+			end
+		else
+			InterfaceOptionsFrame_OpenToCategory("oUF Phanx")
+			InterfaceOptionsFrame_OpenToCategory("oUF Phanx")
+		end
 	end
 end
 
