@@ -42,6 +42,7 @@ ns.configDefault = {
 	eclipseBar = true,				-- [druid] show an eclipse bar
 	eclipseBarIcons = false,		-- [druid] show animated icons on the eclipse bar
 	runeBars = true,					-- [deathknight] show rune cooldown bars
+	staggerBar = true,				-- [monk] show stagger bar
 	totemBars = true,					-- [shaman] show totem duration bars
 
 	healthColor = { 0.2, 0.2, 0.2 },
@@ -511,10 +512,13 @@ end
 ------------------------------------------------------------------------
 
 function ns.CreateFontString(parent, size, justify)
+	if not size or size == 0 then size = 16 end
+
 	local fs = parent:CreateFontString(nil, "OVERLAY")
-	fs:SetFont(ns.config.font, size or 16, ns.config.fontOutline)
+	fs:SetFont(ns.config.font, size, ns.config.fontOutline)
 	fs:SetJustifyH(justify or "LEFT")
 	fs:SetShadowOffset(1, -1)
+	fs.baseSize = size
 
 	tinsert(ns.fontstrings, fs)
 	return fs
@@ -526,32 +530,8 @@ function ns.SetAllFonts(file, flag)
 
 	for i = 1, #ns.fontstrings do
 		local fontstring = ns.fontstrings[i]
-		local _, size, flag = fontstring:GetFont()
-		if not size or size == 0 then
-			local element = fontstring:GetParent()
-
-			local frame = element:GetParent()
-			while frame and not frame:GetName() do
-				frame = frame:GetParent()
-			end
-
-			local found
-			for k, v in pairs(frame) do
-				if v == element then
-					for k2, v2 in pairs(element) do
-						if v2 == fontstring then
-							print("bad font height", tostring(size), "on", frame:GetName(), k, k2)
-							found = true
-						end
-					end
-				end
-			end
-			if not found then
-				print("bad font height", tostring(size), "on mystery fontstring", fontstring:GetText() or "<no text>")
-			end
-
-			size = 18
-		end
+		local _, size = fontstring:GetFont()
+		if not size or size == 0 then size = 18 end
 		fontstring:SetFont(file, size, flag)
 	end
 
