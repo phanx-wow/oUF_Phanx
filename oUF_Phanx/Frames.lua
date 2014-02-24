@@ -577,7 +577,7 @@ local function Spawn(self, unit, isSingle)
 	----------------------------------------------
 	-- Demonic fury / Druid mana / Monk stagger --
 	----------------------------------------------
-	if unit == "player" and (playerClass == "WARLOCK" or (playerClass == "DRUID" and config.druidMana) or (playerClass == "MONK" and config.monkStagger)) then
+	if unit == "player" and (playerClass == "WARLOCK" or (playerClass == "DRUID" and config.druidMana) or (playerClass == "MONK" and config.staggerBar)) then
 		local otherPower = ns.CreateStatusBar(self, 16, "CENTER")
 		otherPower:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
 		otherPower:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
@@ -667,6 +667,12 @@ local function Spawn(self, unit, isSingle)
 		Icon:SetWidth(height)
 		Icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 		Castbar.Icon = Icon
+
+		local Spark = Castbar:CreateTexture(nil, "OVERLAY")
+		Spark:SetSize(height, height * 2.5)
+		Spark:SetAlpha(0.5)
+		Spark:SetBlendMode("ADD")
+		Castbar.Spark = Spark
 
 		if unit == "player" then
 			local SafeZone = Castbar:CreateTexture(nil, "BORDER")

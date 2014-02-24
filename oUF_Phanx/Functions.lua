@@ -81,6 +81,9 @@ end
 ------------------------------------------------------------------------
 
 local GHOST = GetSpellInfo(8326)
+if GetLocale() == "deDE" then
+	GHOST = "Geist" -- TOO LONG OMG
+end
 
 function ns.PostUpdateHealth(bar, unit, cur, max)
 	local frame = bar.__owner
@@ -265,7 +268,12 @@ end
 ------------------------------------------------------------------------
 
 function ns.PostUpdateStagger(bar, maxHealth, stagger, staggerPercent, r, g, b)
+	if staggerPercent < 5 then
+		return bar:Hide()
+	end
+	print("PostUpdateStagger", stagger, staggerPercent)
 	bar.value:SetFormattedText("%.0f%%", staggerPercent)
+	bar:Show()
 end
 
 ------------------------------------------------------------------------
