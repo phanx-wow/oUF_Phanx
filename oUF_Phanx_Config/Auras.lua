@@ -266,7 +266,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		row.highlight = highlight
 
 		local delete = CreateFrame("Button", "oUFPCAuraDelete"..i, row, "UIPanelCloseButton")
-		delete:SetPoint("LEFT", 0, -1)
+		delete:SetPoint("LEFT", -2, -1)
 		delete:SetSize(32, 32)
 		delete:SetScript("OnClick", Delete_OnClick)
 		delete:SetScript("OnEnter", Delete_OnEnter)
@@ -274,13 +274,13 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		row.delete = delete
 
 		local icon = row:CreateTexture(nil, "ARTWORK")
-		icon:SetPoint("LEFT", delete, "RIGHT", 12, 0)
+		icon:SetPoint("LEFT", delete, "RIGHT", 2, 0)
 		icon:SetSize(32, 32)
 		icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 		row.icon = icon
 
 		local name = row:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-		name:SetPoint("LEFT", icon, "RIGHT", 12, 0)
+		name:SetPoint("LEFT", icon, "RIGHT", 8, 0)
 		row.name = name
 
 		local filter = panel.CreateDropdown(row, nil, nil, Dropdown_Initialize)
