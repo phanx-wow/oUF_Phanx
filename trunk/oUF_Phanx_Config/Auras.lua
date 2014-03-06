@@ -311,25 +311,26 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		for id, filter in pairs(oUFPhanxAuraConfig) do
 			local name, _, icon = GetSpellInfo(id)
 			if name and icon then
-				local t = next(pool) or {}
-				pool[t] = nil
-				t.name = name
-				t.icon = icon
-				t.id = id
-				t.filter = filter
-				tinsert(sortedAuras, t)
+				local aura = next(pool) or {}
+				pool[aura] = nil
+				aura.name = name
+				aura.icon = icon
+				aura.id = id
+				aura.filter = filter
+				tinsert(sortedAuras, aura)
 			end
 		end
 		table.sort(sortedAuras, sortFunc)
 
 		if #sortedAuras > 0 then
 			local height = 0
-			for i, t in ipairs(sortedAuras) do
+			for i = 1, #sortedAuras do
+				local aura = sortedAuras[i]
 				local row = rows[i]
-				row.id = t.id
-				row.name:SetText(t.name)
-				row.icon:SetTexture(t.icon)
-				row.filter:SetValue(t.filter, L["AuraFilter"..t.filter])
+				row.id = aura.id
+				row.name:SetText(aura.name)
+				row.icon:SetTexture(aura.icon)
+				row.filter:SetValue(aura.filter, L["AuraFilter"..aura.filter])
 				row:Show()
 				height = height + 4 + row:GetHeight()
 			end

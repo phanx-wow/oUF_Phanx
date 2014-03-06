@@ -236,7 +236,8 @@ f:SetScript("OnEvent", function(self, event)
 	print("Can steal?", canSteal and "YES" or "NO")
 	print("Can tranquilize?", canTranq and "YES" or "NO")
 ]]
-	for i, object in ipairs(oUF.objects) do
+	for i = 1, #oUF.objects do
+		local object = oUF.objects[i]
 		if object.DispelHighlight and object:IsShown() then
 			Update(object, event, object.unit)
 		end
