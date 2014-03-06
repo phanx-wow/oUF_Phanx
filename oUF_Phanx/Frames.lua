@@ -187,7 +187,7 @@ local function Spawn(self, unit, isSingle)
 		self:Tag(self.Level, "[difficulty][level][shortclassification]")
 
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
-		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, -1)
+		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, 0)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4)
 
 		self:Tag(self.Name, "[unitcolor][name]")

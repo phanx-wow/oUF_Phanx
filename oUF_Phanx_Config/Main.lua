@@ -20,7 +20,7 @@ oUFPhanx = nil
 
 LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	local db = oUFPhanxConfig
-	local SharedMedia = LibStub("LibSharedMedia-3.0", true)
+	local Media = LibStub("LibSharedMedia-3.0")
 
 	--------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local statusbar = panel:CreateScrollingDropdown(L.Texture, nil, ns.statusbarList)
+	local statusbar = panel:CreateScrollingDropdown(L.Texture, nil, Media:List("statusbar"))
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
 
@@ -40,10 +40,12 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	statusbar.valueBG = valueBG
 
 	function statusbar:OnValueChanged(value)
-		local file = SharedMedia:Fetch("statusbar", value)
-		if db.statusbar == file then return end
+		if value == db.statusbar then return end
+
+		local file = Media:Fetch("statusbar", value)
 		valueBG:SetTexture(file)
-		db.statusbar = file
+
+		db.statusbar = value
 		ns.SetAllStatusBarTextures()
 	end
 
@@ -74,9 +76,9 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 					end
 					if button.value and button:IsShown() then
 						local bg = button.bg or GetButtonBackground(button)
-						bg:SetTexture(SharedMedia:Fetch("statusbar", button.value))
-						local ff, fs = button.label:GetFont()
-						button.label:SetFont(ff, fs, "OUTLINE")
+						bg:SetTexture(Media:Fetch("statusbar", button.value))
+						local file, size = button.label:GetFont()
+						button.label:SetFont(file, size, "OUTLINE")
 						numButtons = numButtons + 1
 					end
 				end
@@ -102,16 +104,18 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local font = panel:CreateScrollingDropdown(L.Font, nil, ns.fontList)
+	local font = panel:CreateScrollingDropdown(L.Font, nil, Media:List("font"))
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
 	function font:OnValueChanged(value)
-		local file = SharedMedia:Fetch("font", value)
-		if db.font == file then return end
-		db.font = file
+		if value == db.font then return end
+
+		local file = Media:Fetch("font", value)
 		local _, height, flags = self.valueText:GetFont()
 		self.valueText:SetFont(file, height, flags)
+
+		db.font = value
 		ns.SetAllFonts()
 	end
 
@@ -126,7 +130,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 				for i = 1, #buttons do
 					local button = buttons[i]
 					if button.value and button:IsShown() then
-						button.label:SetFont(SharedMedia:Fetch("font", button.value), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
+						button.label:SetFont(Media:Fetch("font", button.value), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
 					end
 				end
 			end
@@ -145,7 +149,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 			local SetText = font.dropdown.list.text.SetText
 			function font.dropdown.list.text:SetText(text)
-				self:SetFont(SharedMedia:Fetch("font", text), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT + 1)
+				self:SetFont(Media:Fetch("font", text), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT + 1)
 				SetText(self, text)
 			end
 
@@ -203,8 +207,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	function borderSize:OnValueChanged(value)
 		value = floor(value + 0.5)
 		db.borderSize = value
-		for _, frame in ipairs(ns.borderedObjects) do
-			frame:SetBorderSize(value)
+		for i = 1, #ns.borderedObjects do
+			ns.borderedObjects[i]:SetBorderSize(value)
 		end
 		return value
 	end
@@ -222,10 +226,11 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		db.borderColor[1] = r
 		db.borderColor[2] = g
 		db.borderColor[3] = b
-		for _, frame in ipairs(ns.borderedObjects) do
-			frame:SetBorderColor(r, g, b)
+		for i = 1, #ns.borderedObjects do
+			ns.borderedObjects[i]:SetBorderColor(r, g, b)
 		end
-		for _, frame in ipairs(ns.objects) do
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
 			if frame.UpdateBorder then
 				frame:UpdateBorder()
 			end
@@ -238,7 +243,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
 	function dispelFilter:OnValueChanged(value)
 		db.dispelFilter = value
-		for _, frame in ipairs(ns.objects) do
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
 			if frame.DispelHighlight then
 				frame.DispelHighlight.filter = value
 				frame.DispelHighlight:ForceUpdate()
@@ -252,7 +258,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -12)
 	function healFilter:OnValueChanged(value)
 		db.ignoreOwnHeals = value
-		for _, frame in ipairs(oUF.objects) do
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
 			if frame.HealPrediction and frame:IsShown() then
 				frame.HealPrediction:ForceUpdate()
 			end
@@ -265,7 +272,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -12)
 	function threatLevels:OnValueChanged(value)
 		db.ignoreOwnHeals = value
-		for _, frame in ipairs(oUF.objects) do
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
 			if frame.ThreatHighlight and frame:IsShown() then
 				frame.ThreatHighlight:ForceUpdate()
 			end
@@ -292,7 +300,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 			local value = self.value
 			healthColorMode:SetValue(value, healthColorModes[value])
 			db.healthColorMode = value
-			for _, frame in ipairs(ns.objects) do
+			for i = 1, #ns.objects do
+				local frame = ns.objects[i]
 				local health = frame.Health
 				if type(health) == "table" then
 					health.colorClass = value == "CLASS"
@@ -345,8 +354,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		db.healthColor[1] = r
 		db.healthColor[2] = g
 		db.healthColor[3] = b
-		for _, frame in ipairs(ns.objects) do
-			local hp = frame.Health
+		for i = 1, #ns.objects do
+			local hp = ns.objects[i].Health
 			if type(hp) == "table" then
 				local mu = hp.bg.multiplier
 				hp:SetStatusBarColor(r, g, b)
@@ -365,7 +374,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		value = math.floor(value * 100 + 0.5) / 100
 		db.healthBG = value
 		local custom = db.healthColorMode == "CUSTOM"
-		for _, frame in ipairs(ns.objects) do
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
 			local health = frame.Health
 			if health then
 				health.bg.multiplier = value
@@ -400,7 +410,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 			local value = self.value
 			db.powerColorMode = value
 			powerColorMode:SetValue(value, powerColorModes[value])
-			for _, frame in ipairs(ns.objects) do
+			for i = 1, #ns.objects do
+				local frame = ns.objects[i]
 				local power = frame.Power
 				if type(power) == "table" then
 					power.colorClass = value == "CLASS"
@@ -460,7 +471,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		db.powerColor[1] = r
 		db.powerColor[2] = g
 		db.powerColor[3] = b
-		for _, frame in ipairs(ns.objects) do
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
 			local power = frame.Power
 			if type(power) == "table" then
 				local mu = power.bg.multiplier
@@ -480,7 +492,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		value = floor(value * 100 + 0.5) / 100
 		db.powerBG = value
 		local custom = db.powerColorMode == "CUSTOM"
-		for _, frame in ipairs(ns.objects) do
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
 			local Power = frame.Power
 			if Power then
 				Power.bg.multiplier = value
@@ -524,13 +537,13 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	--------------------------------------------------------------------
 
 	function panel.refresh()
-		for k, v in pairs(SharedMedia:HashTable("statusbar")) do
+		for k, v in pairs(Media:HashTable("statusbar")) do
 			if v == db.statusbar or v:match("([^\\]+)$") == db.statusbar:match("([^\\]+)$") then
 				statusbar:SetValue(k)
 				statusbar.valueBG:SetTexture(v)
 			end
 		end
-		for k, v in pairs(SharedMedia:HashTable("font")) do
+		for k, v in pairs(Media:HashTable("font")) do
 			if v == db.font or v:lower():match("([^\\]+)%.ttf$") == db.font:lower():match("([^\\]+)%.ttf$") then
 				font:SetValue(k)
 				local _, height, flags = font.valueText:GetFont()

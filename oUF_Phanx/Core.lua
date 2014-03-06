@@ -10,8 +10,7 @@
 local _, ns = ...
 ns.loadFuncs = {}
 
-ns.fontList = {}
-ns.statusbarList = {}
+local Media
 
 ns.fontstrings = {}
 ns.statusbars = {}
@@ -271,40 +270,19 @@ function Loader:ADDON_LOADED(event, addon)
 	ns.UpdateAuraList()
 
 	-- SharedMedia
-	local SharedMedia = LibStub("LibSharedMedia-3.0", true)
-	if SharedMedia then
-		SharedMedia:Register("font", "PT Sans Bold", [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]])
-
-		SharedMedia:Register("statusbar", "Flat", [[Interface\BUTTONS\WHITE8X8]])
-		SharedMedia:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
-
-		for i, name in pairs(SharedMedia:List("font")) do
-			tinsert(ns.fontList, name)
-		end
-		sort(ns.fontList)
-
-		for i, name in pairs(SharedMedia:List("statusbar")) do
-			tinsert(ns.statusbarList, name)
-		end
-		sort(ns.statusbarList)
-
-		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_Registered", function(callback, mediaType, name)
-			if mediaType == "font" then
-				wipe(ns.fontList)
-				for i, v in pairs(SharedMedia:List("font")) do
-					tinsert(ns.fontList, v)
-				end
-				sort(ns.fontList)
-			elseif mediaType == "statusbar" then
-				wipe(ns.statusbarList)
-				for i, v in pairs(SharedMedia:List("statusbar")) do
-					tinsert(ns.statusbarList, v)
-				end
-				sort(ns.statusbarList)
+	Media = LibStub("LibSharedMedia-3.0", true)
+	if Media then
+		Media:Register("font", "PT Sans Bold", [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]])
+		Media:Register("statusbar", "Flat", [[Interface\BUTTONS\WHITE8X8]])
+		Media:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
+		Media.RegisterCallback("oUF_Phanx", "LibSharedMedia_Registered", function(callback, mediaType, key)
+			if mediaType == "font" and key == ns.config.font then
+				ns.SetAllFonts()
+			elseif mediaType == "statusbar" and key == ns.config.statusbar then
+				ns.SetAllStatusBarTextures()
 			end
 		end)
-
-		SharedMedia.RegisterCallback("oUF_Phanx", "LibSharedMedia_SetGlobal", function(callback, mediaType)
+		Media.RegisterCallback("oUF_Phanx", "LibSharedMedia_SetGlobal", function(callback, mediaType)
 			if mediaType == "font" then
 				ns.SetAllFonts()
 			elseif mediaType == "statusbar" then
@@ -511,11 +489,14 @@ end
 
 ------------------------------------------------------------------------
 
+local FALLBACK_FONT_SIZE = 16 -- some Blizzard bug
+
 function ns.CreateFontString(parent, size, justify)
-	if not size or size == 0 then size = 16 end
+	local file = Media:Fetch("font", ns.config.font) or STANDARD_TEXT_FONT
+	if not size or size == 0 then size = FALLBACK_FONT_SIZE end
 
 	local fs = parent:CreateFontString(nil, "OVERLAY")
-	fs:SetFont(ns.config.font, size, ns.config.fontOutline)
+	fs:SetFont(file, size, ns.config.fontOutline)
 	fs:SetJustifyH(justify or "LEFT")
 	fs:SetShadowOffset(1, -1)
 	fs.baseSize = size
@@ -524,14 +505,14 @@ function ns.CreateFontString(parent, size, justify)
 	return fs
 end
 
-function ns.SetAllFonts(file, flag)
-	if not file then file = ns.config.font end
-	if not flag then flag = ns.config.fontOutline end
+function ns.SetAllFonts()
+	local file = Media:Fetch("font", ns.config.font) or STANDARD_TEXT_FONT
+	local flag = ns.config.fontOutline
 
 	for i = 1, #ns.fontstrings do
 		local fontstring = ns.fontstrings[i]
 		local _, size = fontstring:GetFont()
-		if not size or size == 0 then size = 18 end
+		if not size or size == 0 then size = FALLBACK_FONT_SIZE end
 		fontstring:SetFont(file, size, flag)
 	end
 
@@ -562,8 +543,10 @@ do
 	end
 
 	function ns.CreateStatusBar(parent, size, justify)
+		local file = Media and Media:Fetch("statusbar", file or ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
+
 		local sb = CreateFrame("StatusBar", nil, parent)
-		sb:SetStatusBarTexture(ns.config.statusbar)
+		sb:SetStatusBarTexture(file)
 
 		sb.tex = sb:GetStatusBarTexture()
 		sb.tex:SetDrawLayer("BORDER")
@@ -573,7 +556,7 @@ do
 		hooksecurefunc(sb, "SetValue", SetTexCoord)
 
 		sb.bg = sb:CreateTexture(nil, "BACKGROUND")
-		sb.bg:SetTexture(ns.config.statusbar)
+		sb.bg:SetTexture(file)
 		sb.bg:SetAllPoints(true)
 
 		if size then
@@ -585,10 +568,8 @@ do
 	end
 end
 
-function ns.SetAllStatusBarTextures(file)
-	if not file then
-		file = ns.config.statusbar
-	end
+function ns.SetAllStatusBarTextures()
+	local file = Media:Fetch("statusbar", ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
 
 	for i = 1, #ns.statusbars do
 		local sb = ns.statusbars[i]
@@ -602,6 +583,10 @@ function ns.SetAllStatusBarTextures(file)
 		end
 	end
 
+	if not MirrorTimer3 or not MirrorTimer3.bar then
+		-- Too soon!
+		return
+	end
 	for i = 1, 3 do
 		local bar = _G["MirrorTimer" .. i]
 		bar.bar:SetStatusBarTexture(file)
