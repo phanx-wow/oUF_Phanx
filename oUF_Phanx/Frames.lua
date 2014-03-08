@@ -40,6 +40,9 @@ local function Spawn(self, unit, isSingle)
 	local FRAME_WIDTH  = config.width  * (uconfig.width  or 1)
 	local FRAME_HEIGHT = config.height * (uconfig.height or 1)
 
+	local FONT_FILE = LibStub("LibSharedMedia-3.0"):Fetch("statusbar", config.font)
+	local BAR_TEXTURE = LibStub("LibSharedMedia-3.0"):Fetch("statusbar", config.statusbar)
+
 	if isSingle then
 		self:SetAttribute("initial-width", FRAME_WIDTH)
 		self:SetAttribute("initial-height", FRAME_HEIGHT)
@@ -676,7 +679,7 @@ local function Spawn(self, unit, isSingle)
 
 		if unit == "player" then
 			local SafeZone = Castbar:CreateTexture(nil, "BORDER")
-			SafeZone:SetTexture(config.statusbar)
+			SafeZone:SetTexture(BAR_TEXTURE)
 			SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
 			tinsert(ns.statusbars, SafeZone)
 			Castbar.SafeZone = SafeZone
@@ -860,17 +863,17 @@ oUF:Factory(function(oUF)
 		bar.bg, bar.text, bar.border = bar:GetRegions()
 
 		bar.bar:SetAllPoints(bar)
-		bar.bar:SetStatusBarTexture(config.statusbar)
+		bar.bar:SetStatusBarTexture(BAR_TEXTURE)
 		--bar.bar:SetAlpha(0.8) -- I don't remember why I did this?
 
 		bar.bg:ClearAllPoints()
 		bar.bg:SetAllPoints(bar)
-		bar.bg:SetTexture(config.statusbar)
+		bar.bg:SetTexture(BAR_TEXTURE)
 		bar.bg:SetVertexColor(0.2, 0.2, 0.2, 1)
 
 		bar.text:ClearAllPoints()
 		bar.text:SetPoint("LEFT", bar, 4, 0)
-		bar.text:SetFont(config.font, 16, config.fontOutline)
+		bar.text:SetFont(FONT_FILE, 16, config.fontOutline)
 
 		bar.border:Hide()
 

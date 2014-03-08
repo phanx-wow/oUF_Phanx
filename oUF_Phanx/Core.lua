@@ -27,9 +27,9 @@ ns.configDefault = {
 	backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
 	backdropColor = { 32/256, 32/256, 32/256, 1 },
 
-	statusbar = [[Interface\AddOns\oUF_Phanx\media\Neal]],
+	statusbar = "Neal",
 
-	font = [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]],
+	font = "PT Sans Bold",
 	fontOutline = "OUTLINE",
 
 	dispelFilter = true,				-- only highlight the frame for debuffs you can dispel
@@ -275,7 +275,9 @@ function Loader:ADDON_LOADED(event, addon)
 		Media:Register("font", "PT Sans Bold", [[Interface\AddOns\oUF_Phanx\media\PTSans-Bold.ttf]])
 		Media:Register("statusbar", "Flat", [[Interface\BUTTONS\WHITE8X8]])
 		Media:Register("statusbar", "Neal", [[Interface\AddOns\oUF_Phanx\media\Neal]])
+
 		Media.RegisterCallback("oUF_Phanx", "LibSharedMedia_Registered", function(callback, mediaType, key)
+			--print(callback, mediaType, key)
 			if mediaType == "font" and key == ns.config.font then
 				ns.SetAllFonts()
 			elseif mediaType == "statusbar" and key == ns.config.statusbar then
@@ -283,6 +285,7 @@ function Loader:ADDON_LOADED(event, addon)
 			end
 		end)
 		Media.RegisterCallback("oUF_Phanx", "LibSharedMedia_SetGlobal", function(callback, mediaType)
+			--print(callback, mediaType)
 			if mediaType == "font" then
 				ns.SetAllFonts()
 			elseif mediaType == "statusbar" then
@@ -508,6 +511,7 @@ end
 function ns.SetAllFonts()
 	local file = Media:Fetch("font", ns.config.font) or STANDARD_TEXT_FONT
 	local flag = ns.config.fontOutline
+	--print("SetAllFonts", strmatch(file, "[^/\\]+$"), flag)
 
 	for i = 1, #ns.fontstrings do
 		local fontstring = ns.fontstrings[i]
@@ -516,6 +520,7 @@ function ns.SetAllFonts()
 		fontstring:SetFont(file, size, flag)
 	end
 
+	if not MirrorTimer3.text then return end -- too soon!
 	for i = 1, 3 do
 		local bar = _G["MirrorTimer" .. i]
 		local _, size = bar.text:GetFont()
@@ -570,6 +575,7 @@ end
 
 function ns.SetAllStatusBarTextures()
 	local file = Media:Fetch("statusbar", ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
+	--print("SetAllFonts", strmatch(file, "[^/\\]+$"))
 
 	for i = 1, #ns.statusbars do
 		local sb = ns.statusbars[i]
@@ -583,10 +589,7 @@ function ns.SetAllStatusBarTextures()
 		end
 	end
 
-	if not MirrorTimer3 or not MirrorTimer3.bar then
-		-- Too soon!
-		return
-	end
+	if not MirrorTimer3.bar then return end -- too soon!
 	for i = 1, 3 do
 		local bar = _G["MirrorTimer" .. i]
 		bar.bar:SetStatusBarTexture(file)

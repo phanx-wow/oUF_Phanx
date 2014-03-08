@@ -14,6 +14,23 @@ local L = ns.L
 setmetatable(ns, { __index = oUFPhanx })
 oUFPhanx = nil
 
+-- map values to labels
+local outlineWeights = {
+	NONE = L.None,
+	OUTLINE = L.Thin,
+	THICKOUTLINE = L.Thick,
+}
+local healthColorModes = {
+	CLASS  = L.ColorClass,
+	HEALTH = L.ColorHealth,
+	CUSTOM = L.ColorCustom,
+}
+local powerColorModes = {
+	CLASS  = L.ColorClass,
+	POWER  = L.ColorPower,
+	CUSTOM = L.ColorCustom,
+}
+
 ------------------------------------------------------------------------
 --	Options panel
 ------------------------------------------------------------------------
@@ -40,10 +57,10 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	statusbar.valueBG = valueBG
 
 	function statusbar:OnValueChanged(value)
-		if value == db.statusbar then return end
-
 		local file = Media:Fetch("statusbar", value)
 		valueBG:SetTexture(file)
+
+		if value == db.statusbar then return end
 
 		db.statusbar = value
 		ns.SetAllStatusBarTextures()
@@ -109,11 +126,11 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
 	function font:OnValueChanged(value)
-		if value == db.font then return end
-
 		local file = Media:Fetch("font", value)
 		local _, height, flags = self.valueText:GetFont()
 		self.valueText:SetFont(file, height, flags)
+
+		if value == db.font then return end
 
 		db.font = value
 		ns.SetAllFonts()
@@ -161,15 +178,10 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	--------------------------------------------------------------------
 
 	local outline
-	local outlineValues = {
-		NONE = L.None,
-		OUTLINE = L.Thin,
-		THICKOUTLINE = L.Thick,
-	}
 	do
 		local function OnClick(self)
 			local value = self.value
-			outline:SetValue(value, outlineValues[value])
+			outline:SetValue(value, outlineWeights[value])
 			db.fontOutline = value
 			ns.SetAllFonts()
 		end
@@ -195,9 +207,10 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 			info.checked = "THICKOUTLINE" == selected
 			UIDropDownMenu_AddButton(info)
 		end)
+
+		outline:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -12)
+		outline:SetPoint("TOPRIGHT", font, "BOTTOMRIGHT", 0, -12)
 	end
-	outline:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -12)
-	outline:SetPoint("TOPRIGHT", font, "BOTTOMRIGHT", 0, -12)
 
 	--------------------------------------------------------------------
 
@@ -283,12 +296,6 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	--------------------------------------------------------------------
 
 	local healthColor
-
-	local healthColorModes = {
-		CLASS  = L.ColorClass,
-		HEALTH = L.ColorHealth,
-		CUSTOM = L.ColorCustom,
-	}
 
 	local healthColorMode = panel:CreateDropdown(L.HealthColor, L.HealthColor_Desc)
 	healthColorMode:SetPoint("TOPLEFT", borderSize, "BOTTOMLEFT", 0, -12)
@@ -394,12 +401,6 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	--------------------------------------------------------------------
 
 	local powerColor
-
-	local powerColorModes = {
-		CLASS  = L.ColorClass,
-		POWER  = L.ColorPower,
-		CUSTOM = L.ColorCustom,
-	}
 
 	local powerColorMode = panel:CreateDropdown(L.PowerColor, L.PowerColor_Desc)
 	powerColorMode:SetPoint("TOPLEFT", healthBG, "BOTTOMLEFT", 0, -12)
@@ -550,7 +551,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 				font.valueText:SetFont(v, height, flags)
 			end
 		end
-		outline:SetValue(db.fontOutline, outlineValues[db.fontOutline])
+		outline:SetValue(db.fontOutline, outlineWeights[db.fontOutline])
 
 		borderSize:SetValue(db.borderSize)
 
