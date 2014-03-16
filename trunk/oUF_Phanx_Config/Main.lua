@@ -538,19 +538,13 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	--------------------------------------------------------------------
 
 	function panel.refresh()
-		for k, v in pairs(Media:HashTable("statusbar")) do
-			if v == db.statusbar or v:match("([^\\]+)$") == db.statusbar:match("([^\\]+)$") then
-				statusbar:SetValue(k)
-				statusbar.valueBG:SetTexture(v)
-			end
-		end
-		for k, v in pairs(Media:HashTable("font")) do
-			if v == db.font or v:lower():match("([^\\]+)%.ttf$") == db.font:lower():match("([^\\]+)%.ttf$") then
-				font:SetValue(k)
-				local _, height, flags = font.valueText:GetFont()
-				font.valueText:SetFont(v, height, flags)
-			end
-		end
+		statusbar:SetValue(db.statusbar)
+		statusbar.valueBG:SetTexture(Media:Fetch("statusbar", db.statusbar))
+
+		font:SetValue(db.font)
+		local _, height, flags = font.valueText:GetFont()
+		font.valueText:SetFont(Media:Fetch("font", db.font), height, flags)
+
 		outline:SetValue(db.fontOutline, outlineWeights[db.fontOutline])
 
 		borderSize:SetValue(db.borderSize)
