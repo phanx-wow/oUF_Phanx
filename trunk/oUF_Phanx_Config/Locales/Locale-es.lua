@@ -73,6 +73,7 @@ L.PowerHeight_Desc = "Cambiar la talla de la barra de poder, como un porcentaje 
 L.ReloadUI = "Recargar IU"
 L.RuneBars = "Barras de runas"
 L.RuneBars_Desc = "Mostrar barras de tiempo de reutilización para tus runas sobre el maro de tu personaje."
+L.Shadow = "Sombra del texto"
 --L.StaggerBar = "Show stagger bar"
 --L.StaggerBar_Desc = "Show your staggered damage as a bar above the player frame."
 L.Texture = "Textura"

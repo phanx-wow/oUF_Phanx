@@ -31,6 +31,7 @@ ns.configDefault = {
 
 	font = "PT Sans Bold",
 	fontOutline = "OUTLINE",
+	fontShadow = true,
 
 	dispelFilter = true,				-- only highlight the frame for debuffs you can dispel
 	ignoreOwnHeals = false,			-- only show incoming heals from other players
@@ -294,16 +295,13 @@ function Loader:ADDON_LOADED(event, addon)
 		end)
 	end
 
-	-- Miscellaneous
-	for i = 1, #ns.loadFuncs do
-		ns.loadFuncs[i]()
-	end
-	ns.loadFuncs = nil
-
 	-- Cleanup
 	self:UnregisterEvent(event)
 	self.ADDON_LOADED = nil
 	self:RegisterEvent("PLAYER_LOGOUT")
+
+	-- Go
+	oUF:Factory(ns.Factory)
 
 	-- Sounds for target/focus changing and PVP flagging
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
@@ -501,7 +499,7 @@ function ns.CreateFontString(parent, size, justify)
 	local fs = parent:CreateFontString(nil, "OVERLAY")
 	fs:SetFont(file, size, ns.config.fontOutline)
 	fs:SetJustifyH(justify or "LEFT")
-	fs:SetShadowOffset(1, -1)
+	fs:SetShadowOffset(ns.config.fontShadow and 1 or 0, ns.config.fontShadow and -1 or 0)
 	fs.baseSize = size
 
 	tinsert(ns.fontstrings, fs)
@@ -510,21 +508,23 @@ end
 
 function ns.SetAllFonts()
 	local file = Media:Fetch("font", ns.config.font) or STANDARD_TEXT_FONT
-	local flag = ns.config.fontOutline
-	--print("SetAllFonts", strmatch(file, "[^/\\]+$"), flag)
+	local outline = ns.config.fontOutline
+	local shadow = ns.config.fontShadow and 1 or 0
+	--print("SetAllFonts", strmatch(file, "[^/\\]+$"), outline)
 
 	for i = 1, #ns.fontstrings do
 		local fontstring = ns.fontstrings[i]
 		local _, size = fontstring:GetFont()
 		if not size or size == 0 then size = FALLBACK_FONT_SIZE end
-		fontstring:SetFont(file, size, flag)
+		fontstring:SetFont(file, size, outline)
+		fontstring:SetShadowOffset(shadow, -shadow)
 	end
 
 	if not MirrorTimer3.text then return end -- too soon!
 	for i = 1, 3 do
 		local bar = _G["MirrorTimer" .. i]
 		local _, size = bar.text:GetFont()
-		bar.text:SetFont(file, size, flag)
+		bar.text:SetFont(file, size, outline)
 	end
 end
 
@@ -548,7 +548,7 @@ do
 	end
 
 	function ns.CreateStatusBar(parent, size, justify)
-		local file = Media and Media:Fetch("statusbar", file or ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
+		local file = Media:Fetch("statusbar", ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
 
 		local sb = CreateFrame("StatusBar", nil, parent)
 		sb:SetStatusBarTexture(file)

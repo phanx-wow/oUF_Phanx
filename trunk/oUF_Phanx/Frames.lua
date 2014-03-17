@@ -40,8 +40,7 @@ local function Spawn(self, unit, isSingle)
 	local FRAME_WIDTH  = config.width  * (uconfig.width  or 1)
 	local FRAME_HEIGHT = config.height * (uconfig.height or 1)
 
-	local FONT_FILE = LibStub("LibSharedMedia-3.0"):Fetch("statusbar", config.font)
-	local BAR_TEXTURE = LibStub("LibSharedMedia-3.0"):Fetch("statusbar", config.statusbar)
+	local BAR_TEXTURE = LibStub("LibSharedMedia-3.0"):Fetch("statusbar", config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
 
 	if isSingle then
 		self:SetAttribute("initial-width", FRAME_WIDTH)
@@ -787,7 +786,7 @@ end
 
 ------------------------------------------------------------------------
 
-oUF:Factory(function(oUF)
+function ns.Factory(oUF)
 	config = ns.config
 	uconfig = ns.uconfig
 
@@ -844,6 +843,9 @@ oUF:Factory(function(oUF)
 		object:SetPoint(p1, ns.headers[parent] or ns.frames[parent] or _G[parent] or UIParent, p2, tonumber(x) or 0, tonumber(y) or 0)
 	end
 
+	local FONT_FILE = LibStub("LibSharedMedia-3.0"):Fetch("font", config.font) or STANDARD_TEXT_FONT
+	local BAR_TEXTURE = LibStub("LibSharedMedia-3.0"):Fetch("statusbar", config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
+
 	-- Fix default mirror timers to mach
 	for i = 1, 3 do
 		local barname = "MirrorTimer" .. i
@@ -895,4 +897,4 @@ oUF:Factory(function(oUF)
 		end
 	end)
 ]]
-end)
+end
