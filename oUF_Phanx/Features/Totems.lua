@@ -28,9 +28,10 @@ local unpack = unpack
 local function Totems_OnShow(element)
 	local frame = element.__owner
 	local totem
-	for i = 1, #element do
+	for i = #element, 1, -1 do
 		if element[i]:IsShown() then
 			totem = element[i]
+			break
 		end
 	end
 	frame:SetBorderParent(totem)
@@ -103,6 +104,8 @@ local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 		end
 	end
 	element:Hide()
+
+	Totems_OnShow(element) -- update border parent
 end
 
 ns.CreateTotems = function(frame)

@@ -214,9 +214,18 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
+	local shadow = panel:CreateCheckbox(L.Shadow)
+	shadow:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", 0, -12)
+	function shadow:OnValueChanged(value)
+		db.fontShadow = value
+		ns.SetAllFonts()
+	end
+
+	--------------------------------------------------------------------
+
 	local borderSize = panel:CreateSlider(L.BorderSize, nil, 12, 24, 2)
-	borderSize:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", 0, -12)
-	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -12)
+	borderSize:SetPoint("TOPLEFT", shadow, "BOTTOMLEFT", 0, -12)
+	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -24 - shadow:GetHeight())
 	function borderSize:OnValueChanged(value)
 		value = floor(value + 0.5)
 		db.borderSize = value
@@ -546,8 +555,10 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		font.valueText:SetFont(Media:Fetch("font", db.font), height, flags)
 
 		outline:SetValue(db.fontOutline, outlineWeights[db.fontOutline])
+		shadow:SetValue(db.fontShadow)
 
 		borderSize:SetValue(db.borderSize)
+		borderColor:SetValue(unpack(db.borderColor))
 
 		dispelFilter:SetChecked(db.dispelFilter)
 		healFilter:SetChecked(db.ignoreOwnHeals)
@@ -570,8 +581,6 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 			powerColor:Hide()
 		end
 		powerBG:SetValue(db.powerBG)
-
-		borderColor:SetValue(unpack(db.borderColor))
 
 		for i = 1, #oUF.objects do
 			oUF.objects[i]:UpdateAllElements("OptionsRefresh")

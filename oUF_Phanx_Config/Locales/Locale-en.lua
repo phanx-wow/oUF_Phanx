@@ -73,6 +73,7 @@ L.PowerHeight_Desc = "Set the height of the power bar, as a percent of the total
 L.ReloadUI = "Reload UI"
 L.RuneBars = "Show rune bars"
 L.RuneBars_Desc = "Show cooldown timer bars for your runes above the player frame."
+L.Shadow = "Text shadow"
 L.StaggerBar = "Show stagger bar"
 L.StaggerBar_Desc = "Show your staggered damage as a bar above the player frame."
 L.Texture = "Bar texture"
