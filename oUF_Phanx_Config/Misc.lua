@@ -55,16 +55,16 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 
 	elseif playerClass == "DRUID" then
 
-		local DruidMana = panel:CreateCheckbox(L.DruidMana, L.DruidMana_Desc)
-		DruidMana:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-		function DruidMana:OnValueChanged(value)
+		local DruidManaBar = panel:CreateCheckbox(L.DruidManaBar, L.DruidManaBar_Desc)
+		DruidManaBar:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+		function DruidManaBar:OnValueChanged(value)
 			db.druidMana = value
 		end
-		DruidMana.checkedKey = "druidMana"
-		tinsert(ClassFeatures, DruidMana)
+		DruidManaBar.checkedKey = "druidMana"
+		tinsert(ClassFeatures, DruidManaBar)
 
 		local EclipseBar = panel:CreateCheckbox(L.EclipseBar, L.EclipseBar_Desc)
-		EclipseBar:SetPoint("TOPLEFT", DruidMana, "BOTTOMLEFT", 0, -12)
+		EclipseBar:SetPoint("TOPLEFT", DruidManaBar, "BOTTOMLEFT", 0, -12)
 		function EclipseBar:OnValueChanged(value)
 			db.eclipseBar = value
 			EclipseBarIcons:SetEnabled(value)

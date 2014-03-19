@@ -56,7 +56,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	valueBG:SetVertexColor(0.35, 0.35, 0.35)
 	statusbar.valueBG = valueBG
 
-	function statusbar:OnValueChanged(value)
+	function statusbar:Callback(value)
 		local file = Media:Fetch("statusbar", value)
 		valueBG:SetTexture(file)
 
@@ -125,7 +125,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
-	function font:OnValueChanged(value)
+	function font:Callback(value)
 		local file = Media:Fetch("font", value)
 		local _, height, flags = self.valueText:GetFont()
 		self.valueText:SetFont(file, height, flags)
@@ -216,7 +216,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	local shadow = panel:CreateCheckbox(L.Shadow)
 	shadow:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", 0, -12)
-	function shadow:OnValueChanged(value)
+
+	function shadow:Callback(value)
 		db.fontShadow = value
 		ns.SetAllFonts()
 	end
@@ -226,7 +227,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	local borderSize = panel:CreateSlider(L.BorderSize, nil, 12, 24, 2)
 	borderSize:SetPoint("TOPLEFT", shadow, "BOTTOMLEFT", 0, -12)
 	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -24 - shadow:GetHeight())
-	function borderSize:OnValueChanged(value)
+
+	function borderSize:Callback(value)
 		value = floor(value + 0.5)
 		db.borderSize = value
 		for i = 1, #ns.borderedObjects do
@@ -244,7 +246,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		return unpack(db.borderColor)
 	end
 
-	function borderColor:OnColorChanged(r, g, b)
+	function borderColor:Callback(r, g, b)
 		db.borderColor[1] = r
 		db.borderColor[2] = g
 		db.borderColor[3] = b
@@ -263,7 +265,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	local dispelFilter = panel:CreateCheckbox(L.FilterDebuffHighlight, L.FilterDebuffHighlight_Desc)
 	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-	function dispelFilter:OnValueChanged(value)
+
+	function dispelFilter:Callback(value)
 		db.dispelFilter = value
 		for i = 1, #ns.objects do
 			local frame = ns.objects[i]
@@ -278,7 +281,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	local healFilter = panel:CreateCheckbox(L.IgnoreOwnHeals, L.IgnoreOwnHeals_Desc)
 	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -12)
-	function healFilter:OnValueChanged(value)
+
+	function healFilter:Callback(value)
 		db.ignoreOwnHeals = value
 		for i = 1, #ns.objects do
 			local frame = ns.objects[i]
@@ -292,7 +296,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	local threatLevels = panel:CreateCheckbox(L.ThreatLevels, L.ThreatLevels_Desc)
 	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -12)
-	function threatLevels:OnValueChanged(value)
+
+	function threatLevels:Callback(value)
 		db.ignoreOwnHeals = value
 		for i = 1, #ns.objects do
 			local frame = ns.objects[i]
@@ -363,10 +368,12 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	healthColor = panel:CreateColorPicker(L.HealthColorCustom)
 	healthColor:SetPoint("LEFT", healthColorMode, "RIGHT", 24, -8)
+
 	function healthColor:GetColor()
 		return unpack(db.healthColor)
 	end
-	function healthColor:OnColorChanged(r, g, b)
+
+	function healthColor:Callback(r, g, b)
 		db.healthColor[1] = r
 		db.healthColor[2] = g
 		db.healthColor[3] = b
@@ -386,7 +393,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	healthBG:SetPoint("TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12)
 	healthBG:SetPoint("TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12)
 
-	function healthBG:OnValueChanged(value)
+	function healthBG:Callback(value)
 		value = math.floor(value * 100 + 0.5) / 100
 		db.healthBG = value
 		local custom = db.healthColorMode == "CUSTOM"
@@ -477,7 +484,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		return unpack(db.powerColor)
 	end
 
-	function powerColor:OnColorChanged(r, g, b)
+	function powerColor:Callback(r, g, b)
 		db.powerColor[1] = r
 		db.powerColor[2] = g
 		db.powerColor[3] = b
@@ -498,7 +505,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	powerBG:SetPoint("TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -12)
 	powerBG:SetPoint("TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -12)
 
-	function powerBG:OnValueChanged(value)
+	function powerBG:Callback(value)
 		value = floor(value * 100 + 0.5) / 100
 		db.powerBG = value
 		local custom = db.powerColorMode == "CUSTOM"
