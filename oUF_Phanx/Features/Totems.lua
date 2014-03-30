@@ -100,12 +100,14 @@ local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 
 	for i = 1, #element do
 		if element[i]:IsShown() then
-			return element:Show()
+			if element:IsShown() then
+				return Totems_OnShow(element) -- update border parent
+			else
+				return element:Show()
+			end
 		end
 	end
 	element:Hide()
-
-	Totems_OnShow(element) -- update border parent
 end
 
 ns.CreateTotems = function(frame)

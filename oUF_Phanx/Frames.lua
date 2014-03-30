@@ -184,20 +184,18 @@ local function Spawn(self, unit, isSingle)
 	---------------------------
 	if unit == "target" or unit == "focus" then
 		self.Level = ns.CreateFontString(self.overlay, 16, "LEFT")
-		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -3)
-
+		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
 		self:Tag(self.Level, "[difficulty][level][shortclassification]")
 
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
 		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, 0)
-		self.Name:SetPoint("BOTTOMRIGHT", self.Threat or self.Health, self.Threat and "BOTTOMLEFT" or "TOPRIGHT", self.Threat and -8 or -2, self.Threat and 0 or -4)
-
+		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
 		self:Tag(self.Name, "[unitcolor][name]")
+
 	elseif unit ~= "player" and not strmatch(unit, "pet") then
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
 		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
-
 		self:Tag(self.Name, "[unitcolor][name]")
 	end
 
@@ -306,7 +304,7 @@ local function Spawn(self, unit, isSingle)
 	--------------------
 	-- Stacking buffs --
 	--------------------
-	if unit == "player" and playerClass == "SHAMAN" then
+	if unit == "player" and (playerClass == "MAGE" or playerClass == "SHAMAN") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 
 		local function SetAlpha(orb, alpha)
@@ -321,9 +319,31 @@ local function Spawn(self, unit, isSingle)
 			end
 		end
 
-		local t = ns.Orbs.Create(self.overlay, 5, 20)
-		t.buff = GetSpellInfo(53817) -- Maelstrom Weapon
-		for i = 1, 5 do
+		local aura, filter, maxCount, actviate, activateEvents
+		if playerClass == "MAGE" then
+			aura = GetSpellInfo(36032) -- Arcane Charge
+			filter = "HARMFUL"
+			maxCount = 4
+			activate = function()
+				return GetSpecialization() == 1
+			end
+			activateEvents = "PLAYER_SPECIALIZATION_CHANGED"
+		elseif playerClass == "SHAMAN" then
+			aura = GetSpellInfo(53817) -- Maelstrom Weapon
+			maxCount = 5
+			activate = function()
+				return GetSpecialization() == 2 and UnitLevel("player") >= 50
+			end
+			activateEvents = "PLAYER_SPECIALIZATION_CHANGED PLAYER_LEVEL_UP"
+		end
+
+		local t = ns.Orbs.Create(self.overlay, maxCount, 20)
+		t.aura = aura
+		t.filter = filter
+		t.activate = activate
+		t.activateEvents = activateEvents
+
+		for i = 1, #t do
 			local orb = t[i]
 			if i == 1 then
 				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
@@ -334,7 +354,7 @@ local function Spawn(self, unit, isSingle)
 			orb.fg:SetVertexColor(color.r, color.g, color.b)
 			orb.SetAlpha = SetAlpha
 		end
-		self.BuffStack = t
+		self.AuraStack = t
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()

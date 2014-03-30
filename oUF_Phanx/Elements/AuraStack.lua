@@ -6,29 +6,30 @@
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
-	Element to track stacking self-buffs like combo points.
+	Element to track stacking self-(de)buffs like combo points.
 
 	You may embed this module in your own layout, but please do not
 	distribute it as a standalone plugin.
 ------------------------------------------------------------------------
 	Usage:
 
-	self.BuffStack = {
-		buff = GetSpellInfo(53817) -- Gets localized spell name for Maelstrom Weapon
+	self.AuraStack = {
+		aura = GetSpellInfo(53817) -- Localized spell name for Maelstrom Weapon
+		filter = "HELPFUL", -- Optional filter to pass to UnitAura, defaults to "HELPFUL"
 	}
 	for i = 1, 5 do
-		self.BuffStack[i] = CreateTexture(nil, "OVERLAY")
-		self.BuffStack[i]:SetSize(20, 20)
+		self.AuraStack[i] = CreateTexture(nil, "OVERLAY")
+		self.AuraStack[i]:SetSize(20, 20)
 		if i == 1 then
-			self.BuffStack[i]:SetPoint("LEFT", self, "BOTTOMLEFT", 5, 0)
+			self.AuraStack[i]:SetPoint("LEFT", self, "BOTTOMLEFT", 5, 0)
 		else
-			self.BuffStack[i]:SetPoint("LEFT", self.BuffStack[i-1], "RIGHT", 0, 0)
+			self.AuraStack[i]:SetPoint("LEFT", self.AuraStack[i-1], "RIGHT", 0, 0)
 		end
 	end
 ------------------------------------------------------------------------
 	Notes:
 
-	Only supports one buff per frame.
+	Only supports one aura per frame.
 
 	Supports Override or PreUpdate/PostUpdate.
 
@@ -45,14 +46,14 @@
 
 local _, ns = ...
 local oUF = ns.oUF or oUF
-assert(oUF, "BuffStack element requires oUF")
+assert(oUF, "AuraStack element requires oUF")
 
 local UnitBuff = UnitBuff
 
 local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
 function UpdateVisibility(self, event)
-	local element = self.BuffStack
+	local element = self.AuraStack
 
 	if UnitHasVehicleUI(self.unit) then
 		self:UnregisterEvent("UNIT_AURA", Path)
@@ -70,10 +71,10 @@ end
 
 function Update(self, event, unit)
 	if unit ~= self.unit then return end
-	local element = self.BuffStack
-	if element.__disabled or not element.buff then return end
+	local element = self.AuraStack
+	if element.__disabled or not element.aura then return end
 
-	local _, _, _, count = UnitBuff(unit, element.buff)
+	local _, _, _, count = UnitAura(unit, element.aura, nil, element.filter or "HELPFUL")
 	count = count or 0
 
 	if count == element.__count then return end
@@ -100,7 +101,7 @@ function Update(self, event, unit)
 end
 
 function Path(self, ...)
-	return (self.BuffStack.Override or Update)(self, ...)
+	return (self.AuraStack.Override or Update)(self, ...)
 end
 
 function ForceUpdate(element)
@@ -108,7 +109,7 @@ function ForceUpdate(element)
 end
 
 function Enable(self)
-	local element = self.BuffStack
+	local element = self.AuraStack
 	if not element then return end
 
 	element.__owner = self
@@ -134,7 +135,7 @@ function Enable(self)
 end
 
 function Disable(self)
-	local element = self.BuffStack
+	local element = self.AuraStack
 	if not element then return end
 
 	self:UnregisterEvent("UNIT_AURA", Path)
@@ -146,4 +147,4 @@ function Disable(self)
 	end
 end
 
-oUF:AddElement("BuffStack", Path, Enable, Disable)
+oUF:AddElement("AuraStack", Path, Enable, Disable)

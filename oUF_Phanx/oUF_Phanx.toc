@@ -30,7 +30,7 @@ Libs\LibResInfo-1.0\LibResInfo-1.0.lua
 Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 
 Elements\AFK.lua
-Elements\BuffStack.lua
+Elements\AuraStack.lua
 Elements\BurningEmbers.lua
 Elements\CombatText.lua
 Elements\DemonicFury.lua
