@@ -317,6 +317,8 @@ function Loader:ADDON_LOADED(event, addon)
 
 	-- Load options on demand
 	local Options = CreateFrame("Frame", "oUFPhanxOptions")
+	Options:Hide()
+
 	Options.name = "oUF Phanx"
 	InterfaceOptions_AddCategory(Options)
 
@@ -351,7 +353,7 @@ function Loader:ADDON_LOADED(event, addon)
 					print("   ", tmp[i])
 				end
 			else
-				print(format("|cff00ddbaoUF Phanx:|r Your current target does not have any %s."))
+				print(format("|cff00ddbaoUF Phanx:|r Your current target does not have any %s.", cmd))
 			end
 		else
 			InterfaceOptionsFrame_OpenToCategory("oUF Phanx")
