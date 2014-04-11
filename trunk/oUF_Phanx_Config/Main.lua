@@ -126,9 +126,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
 	function font:Callback(value)
-		local file = Media:Fetch("font", value)
 		local _, height, flags = self.valueText:GetFont()
-		self.valueText:SetFont(file, height, flags)
+		self.valueText:SetFont(Media:Fetch("font", value), height, flags)
 
 		if value == db.font then return end
 
@@ -136,43 +135,17 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		ns.SetAllFonts()
 	end
 
-	do
-		local button_OnClick = font.button:GetScript("OnClick")
-		font.button:SetScript("OnClick", function(self)
-			button_OnClick(self)
-			font.dropdown.list:Hide()
+	function font:ListButtonCallback(button, value, selected)
+		if button:IsShown() then
+			button.label:SetFont(Media:Fetch("font", value), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
+		end
+	end
 
-			local function SetButtonFonts(self)
-				local buttons = font.dropdown.list.buttons
-				for i = 1, #buttons do
-					local button = buttons[i]
-					if button.value and button:IsShown() then
-						button.label:SetFont(Media:Fetch("font", button.value), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
-					end
-				end
-			end
-
-			local OnShow = font.dropdown.list:GetScript("OnShow")
-			font.dropdown.list:SetScript("OnShow", function(self)
-				OnShow(self)
-				SetButtonFonts(self)
-			end)
-
-			local OnVerticalScroll = font.dropdown.list.scrollFrame:GetScript("OnVerticalScroll")
-			font.dropdown.list.scrollFrame:SetScript("OnVerticalScroll", function(self, delta)
-				OnVerticalScroll(self, delta)
-				SetButtonFonts(self)
-			end)
-
-			local SetText = font.dropdown.list.text.SetText
-			function font.dropdown.list.text:SetText(text)
-				self:SetFont(Media:Fetch("font", text), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT + 1)
-				SetText(self, text)
-			end
-
-			button_OnClick(self)
-			self:SetScript("OnClick", button_OnClick)
-		end)
+	font.__SetValue = font.SetValue
+	function font:SetValue(value)
+		local _, height, flags = self.valueText:GetFont()
+		self.valueText:SetFont(Media:Fetch("font", value), height, flags)
+		self:__SetValue(value)
 	end
 
 	--------------------------------------------------------------------
@@ -558,9 +531,6 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		statusbar.valueBG:SetTexture(Media:Fetch("statusbar", db.statusbar))
 
 		font:SetValue(db.font)
-		local _, height, flags = font.valueText:GetFont()
-		font.valueText:SetFont(Media:Fetch("font", db.font), height, flags)
-
 		outline:SetValue(db.fontOutline, outlineWeights[db.fontOutline])
 		shadow:SetValue(db.fontShadow)
 
