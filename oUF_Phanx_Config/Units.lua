@@ -65,7 +65,7 @@ end
 LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(panel)
 	local title, notes = panel:CreateHeader(panel.name, L.UnitSettings_Desc .. "\n" .. L.MoreSettings_Desc)
 
-	--------------------------------------------------------------------
+	---------------------------------------------------------------------
 
 	local unitList = CreateFrame("Frame", nil, panel)
 	unitList:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -16)
@@ -127,6 +127,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		end
 	end
 
+	AddUnit("global", "Global") -- TODO: localize
 	AddUnit("player", L.UnitPlayer)
 	AddUnit("pet", L.UnitPet)
 	AddUnit("target", L.UnitTarget)
@@ -139,7 +140,37 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	AddUnit("arena", L.UnitArena)
 	AddUnit("arenapet", L.UnitArenaPet)
 
-	--------------------------------------------------------------------
+	---------------------------------------------------------------------
+
+	local globalSettings = CreateFrame("Frame", nil, panel)
+	globalSettings:SetPoint("TOPLEFT", unitList, "TOPRIGHT", 12, 0)
+	globalSettings:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -12)
+	globalSettings:SetPoint("BOTTOMRIGHT", -15, 15)
+	globalSettings:SetBackdrop({ edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16 })
+	globalSettings:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+
+	local frameWidth = panel.CreateSlider(globalSettings, L.FrameWidth, L.FrameWidth_Desc, 100, 400, 20)
+	frameWidth:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
+	frameWidth:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
+	function frameWidth:Callback(value)
+		db.width = value
+	end
+
+	local frameHeight = panel.CreateSlider(globalSettings, L.FrameHeight, L.FrameHeight_Desc, 10, 60, 5)
+	frameHeight:SetPoint("TOPLEFT", FrameWidth, "BOTTOMLEFT", 0, -24)
+	frameHeight:SetPoint("TOPRIGHT", FrameWidth, "BOTTOMRIGHT", 0, -24)
+	function frameHeight:Callback(value)
+		db.height = value
+	end
+
+	local powerHeight = panel.CreateSlider(globalSettings, L.PowerHeight, L.PowerHeight_Desc, 0.1, 0.5, 0.05, true)
+	powerHeight:SetPoint("TOPLEFT", FrameHeight, "BOTTOMLEFT", 0, -24)
+	powerHeight:SetPoint("TOPRIGHT", FrameHeight, "BOTTOMRIGHT", 0, -24)
+	function powerHeight:Callback(value)
+		db.powerHeight = value
+	end
+
+	---------------------------------------------------------------------
 
 	local unitSettings = CreateFrame("Frame", nil, panel)
 	unitSettings:SetPoint("TOPLEFT", unitList, "TOPRIGHT", 12, 0)
@@ -147,6 +178,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	unitSettings:SetPoint("BOTTOMRIGHT", -15, 15)
 	unitSettings:SetBackdrop({ edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16 })
 	unitSettings:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+	unitSettings:Hide()
 
 	local unitTitle = panel.CreateHeader(unitSettings, UNKNOWN)
 
@@ -174,6 +206,69 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		SetUnitConfig(panel.selectedUnit, "combatText", value)
 	end
 
+	local classFeatures = {}
+
+	if playerClass == "DEATHKNIGHT" then
+
+		local runeBars = panel.CreateCheckbox(unitSettings, L.RuneBars, L.RuneBars_Desc)
+		runeBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+		function runeBars:Callback(value)
+			db.runeBars = value
+		end
+		runeBars.checkedKey = "runeBars"
+		tinsert(classFeatures, runeBars)
+
+	elseif playerClass == "DRUID" then
+
+		local druidMana = panel.CreateCheckbox(unitSettings, L.DruidManaBar, L.DruidManaBar_Desc)
+		druidMana:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+		function druidMana:Callback(value)
+			db.druidMana = value
+		end
+		druidMana.checkedKey = "druidMana"
+		tinsert(classFeatures, druidMana)
+
+		local eclipseBar = panel.CreateCheckbox(unitSettings, L.EclipseBar, L.EclipseBar_Desc)
+		eclipseBar:SetPoint("TOPLEFT", DruidManaBar, "BOTTOMLEFT", 0, -12)
+		function eclipseBar:Callback(value)
+			db.eclipseBar = value
+			EclipseBarIcons:SetEnabled(value)
+		end
+		eclipseBar.checkedKey = "eclipseBar"
+		tinsert(classFeatures, eclipseBar)
+
+		local eclipseBarIcons = panel.CreateCheckbox(unitSettings, L.EclipseBarIcons, L.EclipseBarIcons_Desc)
+		eclipseBarIcons:SetPoint("TOPLEFT", EclipseBar, "BOTTOMLEFT", 0, -12)
+		function eclipseBarIcons:Callback(value)
+			db.eclipseBarIcons = value
+		end
+		eclipseBarIcons.checkedKey = "eclipseBarIcons"
+		eclipseBarIcons.enabledKey = "eclipseBar"
+		tinsert(classFeatures, eclipseBarIcons)
+
+	elseif playerClass == "MONK" then
+
+		local staggerBar = panel.CreateCheckbox(unitSettings, L.StaggerBar, L.StaggerBar_Desc)
+		staggerBar:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+		function staggerBar:Callback(value)
+			db.staggerBar = value
+		end
+		staggerBar.checkedKey = "staggerBar"
+		tinsert(classFeatures, staggerBar)
+
+	elseif playerClass == "SHAMAN" then
+
+		local totemBars = panel.CreateCheckbox(unitSettings, L.TotemBars, L.TotemBars_Desc)
+		totemBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+		function totemBars:Callback(value)
+			db.totemBars = value
+		end
+		totemBars.checkedKey = "totemBars"
+		tinsert(classFeatures, totemBars)
+
+	end
+
+	---------------------------------------------------------------------
 
 	local width = panel.CreateSlider(unitSettings, L.Width, L.Width_Desc, 0.25, 2, 0.05, true)
 	width:SetPoint("TOPLEFT", unitTitle, "BOTTOM", 8, -16)
@@ -189,7 +284,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		SetUnitConfig(panel.selectedUnit, "height", value)
 	end
 
-	--------------------------------------------------------------------
+	---------------------------------------------------------------------
 
 	local reload = CreateFrame("Button", "oUFPhanxOptionsUnitsReloadButton", panel, "UIPanelButtonTemplate")
 	reload:SetPoint("BOTTOMLEFT", 16, 16)
@@ -204,8 +299,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	---------------------------------------------------------------------
 
 	function panel:SetSelectedUnit(unit)
-		if not unit or not unitType[unit] then
-			unit = "player"
+		if not unit or (unit ~= "global" and not unitType[unit]) then
+			unit = "global"
 		end
 		panel.selectedUnit = unit
 		panel:refresh()
@@ -216,29 +311,56 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 		local unit = self.selectedUnit
 		if not unit then
-			return self:SetSelectedUnit("player")
+			return self:SetSelectedUnit("global")
 		end
 
-		for i = 1, #unitList do
-			local button = unitList[i]
-			if button.unit == unit then
-				button.highlight:Show()
-				button.label:SetFontObject(GameFontHighlight)
+		if unit == "global" then
+			unitSettings:Hide()
+			globalSettings:Show()
+
+			frameWidth:SetValue(db.width)
+			frameHeight:SetValue(db.height)
+			powerHeight:SetValue(db.powerHeight)
+		else
+			globalSettings:Hide()
+			unitSettings:Show()
+
+			for i = 1, #unitList do
+				local button = unitList[i]
+				if button.unit == unit then
+					button.highlight:Show()
+					button.label:SetFontObject(GameFontHighlight)
+				else
+					button.highlight:SetShown(button:IsMouseOver())
+					button.label:SetFontObject(GameFontNormal)
+				end
+			end
+
+			unitTitle:SetText(unitLabel[unit])
+
+		   enable:SetValue(not GetUnitConfig(unit, "disable"))
+			power:SetValue(GetUnitConfig(unit, "power"))
+			castbar:SetValue(GetUnitConfig(unit, "castbar"))
+			combatText:SetValue(GetUnitConfig(unit, "combatText"))
+
+			width:SetValue(GetUnitConfig(unit, "width") or 1)
+			height:SetValue(GetUnitConfig(unit, "height") or 1)
+
+			if unit == "player" then
+				for i = 1, #classFeatures do
+					local box = classFeatures[i]
+					box:Show()
+					box:SetChecked(db[box.checkedKey])
+					if box.enabledKey then
+						box:SetEnabled(db[box.enabledKey])
+					end
+				end
 			else
-				button.highlight:SetShown(button:IsMouseOver())
-				button.label:SetFontObject(GameFontNormal)
+				for i = 1, #classFeatures do
+					classFeatures[i]:Hide()
+				end
 			end
 		end
-
-		 unitTitle:SetText(unitLabel[unit])
-
-		    enable:SetValue(not GetUnitConfig(unit, "disable"))
-		     power:SetValue(GetUnitConfig(unit, "power"))
-		   castbar:SetValue(GetUnitConfig(unit, "castbar"))
-		combatText:SetValue(GetUnitConfig(unit, "combatText"))
-
-		     width:SetValue(GetUnitConfig(unit, "width") or 1)
-		    height:SetValue(GetUnitConfig(unit, "height") or 1)
 	end
 end)
 

@@ -21,21 +21,21 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 	local FrameWidth = panel:CreateSlider(L.FrameWidth, L.FrameWidth_Desc, 100, 400, 20)
 	FrameWidth:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	FrameWidth:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
-	function FrameWidth:OnValueChanged(value)
+	function FrameWidth:Callback(value)
 		db.width = value
 	end
 
 	local FrameHeight = panel:CreateSlider(L.FrameHeight, L.FrameHeight_Desc, 10, 60, 5)
 	FrameHeight:SetPoint("TOPLEFT", FrameWidth, "BOTTOMLEFT", 0, -24)
 	FrameHeight:SetPoint("TOPRIGHT", FrameWidth, "BOTTOMRIGHT", 0, -24)
-	function FrameHeight:OnValueChanged(value)
+	function FrameHeight:Callback(value)
 		db.height = value
 	end
 
 	local PowerHeight = panel:CreateSlider(L.PowerHeight, L.PowerHeight_Desc, 0.1, 0.5, 0.05, true)
 	PowerHeight:SetPoint("TOPLEFT", FrameHeight, "BOTTOMLEFT", 0, -24)
 	PowerHeight:SetPoint("TOPRIGHT", FrameHeight, "BOTTOMRIGHT", 0, -24)
-	function PowerHeight:OnValueChanged(value)
+	function PowerHeight:Callback(value)
 		db.powerHeight = value
 	end
 
@@ -47,7 +47,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 
 		local RuneBars = panel:CreateCheckbox(L.RuneBars, L.RuneBars_Desc)
 		RuneBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-		function RuneBars:OnValueChanged(value)
+		function RuneBars:Callback(value)
 			db.runeBars = value
 		end
 		RuneBars.checkedKey = "runeBars"
@@ -57,7 +57,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 
 		local DruidManaBar = panel:CreateCheckbox(L.DruidManaBar, L.DruidManaBar_Desc)
 		DruidManaBar:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-		function DruidManaBar:OnValueChanged(value)
+		function DruidManaBar:Callback(value)
 			db.druidMana = value
 		end
 		DruidManaBar.checkedKey = "druidMana"
@@ -65,7 +65,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 
 		local EclipseBar = panel:CreateCheckbox(L.EclipseBar, L.EclipseBar_Desc)
 		EclipseBar:SetPoint("TOPLEFT", DruidManaBar, "BOTTOMLEFT", 0, -12)
-		function EclipseBar:OnValueChanged(value)
+		function EclipseBar:Callback(value)
 			db.eclipseBar = value
 			EclipseBarIcons:SetEnabled(value)
 		end
@@ -74,7 +74,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 
 		local EclipseBarIcons = panel:CreateCheckbox(L.EclipseBarIcons, L.EclipseBarIcons_Desc)
 		EclipseBarIcons:SetPoint("TOPLEFT", EclipseBar, "BOTTOMLEFT", 0, -12)
-		function EclipseBarIcons:OnValueChanged(value)
+		function EclipseBarIcons:Callback(value)
 			db.eclipseBarIcons = value
 		end
 		EclipseBarIcons.checkedKey = "eclipseBarIcons"
@@ -85,7 +85,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 
 		local StaggerBar = panel:CreateCheckbox(L.StaggerBar, L.StaggerBar_Desc)
 		StaggerBar:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-		function StaggerBar:OnValueChanged(value)
+		function StaggerBar:Callback(value)
 			db.staggerBar = value
 		end
 		StaggerBar.checkedKey = "staggerBar"
@@ -95,7 +95,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 
 		local TotemBars = panel:CreateCheckbox(L.TotemBars, L.TotemBars_Desc)
 		TotemBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-		function TotemBars:OnValueChanged(value)
+		function TotemBars:Callback(value)
 			db.totemBars = value
 		end
 		TotemBars.checkedKey = "totemBars"
@@ -110,17 +110,14 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.MoreSettings, "oUF Phan
 	reload:SetSize(150, 22)
 	reload:SetText(L.ReloadUI)
 	reload:SetMotionScriptsWhileDisabled(true)
-	reload:SetScript("OnEnter", function(self) self:Enable() end)
-	reload:SetScript("OnLeave", function(self) self:Disable() end)
+	reload:SetScript("OnEnter", reload.Enable)
+	reload:SetScript("OnLeave", reload.Disable)
 	reload:SetScript("OnClick", ReloadUI)
 	reload:Disable()
 
 	--------------------------------------------------------------------
 
 	function panel:refresh()
-		oPCFrameWidth = FrameWidth
-		oPCFrameHeight = FrameHeight
-
 		FrameWidth:SetValue(db.width)
 		FrameHeight:SetValue(db.height)
 		PowerHeight:SetValue(db.powerHeight)
