@@ -16,15 +16,12 @@ local _, ns = ...
 local oUF = ns.oUF or oUF
 assert(oUF, "DemonicFury element requires oUF")
 
+local METAMORPHOSIS_FORM = 22
 local SPEC_WARLOCK_DEMONOLOGY = SPEC_WARLOCK_DEMONOLOGY
 local SPELL_POWER_DEMONIC_FURY = SPELL_POWER_DEMONIC_FURY
-local WARLOCK_METAMORPHOSIS = GetSpellInfo(WARLOCK_METAMORPHOSIS)
 
-local color = { 247/255, 40/255, 255/255 }
-oUF.colors.power.DEMONIC_FURY = color
-
-local metacolor = { 132/255, 235/255, 41/255 }
-oUF.colors.power.METAMORPHOSIS = color
+oUF.colors.power.DEMONIC_FURY = { 132/255, 41/255, 235/255 }
+oUF.colors.power.METAMORPHOSIS = { 132/255, 235/255, 41/255 }
 
 local UpdateVisibility, Update, Path, ForceUpdate, Enable, Disable
 
@@ -32,16 +29,14 @@ function UpdateVisibility(self, event, unit)
 	local element = self.DemonicFury
 
 	if UnitHasVehicleUI("player") or GetSpecialization() ~= SPEC_WARLOCK_DEMONOLOGY then
-		self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
+		self:UnregisterEvent("SHAPESHIFT_FORM_CHANGED", Path)
 		self:UnregisterEvent("UNIT_POWER", Path)
-
 		element:Hide()
 		return
 	end
 
 	element:Show()
-
-	self:RegisterEvent("UNIT_DISPLAYPOWER", Path)
+	self:RegisterEvent("SHAPESHIFT_FORM_CHANGED", Path, true)
 	self:RegisterEvent("UNIT_POWER", Path)
 
 	Update(self, "UpdateVisibility", "player")
@@ -58,20 +53,22 @@ function Update(self, event, unit, powerType)
 
 	local fury = UnitPower("player", SPELL_POWER_DEMONIC_FURY)
 	local furyMax = UnitPowerMax("player", SPELL_POWER_DEMONIC_FURY)
+	local inMetamorphosis = GetShapeshiftFormID() == METAMORPHOSIS_FORM
+	local color = oUF.colors.power[inMetamorphosis and "METAMORPHOSIS" or "DEMONIC_FURY"]
+	local r, g, b = color[1], color[2], color[3]
 
 	element:SetMinMaxValues(0, furyMax)
 	element:SetValue(fury)
+	element:SetStatusBarColor(r, g, b)
 
-	if UnitBuff("player", WARLOCK_METAMORPHOSIS) then
-		element.activated = true
-		element:SetStatusBarColor(metacolor[1], metacolor[2], metacolor[3])
-	else
-		element.activated = nil
-		element:SetStatusBarColor(color[1], color[2], color[3])
+	local bg = element.bg
+	if bg then
+		local mu = bg.multiplier or 1
+		bg:SetVertexColor(r * mu, g * mu, b * mu)
 	end
 
 	if element.PostUpdate then
-		element:PostUpdate(fury, furyMax, powerType)
+		element:PostUpdate(fury, furyMax, "DEMONIC_FURY", inMetamorphosis)
 	end
 end
 
@@ -106,8 +103,8 @@ function Disable(self)
 	local element = self.DemonicFury
 	if not element then return end
 
+	self:UnregisterEvent("SHAPESHIFT_FORM_CHANGED", Path)
 	self:UnregisterEvent("UNIT_POWER", Path)
-	self:UnregisterEvent("UNIT_DISPLAYPOWER", Path)
 
 	self:UnregisterEvent("PLAYER_TALENT_UPDATE", UpdateVisibility)
 	self:UnregisterEvent("UNIT_ENTERING_VEHICLE", UpdateVisibility)
