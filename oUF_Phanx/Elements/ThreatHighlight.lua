@@ -52,6 +52,11 @@ function Enable(self)
 	local element = self.ThreatHighlight
 	if not element then return end
 
+	if type(element) == "function" then
+		element = { Override = element }
+		self.ThreatHighlight = element
+	end
+
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 
@@ -70,7 +75,9 @@ function Disable(self)
 
 	self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE", Update)
 
-	element:Hide()
+	if element.Hide then
+		element:Hide()
+	end
 end
 
 oUF:AddElement("ThreatHighlight", Update, Enable, Disable)
