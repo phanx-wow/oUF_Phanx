@@ -42,5 +42,5 @@ Locales\Locale-zhTW.lua
 
 Main.lua
 Auras.lua
-Misc.lua
+# Misc.lua
 Units.lua
