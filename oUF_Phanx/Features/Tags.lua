@@ -111,12 +111,12 @@ do
 	oUF.Tags.Events["threatpct"] = "UNIT_THREAT_SITUATION_UPDATE UNIT_THREAT_LIST_UPDATE"
 	oUF.Tags.Methods["threatpct"] = function(unit)
 		local isTanking, status, percentage, rawPercentage = UnitDetailedThreatSituation(unit, unit.."target")
-		local text = rawPercentage
+		local pct = rawPercentage
 		if isTanking then
-			text = UnitThreatPercentageOfLead(unit, unit.."target")
+			pct = UnitThreatPercentageOfLead(unit, unit.."target")
 		end
-		if text and text ~= 0 then
-			return format("%s%d%%|r", colors[status] or "", text)
+		if pct and pct ~= 0 then
+			return format("%s%d", colors[status] or "", pct + 0.5)
 		end
 	end
 end
