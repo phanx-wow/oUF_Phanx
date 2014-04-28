@@ -1,9 +1,9 @@
 ## Interface: 50400
-## Version: 5.4.2.wowi:revision
+## Version: 5.4.7.wowi:revision
 
 ## Title: oUF: Phanx
 ## Notes: oUF unit frames with many PvE-oriented features and a few options.
-## Notes-deDE: oUF-Einheitenfenster mit vielen PvE-orientieren Funktionen und ein paar Optionen.
+## Notes-deDE: oUF-Einheitenfenster mit vielen PvE-orientieren Funktionen und wenigen Optionen.
 ## Notes-esES: Marcos de unidades de oUF con muchas funciones orientados a JcE y unas pocas opciones.
 ## Notes-esMX: Marcos de unidades de oUF con muchas funciones orientados a JcE y unas pocas opciones.
 ## Notes-frFR: Portraits d'unités avec nombreuses fonctionnalités visant à JcE et quelques options.
