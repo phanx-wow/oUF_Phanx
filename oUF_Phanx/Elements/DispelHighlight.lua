@@ -43,9 +43,12 @@ local colors = { -- these are nicer than DebuffTypeColor
 oUF.colors.debuff = colors
 
 local INVULNERABILITY_EFFECTS = {
+	-- Player abilities
 	[642]   = true, -- Divine Shield
 	[1022]  = true, -- Hand of Protection
 	[45438] = true, -- Ice Block
+	-- NPC abilities
+	[38916] = true, -- Diplomatic Immunity
 }
 
 local DefaultDispelPriority = { Curse = 2, Disease = 4, Magic = 1, Poison = 3 }
