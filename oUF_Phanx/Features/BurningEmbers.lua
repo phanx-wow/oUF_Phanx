@@ -90,6 +90,8 @@ ns.CreateBurningEmbers = function(frame)
 		BurningEmbers[i] = bar
 	end
 
+	BurningEmbers:SetScript("OnEnter", ns.UnitFrame_OnEnter)
+	BurningEmbers:SetScript("OnLeave", ns.UnitFrame_OnLeave)
 	BurningEmbers:SetScript("OnShow", BurningEmbers_OnShow)
 	BurningEmbers:SetScript("OnHide", BurningEmbers_OnHide)
 	hooksecurefunc(frame, "SetBorderSize", Frame_SetBorderSize)
