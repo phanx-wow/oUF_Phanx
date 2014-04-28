@@ -207,7 +207,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		tinsert(classFeatures, druidMana)
 
 		local eclipseBar = panel.CreateCheckbox(unitSettings, L.EclipseBar, L.EclipseBar_Desc)
-		eclipseBar:SetPoint("TOPLEFT", druidManaBar, "BOTTOMLEFT", 0, -12)
+		eclipseBar:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -12)
 		function eclipseBar:Callback(value)
 			oUFPhanxConfig.eclipseBar = value
 			EclipseBarIcons:SetEnabled(value)
