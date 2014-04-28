@@ -230,7 +230,7 @@ function ns.PostUpdateDruidMana(bar, unit, mana, maxMana)
 end
 
 ------------------------------------------------------------------------
---	Mushrooms (druid)
+--	Druid mushrooms
 ------------------------------------------------------------------------
 
 local MAX_MUSHROOMS = 3
@@ -310,9 +310,12 @@ function ns.UpdateShadowOrbs(self, event, unit, powerType)
 end
 
 ------------------------------------------------------------------------
+--	Warlock demonic fury
 ------------------------------------------------------------------------
 
 function ns.PostUpdateDemonicFury(bar, fury, furyMax, powerType, hasMetamorphosis)
+	--print("PostUpdateDemonicFury", stagger, staggerPercent)
+	bar.value:SetFormattedText("%.0f%%", fury / furyMax)
 end
 
 ------------------------------------------------------------------------
