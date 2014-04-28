@@ -90,7 +90,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 			panel:SetSelectedUnit(self.unit)
 		end
 
-		function AddUnit(unit)
+		function AddUnit(unit, text)
 			local button = CreateFrame("Button", nil, unitList)
 			button:SetHeight(20)
 			if #unitList > 0 then
@@ -118,7 +118,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 			label:SetPoint("LEFT")
 			label:SetPoint("RIGHT")
 			label:SetJustifyH("LEFT")
-			label:SetText(unitLabel[unit])
+			label:SetText(text or unitLabel[unit])
 			button.label = label
 
 			button.unit = unit
@@ -127,48 +127,18 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		end
 	end
 
-	AddUnit("global", "Global") -- TODO: localize
-	AddUnit("player", L.UnitPlayer)
-	AddUnit("pet", L.UnitPet)
-	AddUnit("target", L.UnitTarget)
-	AddUnit("targettarget", L.UnitTargetTarget)
-	AddUnit("focus", L.UnitFocus)
-	AddUnit("focustarget", L.UnitFocusTarget)
-	AddUnit("party", L.UnitParty)
-	AddUnit("partypet", L.UnitPartyPet)
-	AddUnit("boss", L.UnitBoss)
-	AddUnit("arena", L.UnitArena)
-	AddUnit("arenapet", L.UnitArenaPet)
-
-	---------------------------------------------------------------------
-
-	local globalSettings = CreateFrame("Frame", nil, panel)
-	globalSettings:SetPoint("TOPLEFT", unitList, "TOPRIGHT", 12, 0)
-	globalSettings:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -12)
-	globalSettings:SetPoint("BOTTOMRIGHT", -15, 15)
-	globalSettings:SetBackdrop({ edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16 })
-	globalSettings:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
-
-	local frameWidth = panel.CreateSlider(globalSettings, L.FrameWidth, L.FrameWidth_Desc, 100, 400, 20)
-	frameWidth:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	frameWidth:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
-	function frameWidth:Callback(value)
-		db.width = value
-	end
-
-	local frameHeight = panel.CreateSlider(globalSettings, L.FrameHeight, L.FrameHeight_Desc, 10, 60, 5)
-	frameHeight:SetPoint("TOPLEFT", FrameWidth, "BOTTOMLEFT", 0, -24)
-	frameHeight:SetPoint("TOPRIGHT", FrameWidth, "BOTTOMRIGHT", 0, -24)
-	function frameHeight:Callback(value)
-		db.height = value
-	end
-
-	local powerHeight = panel.CreateSlider(globalSettings, L.PowerHeight, L.PowerHeight_Desc, 0.1, 0.5, 0.05, true)
-	powerHeight:SetPoint("TOPLEFT", FrameHeight, "BOTTOMLEFT", 0, -24)
-	powerHeight:SetPoint("TOPRIGHT", FrameHeight, "BOTTOMRIGHT", 0, -24)
-	function powerHeight:Callback(value)
-		db.powerHeight = value
-	end
+	AddUnit("player")
+	AddUnit("pet")
+	AddUnit("target")
+	AddUnit("targettarget")
+	AddUnit("focus")
+	AddUnit("focustarget")
+	AddUnit("party")
+	AddUnit("partypet")
+	AddUnit("boss")
+	AddUnit("arena")
+	AddUnit("arenapet")
+	AddUnit("global", L.Unit_Global) -- TODO: localize
 
 	---------------------------------------------------------------------
 
@@ -206,14 +176,22 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		SetUnitConfig(panel.selectedUnit, "combatText", value)
 	end
 
+	local classHeader = unitSettings:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	classHeader:SetPoint("TOPLEFT", combatText, "BOTTOMLEFT", 0, -24)
+	do
+		local offset, left, right, bottom, top = 0.025, unpack(CLASS_BUTTONS[playerClass])
+		local classIcon = format([[|TInterface\Glues\CharacterCreate\UI-CharacterCreate-Classes:14:14:0:0:256:256:%s:%s:%s:%s|t]], (left + offset) * 256, (right - offset) * 256, (bottom + offset) * 256, (top - offset) * 256)
+		classHeader:SetFormattedText("%s |c%s%s|r", classIcon, (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass].colorStr, format(L.ClassFeatures, UnitClass("player")))
+	end
+
 	local classFeatures = {}
 
 	if playerClass == "DEATHKNIGHT" then
 
 		local runeBars = panel.CreateCheckbox(unitSettings, L.RuneBars, L.RuneBars_Desc)
-		runeBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+		runeBars:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", 0, -12)
 		function runeBars:Callback(value)
-			db.runeBars = value
+			oUFPhanxConfig.runeBars = value
 		end
 		runeBars.checkedKey = "runeBars"
 		tinsert(classFeatures, runeBars)
@@ -221,26 +199,26 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	elseif playerClass == "DRUID" then
 
 		local druidMana = panel.CreateCheckbox(unitSettings, L.DruidManaBar, L.DruidManaBar_Desc)
-		druidMana:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+		druidMana:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", 0, -12)
 		function druidMana:Callback(value)
-			db.druidMana = value
+			oUFPhanxConfig.druidMana = value
 		end
 		druidMana.checkedKey = "druidMana"
 		tinsert(classFeatures, druidMana)
 
 		local eclipseBar = panel.CreateCheckbox(unitSettings, L.EclipseBar, L.EclipseBar_Desc)
-		eclipseBar:SetPoint("TOPLEFT", DruidManaBar, "BOTTOMLEFT", 0, -12)
+		eclipseBar:SetPoint("TOPLEFT", druidManaBar, "BOTTOMLEFT", 0, -12)
 		function eclipseBar:Callback(value)
-			db.eclipseBar = value
+			oUFPhanxConfig.eclipseBar = value
 			EclipseBarIcons:SetEnabled(value)
 		end
 		eclipseBar.checkedKey = "eclipseBar"
 		tinsert(classFeatures, eclipseBar)
 
 		local eclipseBarIcons = panel.CreateCheckbox(unitSettings, L.EclipseBarIcons, L.EclipseBarIcons_Desc)
-		eclipseBarIcons:SetPoint("TOPLEFT", EclipseBar, "BOTTOMLEFT", 0, -12)
+		eclipseBarIcons:SetPoint("TOPLEFT", eclipseBar, "BOTTOMLEFT", 0, -12)
 		function eclipseBarIcons:Callback(value)
-			db.eclipseBarIcons = value
+			oUFPhanxConfig.eclipseBarIcons = value
 		end
 		eclipseBarIcons.checkedKey = "eclipseBarIcons"
 		eclipseBarIcons.enabledKey = "eclipseBar"
@@ -249,9 +227,9 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	elseif playerClass == "MONK" then
 
 		local staggerBar = panel.CreateCheckbox(unitSettings, L.StaggerBar, L.StaggerBar_Desc)
-		staggerBar:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+		staggerBar:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", 0, -12)
 		function staggerBar:Callback(value)
-			db.staggerBar = value
+			oUFPhanxConfig.staggerBar = value
 		end
 		staggerBar.checkedKey = "staggerBar"
 		tinsert(classFeatures, staggerBar)
@@ -259,9 +237,9 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	elseif playerClass == "SHAMAN" then
 
 		local totemBars = panel.CreateCheckbox(unitSettings, L.TotemBars, L.TotemBars_Desc)
-		totemBars:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
+		totemBars:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", 0, -12)
 		function totemBars:Callback(value)
-			db.totemBars = value
+			oUFPhanxConfig.totemBars = value
 		end
 		totemBars.checkedKey = "totemBars"
 		tinsert(classFeatures, totemBars)
@@ -282,6 +260,38 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	height:SetPoint("TOPRIGHT", width, "BOTTOMRIGHT", 0, -24)
 	function height:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "height", value)
+	end
+
+	---------------------------------------------------------------------
+
+	local globalSettings = CreateFrame("Frame", nil, panel)
+	globalSettings:SetPoint("TOPLEFT", unitList, "TOPRIGHT", 12, 0)
+	globalSettings:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -12)
+	globalSettings:SetPoint("BOTTOMRIGHT", -15, 15)
+	globalSettings:SetBackdrop({ edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16 })
+	globalSettings:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
+	
+	local globalTitle = panel.CreateHeader(globalSettings, L.Unit_Global) -- TODO: localize
+
+	local frameWidth = panel.CreateSlider(globalSettings, L.FrameWidth, L.FrameWidth_Desc, 100, 400, 20)
+	frameWidth:SetPoint("TOPLEFT", globalTitle, "BOTTOMLEFT", -4, -16)
+	frameWidth:SetPoint("TOPRIGHT", globalTitle, "BOTTOM", -8, -16)
+	function frameWidth:Callback(value)
+		oUFPhanxConfig.width = value
+	end
+
+	local frameHeight = panel.CreateSlider(globalSettings, L.FrameHeight, L.FrameHeight_Desc, 10, 60, 5)
+	frameHeight:SetPoint("TOPLEFT", frameWidth, "BOTTOMLEFT", 0, -24)
+	frameHeight:SetPoint("TOPRIGHT", frameWidth, "BOTTOMRIGHT", 0, -24)
+	function frameHeight:Callback(value)
+		oUFPhanxConfig.height = value
+	end
+
+	local powerHeight = panel.CreateSlider(globalSettings, L.PowerHeight, L.PowerHeight_Desc, 0.1, 0.5, 0.05, true)
+	powerHeight:SetPoint("TOPLEFT", frameHeight, "BOTTOMLEFT", 0, -24)
+	powerHeight:SetPoint("TOPRIGHT", frameHeight, "BOTTOMRIGHT", 0, -24)
+	function powerHeight:Callback(value)
+		oUFPhanxConfig.powerHeight = value
 	end
 
 	---------------------------------------------------------------------
@@ -311,30 +321,30 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 		local unit = self.selectedUnit
 		if not unit then
-			return self:SetSelectedUnit("global")
+			return self:SetSelectedUnit("player")
+		end
+
+		for i = 1, #unitList do
+			local button = unitList[i]
+			if button.unit == unit then
+				button.highlight:Show()
+				button.label:SetFontObject(GameFontHighlight)
+			else
+				button.highlight:SetShown(button:IsMouseOver())
+				button.label:SetFontObject(GameFontNormal)
+			end
 		end
 
 		if unit == "global" then
 			unitSettings:Hide()
 			globalSettings:Show()
 
-			frameWidth:SetValue(db.width)
-			frameHeight:SetValue(db.height)
-			powerHeight:SetValue(db.powerHeight)
+			frameWidth:SetValue(oUFPhanxConfig.width)
+			frameHeight:SetValue(oUFPhanxConfig.height)
+			powerHeight:SetValue(oUFPhanxConfig.powerHeight)
 		else
 			globalSettings:Hide()
 			unitSettings:Show()
-
-			for i = 1, #unitList do
-				local button = unitList[i]
-				if button.unit == unit then
-					button.highlight:Show()
-					button.label:SetFontObject(GameFontHighlight)
-				else
-					button.highlight:SetShown(button:IsMouseOver())
-					button.label:SetFontObject(GameFontNormal)
-				end
-			end
 
 			unitTitle:SetText(unitLabel[unit])
 
@@ -347,15 +357,17 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 			height:SetValue(GetUnitConfig(unit, "height") or 1)
 
 			if unit == "player" then
+				classHeader:SetShown(#classFeatures > 0)
 				for i = 1, #classFeatures do
 					local box = classFeatures[i]
 					box:Show()
-					box:SetChecked(db[box.checkedKey])
+					box:SetChecked(oUFPhanxConfig[box.checkedKey])
 					if box.enabledKey then
-						box:SetEnabled(db[box.enabledKey])
+						box:SetEnabled(oUFPhanxConfig[box.enabledKey])
 					end
 				end
 			else
+				classHeader:Hide()
 				for i = 1, #classFeatures do
 					classFeatures[i]:Hide()
 				end
