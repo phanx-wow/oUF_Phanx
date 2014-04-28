@@ -14,7 +14,7 @@ local GetLootMethod, IsResting, UnitAffectingCombat, UnitBuff, UnitClass, UnitIn
 ------------------------------------------------------------------------
 --	Colors
 
-oUF.Tags.Events["unitcolor"] = "UNIT_HEALTH UNIT_CLASSIFICATION UNIT_REACTION"
+oUF.Tags.Events["unitcolor"] = "UNIT_HEALTH UNIT_CLASSIFICATION_CHANGED UNIT_CONNECTION UNIT_FACTION UNIT_REACTION"
 oUF.Tags.Methods["unitcolor"] = function(unit)
 	local color
 	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
@@ -108,12 +108,12 @@ do
 			return t[i]
 		end
 	end })
-	oUF.Tags.Events["threatpct"] = "UNIT_THREAT_SITUATION_UPDATE UNIT_THREAT_LIST_UPDATE"
+	oUF.Tags.Events["threatpct"] = "UNIT_THREAT_LIST_UPDATE"
 	oUF.Tags.Methods["threatpct"] = function(unit)
-		local isTanking, status, percentage, rawPercentage = UnitDetailedThreatSituation(unit, unit.."target")
+		local isTanking, status, percentage, rawPercentage = UnitDetailedThreatSituation("player", unit)
 		local pct = rawPercentage
 		if isTanking then
-			pct = UnitThreatPercentageOfLead(unit, unit.."target")
+			pct = UnitThreatPercentageOfLead("player", unit)
 		end
 		if pct and pct ~= 0 then
 			return format("%s%d", colors[status] or "", pct + 0.5)

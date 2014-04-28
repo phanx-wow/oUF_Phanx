@@ -170,25 +170,16 @@ local function Spawn(self, unit, isSingle)
 	health.value:SetParent(self.overlay)
 	self:SetBorderParent(self.overlay)
 
-	--------------------------
-	-- Element: Threat text -- NOT YET IMPLEMENTED
-	--------------------------
---[[
-	if unit == "target" then
-		self.ThreatText = ns.CreateFontString(self.overlay, 20, "RIGHT")
-		self.ThreatText:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
-	end
-]]
 	---------------------------
 	-- Name text, Level text --
 	---------------------------
 	if unit == "target" or unit == "focus" then
 		self.Level = ns.CreateFontString(self.overlay, 16, "LEFT")
-		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
+		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -5)
 		self:Tag(self.Level, "[difficulty][level][shortclassification]")
 
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
-		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 0, 0)
+		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 1, -1)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
 		self:Tag(self.Name, "[unitcolor][name]")
 
@@ -197,6 +188,15 @@ local function Spawn(self, unit, isSingle)
 		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
 		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
 		self:Tag(self.Name, "[unitcolor][name]")
+	end
+
+	-----------------
+	-- Threat text --
+	-----------------
+	if unit == "target" then
+		self.ThreatText = ns.CreateFontString(self.overlay, 20, "RIGHT")
+		self.ThreatText:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -2, 4)
+		self:Tag(self.Threat, "[threatpct]%")
 	end
 
 	------------------
