@@ -9,17 +9,21 @@
 
 if select(2, UnitClass("player")) ~= "DRUID" then return end
 
+oUF.colors.power.ECLIPSE_LUNAR = { 0, 0.6, 1 }
+oUF.colors.power.ECLIPSE_SOLAR = { 0.8, 0.5, 0 }
+
 local _, ns = ...
 local EclipseBar
 
 local ECLIPSE_MARKER_COORDS = ECLIPSE_MARKER_COORDS
 local SPELL_POWER_ECLIPSE = SPELL_POWER_ECLIPSE
 
-local BRIGHTER = 1.2
-local DARKER = 0.6
+local LUNAR_COLOR = oUF.colors.power.ECLIPSE_LUNAR
+local SOLAR_COLOR = oUF.colors.power.ECLIPSE_SOLAR
 
-oUF.colors.power.ECLIPSE_LUNAR = { 0, 0.6, 1 }
-oUF.colors.power.ECLIPSE_SOLAR = { 0.8, 0.5, 0 }
+local BRIGHT = 1.2
+local NORMAL = 0.8
+local DIMMED = 0.5
 
 local function Frame_SetBorderSize(self, size, offset)
 	if EclipseBar:IsShown() then
@@ -43,8 +47,8 @@ end
 
 local function PostUpdatePower(self, unit, power, maxPower, powerType)
 	local x = (power / maxPower) * (self:GetWidth() / 2)
---	self.lunarBG:SetPoint("RIGHT", self, "CENTER", x, 0)
-
+	self.lunarBG:SetPoint("RIGHT", self, "CENTER", x, 0)
+--[[
 	local direction = self.directionIsLunar or "none"
 	if direction == "moon" then
 		self.directionArrow:SetPoint("CENTER", self, x + 1, 1)
@@ -53,19 +57,24 @@ local function PostUpdatePower(self, unit, power, maxPower, powerType)
 	else
 		self.directionArrow:SetPoint("CENTER", self, x, 1)
 	end
+]]
 end
 
 local function PostUnitAura(self, unit)
 	local hasLunarEclipse, hasSolarEclipse = self.hasLunarEclipse, self.hasSolarEclipse
 	--print("PostUnitAura", hasLunarEclipse, hasSolarEclipse)
+	local lunarColor, solarColor 
 
-	local color = oUF.colors.power.ECLIPSE_LUNAR
-	local mu = hasLunarEclipse and BRIGHTER or hasSolarEclipse and DARKER or 0.8
-	self.lunarBG:SetVertexColor(color[1] * mu, color[2] * mu, color[3] * mu)
-
-	color = oUF.colors.power.ECLIPSE_SOLAR
-	mu = hasSolarEclipse and BRIGHTER or hasLunarEclipse and DARKER or 0.8
-	self.solarBG:SetVertexColor(color[1] * mu, color[2] * mu, color[3] * mu)
+	if hasLunarEclipse then
+		self.lunarBG:SetVertexColor(LUNAR_COLOR[1] * DIMMED, LUNAR_COLOR[2] * DIMMED, LUNAR_COLOR[3] * DIMMED)
+		self.solarBG:SetVertexColor(LUNAR_COLOR[1] * BRIGHT, LUNAR_COLOR[2] * BRIGHT, LUNAR_COLOR[3] * BRIGHT)
+	elseif hasSolarEclipse then
+		self.lunarBG:SetVertexColor(SOLAR_COLOR[1] * BRIGHT, SOLAR_COLOR[2] * BRIGHT, SOLAR_COLOR[3] * BRIGHT)
+		self.solarBG:SetVertexColor(SOLAR_COLOR[1] * DIMMED, SOLAR_COLOR[2] * DIMMED, SOLAR_COLOR[3] * DIMMED)
+	else
+		self.lunarBG:SetVertexColor(LUNAR_COLOR[1] * NORMAL, LUNAR_COLOR[2] * NORMAL, LUNAR_COLOR[3] * NORMAL)
+		self.solarBG:SetVertexColor(SOLAR_COLOR[1] * NORMAL, SOLAR_COLOR[2] * NORMAL, SOLAR_COLOR[3] * NORMAL)
+	end
 
 	local glow = self.glow
 	if not glow then return end
@@ -133,7 +142,7 @@ local function PostDirectionChange(self, unit)
 
 	local coords = ECLIPSE_MARKER_COORDS[direction]
 	self.directionArrow:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
---[[
+
 	if direction == "moon" then
 		self.directionArrow:SetPoint("CENTER", self.lunarBG, "RIGHT", 1, 1)
 	elseif direction == "sun" then
@@ -141,7 +150,6 @@ local function PostDirectionChange(self, unit)
 	else
 		self.directionArrow:SetPoint("CENTER", self.lunarBG, "RIGHT", 0, 1)
 	end
-]]
 end
 
 function ns.CreateEclipseBar(self)
