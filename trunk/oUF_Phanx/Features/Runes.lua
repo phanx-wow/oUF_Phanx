@@ -11,20 +11,11 @@ if select(2, UnitClass("player")) ~= "DEATHKNIGHT" then return end
 
 local _, ns = ...
 
--- Better unholy color:
-oUF.colors.runes[2][1] = 0.3
-oUF.colors.runes[2][2] = 0.9
-oUF.colors.runes[2][3] = 0
-
--- Better frost color:
-oUF.colors.runes[3][1] = 0
-oUF.colors.runes[3][2] = 0.8
-oUF.colors.runes[3][3] = 1
-
--- Better death color:
-oUF.colors.runes[4][1] = 0.8
-oUF.colors.runes[4][2] = 0.5
-oUF.colors.runes[4][3] = 1
+local colors = oUF.colors.runes
+colors[1][1], colors[1][2], colors[1][3] = 0.8, 0.2, 0.2 -- Blood
+colors[3][1], colors[3][2], colors[3][3] = 0,   0.8, 1   -- Frost
+colors[2][1], colors[2][2], colors[2][3] = 0.3, 0.9, 0   -- Unholy
+colors[4][1], colors[4][2], colors[4][3] = 0.8, 0.5, 1   -- Death
 
 local Runes
 
@@ -86,9 +77,9 @@ end
 local function PostUpdateRune(element, bar, id, start, duration, ready)
 	bar.ready = ready
 	if ready then
-		bar:SetAlpha(1)
+		bar:GetStatusBarTexture():SetAlpha(1)
 	else
-		bar:SetAlpha(0.5)
+		bar:GetStatusBarTexture():SetAlpha(0.5)
 	end
 
 	element:Hide()
@@ -114,15 +105,20 @@ ns.CreateRunes = function(frame)
 	Runes:SetBackdropBorderColor(unpack(ns.config.borderColor))
 
 	local MAX_RUNES = 6
-	local runeGap = 1
-	local runeWidth = (frame:GetWidth() - (runeGap * (MAX_RUNES + 1))) / MAX_RUNES
+	local RUNE_WIDTH = floor((frame:GetWidth() - (MAX_RUNES + 1)) / MAX_RUNES + 0.5)
 
 	for i = 1, MAX_RUNES do
 		local bar = ns.CreateStatusBar(Runes, 16, "CENTER")
-		bar:SetWidth(runeWidth)
+		bar:SetWidth(RUNE_WIDTH)
 		if i > 1 then
 			bar:SetPoint("TOPLEFT", Runes[i-1], "TOPRIGHT", 1, 0)
 			bar:SetPoint("BOTTOMLEFT", Runes[i-1], "BOTTOMRIGHT", 1, 0)
+			if i == MAX_RUNES then
+				-- Fill up remaining space (probably 1px) left by rounding
+				-- the bars down to avoid fuzzy edges.
+				bar:SetPoint("TOPRIGHT", Runes, -1, -1)
+				bar:SetPoint("BOTTOMRIGHT", Runes, -1, 1)
+			end
 		else
 			bar:SetPoint("TOPLEFT", Runes, 1, -1)
 			bar:SetPoint("BOTTOMLEFT", Runes, 1, 1)
