@@ -1,5 +1,5 @@
 ## Interface: 50400
-## Version: 5.4.2.wowi:revision
+## Version: 5.4.8.wowi:revision
 
 ## Title: oUF: Phanx Options
 ## Notes: Configuration UI for oUF Phanx.
