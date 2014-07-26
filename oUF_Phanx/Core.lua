@@ -30,6 +30,7 @@ ns.configDefault = {
 	font = "PT Sans Bold",
 	fontOutline = "OUTLINE",
 	fontShadow = true,
+	fontScale = 1, -- no UI
 
 	dispelFilter = true,				-- only highlight the frame for debuffs you can dispel
 	ignoreOwnHeals = false,			-- only show incoming heals from other players
@@ -495,6 +496,7 @@ local FALLBACK_FONT_SIZE = 16 -- some Blizzard bug
 function ns.CreateFontString(parent, size, justify)
 	local file = Media:Fetch("font", ns.config.font) or STANDARD_TEXT_FONT
 	if not size or size == 0 then size = FALLBACK_FONT_SIZE end
+	size = size * ns.config.fontScale
 
 	local fs = parent:CreateFontString(nil, "OVERLAY")
 	fs:SetFont(file, size, ns.config.fontOutline)
