@@ -68,7 +68,7 @@ function Update(self, event, unit, powerType)
 	end
 
 	if element.PostUpdate then
-		element:PostUpdate(fury, furyMax, "DEMONIC_FURY", inMetamorphosis)
+		element:PostUpdate(fury, maxFury, inMetamorphosis)
 	end
 end
 
