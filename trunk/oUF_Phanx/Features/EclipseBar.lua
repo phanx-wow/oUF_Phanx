@@ -26,44 +26,31 @@ local NORMAL = 0.8
 local DIMMED = 0.5
 
 local function Frame_SetBorderSize(self, size, offset)
-	if EclipseBar:IsShown() then
+	if self.EclipseBar:IsShown() then
 		local _, offset = self:GetBorderSize()
 		self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", EclipseBar, -offset, offset)
 		self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", EclipseBar, offset, offset)
 	end
 end
 
-local function OnShow(self)
+local function PostUpdateVisibility(self)
+	local shown = self:IsShown()
 	local frame = self.__owner
-	frame:SetBorderParent(self)
+	frame:SetBorderParent(shown and self or frame.overlay)
 	frame:SetBorderSize()
+	self.shown = shown
 end
 
-local function OnHide(self)
-	local frame = self.__owner
-	frame:SetBorderParent(frame.overlay)
-	frame:SetBorderSize()
-end
-
-local function PostUpdatePower(self, unit, power, maxPower, powerType)
+local function PostUpdatePower(self, unit, power, maxPower)
+	if not power or not self.shown then return end
 	local x = (power / maxPower) * (self:GetWidth() / 2)
 	self.lunarBG:SetPoint("RIGHT", self, "CENTER", x, 0)
---[[
-	local direction = self.directionIsLunar or "none"
-	if direction == "moon" then
-		self.directionArrow:SetPoint("CENTER", self, x + 1, 1)
-	elseif direction == "sun" then
-		self.directionArrow:SetPoint("CENTER", self, x - 1, 1)
-	else
-		self.directionArrow:SetPoint("CENTER", self, x, 1)
-	end
-]]
 end
 
 local function PostUnitAura(self, unit)
+	if not self.shown then return end
 	local hasLunarEclipse, hasSolarEclipse = self.hasLunarEclipse, self.hasSolarEclipse
 	--print("PostUnitAura", hasLunarEclipse, hasSolarEclipse)
-	local lunarColor, solarColor 
 
 	if hasLunarEclipse then
 		self.lunarBG:SetVertexColor(LUNAR_COLOR[1] * DIMMED, LUNAR_COLOR[2] * DIMMED, LUNAR_COLOR[3] * DIMMED)
@@ -137,6 +124,7 @@ local function PostUnitAura(self, unit)
 end
 
 local function PostDirectionChange(self, unit)
+	if not self.shown then return end
 	local direction = self.directionIsLunar or "none" -- GetEclipseDirection()
 	--print("PostDirectionChanged", direction)
 
@@ -260,10 +248,10 @@ function ns.CreateEclipseBar(self)
 
 	EclipseBar:SetScript("OnEnter", ns.UnitFrame_OnEnter)
 	EclipseBar:SetScript("OnLeave", ns.UnitFrame_OnLeave)
-	EclipseBar:SetScript("OnShow", OnShow)
-	EclipseBar:SetScript("OnHide", OnHide)
+
 	hooksecurefunc(self, "SetBorderSize", Frame_SetBorderSize)
 
+	EclipseBar.PostUpdateVisibility = PostUpdateVisibility
 	EclipseBar.PostDirectionChange = PostDirectionChange
 	EclipseBar.PostUnitAura = PostUnitAura
 	EclipseBar.PostUpdatePower = PostUpdatePower
