@@ -23,32 +23,6 @@ local ColorGradient = oUF.ColorGradient
 local SMOOTH_COLORS = oUF.colors.smooth
 local unpack = unpack
 
-local function Runes_OnShow(element)
-	local frame = element.__owner
-	local rune
-	for i = 1, #element do
-		if element[i]:IsShown() then
-			rune = element[i]
-		end
-	end
-	frame:SetBorderParent(rune)
-	frame:SetBorderSize()
-end
-
-local function Runes_OnHide(element)
-	local frame = element.__owner
-	frame:SetBorderParent(frame.overlay)
-	frame:SetBorderSize()
-end
-
-local function Frame_SetBorderSize(frame, size, offset)
-	if Runes:IsShown() then
-		local _, offset = frame:GetBorderSize()
-		frame.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Runes, -offset, offset)
-		frame.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", Runes, offset, offset)
-	end
-end
-
 local function Rune_OnUpdate(bar, elapsed)
 	if bar.mouseover then
 		local duration, max = bar.duration, bar.max
@@ -82,12 +56,12 @@ local function PostUpdateRune(element, bar, id, start, duration, ready)
 		bar:GetStatusBarTexture():SetAlpha(0.5)
 	end
 
-	element:Hide()
 	for i = 1, #element do
 		if element[i]:IsShown() then
 			return element:Show()
 		end
 	end
+	element:Hide()
 end
 
 ns.CreateRunes = function(frame)
@@ -96,6 +70,7 @@ ns.CreateRunes = function(frame)
 	end
 
 	Runes = CreateFrame("Frame", nil, frame)
+	Runes:SetFrameLevel(frame:GetFrameLevel() - 2) -- ???
 	Runes:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, -1)
 	Runes:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, -1)
 	Runes:SetHeight(frame:GetHeight() * ns.config.powerHeight + 2)
@@ -130,15 +105,16 @@ ns.CreateRunes = function(frame)
 
 		bar.bg.multiplier = ns.config.powerBG
 
-		bar.value:Hide()
+		bar.value:SetParent(frame.overlay)
 		bar.value:SetPoint("CENTER", 0, 1)
+		bar.value:Hide()
 
 		Runes[i] = bar
 	end
 
-	Runes:SetScript("OnShow", Runes_OnShow)
-	Runes:SetScript("OnHide", Runes_OnHide)
-	hooksecurefunc(frame, "SetBorderSize", Frame_SetBorderSize)
+	Runes:Hide()
+	Runes:SetScript("OnShow", ns.ExtraBar_OnShow)
+	Runes:SetScript("OnHide", ns.ExtraBar_OnHide)
 
 	tinsert(frame.mouseovers, function(self, isMouseOver)
 		local func = isMouseOver and Rune_OnEnter or Rune_OnLeave

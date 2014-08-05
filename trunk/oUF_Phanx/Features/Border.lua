@@ -63,11 +63,12 @@ local function SetBorderParent(self, parent)
 	local t = self.BorderTextures
 	if not t then return end
 	if not parent then
-		parent = type(self.overlay) == "frame" and self.overlay or self
+		parent = type(self.overlay) == "Frame" and self.overlay or self
 	end
 	for pos, tex in pairs(t) do
 		tex:SetParent(parent)
 	end
+	self:SetBorderSize(self:GetBorderSize())
 end
 
 local function GetBorderParent(self)
@@ -91,31 +92,13 @@ local function SetBorderSize(self, size, offset)
 	for pos, tex in pairs(t) do
 		tex:SetSize(size, size)
 	end
+	
+	local parent = t.TOPLEFT:GetParent()
 
-	t.TOPLEFT:SetPoint("TOPLEFT", self, -d, d)
-
-	t.TOPRIGHT:SetPoint("TOPRIGHT", self, d, d)
-
-	t.TOP:SetPoint("TOPLEFT", t.TOPLEFT, "TOPRIGHT")
-	t.TOP:SetPoint("TOPRIGHT", t.TOPRIGHT, "TOPLEFT")
-
-	t.BOTTOMLEFT:SetPoint("BOTTOMLEFT", self, -d, -d)
-
-	t.BOTTOMRIGHT:SetPoint("BOTTOMRIGHT", self, d, -d)
-
-	t.BOTTOM:SetPoint("BOTTOMLEFT", t.BOTTOMLEFT, "BOTTOMRIGHT")
-	t.BOTTOM:SetPoint("BOTTOMRIGHT", t.BOTTOMRIGHT, "BOTTOMLEFT")
-
-	t.LEFT:SetPoint("TOPLEFT", t.TOPLEFT, "BOTTOMLEFT")
-	t.LEFT:SetPoint("BOTTOMLEFT", t.BOTTOMLEFT, "TOPLEFT")
-
-	t.RIGHT:SetPoint("TOPRIGHT", t.TOPRIGHT, "BOTTOMRIGHT")
-	t.RIGHT:SetPoint("BOTTOMRIGHT", t.BOTTOMRIGHT, "TOPRIGHT")
-
-	if self.SetHitRectInsets and not InCombatLockdown() then
-		local x = floor(size * 0.2)
-		self:SetHitRectInsets(-x, -x, -x, -x)
-	end
+	t.TOPLEFT:SetPoint("TOPLEFT", parent, -d, d)
+	t.TOPRIGHT:SetPoint("TOPRIGHT", parent, d, d)
+	t.BOTTOMLEFT:SetPoint("BOTTOMLEFT", parent, -d, -d)
+	t.BOTTOMRIGHT:SetPoint("BOTTOMRIGHT", parent, d, -d)
 end
 
 local function GetBorderSize(self)
@@ -136,18 +119,29 @@ function ns.CreateBorder(self, size, offset, parent, layer)
 	for i = 1, #sections do
 		local x = self:CreateTexture(nil, layer or "ARTWORK")
 		x:SetTexture([[Interface\AddOns\oUF_Phanx\media\SimpleSquare]])
-		--x:SetTexture([[Interface\AddOns\PhanxMedia\LerbUI\bordernp]])
 		t[sections[i]] = x
 	end
 
 	t.TOPLEFT:SetTexCoord(0, 1/3, 0, 1/3)
-	t.TOPRIGHT:SetTexCoord(2/3, 1, 0, 1/3)
 	t.TOP:SetTexCoord(1/3, 2/3, 0, 1/3)
-	t.BOTTOMLEFT:SetTexCoord(0, 1/3, 2/3, 1)
+	t.TOPRIGHT:SetTexCoord(2/3, 1, 0, 1/3)
+	t.RIGHT:SetTexCoord(2/3, 1, 1/3, 2/3)
 	t.BOTTOMRIGHT:SetTexCoord(2/3, 1, 2/3, 1)
 	t.BOTTOM:SetTexCoord(1/3, 2/3, 2/3, 1)
+	t.BOTTOMLEFT:SetTexCoord(0, 1/3, 2/3, 1)
 	t.LEFT:SetTexCoord(0, 1/3, 1/3, 2/3)
-	t.RIGHT:SetTexCoord(2/3, 1, 1/3, 2/3)
+
+	t.TOP:SetPoint("TOPLEFT", t.TOPLEFT, "TOPRIGHT")
+	t.TOP:SetPoint("TOPRIGHT", t.TOPRIGHT, "TOPLEFT")
+
+	t.RIGHT:SetPoint("TOPRIGHT", t.TOPRIGHT, "BOTTOMRIGHT")
+	t.RIGHT:SetPoint("BOTTOMRIGHT", t.BOTTOMRIGHT, "TOPRIGHT")
+
+	t.BOTTOM:SetPoint("BOTTOMLEFT", t.BOTTOMLEFT, "BOTTOMRIGHT")
+	t.BOTTOM:SetPoint("BOTTOMRIGHT", t.BOTTOMRIGHT, "BOTTOMLEFT")
+
+	t.LEFT:SetPoint("TOPLEFT", t.TOPLEFT, "BOTTOMLEFT")
+	t.LEFT:SetPoint("BOTTOMLEFT", t.BOTTOMLEFT, "TOPLEFT")
 
 	self.BorderTextures = t
 
@@ -161,7 +155,7 @@ function ns.CreateBorder(self, size, offset, parent, layer)
 	self.GetBorderParent = GetBorderParent
 	self.GetBorderSize   = GetBorderSize
 
-	do
+	if self.GetBackdrop then
 		local backdrop = self:GetBackdrop()
 		if type(backdrop) == "table" then
 			if backdrop.edgeFile then

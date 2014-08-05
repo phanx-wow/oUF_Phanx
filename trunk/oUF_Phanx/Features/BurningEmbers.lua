@@ -15,26 +15,6 @@ local BurningEmbers
 local color = { 1, 0.6, 0.2 }
 oUF.colors.power.BURNING_EMBERS = color
 
-local function BurningEmbers_OnShow(element)
-	local frame = element.__owner
-	frame:SetBorderParent(element[#element])
-	frame:SetBorderSize()
-end
-
-local function BurningEmbers_OnHide(element)
-	local frame = element.__owner
-	frame:SetBorderParent(frame.overlay)
-	frame:SetBorderSize()
-end
-
-local function Frame_SetBorderSize(frame, size, offset)
-	if BurningEmbers:IsShown() then
-		local _, offset = frame:GetBorderSize()
-		frame.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", BurningEmbers, -offset, offset)
-		frame.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", BurningEmbers, offset, offset)
-	end
-end
-
 local function BurningEmbers_PostUpdate(element, embers, embersMax, powerType)
 	local total = 0
 	for i = 1, #element do
@@ -92,9 +72,10 @@ ns.CreateBurningEmbers = function(frame)
 
 	BurningEmbers:SetScript("OnEnter", ns.UnitFrame_OnEnter)
 	BurningEmbers:SetScript("OnLeave", ns.UnitFrame_OnLeave)
-	BurningEmbers:SetScript("OnShow", BurningEmbers_OnShow)
-	BurningEmbers:SetScript("OnHide", BurningEmbers_OnHide)
-	hooksecurefunc(frame, "SetBorderSize", Frame_SetBorderSize)
+	
+	BurningEmbers:Hide()
+	BurningEmbers:SetScript("OnShow", ns.ExtraBar_OnShow)
+	BurningEmbers:SetScript("OnHide", ns.ExtraBar_OnHide)
 
 	BurningEmbers.PostUpdate = BurningEmbers_PostUpdate
 	return BurningEmbers
