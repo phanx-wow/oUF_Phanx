@@ -12,7 +12,9 @@ local _, playerClass = UnitClass("player")
 local colors = oUF.colors
 local config
 
-ns.frames, ns.headers, ns.objects, ns.fontstrings, ns.statusbars = {}, {}, {}, {}, {}
+local function noop() end
+
+ns.frames, ns.headers, ns.objects = {}, {}, {}
 
 local function Spawn(self, unit, isSingle)
 	if self:GetParent():GetAttribute("useOwnerUnit") then
@@ -27,6 +29,9 @@ local function Spawn(self, unit, isSingle)
 
 	-- print("Spawn", self:GetName(), unit)
 	tinsert(ns.objects, self)
+
+	-- turn "boss2" into "boss" for example
+	unit = gsub(unit, "%d", "")
 
 	self.mouseovers = {}
 
@@ -51,9 +56,6 @@ local function Spawn(self, unit, isSingle)
 		-- used for aura filtering
 		self.isGroupFrame = true
 	end
-
-	-- turn "boss2" into "boss" for example
-	unit = gsub(unit, "%d", "")
 
 	for k, v in pairs(ns.framePrototype) do
 		self[k] = v
@@ -96,7 +98,7 @@ local function Spawn(self, unit, isSingle)
 	end
 
 	-- Blizzard bug, UNIT_HEALTH doesn't fire for bossN units in 5.2+
-	health.frequentUpdates = unit == "boss"
+	health.frequentUpdates = true -- unit == "boss"
 
 	health.PostUpdate = ns.PostUpdateHealth
 	self:RegisterForMouseover(health)
@@ -128,7 +130,7 @@ local function Spawn(self, unit, isSingle)
 	------------------------
 	if uconfig.power then
 		local power = ns.CreateStatusBar(self, (uconfig.width or 1) > 0.75 and 16, "LEFT")
-		power:SetFrameLevel(self.Health:GetFrameLevel() + 2)
+		--power:SetFrameLevel(self.Health:GetFrameLevel() + 2)
 		power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
 		power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)
 		power:SetHeight(FRAME_HEIGHT * config.powerHeight)
@@ -156,7 +158,7 @@ local function Spawn(self, unit, isSingle)
 			power.bg:SetVertexColor(r / powerBG, g / powerBG, b / powerBG)
 		end
 
-		power.frequentUpdates = unit == "player" or unit == "boss"
+		power.frequentUpdates = unit == "player" or unit == "target" or unit == "focus" or unit == "boss"
 		power.PostUpdate = ns.PostUpdatePower
 	end
 
@@ -164,7 +166,9 @@ local function Spawn(self, unit, isSingle)
 	-- Overlay to avoid reparenting stuff on powerless units --
 	-----------------------------------------------------------
 	self.overlay = CreateFrame("Frame", nil, self)
-	self.overlay:SetAllPoints(self)
+	self.overlay:SetPoint("BOTTOMLEFT")
+	self.overlay:SetPoint("BOTTOMRIGHT")
+	self.overlay:SetPoint("TOP") -- adjustable
 	self.overlay:SetFrameLevel(self.Health:GetFrameLevel() + (self.Power and 3 or 2))
 
 	health.value:SetParent(self.overlay)
@@ -175,18 +179,18 @@ local function Spawn(self, unit, isSingle)
 	---------------------------
 	if unit == "target" or unit == "focus" then
 		self.Level = ns.CreateFontString(self.overlay, 16, "LEFT")
-		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -5)
+		self.Level:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
 		self:Tag(self.Level, "[difficulty][level][shortclassification]")
 
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
-		self.Name:SetPoint("BOTTOMLEFT", self.Level, "BOTTOMRIGHT", 1, -1)
-		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
+		self.Name:SetPoint("LEFT", self.Level, "RIGHT", 1, 0)
+		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -5)
 		self:Tag(self.Name, "[unitcolor][name]")
 
 	elseif unit ~= "player" and not strmatch(unit, "pet") then
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
-		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
-		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
+		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -5)
+		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -5)
 		self:Tag(self.Name, "[unitcolor][name]")
 	end
 
@@ -195,8 +199,8 @@ local function Spawn(self, unit, isSingle)
 	-----------------
 	if unit == "target" then
 		self.ThreatText = ns.CreateFontString(self.overlay, 20, "RIGHT")
-		self.ThreatText:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -2, 4)
-		self:Tag(self.Threat, "[threatpct]%")
+		self.ThreatText:SetPoint("CENTER", self, "BOTTOM", 0, 0)
+		self:Tag(self.ThreatText, "[threatpct]")
 	end
 
 	------------------
@@ -288,7 +292,7 @@ local function Spawn(self, unit, isSingle)
 		end
 		t.powerType = powerType
 		t.Override = updateFunc
-		t.UpdateTexture = function() return end -- fuck off oUF >:(
+		t.UpdateTexture = noop -- fuck off oUF >:(
 		self[element] = t
 
 		if CUSTOM_CLASS_COLORS then
@@ -366,26 +370,90 @@ local function Spawn(self, unit, isSingle)
 		end
 	end
 
+	--------------------
+	-- Burning embers --
+	--------------------
+	if unit == "player" and playerClass == "WARLOCK" then
+		self.BurningEmbers = ns.CreateBurningEmbers(self)
+	end
+
+	----------------
+	-- EclipseBar --
+	----------------
+	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
+		self.EclipseBar = ns.CreateEclipseBar(self)
+	end
+
+	-----------
+	-- Runes --
+	-----------
+	if unit == "player" and playerClass == "DEATHKNIGHT" and config.runeBars then
+		self.Runes = ns.CreateRunes(self)
+	end
+
+	------------
+	-- Totems --
+	------------
+	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
+		self.Totems = ns.CreateTotems(self)
+	end
+
+	----------------------------------------------
+	-- Demonic fury / Druid mana / Monk stagger --
+	----------------------------------------------
+	if unit == "player" and (playerClass == "WARLOCK" or (playerClass == "DRUID" and config.druidMana) or (playerClass == "MONK" and config.staggerBar)) then
+		local otherPower = ns.CreateStatusBar(self, 16, "CENTER")
+		otherPower:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
+		otherPower:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
+		otherPower:SetHeight(FRAME_HEIGHT * config.powerHeight)
+
+		otherPower.value:SetPoint("CENTER", 0, 1)
+		otherPower.value:SetParent(self.overlay)
+
+		otherPower.value:Hide()
+		self:RegisterForMouseover(otherPower.value)
+
+		otherPower:Hide()
+		otherPower:SetScript("OnShow", ns.ExtraBar_OnShow)
+		otherPower:SetScript("OnHide", ns.ExtraBar_OnHide)
+
+		otherPower.colorPower = true
+		otherPower.bg.multiplier = config.powerBG
+
+		if playerClass == "DRUID" then
+			local color = oUF.colors.power.MANA
+			otherPower.value:SetTextColor(color[1], color[2], color[3])
+			otherPower.PostUpdate = ns.PostUpdateDruidMana
+			self.DruidMana = otherPower
+		elseif playerClass == "MONK" then
+			otherPower.PostUpdate = ns.PostUpdateStagger
+			self.Stagger = otherPower
+		else
+			local color = oUF.colors.power.DEMONIC_FURY
+			otherPower.value:SetTextColor(color[1], color[2], color[3])
+			otherPower.PostUpdate = ns.PostUpdateDemonicFury
+			self.DemonicFury = otherPower
+		end
+	end
+
 	-----------------------
 	-- Status icons --
 	-----------------------
 	if unit == "player" then
 		self.Status = ns.CreateFontString(self.overlay, 16, "LEFT")
-		self.Status:SetPoint("LEFT", self.Health, "TOPLEFT", 2, 2)
-
+		self.Status:SetPoint("LEFT", self, "BOTTOMLEFT", 2, 2)
 		self:Tag(self.Status, "[leadericon][mastericon]")
 
 		self.Resting = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Resting:SetPoint("LEFT", self.Health, "BOTTOMLEFT", 0, -2)
-		self.Resting:SetSize(20, 20)
+		self.Resting:SetPoint("LEFT", self, "BOTTOMLEFT", 0, 2)
+		self.Resting:SetSize(30, 28)
 
 		self.Combat = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Combat:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", 0, -2)
-		self.Combat:SetSize(24, 24)
+		self.Combat:SetPoint("RIGHT", self, "BOTTOMRIGHT", 0, 1)
+		self.Combat:SetSize(32, 32)
 	elseif unit == "party" or unit == "target" then
 		self.Status = ns.CreateFontString(self.overlay, 16, "RIGHT")
-		self.Status:SetPoint("RIGHT", self.Health, "BOTTOMRIGHT", -2, 0)
-
+		self.Status:SetPoint("RIGHT", self, "BOTTOMRIGHT", -2, 0)
 		self:Tag(self.Status, "[mastericon][leadericon]")
 	end
 
@@ -393,7 +461,7 @@ local function Spawn(self, unit, isSingle)
 	-- Phase icon --
 	----------------
 	if unit == "party" or unit == "target" or unit == "focus" then
-		self.PhaseIcon = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.PhaseIcon = self.Health:CreateTexture(nil, "OVERLAY")
 		self.PhaseIcon:SetPoint("TOP", self, "TOP", 0, -4)
 		self.PhaseIcon:SetPoint("BOTTOM", self, "BOTTOM", 0, 4)
 		self.PhaseIcon:SetWidth(self.PhaseIcon:GetHeight())
@@ -589,89 +657,6 @@ local function Spawn(self, unit, isSingle)
 		UpdateAurasForRole(self, ns.GetPlayerRole(), true) -- default is DAMAGER
 	end
 
-	--------------------
-	-- Burning embers --
-	--------------------
-	if unit == "player" and playerClass == "WARLOCK" then
-		self.BurningEmbers = ns.CreateBurningEmbers(self)
-	end
-
-	----------------------------------------------
-	-- Demonic fury / Druid mana / Monk stagger --
-	----------------------------------------------
-	if unit == "player" and (playerClass == "WARLOCK" or (playerClass == "DRUID" and config.druidMana) or (playerClass == "MONK" and config.staggerBar)) then
-		local otherPower = ns.CreateStatusBar(self, 16, "CENTER")
-		otherPower:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
-		otherPower:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
-		otherPower:SetHeight(FRAME_HEIGHT * config.powerHeight)
-		otherPower:Hide()
-
-		otherPower.value:SetPoint("CENTER", 0, 1)
-		otherPower.value:SetParent(self.overlay)
-		otherPower.value:Hide()
-		self:RegisterForMouseover(otherPower.value)
-
-		otherPower.colorPower = true
-		otherPower.bg.multiplier = config.powerBG
-
-		local o = self.SetBorderSize
-		function self:SetBorderSize(size, offset)
-			o(self, size, offset)
-			if otherPower:IsShown() then
-				local size, offset = self:GetBorderSize()
-				local inset = floor(size * -0.2)
-				self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", otherPower, -offset, offset + 1)
-				self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", otherPower, offset, offset + 1)
-			end
-		end
-		otherPower:SetScript("OnShow", function(self)
-			local frame = self.__owner
-			frame:SetBorderParent(self)
-			frame:SetBorderSize()
-		end)
-		otherPower:SetScript("OnHide", function(self)
-			local frame = self.__owner
-			frame:SetBorderParent(frame.overlay)
-			frame:SetBorderSize()
-		end)
-
-		if playerClass == "DRUID" then
-			local color = oUF.colors.power.MANA
-			otherPower.value:SetTextColor(color[1], color[2], color[3])
-			otherPower.PostUpdate = ns.PostUpdateDruidMana
-			self.DruidMana = otherPower
-		elseif playerClass == "MONK" then
-			otherPower.PostUpdate = ns.PostUpdateStagger
-			self.Stagger = otherPower
-		else
-			local color = oUF.colors.power.DEMONIC_FURY
-			otherPower.value:SetTextColor(color[1], color[2], color[3])
-			otherPower.PostUpdate = ns.PostUpdateDemonicFury
-			self.DemonicFury = otherPower
-		end
-	end
-
-	----------------
-	-- EclipseBar --
-	----------------
-	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
-		self.EclipseBar = ns.CreateEclipseBar(self)
-	end
-
-	-----------
-	-- Runes --
-	-----------
-	if unit == "player" and playerClass == "DEATHKNIGHT" and config.runeBars then
-		self.Runes = ns.CreateRunes(self)
-	end
-
-	------------
-	-- Totems --
-	------------
-	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
-		self.Totems = ns.CreateTotems(self)
-	end
-
 	------------------------------
 	-- Cast bar, icon, and text --
 	------------------------------
@@ -727,31 +712,33 @@ local function Spawn(self, unit, isSingle)
 		self.Castbar = Castbar
 	end
 
-	----------------------------
-	-- Plugin: oUF_SpellRange --
-	----------------------------
-	if IsAddOnLoaded("oUF_SpellRange") then
-		self.SpellRange = {
-			insideAlpha = 1,
-			outsideAlpha = 0.5,
-		}
+	------------
+	-- Threat --
+	------------
+	self.Threat = {
+		IsObjectType = noop, -- oUF stahp
+		Override = ns.ThreatOverride,
+	}
 
-	-----------
-	-- Range --
-	-----------
+	-------------------------------------
+	-- Range || Plugin: oUF_SpellRange --
+	-------------------------------------
+	local ranger
+	if IsAddOnLoaded("oUF_SpellRange") then
+		ranger = "SpellRange"
 	elseif unit == "pet" or unit == "party" or unit == "partypet" then
-		self.Range = {
-			insideAlpha = 1,
-			outsideAlpha = 0.5,
-		}
+		ranger = "Range"
+	end
+	if ranger then
+		self[ranger] = { insideAlpha = 1, outsideAlpha = 0.5 }
 	end
 
 	----------------------
 	-- Element: AFK text --
 	----------------------
 	if unit == "player" or unit == "party" then
-		self.AFK = ns.CreateFontString(self.overlay, 12, "CENTER")
-		self.AFK:SetPoint("CENTER", self.Health, "BOTTOM", 0, -2)
+		self.AFK = ns.CreateFontString(self.overlay, 14, "CENTER")
+		self.AFK:SetPoint("CENTER", self, "BOTTOM", 0, -3)
 		self.AFK.fontFormat = "AFK %s:%s"
 	end
 
@@ -775,17 +762,10 @@ local function Spawn(self, unit, isSingle)
 		filter = true,
 	}
 
-	-------------------------------
-	-- Element: Threat highlight --
-	-------------------------------
-	self.ThreatHighlight = {
-		Override = ns.ThreatHighlightOverride,
-	}
-
 	---------------------------
 	-- Element: ResInfo text --
 	---------------------------
-	if not strmatch(unit, ".target$") and not strmatch(unit, "^[ab][ro][es][ns]a?") then -- ignore arena, boss, *target
+	if unit ~= "arena" and unit ~= "boss" and not strmatch(unit, ".target$") then
 		self.ResInfo = ns.CreateFontString(self.overlay, 16, "CENTER")
 		self.ResInfo:SetPoint("CENTER", 0, 1)
 	end
@@ -797,9 +777,6 @@ local function Spawn(self, unit, isSingle)
 		self.Health.Smooth = true
 		if self.Power then
 			self.Power.Smooth = true
-		end
-		if self.DruidMana then
-			self.DruidMana.Smooth = true
 		end
 	end
 end

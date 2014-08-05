@@ -25,33 +25,6 @@ local ColorGradient = oUF.ColorGradient
 local SMOOTH_COLORS = oUF.colors.smooth
 local unpack = unpack
 
-local function Totems_OnShow(element)
-	local frame = element.__owner
-	local totem
-	for i = #element, 1, -1 do
-		if element[i]:IsShown() then
-			totem = element[i]
-			break
-		end
-	end
-	frame:SetBorderParent(totem)
-	frame:SetBorderSize()
-end
-
-local function Totems_OnHide(element)
-	local frame = element.__owner
-	frame:SetBorderParent(frame.overlay)
-	frame:SetBorderSize()
-end
-
-local function Frame_SetBorderSize(frame, size, offset)
-	if Totems:IsShown() then
-		local _, offset = frame:GetBorderSize()
-		frame.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", Totems, -offset, offset)
-		frame.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", Totems, offset, offset)
-	end
-end
-
 local function Totem_OnEnter(bar)
 	bar.isMouseOver = true
 
@@ -100,11 +73,7 @@ local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 
 	for i = 1, #element do
 		if element[i]:IsShown() then
-			if element:IsShown() then
-				return Totems_OnShow(element) -- update border parent
-			else
-				return element:Show()
-			end
+			return element:Show()
 		end
 	end
 	element:Hide()
@@ -116,14 +85,14 @@ ns.CreateTotems = function(frame)
 	end
 
 	Totems = CreateFrame("Frame", nil, frame)
+	Totems:SetFrameLevel(frame:GetFrameLevel() - 2)
+	Totems:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, -1)
+	Totems:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, -1)
+	Totems:SetHeight(frame:GetHeight() * ns.config.powerHeight + 2)
 
 	Totems:SetBackdrop(ns.config.backdrop)
 	Totems:SetBackdropColor(0, 0, 0, 1)
 	Totems:SetBackdropBorderColor(unpack(ns.config.borderColor))
-
-	Totems:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, -1)
-	Totems:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, -1)
-	Totems:SetHeight(frame:GetHeight() * ns.config.powerHeight + 2)
 
 	local totemGap = 1
 	local totemWidth = (frame:GetWidth() - (totemGap * (MAX_TOTEMS + 1))) / MAX_TOTEMS
@@ -161,7 +130,8 @@ ns.CreateTotems = function(frame)
 		bar.Icon:SetAllPoints(true)
 		bar.Icon:SetTexCoord(0.09, 0.91, 0.08, 0.91)
 
-		bar.value:SetPoint("CENTER", 1, 1)
+		bar.value:SetParent(frame.overlay)
+		bar.value:SetPoint("CENTER", bar, 1, 1)
 		bar.value:Hide()
 
 		local color = bar.color or TOTEM_COLORS[i]
@@ -175,9 +145,9 @@ ns.CreateTotems = function(frame)
 		Totems[i] = bar
 	end
 
-	Totems:SetScript("OnShow", Totems_OnShow)
-	Totems:SetScript("OnHide", Totems_OnHide)
-	hooksecurefunc(frame, "SetBorderSize", Frame_SetBorderSize)
+	Totems:Hide()
+	Totems:SetScript("OnShow", ns.ExtraBar_OnShow)
+	Totems:SetScript("OnHide", ns.ExtraBar_OnHide)
 
 	Totems.PostUpdate = Totems_PostUpdate
 	return Totems

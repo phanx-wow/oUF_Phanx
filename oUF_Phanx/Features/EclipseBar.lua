@@ -25,20 +25,8 @@ local BRIGHT = 1.2
 local NORMAL = 0.8
 local DIMMED = 0.5
 
-local function Frame_SetBorderSize(self, size, offset)
-	if self.EclipseBar:IsShown() then
-		local _, offset = self:GetBorderSize()
-		self.BorderTextures.TOPLEFT:SetPoint("TOPLEFT", EclipseBar, -offset, offset)
-		self.BorderTextures.TOPRIGHT:SetPoint("TOPRIGHT", EclipseBar, offset, offset)
-	end
-end
-
 local function PostUpdateVisibility(self)
-	local shown = self:IsShown()
-	local frame = self.__owner
-	frame:SetBorderParent(shown and self or frame.overlay)
-	frame:SetBorderSize()
-	self.shown = shown
+	self.shown = self:IsShown()
 end
 
 local function PostUpdatePower(self, unit, power, maxPower)
@@ -184,7 +172,7 @@ function ns.CreateEclipseBar(self)
 	eclipseArrow:SetBlendMode("ADD")
 	EclipseBar.directionArrow = eclipseArrow
 
-	local eclipseText = ns.CreateFontString(EclipseBar, 16, "CENTER")
+	local eclipseText = ns.CreateFontString(self.overlay, 16, "CENTER")
 	eclipseText:SetPoint("CENTER", EclipseBar, "CENTER", 0, 1)
 	eclipseText:Hide()
 	self:Tag(eclipseText, "[pereclipse]%")
@@ -249,7 +237,9 @@ function ns.CreateEclipseBar(self)
 	EclipseBar:SetScript("OnEnter", ns.UnitFrame_OnEnter)
 	EclipseBar:SetScript("OnLeave", ns.UnitFrame_OnLeave)
 
-	hooksecurefunc(self, "SetBorderSize", Frame_SetBorderSize)
+	EclipseBar:Hide()
+	EclipseBar:SetScript("OnShow", ns.ExtraBar_OnShow)
+	EclipseBar:SetScript("OnHide", ns.ExtraBar_OnHide)
 
 	EclipseBar.PostUpdateVisibility = PostUpdateVisibility
 	EclipseBar.PostDirectionChange = PostDirectionChange

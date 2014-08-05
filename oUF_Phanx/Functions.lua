@@ -48,6 +48,16 @@ ns.framePrototype = {
 --	Border
 ------------------------------------------------------------------------
 
+function ns.ExtraBar_OnShow(self)
+	local frame = self.__owner
+	frame.overlay:SetPoint("TOP", self)
+end
+
+function ns.ExtraBar_OnHide(self)
+	local frame = self.__owner
+	frame.overlay:SetPoint("TOP", frame)
+end
+
 function ns.UpdateBorder(self)
 	local threat, debuff, dispellable = self.threatLevel, self.debuffType, self.debuffDispellable
 	-- print("UpdateBorder", self.unit, "threatLevel", threat, "debuffType", debuff, "debuffDispellable", dispellable)
@@ -313,9 +323,9 @@ end
 --	Warlock demonic fury
 ------------------------------------------------------------------------
 
-function ns.PostUpdateDemonicFury(bar, fury, furyMax, powerType, hasMetamorphosis)
-	--print("PostUpdateDemonicFury", stagger, staggerPercent)
-	bar.value:SetFormattedText("%.0f%%", fury / furyMax)
+function ns.PostUpdateDemonicFury(bar, fury, maxFury, inMetamorphosis)
+	--print("PostUpdateDemonicFury", fury, maxFury, inMetamorphosis)
+	bar.value:SetFormattedText("%.0f%%", fury / maxFury)
 end
 
 ------------------------------------------------------------------------
@@ -507,27 +517,25 @@ function ns.DispelHighlightOverride(element, debuffType, canDispel)
 
 	frame.debuffType = debuffType
 	frame.debuffDispellable = canDispel
-
 	frame:UpdateBorder()
 end
 
 ------------------------------------------------------------------------
---	Threat highlight
+--	Threat
 ------------------------------------------------------------------------
 
-function ns.ThreatHighlightOverride(element, status)
+function ns.ThreatOverride(frame, event, unit)
+	local status = UnitThreatSituation(unit or frame.unit)
 	if not status then
 		status = 0
 	elseif not ns.config.threatLevels then
 		status = status > 1 and 3 or 0
 	end
 
-	local frame = element.__owner
 	if frame.threatLevel == status then return end
 	--print("ThreatHighlightOverride", frame.unit, status)
 
 	frame.threatLevel = status
-
 	frame:UpdateBorder()
 end
 
