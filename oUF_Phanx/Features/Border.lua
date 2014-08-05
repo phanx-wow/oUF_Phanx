@@ -77,36 +77,32 @@ end
 
 ------------------------------------------------------------------------
 
-local function SetBorderSize(self, size, offset)
+local function SetBorderSize(self, size, dL, dR, dT, dB)
 	local t = self.BorderTextures
 	if not t then return end
 
-	if not size then
-		size = ns.config.borderSize
-		--size = ns.config.borderSize * 2
-	end
-
-	local d = offset or floor(size * 7 / 16 + 0.5)
-	--local d = offset or floor(size * 0.25 + 0.5)
+	size = size or ns.config.borderSize
+	dL, dR, dT, dB = dL or t.LEFT.offset or 0, dR or t.RIGHT.offset or 0, dT or t.TOP.offset or 0, dB or t.BOTTOM.offset or 0
 
 	for pos, tex in pairs(t) do
 		tex:SetSize(size, size)
 	end
-	
+
+	local d = floor(size * 7 / 16 + 0.5)
 	local parent = t.TOPLEFT:GetParent()
 
-	t.TOPLEFT:SetPoint("TOPLEFT", parent, -d, d)
-	t.TOPRIGHT:SetPoint("TOPRIGHT", parent, d, d)
-	t.BOTTOMLEFT:SetPoint("BOTTOMLEFT", parent, -d, -d)
-	t.BOTTOMRIGHT:SetPoint("BOTTOMRIGHT", parent, d, -d)
+	t.TOPLEFT:SetPoint("TOPLEFT", parent, -d - dL, d + dT)
+	t.TOPRIGHT:SetPoint("TOPRIGHT", parent, d + dR, d + dT)
+	t.BOTTOMLEFT:SetPoint("BOTTOMLEFT", parent, -d - dL, -d - dB)
+	t.BOTTOMRIGHT:SetPoint("BOTTOMRIGHT", parent, d + dR, -d - dB)
+
+	t.LEFT.offset, t.RIGHT.offset, t.TOP.offset, t.BOTTOM.offset = dL, dR, dT, dB
 end
 
 local function GetBorderSize(self)
-	if self.BorderTextures then
-		local width = self.BorderTextures.TOPLEFT:GetWidth()
-		local _, _, _, _, offset = self.BorderTextures.TOPLEFT:GetPoint("TOPLEFT")
-		return width, offset
-	end
+	local t = self.BorderTextures
+	if not t then return end
+	return t.TOPLEFT:GetWidth(), t.LEFT.offset, t.RIGHT.offset, t.TOP.offset, t.BOTTOM.offset
 end
 
 ------------------------------------------------------------------------
@@ -191,3 +187,5 @@ function ns.CreateBorder(self, size, offset, parent, layer)
 
 	return true
 end
+
+_G.CreateBorder = ns.CreateBorder

@@ -48,14 +48,32 @@ ns.framePrototype = {
 --	Border
 ------------------------------------------------------------------------
 
-function ns.ExtraBar_OnShow(self)
+function ns.ExtraBar_OnShow(self) --if self.__name then print("Show", self.__name) end
 	local frame = self.__owner
-	frame.overlay:SetPoint("TOP", self)
+	frame:SetBorderSize(nil, 0, 0, self:GetHeight() + 1, 0)
+	if self.value then
+		return self.value:SetParent(frame.overlay)
+	end
+	for i = 1, #self do
+		local v = self[i]
+		if type(v) == "table" and v.value then
+			v.value:SetParent(frame.overlay)
+		end
+	end
 end
 
-function ns.ExtraBar_OnHide(self)
+function ns.ExtraBar_OnHide(self) --if self.__name then print("Hide", self.__name) end
 	local frame = self.__owner
-	frame.overlay:SetPoint("TOP", frame)
+	frame:SetBorderSize(nil, 0, 0, 0, 0)
+	if self.value then
+		return self.value:SetParent(self)
+	end
+	for i = 1, #self do
+		local v = self[i]
+		if type(v) == "table" and v.value then
+			v.value:SetParent(self)
+		end
+	end
 end
 
 function ns.UpdateBorder(self)

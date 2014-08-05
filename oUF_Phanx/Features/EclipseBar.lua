@@ -25,7 +25,7 @@ local BRIGHT = 1.2
 local NORMAL = 0.8
 local DIMMED = 0.5
 
-local function PostUpdateVisibility(self)
+local function PostUpdateVisibility(self, unit) --print("EclipseBar PostUpdateVisibility", self:IsShown())
 	self.shown = self:IsShown()
 end
 
@@ -172,7 +172,7 @@ function ns.CreateEclipseBar(self)
 	eclipseArrow:SetBlendMode("ADD")
 	EclipseBar.directionArrow = eclipseArrow
 
-	local eclipseText = ns.CreateFontString(self.overlay, 16, "CENTER")
+	local eclipseText = ns.CreateFontString(EclipseBar, 16, "CENTER")
 	eclipseText:SetPoint("CENTER", EclipseBar, "CENTER", 0, 1)
 	eclipseText:Hide()
 	self:Tag(eclipseText, "[pereclipse]%")
@@ -237,6 +237,7 @@ function ns.CreateEclipseBar(self)
 	EclipseBar:SetScript("OnEnter", ns.UnitFrame_OnEnter)
 	EclipseBar:SetScript("OnLeave", ns.UnitFrame_OnLeave)
 
+	EclipseBar.__name = "EclipseBar"
 	EclipseBar:Hide()
 	EclipseBar:SetScript("OnShow", ns.ExtraBar_OnShow)
 	EclipseBar:SetScript("OnHide", ns.ExtraBar_OnHide)

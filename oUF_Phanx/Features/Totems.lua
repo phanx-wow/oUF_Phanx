@@ -130,7 +130,6 @@ ns.CreateTotems = function(frame)
 		bar.Icon:SetAllPoints(true)
 		bar.Icon:SetTexCoord(0.09, 0.91, 0.08, 0.91)
 
-		bar.value:SetParent(frame.overlay)
 		bar.value:SetPoint("CENTER", bar, 1, 1)
 		bar.value:Hide()
 
@@ -145,6 +144,7 @@ ns.CreateTotems = function(frame)
 		Totems[i] = bar
 	end
 
+	Totems.__name = "Totems"
 	Totems:Hide()
 	Totems:SetScript("OnShow", ns.ExtraBar_OnShow)
 	Totems:SetScript("OnHide", ns.ExtraBar_OnHide)

@@ -33,8 +33,6 @@ local function Spawn(self, unit, isSingle)
 	-- turn "boss2" into "boss" for example
 	unit = gsub(unit, "%d", "")
 
-	self.mouseovers = {}
-
 	self.menu = ns.UnitFrame_DropdownMenu
 
 	self:HookScript("OnEnter", ns.UnitFrame_OnEnter)
@@ -166,12 +164,10 @@ local function Spawn(self, unit, isSingle)
 	-- Overlay to avoid reparenting stuff on powerless units --
 	-----------------------------------------------------------
 	self.overlay = CreateFrame("Frame", nil, self)
-	self.overlay:SetPoint("BOTTOMLEFT")
-	self.overlay:SetPoint("BOTTOMRIGHT")
-	self.overlay:SetPoint("TOP") -- adjustable
+	self.overlay:SetAllPoints(true)
 	self.overlay:SetFrameLevel(self.Health:GetFrameLevel() + (self.Power and 3 or 2))
 
-	health.value:SetParent(self.overlay)
+	--health.value:SetParent(self.overlay)
 	self:SetBorderParent(self.overlay)
 
 	---------------------------
@@ -407,8 +403,7 @@ local function Spawn(self, unit, isSingle)
 		otherPower:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
 		otherPower:SetHeight(FRAME_HEIGHT * config.powerHeight)
 
-		otherPower.value:SetPoint("CENTER", 0, 1)
-		otherPower.value:SetParent(self.overlay)
+		otherPower.value:SetPoint("CENTER", otherPower, 0, 1)
 
 		otherPower.value:Hide()
 		self:RegisterForMouseover(otherPower.value)
@@ -445,11 +440,11 @@ local function Spawn(self, unit, isSingle)
 		self:Tag(self.Status, "[leadericon][mastericon]")
 
 		self.Resting = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Resting:SetPoint("LEFT", self, "BOTTOMLEFT", 0, 2)
+		self.Resting:SetPoint("LEFT", self, "TOPLEFT", 0, 6)
 		self.Resting:SetSize(30, 28)
 
 		self.Combat = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Combat:SetPoint("RIGHT", self, "BOTTOMRIGHT", 0, 1)
+		self.Combat:SetPoint("RIGHT", self, "TOPRIGHT", 0, 6)
 		self.Combat:SetSize(32, 32)
 	elseif unit == "party" or unit == "target" then
 		self.Status = ns.CreateFontString(self.overlay, 16, "RIGHT")
@@ -461,15 +456,17 @@ local function Spawn(self, unit, isSingle)
 	-- Phase icon --
 	----------------
 	if unit == "party" or unit == "target" or unit == "focus" then
-		self.PhaseIcon = self.Health:CreateTexture(nil, "OVERLAY")
-		self.PhaseIcon:SetPoint("TOP", self, "TOP", 0, -4)
-		self.PhaseIcon:SetPoint("BOTTOM", self, "BOTTOM", 0, 4)
-		self.PhaseIcon:SetWidth(self.PhaseIcon:GetHeight())
-		self.PhaseIcon:SetTexture("Interface\\Icons\\Spell_Frost_Stun")
-		self.PhaseIcon:SetTexCoord(0.05, 0.95, 0.5 - 0.25 * 0.9, 0.5 + 0.25 * 0.9)
-		self.PhaseIcon:SetDesaturated(true)
-		self.PhaseIcon:SetBlendMode("ADD")
-		self.PhaseIcon:SetAlpha(0.5)
+		local phase = self.Health:CreateTexture(nil, "OVERLAY")
+		phase:SetPoint("TOP", self)
+		phase:SetPoint("BOTTOM", self)
+		phase:SetWidth(FRAME_HEIGHT * 2.5)
+		phase:SetTexture("Interface\\Icons\\Spell_Frost_Stun")
+		phase:SetTexCoord(0.05, 0.95, 0.5 - 0.25 * 0.9, 0.5 + 0.25 * 0.9)
+		phase:SetAlpha(0.5)
+		phase:SetBlendMode("ADD")
+		phase:SetDesaturated(true)
+		phase:SetVertexColor(0.4, 0.8, 1)
+		self.PhaseIcon = phase
 	end
 
 	---------------------
@@ -504,6 +501,7 @@ local function Spawn(self, unit, isSingle)
 		self.LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and -2 or 2, 0)
 		self.LFDRole:SetSize(16, 16)
+		-- TODO: use the borderless icons
 	end
 
 	---------------
