@@ -105,13 +105,13 @@ ns.CreateRunes = function(frame)
 
 		bar.bg.multiplier = ns.config.powerBG
 
-		bar.value:SetParent(frame.overlay)
-		bar.value:SetPoint("CENTER", 0, 1)
+		bar.value:SetPoint("CENTER", bar, 0, 1)
 		bar.value:Hide()
 
 		Runes[i] = bar
 	end
 
+	Runes.__name = "Runes"
 	Runes:Hide()
 	Runes:SetScript("OnShow", ns.ExtraBar_OnShow)
 	Runes:SetScript("OnHide", ns.ExtraBar_OnHide)
