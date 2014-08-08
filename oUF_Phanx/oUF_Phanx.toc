@@ -42,6 +42,7 @@ Elements\WildMushrooms.lua
 
 Features\Border.lua
 Features\BurningEmbers.lua
+Features\Castbar.lua
 Features\EclipseBar.lua
 Features\Orbs.lua
 Features\Runes.lua
