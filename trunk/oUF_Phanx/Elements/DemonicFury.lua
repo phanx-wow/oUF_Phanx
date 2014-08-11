@@ -52,12 +52,12 @@ function Update(self, event, unit, powerType)
 	end
 
 	local fury = UnitPower("player", SPELL_POWER_DEMONIC_FURY)
-	local furyMax = UnitPowerMax("player", SPELL_POWER_DEMONIC_FURY)
+	local maxFury = UnitPowerMax("player", SPELL_POWER_DEMONIC_FURY)
 	local inMetamorphosis = GetShapeshiftFormID() == METAMORPHOSIS_FORM
 	local color = oUF.colors.power[inMetamorphosis and "METAMORPHOSIS" or "DEMONIC_FURY"]
 	local r, g, b = color[1], color[2], color[3]
 
-	element:SetMinMaxValues(0, furyMax)
+	element:SetMinMaxValues(0, maxFury)
 	element:SetValue(fury)
 	element:SetStatusBarColor(r, g, b)
 
