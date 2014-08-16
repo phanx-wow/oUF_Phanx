@@ -50,7 +50,7 @@ ns.framePrototype = {
 
 function ns.ExtraBar_OnShow(self) --if self.__name then print("Show", self.__name) end
 	local frame = self.__owner
-	frame:SetBorderSize(nil, 0, 0, self:GetHeight() + 1, 0)
+	frame:SetBorderSize(nil, 0, 0, self:GetHeight() - 1, 0)
 	if self.value then
 		return self.value:SetParent(frame.overlay)
 	end
