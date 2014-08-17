@@ -154,25 +154,25 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 	local enable = panel.CreateCheckbox(unitSettings, L.EnableUnit, L.EnableUnit_Desc)
 	enable:SetPoint("TOPLEFT", unitTitle, "BOTTOMLEFT", 0, -12)
-	function enable:OnValueChanged(value)
+	function enable:Callback(value)
 		SetUnitConfig(panel.selectedUnit, "disable", not value)
 	end
 
 	local power = panel.CreateCheckbox(unitSettings, L.Power, L.Power_Desc)
 	power:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -12)
-	function power:OnValueChanged(value)
+	function power:Callback(value) print("Callback", panel.selectedUnit, "power", value)
 		SetUnitConfig(panel.selectedUnit, "power", value)
 	end
 
 	local castbar = panel.CreateCheckbox(unitSettings, L.Castbar, L.Castbar_Desc)
 	castbar:SetPoint("TOPLEFT", power, "BOTTOMLEFT", 0, -12)
-	function castbar:OnValueChanged(value)
+	function castbar:Callback(value)
 		SetUnitConfig(panel.selectedUnit, "castbar", value)
 	end
 
 	local combatText = panel.CreateCheckbox(unitSettings, L.CombatText, L.CombatText_Desc)
 	combatText:SetPoint("TOPLEFT", castbar, "BOTTOMLEFT", 0, -12)
-	function combatText:OnValueChanged(value)
+	function combatText:Callback(value)
 		SetUnitConfig(panel.selectedUnit, "combatText", value)
 	end
 
@@ -251,14 +251,14 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	local width = panel.CreateSlider(unitSettings, L.Width, L.Width_Desc, 0.25, 2, 0.05, true)
 	width:SetPoint("TOPLEFT", unitTitle, "BOTTOM", 8, -16)
 	width:SetPoint("TOPRIGHT", unitTitle, "BOTTOMRIGHT", 0, -16)
-	function width:OnValueChanged(value)
+	function width:Callback(value)
 		SetUnitConfig(panel.selectedUnit, "width", value)
 	end
 
 	local height = panel.CreateSlider(unitSettings, L.Height, L.Height_Desc, 0.25, 2, 0.05, true)
 	height:SetPoint("TOPLEFT", width, "BOTTOMLEFT", 0, -24)
 	height:SetPoint("TOPRIGHT", width, "BOTTOMRIGHT", 0, -24)
-	function height:OnValueChanged(value)
+	function height:Callback(value)
 		SetUnitConfig(panel.selectedUnit, "height", value)
 	end
 
