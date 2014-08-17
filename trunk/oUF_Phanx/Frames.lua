@@ -69,6 +69,15 @@ local function Spawn(self, unit, isSingle)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(unpack(config.borderColor))
 
+	-----------------------------------------------------------
+	-- Overlay to avoid reparenting stuff on powerless units --
+	-----------------------------------------------------------
+	self.overlay = CreateFrame("Frame", nil, self)
+	self.overlay:SetAllPoints(true)
+
+	--health.value:SetParent(self.overlay)
+	self:SetBorderParent(self.overlay)
+
 	-------------------------
 	-- Health bar and text --
 	-------------------------
@@ -79,6 +88,8 @@ local function Spawn(self, unit, isSingle)
 	self.Health = health
 
 	health:GetStatusBarTexture():SetDrawLayer("ARTWORK")
+	
+	health.value:SetParent(self.overlay)
 	health.value:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, FRAME_HEIGHT * config.powerHeight - 4)
 
 	local healthColorMode = config.healthColorMode
@@ -137,6 +148,7 @@ local function Spawn(self, unit, isSingle)
 		health:SetPoint("BOTTOM", power, "TOP", 0, 1)
 
 		if power.value then
+			power.value:SetParent(self.overlay)
 			power.value:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 4, FRAME_HEIGHT * config.powerHeight - 2)
 			power.value:SetPoint("BOTTOMRIGHT", self.Health.value, "BOTTOMLEFT", -8, 0)
 			self:RegisterForMouseover(power)
@@ -159,16 +171,6 @@ local function Spawn(self, unit, isSingle)
 		power.frequentUpdates = unit == "player" or unit == "target" or unit == "focus" or unit == "boss"
 		power.PostUpdate = ns.PostUpdatePower
 	end
-
-	-----------------------------------------------------------
-	-- Overlay to avoid reparenting stuff on powerless units --
-	-----------------------------------------------------------
-	self.overlay = CreateFrame("Frame", nil, self)
-	self.overlay:SetAllPoints(true)
-	self.overlay:SetFrameLevel(self.Health:GetFrameLevel() + (self.Power and 3 or 2))
-
-	--health.value:SetParent(self.overlay)
-	self:SetBorderParent(self.overlay)
 
 	---------------------------
 	-- Name text, Level text --
@@ -729,6 +731,17 @@ local function Spawn(self, unit, isSingle)
 			self.Power.Smooth = true
 		end
 	end
+
+	-----------
+	-- Done! --
+	-----------
+	local maxLevel
+	for k, v in pairs(self) do
+		if k ~= "overlay" and type(v) == "table" and v.GetFrameLevel then
+			maxLevel = max(v:GetFrameLevel(), maxLevel or 0)
+		end
+	end
+	self.overlay:SetFrameLevel(maxLevel + 1)
 end
 
 ------------------------------------------------------------------------
