@@ -154,25 +154,25 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 	local enable = panel.CreateCheckbox(unitSettings, L.EnableUnit, L.EnableUnit_Desc)
 	enable:SetPoint("TOPLEFT", unitTitle, "BOTTOMLEFT", 0, -12)
-	function enable:Callback(value)
+	function enable:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "disable", not value)
 	end
 
 	local power = panel.CreateCheckbox(unitSettings, L.Power, L.Power_Desc)
 	power:SetPoint("TOPLEFT", enable, "BOTTOMLEFT", 0, -12)
-	function power:Callback(value) print("Callback", panel.selectedUnit, "power", value)
+	function power:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "power", value)
 	end
 
 	local castbar = panel.CreateCheckbox(unitSettings, L.Castbar, L.Castbar_Desc)
 	castbar:SetPoint("TOPLEFT", power, "BOTTOMLEFT", 0, -12)
-	function castbar:Callback(value)
+	function castbar:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "castbar", value)
 	end
 
 	local combatText = panel.CreateCheckbox(unitSettings, L.CombatText, L.CombatText_Desc)
 	combatText:SetPoint("TOPLEFT", castbar, "BOTTOMLEFT", 0, -12)
-	function combatText:Callback(value)
+	function combatText:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "combatText", value)
 	end
 
@@ -190,7 +190,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 		local runeBars = panel.CreateCheckbox(unitSettings, L.RuneBars, L.RuneBars_Desc)
 		runeBars:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", 0, -12)
-		function runeBars:Callback(value)
+		function runeBars:OnValueChanged(value)
 			oUFPhanxConfig.runeBars = value
 		end
 		runeBars.checkedKey = "runeBars"
@@ -200,7 +200,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 		local druidMana = panel.CreateCheckbox(unitSettings, L.DruidManaBar, L.DruidManaBar_Desc)
 		druidMana:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", 0, -12)
-		function druidMana:Callback(value)
+		function druidMana:OnValueChanged(value)
 			oUFPhanxConfig.druidMana = value
 		end
 		druidMana.checkedKey = "druidMana"
@@ -208,7 +208,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 		local eclipseBar = panel.CreateCheckbox(unitSettings, L.EclipseBar, L.EclipseBar_Desc)
 		eclipseBar:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -12)
-		function eclipseBar:Callback(value)
+		function eclipseBar:OnValueChanged(value)
 			oUFPhanxConfig.eclipseBar = value
 			EclipseBarIcons:SetEnabled(value)
 		end
@@ -217,7 +217,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 		local eclipseBarIcons = panel.CreateCheckbox(unitSettings, L.EclipseBarIcons, L.EclipseBarIcons_Desc)
 		eclipseBarIcons:SetPoint("TOPLEFT", eclipseBar, "BOTTOMLEFT", 0, -12)
-		function eclipseBarIcons:Callback(value)
+		function eclipseBarIcons:OnValueChanged(value)
 			oUFPhanxConfig.eclipseBarIcons = value
 		end
 		eclipseBarIcons.checkedKey = "eclipseBarIcons"
@@ -228,7 +228,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 		local staggerBar = panel.CreateCheckbox(unitSettings, L.StaggerBar, L.StaggerBar_Desc)
 		staggerBar:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", 0, -12)
-		function staggerBar:Callback(value)
+		function staggerBar:OnValueChanged(value)
 			oUFPhanxConfig.staggerBar = value
 		end
 		staggerBar.checkedKey = "staggerBar"
@@ -238,7 +238,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 		local totemBars = panel.CreateCheckbox(unitSettings, L.TotemBars, L.TotemBars_Desc)
 		totemBars:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", 0, -12)
-		function totemBars:Callback(value)
+		function totemBars:OnValueChanged(value)
 			oUFPhanxConfig.totemBars = value
 		end
 		totemBars.checkedKey = "totemBars"
@@ -251,14 +251,14 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	local width = panel.CreateSlider(unitSettings, L.Width, L.Width_Desc, 0.25, 2, 0.05, true)
 	width:SetPoint("TOPLEFT", unitTitle, "BOTTOM", 8, -16)
 	width:SetPoint("TOPRIGHT", unitTitle, "BOTTOMRIGHT", 0, -16)
-	function width:Callback(value)
+	function width:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "width", value)
 	end
 
 	local height = panel.CreateSlider(unitSettings, L.Height, L.Height_Desc, 0.25, 2, 0.05, true)
 	height:SetPoint("TOPLEFT", width, "BOTTOMLEFT", 0, -24)
 	height:SetPoint("TOPRIGHT", width, "BOTTOMRIGHT", 0, -24)
-	function height:Callback(value)
+	function height:OnValueChanged(value)
 		SetUnitConfig(panel.selectedUnit, "height", value)
 	end
 
@@ -270,27 +270,27 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	globalSettings:SetPoint("BOTTOMRIGHT", -15, 15)
 	globalSettings:SetBackdrop({ edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16 })
 	globalSettings:SetBackdropBorderColor(0.6, 0.6, 0.6, 1)
-	
+
 	local globalTitle = panel.CreateHeader(globalSettings, L.Unit_Global) -- TODO: localize
 
 	local frameWidth = panel.CreateSlider(globalSettings, L.FrameWidth, L.FrameWidth_Desc, 100, 400, 20)
 	frameWidth:SetPoint("TOPLEFT", globalTitle, "BOTTOMLEFT", -4, -16)
 	frameWidth:SetPoint("TOPRIGHT", globalTitle, "BOTTOM", -8, -16)
-	function frameWidth:Callback(value)
+	function frameWidth:OnValueChanged(value)
 		oUFPhanxConfig.width = value
 	end
 
 	local frameHeight = panel.CreateSlider(globalSettings, L.FrameHeight, L.FrameHeight_Desc, 10, 60, 5)
 	frameHeight:SetPoint("TOPLEFT", frameWidth, "BOTTOMLEFT", 0, -24)
 	frameHeight:SetPoint("TOPRIGHT", frameWidth, "BOTTOMRIGHT", 0, -24)
-	function frameHeight:Callback(value)
+	function frameHeight:OnValueChanged(value)
 		oUFPhanxConfig.height = value
 	end
 
 	local powerHeight = panel.CreateSlider(globalSettings, L.PowerHeight, L.PowerHeight_Desc, 0.1, 0.5, 0.05, true)
 	powerHeight:SetPoint("TOPLEFT", frameHeight, "BOTTOMLEFT", 0, -24)
 	powerHeight:SetPoint("TOPRIGHT", frameHeight, "BOTTOMRIGHT", 0, -24)
-	function powerHeight:Callback(value)
+	function powerHeight:OnValueChanged(value)
 		oUFPhanxConfig.powerHeight = value
 	end
 
