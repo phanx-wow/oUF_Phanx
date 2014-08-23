@@ -7,7 +7,7 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
 	Russian localization
-	Contributors: Felixod
+	Contributors: Felixod, Yafis
 ----------------------------------------------------------------------]]
 
 if GetLocale() ~= "ruRU" then return end
@@ -31,7 +31,7 @@ L.BorderSize = "Размер рамки"
 --L.Castbar = "Show cast bar"
 --L.Castbar_Desc = "Show a cast bar on the frame for this unit."
 --L.ClassFeatures = "%s Class Features"
-L.ColorClass = "Цвет по классу"
+L.ColorClass = "Использовать свой цвет"
 L.ColorCustom = "Использовать другой цвет"
 L.ColorHealth = "Цвет согласно уровня жизни"
 L.ColorPower = "Цвет по типу мощности"
