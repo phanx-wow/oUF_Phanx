@@ -542,9 +542,9 @@ do
 		if v > 0 and v > mn and v <= mx then
 			local pct = (v - mn) / (mx - mn)
 			if self.__reverse then
-				self.tex:SetTexCoord(1 - pct, 1, 0, 1)
+				self.texture:SetTexCoord(1 - pct, 1, 0, 1)
 			else
-				self.tex:SetTexCoord(0, pct, 0, 1)
+				self.texture:SetTexCoord(0, pct, 0, 1)
 			end
 		end
 	end
@@ -555,10 +555,11 @@ do
 		local sb = CreateFrame("StatusBar", nil, parent)
 		sb:SetStatusBarTexture(file)
 
-		sb.tex = sb:GetStatusBarTexture()
-		sb.tex:SetDrawLayer("BORDER")
-		sb.tex:SetHorizTile(false)
-		sb.tex:SetVertTile(false)
+		sb.texture = sb:GetStatusBarTexture()
+		sb.texture:SetDrawLayer("BORDER")
+		sb.texture:SetHorizTile(false)
+		sb.texture:SetVertTile(false)
+
 		hooksecurefunc(sb, "SetReverseFill", SetReverseFill)
 		hooksecurefunc(sb, "SetValue", SetTexCoord)
 
@@ -571,6 +572,7 @@ do
 		end
 
 		tinsert(ns.statusbars, sb)
+		tinsert(ns.statusbars, sb.bg)
 		return sb
 	end
 end
@@ -585,9 +587,6 @@ function ns.SetAllStatusBarTextures()
 			sb:SetStatusBarTexture(file)
 		else
 			sb:SetTexture(file)
-		end
-		if sb.bg then
-			sb.bg:SetTexture(file)
 		end
 	end
 

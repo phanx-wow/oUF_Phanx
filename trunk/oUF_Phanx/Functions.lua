@@ -116,6 +116,8 @@ end
 function ns.PostUpdateHealth(bar, unit, cur, max)
 	local frame = bar.__owner
 
+	ns.UpdateIncomingHeals(frame, "Health_PostUpdate", unit)
+
 	local absent = not UnitIsConnected(unit) and PLAYER_OFFLINE or UnitIsGhost(unit) and GHOST or UnitIsDead(unit) and DEAD
 	if absent then
 		bar:SetValue(0) -- 5.2: UnitHealth is sometimes > 0 for dead units
@@ -177,34 +179,72 @@ end
 ------------------------------------------------------------------------
 
 function ns.UpdateIncomingHeals(self, event, unit)
-	if self.unit ~= unit then return end
+	--print("UpdateIncomingHeals", event, unit)
 
-	local bar = self.HealPrediction
+	local element = self.HealPrediction
+	local width = self.Health:GetWidth()
 
+	local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
+	local absorbing = UnitGetTotalAbsorbs(unit) or 0
 	local incoming = UnitGetIncomingHeals(unit) or 0
-
-	if incoming == 0 then
-		return bar:Hide()
-	end
-
-	local health = self.Health:GetValue()
-	local _, maxHealth = self.Health:GetMinMaxValues()
-
-	if health == maxHealth then
-		return bar:Hide()
-	end
-
-	if self.ignoreSelf then
+	if ns.config.ignoreOwnHeals then
 		incoming = incoming - (UnitGetIncomingHeals(unit, "player") or 0)
 	end
 
-	if incoming == 0 then
-		return bar:Hide()
+	local missing = maxHealth - health
+	--print("total", maxHealth, "missing", missing, "incoming", incoming, "absorbing", absorbing)
+
+	if incoming > 0 then
+		local bar, cap = element.HealingBar, element.HealingCap
+
+		if missing > 0 then
+			bar:Show()
+			if missing > incoming then
+				bar:SetWidth(missing / maxHealth * width)
+				bar:SetTexCoord(health / maxHealth, (health + incoming) / maxHealth, 0, 1)
+			else
+				bar:SetWidth((incoming - missing) / maxHealth * width)
+				bar:SetTexCoord(health / maxHealth, 1, 0, 1)
+			end
+		end
+
+		if incoming > missing then
+			cap:Show()
+		else
+			cap:Hide()
+		end
+	else
+		element.HealingCap:Hide()
+		element.HealingBar:Hide()
 	end
 
-	bar:SetMinMaxValues(0, maxHealth)
-	bar:SetValue(health + incoming)
-	bar:Show()
+	missing = missing - incoming
+
+	if absorbing > 0 then
+		local bar, cap = element.AbsorbsBar, element.AbsorbsCap
+
+		if missing > 0 then
+			bar:Show()
+			bar:SetPoint("LEFT", healing > 0 and element.HealingBar or self.Health.texture, "RIGHT")
+			if missing > absorbing then
+				bar:SetWidth(missing / maxHealth * width)
+				bar:SetTexCoord((health + incoming) / maxHealth, (health + incoming + absorbing) / maxHealth, 0, 1)
+			else
+				bar:SetWidth((absorbing - missing) / maxHealth * width)
+				bar:SetTexCoord(health / maxHealth, 1, 0, 1)
+			end
+		end
+
+		if absorbing > missing then
+			cap:Show()
+			cap:SetPoint("LEFT", element.HealingCap:IsShown() and element.HealingCap or self.Health, "RIGHT")
+		else
+			cap:Hide()
+		end
+	else
+		element.AbsorbsCap:Hide()
+		element.AbsorbsBar:Hide()
+	end
 end
 
 ------------------------------------------------------------------------
