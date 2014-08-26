@@ -42,6 +42,7 @@ local function Spawn(self, unit, isSingle)
 
 	local FRAME_WIDTH  = config.width  * (uconfig.width  or 1)
 	local FRAME_HEIGHT = config.height * (uconfig.height or 1)
+	local POWER_HEIGHT = FRAME_HEIGHT * config.powerHeight
 
 	local BAR_TEXTURE = LibStub("LibSharedMedia-3.0"):Fetch("statusbar", config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
 
@@ -87,8 +88,8 @@ local function Spawn(self, unit, isSingle)
 	health:SetPoint("BOTTOM", self, "BOTTOM", 0, 1)
 	self.Health = health
 
-	health:GetStatusBarTexture():SetDrawLayer("ARTWORK")
-	
+	health.texture:SetDrawLayer("ARTWORK")
+
 	health.value:SetParent(self.overlay)
 	health.value:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, FRAME_HEIGHT * config.powerHeight - 4)
 
@@ -112,27 +113,55 @@ local function Spawn(self, unit, isSingle)
 	health.PostUpdate = ns.PostUpdateHealth
 	self:RegisterForMouseover(health)
 
-	---------------------------
-	-- Predicted healing bar --
-	---------------------------
-	local heals = ns.CreateStatusBar(self)
-	heals:SetAllPoints(self.Health)
-	heals:SetAlpha(0.25)
-	heals:SetStatusBarColor(0, 1, 0)
-	heals:Hide()
-	self.HealPrediction = heals
+	---------------------------------
+	-- Predicted healing & absorbs --
+	---------------------------------
+	do
+		local healing = health:CreateTexture(nil, "ARTWORK")
+		healing:SetTexture(BAR_TEXTURE)
+		healing:SetVertexColor(0.25, 1, 0.25, 0.5)
+		tinsert(ns.statusbars, healing)
 
-	heals:SetFrameLevel(self.Health:GetFrameLevel())
+		healing:SetPoint("TOPLEFT", health.texture, "TOPRIGHT")
+		healing:SetPoint("BOTTOMLEFT", health.texture, "BOTTOMRIGHT")
 
-	heals.bg:ClearAllPoints()
-	heals.bg:SetTexture("")
-	heals.bg:Hide()
-	heals.bg = nil
+		local healingCap = health:CreateTexture(nil, "OVERLAY")
+		healingCap:SetTexture(BAR_TEXTURE)
+		healingCap:SetTexCoord(config.powerHeight, 1, 0, 1)
+		healingCap:SetVertexColor(0.25, 1, 0.25)
+		tinsert(ns.statusbars, healingCap)
 
-	heals.ignoreSelf = config.ignoreOwnHeals
-	heals.maxOverflow = 1
+		healingCap:SetPoint("TOPRIGHT")
+		healingCap:SetPoint("BOTTOMRIGHT")
+		healingCap:SetWidth(POWER_HEIGHT)
 
-	heals.Override = ns.UpdateIncomingHeals
+		local absorbs = health:CreateTexture(nil, "ARTWORK")
+		absorbs:SetTexture(BAR_TEXTURE)
+		absorbs:SetVertexColor(0.25, 0.8, 1, 0.5)
+		tinsert(ns.statusbars, absorbs)
+
+		absorbs:SetPoint("TOPLEFT", healing, "TOPRIGHT")
+		absorbs:SetPoint("BOTTOMLEFT", healing, "BOTTOMRIGHT")
+
+		local absorbsCap = health:CreateTexture(nil, "OVERLAY")
+		absorbsCap:SetTexture(BAR_TEXTURE)
+		absorbsCap:SetTexCoord(config.powerHeight, 1, 0, 1)
+		absorbsCap:SetVertexColor(0.25, 0.8, 1)
+		tinsert(ns.statusbars, absorbsCap)
+
+		absorbsCap:SetPoint("TOPRIGHT")
+		absorbsCap:SetPoint("BOTTOMRIGHT")
+		absorbsCap:SetWidth(POWER_HEIGHT)
+
+		self.HealPrediction = {
+			HealingBar = healing,
+			HealingCap = healingCap,
+			AbsorbsBar = absorbs,
+			AbsorbsCap = absorbsCap,
+
+			Override = ns.HealPrediction_Override,
+		}
+	end
 
 	------------------------
 	-- Power bar and text --
@@ -142,7 +171,7 @@ local function Spawn(self, unit, isSingle)
 		--power:SetFrameLevel(self.Health:GetFrameLevel() + 2)
 		power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
 		power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)
-		power:SetHeight(FRAME_HEIGHT * config.powerHeight)
+		power:SetHeight(POWER_HEIGHT)
 		self.Power = power
 
 		health:SetPoint("BOTTOM", power, "TOP", 0, 1)
