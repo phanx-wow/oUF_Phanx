@@ -225,7 +225,7 @@ function ns.UpdateIncomingHeals(self, event, unit)
 
 		if missing > 0 then
 			bar:Show()
-			bar:SetPoint("LEFT", healing > 0 and element.HealingBar or self.Health.texture, "RIGHT")
+			bar:SetPoint("LEFT", incoming > 0 and element.HealingBar or self.Health.texture, "RIGHT")
 			if missing > absorbing then
 				bar:SetWidth(missing / maxHealth * width)
 				bar:SetTexCoord((health + incoming) / maxHealth, (health + incoming + absorbing) / maxHealth, 0, 1)
