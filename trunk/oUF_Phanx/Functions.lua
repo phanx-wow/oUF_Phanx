@@ -108,142 +108,152 @@ end
 --	Health
 ------------------------------------------------------------------------
 
-local GHOST = GetSpellInfo(8326)
-if GetLocale() == "deDE" then
-	GHOST = "Geist" -- TOO LONG OMG
-end
+do
+	local GHOST = GetSpellInfo(8326)
+	if GetLocale() == "deDE" then
+		GHOST = "Geist" -- TOO LONG OMG
+	end
 
-function ns.PostUpdateHealth(bar, unit, cur, max)
-	local frame = bar.__owner
+	local UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapped, UnitIsTappedByPlayer, UnitIsTappedByAllThreatList, UnitIsEnemy, UnitReaction, UnitCanAssist
+		 = UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapped, UnitIsTappedByPlayer, UnitIsTappedByAllThreatList, UnitIsEnemy, UnitReaction, UnitCanAssist
 
-	ns.UpdateIncomingHeals(frame, "Health_PostUpdate", unit)
+	function ns.Health_PostUpdate(bar, unit, cur, max)
+		local frame = bar.__owner
 
-	local absent = not UnitIsConnected(unit) and PLAYER_OFFLINE or UnitIsGhost(unit) and GHOST or UnitIsDead(unit) and DEAD
-	if absent then
-		bar:SetValue(0) -- 5.2: UnitHealth is sometimes > 0 for dead units
-		local power = frame.Power
-		if power then
-			power:SetValue(0)
-			if power.value then
-				power.value:SetText(nil)
+		ns.HealPrediction_Override(frame, "Health_PostUpdate", unit)
+
+		local absent = not UnitIsConnected(unit) and PLAYER_OFFLINE or UnitIsGhost(unit) and GHOST or UnitIsDead(unit) and DEAD
+		if absent then
+			bar:SetValue(0) -- 5.2: UnitHealth is sometimes > 0 for dead units
+			local power = frame.Power
+			if power then
+				power:SetValue(0)
+				if power.value then
+					power.value:SetText(nil)
+				end
+			end
+			local color = colors.disconnected
+			if frame.isMouseOver and max > 0 then -- max is 0 for offline units
+				return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(max))
+			else
+				return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, absent)
 			end
 		end
-		local color = colors.disconnected
-		if frame.isMouseOver and max > 0 then -- max is 0 for offline units
-			return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(max))
+
+		local color
+		if UnitIsPlayer(unit) then
+			local _, class = UnitClass(unit)
+			color = colors.class[class]
+		elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) and not UnitIsTappedByAllThreatList(unit) then
+			color = colors.tapped
+		elseif UnitIsEnemy(unit, "player") then
+			color = colors.reaction[1]
 		else
-			return bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, absent)
+			color = colors.reaction[UnitReaction(unit, "player") or 5] or colors.reaction[5]
 		end
-	end
+		if not color then
+			color = colors.fallback
+		end
 
-	local color
-	if UnitIsPlayer(unit) then
-		local _, class = UnitClass(unit)
-		color = colors.class[class]
-	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
-		color = colors.tapped
-	elseif UnitIsEnemy(unit, "player") then
-		color = colors.reaction[1]
-	else
-		color = colors.reaction[UnitReaction(unit, "player") or 5] or colors.reaction[5]
-	end
-	if not color then
-		color = colors.fallback
-	end
+		-- HEALER: deficit, percent on mouseover
+		-- OTHER:  percent, current on mouseover
 
-	-- HEALER: deficit, percent on mouseover
-	-- OTHER:  percent, current on mouseover
-
-	if cur < max then
-		if ns.GetPlayerRole() == "HEALER" and UnitCanAssist("player", unit) then
-			if frame.isMouseOver and not frame.isGroupFrame then
-				-- don't change text on party frames, it's annoying for click-cast or mouseover healing
+		if cur < max then
+			if ns.GetPlayerRole() == "HEALER" and UnitCanAssist("player", unit) then
+				if frame.isMouseOver and not frame.isGroupFrame then
+					-- don't change text on party frames, it's annoying for click-cast or mouseover healing
+					bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(cur))
+				else
+					bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(cur - max))
+				end
+			elseif frame.isMouseOver then
 				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(cur))
 			else
-				bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(cur - max))
+				bar.value:SetFormattedText("|cff%02x%02x%02x%d%%|r", color[1] * 255, color[2] * 255, color[3] * 255, floor(cur / max * 100 + 0.5))
 			end
 		elseif frame.isMouseOver then
-			bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(cur))
+			bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(max))
 		else
-			bar.value:SetFormattedText("|cff%02x%02x%02x%d%%|r", color[1] * 255, color[2] * 255, color[3] * 255, floor(cur / max * 100 + 0.5))
+			bar.value:SetText(nil)
 		end
-	elseif frame.isMouseOver then
-		bar.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(max))
-	else
-		bar.value:SetText(nil)
 	end
 end
 
 ------------------------------------------------------------------------
---	IncomingHeals
+--	HealPrediction
 ------------------------------------------------------------------------
 
-function ns.UpdateIncomingHeals(self, event, unit)
-	--print("UpdateIncomingHeals", event, unit)
+do
+	local UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals
+	    = UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals
 
-	local element = self.HealPrediction
-	local width = self.Health:GetWidth()
+	function ns.HealPrediction_Override(self, event, unit)
+		--print("HealPrediction Override", event, unit)
 
-	local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-	local absorbing = UnitGetTotalAbsorbs(unit) or 0
-	local incoming = UnitGetIncomingHeals(unit) or 0
-	if ns.config.ignoreOwnHeals then
-		incoming = incoming - (UnitGetIncomingHeals(unit, "player") or 0)
-	end
+		local element = self.HealPrediction
+		local width = self.Health:GetWidth()
 
-	local missing = maxHealth - health
-	--print("total", maxHealth, "missing", missing, "incoming", incoming, "absorbing", absorbing)
+		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
+		local absorbing = UnitGetTotalAbsorbs(unit) or 0
+		local incoming = UnitGetIncomingHeals(unit) or 0
+		if ns.config.ignoreOwnHeals then
+			incoming = incoming - (UnitGetIncomingHeals(unit, "player") or 0)
+		end
 
-	if incoming > 0 then
-		local bar, cap = element.HealingBar, element.HealingCap
+		local missing = maxHealth - health
+		--print("total", maxHealth, "missing", missing, "incoming", incoming, "absorbing", absorbing)
 
-		if missing > 0 then
-			bar:Show()
-			if missing > incoming then
-				bar:SetWidth(missing / maxHealth * width)
-				bar:SetTexCoord(health / maxHealth, (health + incoming) / maxHealth, 0, 1)
-			else
-				bar:SetWidth((incoming - missing) / maxHealth * width)
-				bar:SetTexCoord(health / maxHealth, 1, 0, 1)
+		if incoming > 0 then
+			local bar, cap = element.HealingBar, element.HealingCap
+
+			if missing > 0 then
+				bar:Show()
+				if missing > incoming then
+					bar:SetWidth(missing / maxHealth * width)
+					bar:SetTexCoord(health / maxHealth, (health + incoming) / maxHealth, 0, 1)
+				else
+					bar:SetWidth((incoming - missing) / maxHealth * width)
+					bar:SetTexCoord(health / maxHealth, 1, 0, 1)
+				end
 			end
-		end
 
-		if incoming > missing then
-			cap:Show()
-		else
-			cap:Hide()
-		end
-	else
-		element.HealingCap:Hide()
-		element.HealingBar:Hide()
-	end
-
-	missing = missing - incoming
-
-	if absorbing > 0 then
-		local bar, cap = element.AbsorbsBar, element.AbsorbsCap
-
-		if missing > 0 then
-			bar:Show()
-			bar:SetPoint("LEFT", incoming > 0 and element.HealingBar or self.Health.texture, "RIGHT")
-			if missing > absorbing then
-				bar:SetWidth(missing / maxHealth * width)
-				bar:SetTexCoord((health + incoming) / maxHealth, (health + incoming + absorbing) / maxHealth, 0, 1)
+			if incoming > missing then
+				cap:Show()
 			else
-				bar:SetWidth((absorbing - missing) / maxHealth * width)
-				bar:SetTexCoord(health / maxHealth, 1, 0, 1)
+				cap:Hide()
 			end
+		else
+			element.HealingCap:Hide()
+			element.HealingBar:Hide()
 		end
 
-		if absorbing > missing then
-			cap:Show()
-			cap:SetPoint("LEFT", element.HealingCap:IsShown() and element.HealingCap or self.Health, "RIGHT")
+		missing = missing - incoming
+
+		if absorbing > 0 then
+			local bar, cap = element.AbsorbsBar, element.AbsorbsCap
+
+			if missing > 0 then
+				bar:Show()
+				bar:SetPoint("LEFT", incoming > 0 and element.HealingBar or self.Health.texture, "RIGHT")
+				if missing > absorbing then
+					bar:SetWidth(missing / maxHealth * width)
+					bar:SetTexCoord((health + incoming) / maxHealth, (health + incoming + absorbing) / maxHealth, 0, 1)
+				else
+					bar:SetWidth((absorbing - missing) / maxHealth * width)
+					bar:SetTexCoord(health / maxHealth, 1, 0, 1)
+				end
+			end
+
+			if absorbing > missing then
+				cap:Show()
+				cap:SetPoint("LEFT", element.HealingCap:IsShown() and element.HealingCap or self.Health, "RIGHT")
+			else
+				cap:Hide()
+			end
 		else
-			cap:Hide()
+			element.AbsorbsCap:Hide()
+			element.AbsorbsBar:Hide()
 		end
-	else
-		element.AbsorbsCap:Hide()
-		element.AbsorbsBar:Hide()
 	end
 end
 
@@ -251,50 +261,64 @@ end
 --	Power
 ------------------------------------------------------------------------
 
-function ns.PostUpdatePower(self, unit, cur, max)
-	if max == 0 then
-		self.__owner.Health:SetPoint("BOTTOM", self.__owner, "BOTTOM", 0, 1)
-		return self:Hide()
-	else
-		self.__owner.Health:SetPoint("BOTTOM", self, "TOP", 0, 1)
-		self:Show()
-	end
+do
+	local UnitIsDeadOrGhost, UnitPowerType, UnitPower, UnitPowerMax
+	    = UnitIsDeadOrGhost, UnitPowerType, UnitPower, UnitPowerMax
 
-	if UnitIsDeadOrGhost(unit) then
-		self:SetValue(0)
-		if self.value then
-			self.value:SetText(nil)
+	function ns.Power_PostUpdate(self, unit, cur, max)
+		if max == 0 then
+			self.__owner.Health:SetPoint("BOTTOM", self.__owner, "BOTTOM", 0, 1)
+			return self:Hide()
+		else
+			self.__owner.Health:SetPoint("BOTTOM", self, "TOP", 0, 1)
+			self:Show()
 		end
-		return
-	end
 
-	if not self.value then return end
+		if UnitIsDeadOrGhost(unit) then
+			self:SetValue(0)
+			if self.value then
+				self.value:SetText(nil)
+			end
+			return
+		end
 
-	local _, type = UnitPowerType(unit)
-	local color = colors.power[type] or colors.power.FUEL
-	if cur < max then
-		if self.__owner.isMouseOver then
-			self.value:SetFormattedText("%s.|cff%02x%02x%02x%s|r", si(UnitPower(unit)), color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
-		elseif type == "MANA" then
-			self.value:SetFormattedText("%d|cff%02x%02x%02x%%|r", floor(UnitPower(unit) / UnitPowerMax(unit) * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
-		elseif cur > 0 then
-			self.value:SetFormattedText("%d|cff%02x%02x%02x|r", floor(UnitPower(unit) / UnitPowerMax(unit) * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
+		if not self.value then return end
+
+		local _, type = UnitPowerType(unit)
+		local color = colors.power[type] or colors.power.FUEL
+		if cur < max then
+			if self.__owner.isMouseOver then
+				self.value:SetFormattedText("%s.|cff%02x%02x%02x%s|r", si(UnitPower(unit)), color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
+			elseif type == "MANA" then
+				self.value:SetFormattedText("%d|cff%02x%02x%02x%%|r", floor(UnitPower(unit) / UnitPowerMax(unit) * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
+			elseif cur > 0 then
+				self.value:SetFormattedText("%d|cff%02x%02x%02x|r", floor(UnitPower(unit) / UnitPowerMax(unit) * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
+			else
+				self.value:SetText(nil)
+			end
+		elseif type == "MANA" and self.__owner.isMouseOver then
+			self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
 		else
 			self.value:SetText(nil)
 		end
-	elseif type == "MANA" and self.__owner.isMouseOver then
-		self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
-	else
-		self.value:SetText(nil)
 	end
 end
 
 ------------------------------------------------------------------------
---	Druid mana
+--	Combo points
 ------------------------------------------------------------------------
 
-function ns.PostUpdateDruidMana(bar, unit, mana, maxMana)
-	bar.value:SetFormattedText(si(mana, true))
+function ns.ComboPoints_Override(self, event, unit)
+	if unit == "pet" then return end
+
+	local cp
+	if UnitHasVehicleUI("player") then
+		cp = GetComboPoints("vehicle", "target")
+	else
+		cp = GetComboPoints("player", "target")
+	end
+
+	ns.Orbs.Update(self.CPoints, cp)
 end
 
 ------------------------------------------------------------------------
@@ -303,7 +327,7 @@ end
 
 local MAX_MUSHROOMS = 3
 
-function ns.UpdateMushrooms(self, event)
+function ns.WildMushrooms_Override(self, event)
 	local num = 0
 	for i = 1, MAX_MUSHROOMS do
 		local exists, name, start, duration, icon = GetTotemInfo(i)
@@ -321,7 +345,7 @@ end
 
 local SPELL_POWER_CHI = SPELL_POWER_CHI
 
-function ns.UpdateChi(self, event, unit, powerType)
+function ns.Chi_Override(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "CHI") then return end
 
 	local num = UnitPower("player", SPELL_POWER_CHI)
@@ -332,25 +356,12 @@ function ns.UpdateChi(self, event, unit, powerType)
 end
 
 ------------------------------------------------------------------------
---	Monk stagger
-------------------------------------------------------------------------
-
-function ns.PostUpdateStagger(bar, maxHealth, stagger, staggerPercent, r, g, b)
-	if staggerPercent < 5 then
-		return bar:Hide()
-	end
-	print("PostUpdateStagger", stagger, staggerPercent)
-	bar.value:SetFormattedText("%.0f%%", staggerPercent)
-	bar:Show()
-end
-
-------------------------------------------------------------------------
 --	Paladin holy power
 ------------------------------------------------------------------------
 
 local SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER
 
-function ns.UpdateHolyPower(self, event, unit, powerType)
+function ns.HolyPower_Override(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "HOLY_POWER") then return end
 
 	local num = UnitPower("player", SPELL_POWER_HOLY_POWER)
@@ -367,7 +378,7 @@ end
 local SPELL_POWER_SHADOW_ORBS = SPELL_POWER_SHADOW_ORBS
 local PRIEST_BAR_NUM_ORBS = PRIEST_BAR_NUM_ORBS
 
-function ns.UpdateShadowOrbs(self, event, unit, powerType)
+function ns.ShadowOrbs_Override(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "SHADOW_ORBS") then return end
 
 	local num = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
@@ -378,29 +389,53 @@ function ns.UpdateShadowOrbs(self, event, unit, powerType)
 end
 
 ------------------------------------------------------------------------
---	Warlock demonic fury
+--	Demonic fury
 ------------------------------------------------------------------------
 
-function ns.PostUpdateDemonicFury(bar, fury, maxFury, inMetamorphosis)
-	--print("PostUpdateDemonicFury", fury, maxFury, inMetamorphosis)
+function ns.DemonicFury_PostUpdate(bar, fury, maxFury, inMetamorphosis)
+	--print("DemonicFury PostUpdate", fury, maxFury, inMetamorphosis)
 	bar.value:SetFormattedText("%.0f%%", fury / maxFury)
 end
 
 ------------------------------------------------------------------------
---	Combo points
+--	Druid mana
 ------------------------------------------------------------------------
 
-function ns.UpdateComboPoints(self, event, unit)
-	if unit == "pet" then return end
+function ns.DruidMana_PostUpdate(bar, unit, mana, maxMana)
+	bar.value:SetFormattedText(si(mana, true))
+end
 
-	local cp
-	if UnitHasVehicleUI("player") then
-		cp = GetComboPoints("vehicle", "target")
-	else
-		cp = GetComboPoints("player", "target")
+------------------------------------------------------------------------
+--	Stagger
+------------------------------------------------------------------------
+
+function ns.Stagger_PostUpdate(bar, maxHealth, stagger, staggerPercent, r, g, b)
+	if staggerPercent < 5 then
+		return bar:Hide()
 	end
+	print("Stagger PostUpdate", stagger, staggerPercent)
+	bar.value:SetFormattedText("%.0f%%", staggerPercent)
+	bar:Show()
+end
 
-	ns.Orbs.Update(self.CPoints, cp)
+------------------------------------------------------------------------
+--	PvP icon
+------------------------------------------------------------------------
+
+local PLAYER_FACTION = UnitFactionGroup("player")
+
+function ns.PvP_PostUpdate(element, status)
+	--print("PvP PostUpdate", element.__owner.unit, status)
+	if not status then return end
+	if status == PLAYER_FACTION then
+		return element:Hide()
+	elseif status == "ffa" then
+		return element:SetTextColor(0.8, 0.4, 0, 0.75)
+	elseif status == "Alliance" then
+		return element:SetTextColor(0.2, 0.4, 1, 0.75)
+	elseif status == "Horde" then
+		return element:SetTextColor(0.6, 0, 0, 0.75)
+	end
 end
 
 ------------------------------------------------------------------------
@@ -427,7 +462,7 @@ local function AuraIconOverlay_SetBorderColor(overlay, r, g, b)
 	overlay:GetParent():SetBorderColor(r, g, b)
 end
 
-function ns.PostCreateAuraIcon(element, button)
+function ns.Auras_PostCreateIcon(element, button)
 	ns.CreateBorder(button, 12)
 
 	button.cd:SetReverse(true)
@@ -443,7 +478,40 @@ function ns.PostCreateAuraIcon(element, button)
 	button.overlay.Show = noop
 end
 
-function ns.PostUpdateAuraIcon(element, unit, button, index, offset)
+local function FindAuraTimer(button, unit)
+	if not OmniCC then
+		return true
+	end
+	for i = 1, button:GetNumChildren() do
+		local child = select(i, button:GetChildren())
+		if child.text and (child.icon == button.icon or child.cooldown == button.cd) then
+			-- found it!
+			child.ClearAllPoints = noop
+			child.SetAlpha = noop
+			child.SetPoint = noop
+			child.SetScale = noop
+
+			child.text:ClearAllPoints()
+			child.text.ClearAllPoints = noop
+
+			child.text:SetPoint("CENTER", button, "TOP", 0, 2)
+			child.text.SetPoint = noop
+
+			child.text:SetFont(ns.config.font, unit:match("^party") and 14 or 18, ns.config.fontOutline)
+			child.text.SetFont = noop
+
+			child.text:SetTextColor(1, 0.8, 0)
+			child.text.SetTextColor = noop
+			child.text.SetVertexColor = noop
+
+			tinsert(ns.fontstrings, child.text)
+
+			return child.text
+		end
+	end
+end
+
+function ns.Auras_PostUpdateIcon(element, unit, button, index, offset)
 	local name, _, texture, count, type, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID = UnitAura(unit, index, button.filter)
 
 	if playerUnits[caster] then
@@ -452,67 +520,20 @@ function ns.PostUpdateAuraIcon(element, unit, button, index, offset)
 		button.icon:SetDesaturated(true)
 	end
 
-	if button.timer then return end
-
-	if OmniCC then
-		for i = 1, button:GetNumChildren() do
-			local child = select(i, button:GetChildren())
-			if child.text and (child.icon == button.icon or child.cooldown == button.cd) then
-				-- found it!
-				child.ClearAllPoints = noop
-				child.SetAlpha = noop
-				child.SetPoint = noop
-				child.SetScale = noop
-
-				child.text:ClearAllPoints()
-				child.text.ClearAllPoints = noop
-
-				child.text:SetPoint("CENTER", button, "TOP", 0, 2)
-				child.text.SetPoint = noop
-
-				child.text:SetFont(ns.config.font, unit:match("^party") and 14 or 18, ns.config.fontOutline)
-				child.text.SetFont = noop
-
-				child.text:SetTextColor(1, 0.8, 0)
-				child.text.SetTextColor = noop
-				child.text.SetVertexColor = noop
-
-				tinsert(ns.fontstrings, child.text)
-
-				button.timer = child.text
-
-				return
-			end
-		end
-	else
-		button.timer = true
+	if not button.timer then return end
+		button.timer = FindAuraTimer(button, unit)
 	end
 end
 
-function ns.PostUpdateAuras(self, unit)
+function ns.Auras_PostUpdate(self, unit)
 	self.__owner.Health:ForceUpdate() -- required to detect Dead => Ghost
-end
-
-------------------------------------------------------------------------
---	Dispel highlight
-------------------------------------------------------------------------
-
-function ns.DispelHighlightOverride(element, debuffType, canDispel)
-	local frame = element.__owner
-
-	if frame.debuffType == debuffType then return end
-	-- print("DispelHighlightOverride", unit, debuffType, canDispel)
-
-	frame.debuffType = debuffType
-	frame.debuffDispellable = canDispel
-	frame:UpdateBorder()
 end
 
 ------------------------------------------------------------------------
 --	Threat
 ------------------------------------------------------------------------
 
-function ns.ThreatOverride(frame, event, unit)
+function ns.Threat_Override(frame, event, unit)
 	local status = UnitThreatSituation(unit or frame.unit)
 	if not status then
 		status = 0
@@ -528,23 +549,18 @@ function ns.ThreatOverride(frame, event, unit)
 end
 
 ------------------------------------------------------------------------
---	PvP icon
+--	Dispel highlight
 ------------------------------------------------------------------------
 
-local PLAYER_FACTION = UnitFactionGroup("player")
+function ns.DispelHighlight_Override(element, debuffType, canDispel)
+	local frame = element.__owner
 
-function ns.PvPPostUpdate(element, status)
-	--print("PvP PostUpdate", element.__owner.unit, status)
-	if not status then return end
-	if status == PLAYER_FACTION then
-		return element:Hide()
-	elseif status == "ffa" then
-		return element:SetTextColor(0.8, 0.4, 0, 0.75)
-	elseif status == "Alliance" then
-		return element:SetTextColor(0.2, 0.4, 1, 0.75)
-	elseif status == "Horde" then
-		return element:SetTextColor(0.6, 0, 0, 0.75)
-	end
+	if frame.debuffType == debuffType then return end
+	-- print("DispelHighlightOverride", unit, debuffType, canDispel)
+
+	frame.debuffType = debuffType
+	frame.debuffDispellable = canDispel
+	frame:UpdateBorder()
 end
 
 ------------------------------------------------------------------------
