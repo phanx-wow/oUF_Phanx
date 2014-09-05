@@ -110,7 +110,7 @@ local function Spawn(self, unit, isSingle)
 	-- Blizzard bug, UNIT_HEALTH doesn't fire for bossN units in 5.2+
 	health.frequentUpdates = true -- unit == "boss"
 
-	health.PostUpdate = ns.PostUpdateHealth
+	health.PostUpdate = ns.Health_PostUpdate
 	self:RegisterForMouseover(health)
 
 	---------------------------------
@@ -198,7 +198,7 @@ local function Spawn(self, unit, isSingle)
 		end
 
 		power.frequentUpdates = unit == "player" or unit == "target" or unit == "focus" or unit == "boss"
-		power.PostUpdate = ns.PostUpdatePower
+		power.PostUpdate = ns.Power_PostUpdate
 	end
 
 	---------------------------
@@ -246,7 +246,7 @@ local function Spawn(self, unit, isSingle)
 			orb.fg:SetVertexColor(1, 0.8, 0)
 		end
 		self.CPoints = t
-		self.CPoints.Override = ns.UpdateComboPoints
+		self.CPoints.Override = ns.ComboPoints_Override
 	end
 
 	------------------------------
@@ -261,28 +261,28 @@ local function Spawn(self, unit, isSingle)
 		--------------------
 		if playerClass == "DRUID" then
 			element = "WildMushrooms"
-			updateFunc = ns.UpdateMushrooms
+			updateFunc = ns.WildMushrooms_Override
 
 		---------
 		-- Chi --
 		---------
 		elseif playerClass == "MONK" then
 			powerType = SPELL_POWER_LIGHT_FORCE
-			updateFunc = ns.UpdateChi
+			updateFunc = ns.Chi_Override
 
 		----------------
 		-- Holy power --
 		----------------
 		elseif playerClass == "PALADIN" then
 			powerType = SPELL_POWER_HOLY_POWER
-			updateFunc = ns.UpdateHolyPower
+			updateFunc = ns.HolyPower_Override
 
 		-----------------
 		-- Shadow orbs --
 		-----------------
 		elseif playerClass == "PRIEST" then
 			powerType = SPELL_POWER_SHADOW_ORBS
-			updateFunc = ns.UpdateShadowOrbs
+			updateFunc = ns.ShadowOrbs_Override
 
 		-----------------
 		-- Soul shards --
@@ -446,19 +446,21 @@ local function Spawn(self, unit, isSingle)
 		otherPower.colorPower = true
 		otherPower.bg.multiplier = config.powerBG
 
-		if playerClass == "DRUID" then
-			local color = oUF.colors.power.MANA
-			otherPower.value:SetTextColor(color[1], color[2], color[3])
-			otherPower.PostUpdate = ns.PostUpdateDruidMana
-			self.DruidMana = otherPower
-		elseif playerClass == "MONK" then
-			otherPower.PostUpdate = ns.PostUpdateStagger
-			self.Stagger = otherPower
-		else
+		if playerClass == "WARLOCK" then
 			local color = oUF.colors.power.DEMONIC_FURY
 			otherPower.value:SetTextColor(color[1], color[2], color[3])
-			otherPower.PostUpdate = ns.PostUpdateDemonicFury
+			otherPower.PostUpdate = ns.DemonicFury_PostUpdate
 			self.DemonicFury = otherPower
+
+		elseif playerClass == "DRUID" then
+			local color = oUF.colors.power.MANA
+			otherPower.value:SetTextColor(color[1], color[2], color[3])
+			otherPower.PostUpdate = ns.DruidMana_PostUpdate
+			self.DruidMana = otherPower
+
+		else
+			otherPower.PostUpdate = ns.Stagger_PostUpdate
+			self.Stagger = otherPower
 		end
 	end
 
@@ -544,7 +546,7 @@ local function Spawn(self, unit, isSingle)
 		self.PvP:SetFont("Fonts\\ARIALN.ttf", 18, "OUTLINE")
 		self.PvP:SetText(RANGE_INDICATOR)
 		self.PvP.SetTexture = ns.noop
-		self.PvP.PostUpdate = ns.PvPPostUpdate
+		self.PvP.PostUpdate = ns.PvP_PostUpdate
 	end
 
 	----------------
@@ -567,9 +569,9 @@ local function Spawn(self, unit, isSingle)
 		self.Buffs["spacing-y"] = GAP
 
 		self.Buffs.CustomFilter   = ns.CustomAuraFilters.player
-		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
-		self.Buffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
+		self.Buffs.PostCreateIcon = ns.Auras_PostCreateIcon
+		self.Buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		self.Buffs.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
 
 		self.Buffs.parent = self
 	elseif unit == "pet" then
@@ -589,8 +591,8 @@ local function Spawn(self, unit, isSingle)
 		self.Buffs["spacing-y"] = GAP
 
 		self.Buffs.CustomFilter   = ns.CustomAuraFilters.pet
-		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+		self.Buffs.PostCreateIcon = ns.Auras_PostCreateIcon
+		self.Buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
 
 		self.Buffs.parent = self
 	elseif unit == "party" then
@@ -610,9 +612,9 @@ local function Spawn(self, unit, isSingle)
 		self.Buffs["spacing-y"] = GAP
 
 		self.Buffs.CustomFilter   = ns.CustomAuraFilters.party
-		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
-		self.Buffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
+		self.Buffs.PostCreateIcon = ns.Auras_PostCreateIcon
+		self.Buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		self.Buffs.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
 
 		self.Buffs.parent = self
 	elseif unit == "target" then
@@ -634,9 +636,9 @@ local function Spawn(self, unit, isSingle)
 		self.Debuffs["spacing-y"] = GAP * 2
 
 		self.Debuffs.CustomFilter   = ns.CustomAuraFilters.target
-		self.Debuffs.PostCreateIcon = ns.PostCreateAuraIcon
-		self.Debuffs.PostUpdateIcon = ns.PostUpdateAuraIcon
-		self.Debuffs.PostUpdate     = ns.PostUpdateAuras -- required to detect Dead => Ghost
+		self.Debuffs.PostCreateIcon = ns.Auras_PostCreateIcon
+		self.Debuffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		self.Debuffs.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
 
 		self.Buffs = CreateFrame("Frame", nil, self)
 		self.Buffs:SetHeight(ROW_HEIGHT)
@@ -649,8 +651,8 @@ local function Spawn(self, unit, isSingle)
 		self.Buffs["spacing-y"] = GAP * 2
 
 		self.Buffs.CustomFilter   = ns.CustomAuraFilters.target
-		self.Buffs.PostCreateIcon = ns.PostCreateAuraIcon
-		self.Buffs.PostUpdateIcon = ns.PostUpdateAuraIcon
+		self.Buffs.PostCreateIcon = ns.Auras_PostCreateIcon
+		self.Buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
 
 		local function UpdateAurasForRole(self, role, initial)
 			--print("Updating auras for new role:", role)
@@ -698,7 +700,7 @@ local function Spawn(self, unit, isSingle)
 	------------
 	self.Threat = {
 		IsObjectType = noop, -- oUF stahp
-		Override = ns.ThreatOverride,
+		Override = ns.Threat_Override,
 	}
 
 	-------------------------------------
@@ -739,7 +741,7 @@ local function Spawn(self, unit, isSingle)
 	-- Element: Dispel highlight --
 	-------------------------------
 	self.DispelHighlight = {
-		Override = ns.DispelHighlightOverride,
+		Override = ns.DispelHighlight_Override,
 		filter = true,
 	}
 
