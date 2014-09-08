@@ -117,19 +117,11 @@ local function Spawn(self, unit, isSingle)
 	-- Predicted healing & absorbs --
 	---------------------------------
 	do
-		local healing = ns.CreateStatusBar(health)
+		local healing = ns.CreateStatusBar(health, nil, nil, true)
 		healing:SetWidth(FRAME_WIDTH - 2) -- health:GetWidth() doesn't work for some reason
 		healing:SetPoint("TOPLEFT", health.texture, "TOPRIGHT")
 		healing:SetPoint("BOTTOMLEFT", health.texture, "BOTTOMRIGHT")
 		healing:SetStatusBarColor(0.25, 1, 0.25, 0.5)
---[[
-		healing.bg:ClearAllPoints()
-		healing.bg:SetPoint("TOPLEFT", health, "TOPRIGHT")
-		healing.bg:SetPoint("BOTTOMLEFT", health, "BOTTOMRIGHT")
-		healing.bg:SetWidth(5)
-		healing.bg:SetDrawLayer("OVERLAY")
-		healing.bg:SetTexCoord(1, 1 - (5 / health:GetWidth()), 0, 1)]]
-		healing.bg:Hide()
 
 		local spark = healing:CreateTexture(nil, "OVERLAY")
 		spark:SetPoint("TOP", healing, "TOPLEFT")
@@ -140,20 +132,20 @@ local function Spawn(self, unit, isSingle)
 		spark:SetBlendMode("ADD")
 		spark:SetAlpha(0.25)
 		healing.spark = spark
+		
+		local cap = self.overlay:CreateTexture(nil, "OVERLAY")
+		cap:SetPoint("CENTER", health, "RIGHT")
+		cap:SetSize(16, 32)
+		cap:SetTexture("Interface\\RaidFrame\\Shield-Overshield")
+		cap:SetBlendMode("ADD")
+		cap:SetAlpha(0.75)
+		healing.cap = cap
 
-		local absorbs = ns.CreateStatusBar(health)
+		local absorbs = ns.CreateStatusBar(health, nil, nil, true)
 		absorbs:SetWidth(FRAME_WIDTH - 2) -- health:GetWidth() doesn't work for some reason
 		absorbs:SetPoint("TOPLEFT", healing.texture, "TOPRIGHT")
 		absorbs:SetPoint("BOTTOMLEFT", healing.texture, "BOTTOMRIGHT")
 		absorbs:SetStatusBarColor(0.25, 0.8, 1, 0.5)
---[[
-		absorbs.bg:ClearAllPoints()
-		absorbs.bg:SetPoint("TOPLEFT", health, "TOPRIGHT")
-		absorbs.bg:SetPoint("BOTTOMLEFT", health, "BOTTOMRIGHT")
-		absorbs.bg:SetWidth(5)
-		absorbs.bg:SetDrawLayer("OVERLAY")
-		absorbs.bg:SetTexCoord(1, 1 - (5 / health:GetWidth()), 0, 1)]]
-		absorbs.bg:Hide()
 
 		local spark = absorbs:CreateTexture(nil, "OVERLAY")
 		spark:SetPoint("TOP", absorbs, "TOPLEFT")
@@ -164,13 +156,20 @@ local function Spawn(self, unit, isSingle)
 		spark:SetBlendMode("ADD")
 		spark:SetAlpha(0.25)
 		absorbs.spark = spark
+		
+		local cap = self.overlay:CreateTexture(nil, "OVERLAY")
+		cap:SetPoint("CENTER", health, "RIGHT")
+		cap:SetSize(16, 32)
+		cap:SetTexture("Interface\\RaidFrame\\Absorb-Overabsorb")
+		cap:SetBlendMode("ADD")
+		cap:SetAlpha(0.75)
+		cap:SetDesaturated(true)
+		cap:SetVertexColor(0, 1, 0)
+		absorbs.cap = cap
 
 		self.HealPrediction = {
 			healingBar = healing,
-			healingCap = healing.bg,
 			absorbsBar = absorbs,
-			absorbsCap = absorbs.bg,
-
 			Override = ns.HealPrediction_Override,
 		}
 	end
