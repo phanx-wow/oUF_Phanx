@@ -117,47 +117,59 @@ local function Spawn(self, unit, isSingle)
 	-- Predicted healing & absorbs --
 	---------------------------------
 	do
-		local healing = health:CreateTexture(nil, "ARTWORK")
-		healing:SetTexture(BAR_TEXTURE)
-		healing:SetVertexColor(0.25, 1, 0.25, 0.5)
-		tinsert(ns.statusbars, healing)
-
+		local healing = ns.CreateStatusBar(health)
+		healing:SetWidth(FRAME_WIDTH - 2) -- health:GetWidth() doesn't work for some reason
 		healing:SetPoint("TOPLEFT", health.texture, "TOPRIGHT")
 		healing:SetPoint("BOTTOMLEFT", health.texture, "BOTTOMRIGHT")
+		healing:SetStatusBarColor(0.25, 1, 0.25, 0.5)
+--[[
+		healing.bg:ClearAllPoints()
+		healing.bg:SetPoint("TOPLEFT", health, "TOPRIGHT")
+		healing.bg:SetPoint("BOTTOMLEFT", health, "BOTTOMRIGHT")
+		healing.bg:SetWidth(5)
+		healing.bg:SetDrawLayer("OVERLAY")
+		healing.bg:SetTexCoord(1, 1 - (5 / health:GetWidth()), 0, 1)]]
+		healing.bg:Hide()
 
-		local healingCap = health:CreateTexture(nil, "OVERLAY")
-		healingCap:SetTexture(BAR_TEXTURE)
-		healingCap:SetTexCoord(config.powerHeight, 1, 0, 1)
-		healingCap:SetVertexColor(0.25, 1, 0.25)
-		tinsert(ns.statusbars, healingCap)
+		local spark = healing:CreateTexture(nil, "OVERLAY")
+		spark:SetPoint("TOP", healing, "TOPLEFT")
+		spark:SetPoint("BOTTOM", healing, "BOTTOMLEFT")
+		spark:SetWidth(16)
+		spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+		spark:SetTexCoord(0, 1, 0.35, 0.6)
+		spark:SetBlendMode("ADD")
+		spark:SetAlpha(0.25)
+		healing.spark = spark
 
-		healingCap:SetPoint("TOPRIGHT")
-		healingCap:SetPoint("BOTTOMRIGHT")
-		healingCap:SetWidth(POWER_HEIGHT)
+		local absorbs = ns.CreateStatusBar(health)
+		absorbs:SetWidth(FRAME_WIDTH - 2) -- health:GetWidth() doesn't work for some reason
+		absorbs:SetPoint("TOPLEFT", healing.texture, "TOPRIGHT")
+		absorbs:SetPoint("BOTTOMLEFT", healing.texture, "BOTTOMRIGHT")
+		absorbs:SetStatusBarColor(0.25, 0.8, 1, 0.5)
+--[[
+		absorbs.bg:ClearAllPoints()
+		absorbs.bg:SetPoint("TOPLEFT", health, "TOPRIGHT")
+		absorbs.bg:SetPoint("BOTTOMLEFT", health, "BOTTOMRIGHT")
+		absorbs.bg:SetWidth(5)
+		absorbs.bg:SetDrawLayer("OVERLAY")
+		absorbs.bg:SetTexCoord(1, 1 - (5 / health:GetWidth()), 0, 1)]]
+		absorbs.bg:Hide()
 
-		local absorbs = health:CreateTexture(nil, "ARTWORK")
-		absorbs:SetTexture(BAR_TEXTURE)
-		absorbs:SetVertexColor(0.25, 0.8, 1, 0.5)
-		tinsert(ns.statusbars, absorbs)
-
-		absorbs:SetPoint("TOPLEFT", healing, "TOPRIGHT")
-		absorbs:SetPoint("BOTTOMLEFT", healing, "BOTTOMRIGHT")
-
-		local absorbsCap = health:CreateTexture(nil, "OVERLAY")
-		absorbsCap:SetTexture(BAR_TEXTURE)
-		absorbsCap:SetTexCoord(config.powerHeight, 1, 0, 1)
-		absorbsCap:SetVertexColor(0.25, 0.8, 1)
-		tinsert(ns.statusbars, absorbsCap)
-
-		absorbsCap:SetPoint("TOPRIGHT")
-		absorbsCap:SetPoint("BOTTOMRIGHT")
-		absorbsCap:SetWidth(POWER_HEIGHT)
+		local spark = absorbs:CreateTexture(nil, "OVERLAY")
+		spark:SetPoint("TOP", absorbs, "TOPLEFT")
+		spark:SetPoint("BOTTOM", absorbs, "BOTTOMLEFT")
+		spark:SetWidth(16)
+		spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+		spark:SetTexCoord(0, 1, 0.35, 0.6)
+		spark:SetBlendMode("ADD")
+		spark:SetAlpha(0.25)
+		absorbs.spark = spark
 
 		self.HealPrediction = {
-			HealingBar = healing,
-			HealingCap = healingCap,
-			AbsorbsBar = absorbs,
-			AbsorbsCap = absorbsCap,
+			healingBar = healing,
+			healingCap = healing.bg,
+			absorbsBar = absorbs,
+			absorbsCap = absorbs.bg,
 
 			Override = ns.HealPrediction_Override,
 		}
