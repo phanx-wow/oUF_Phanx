@@ -132,7 +132,7 @@ local function Spawn(self, unit, isSingle)
 		spark:SetBlendMode("ADD")
 		spark:SetAlpha(0.25)
 		healing.spark = spark
-		
+
 		local cap = self.overlay:CreateTexture(nil, "OVERLAY")
 		cap:SetPoint("CENTER", health, "RIGHT")
 		cap:SetSize(16, 32)
@@ -156,7 +156,7 @@ local function Spawn(self, unit, isSingle)
 		spark:SetBlendMode("ADD")
 		spark:SetAlpha(0.25)
 		absorbs.spark = spark
-		
+
 		local cap = self.overlay:CreateTexture(nil, "OVERLAY")
 		cap:SetPoint("CENTER", health, "RIGHT")
 		cap:SetSize(16, 32)
@@ -710,7 +710,8 @@ local function Spawn(self, unit, isSingle)
 	-- Threat --
 	------------
 	self.Threat = {
-		IsObjectType = noop, -- oUF stahp
+		Hide = noop, -- oUF stahp
+		IsObjectType = noop,
 		Override = ns.Threat_Override,
 	}
 
