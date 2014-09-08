@@ -549,11 +549,12 @@ do
 		end
 	end
 
-	function ns.CreateStatusBar(parent, size, justify)
+	function ns.CreateStatusBar(parent, size, justify, noBG)
 		local file = Media:Fetch("statusbar", ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
 
 		local sb = CreateFrame("StatusBar", nil, parent)
 		sb:SetStatusBarTexture(file)
+		tinsert(ns.statusbars, sb)
 
 		sb.texture = sb:GetStatusBarTexture()
 		sb.texture:SetDrawLayer("BORDER")
@@ -563,16 +564,17 @@ do
 		hooksecurefunc(sb, "SetReverseFill", SetReverseFill)
 		hooksecurefunc(sb, "SetValue", SetTexCoord)
 
-		sb.bg = sb:CreateTexture(nil, "BACKGROUND")
-		sb.bg:SetTexture(file)
-		sb.bg:SetAllPoints(true)
+		if not noBG then
+			sb.bg = sb:CreateTexture(nil, "BACKGROUND")
+			sb.bg:SetTexture(file)
+			sb.bg:SetAllPoints(true)
+			tinsert(ns.statusbars, sb.bg)
+		end
 
 		if size then
 			sb.value = ns.CreateFontString(sb, size, justify)
 		end
 
-		tinsert(ns.statusbars, sb)
-		tinsert(ns.statusbars, sb.bg)
 		return sb
 	end
 end
