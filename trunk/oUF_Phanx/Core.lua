@@ -462,8 +462,8 @@ end
 ------------------------------------------------------------------------
 
 function ns.si(value, raw)
+	if not value then return "" end
 	local absvalue = abs(value)
-
 	local str, val
 
 	if absvalue >= 1e10 then
@@ -584,16 +584,26 @@ function ns.SetAllStatusBarTextures()
 	for i = 1, #ns.statusbars do
 		local sb = ns.statusbars[i]
 		if sb.SetStatusBarTexture then
+			local r, g, b, a = sb:GetStatusBarColor()
 			sb:SetStatusBarTexture(file)
+			sb:SetStatusBarColor(r, g, b, a)
 		else
+			local r, g, b, a = sb:GetVertexColor()
 			sb:SetTexture(file)
+			sb:SetVertexColor(r, g, b, a)
 		end
 	end
 
 	if not MirrorTimer3.bar then return end -- too soon!
 	for i = 1, 3 do
 		local bar = _G["MirrorTimer" .. i]
+
+		local r, g, b, a = bar.bar:GetStatusBarColor()
 		bar.bar:SetStatusBarTexture(file)
+		bar.bar:SetStatusBarColor(r, g, b, a)
+
+		local r, g, b, a = bar.bg:GetVertexColor()
 		bar.bg:SetTexture(file)
+		bar.bg:SetVertexColor(r, g, b, a)
 	end
 end

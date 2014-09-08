@@ -191,68 +191,53 @@ do
 		--print("HealPrediction Override", event, unit)
 
 		local element = self.HealPrediction
-		local width = self.Health:GetWidth()
+		local parent = self.Health
 
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		local absorbing = UnitGetTotalAbsorbs(unit) or 0
-		local incoming = UnitGetIncomingHeals(unit) or 0
-		if ns.config.ignoreOwnHeals then
-			incoming = incoming - (UnitGetIncomingHeals(unit, "player") or 0)
-		end
-
 		local missing = maxHealth - health
-		--print("total", maxHealth, "missing", missing, "incoming", incoming, "absorbing", absorbing)
-
-		if incoming > 0 then
-			local bar, cap = element.HealingBar, element.HealingCap
-
-			if missing > 0 then
-				bar:Show()
-				if missing > incoming then
-					bar:SetWidth(missing / maxHealth * width)
-					bar:SetTexCoord(health / maxHealth, (health + incoming) / maxHealth, 0, 1)
-				else
-					bar:SetWidth((incoming - missing) / maxHealth * width)
-					bar:SetTexCoord(health / maxHealth, 1, 0, 1)
-				end
-			end
-
-			if incoming > missing then
-				cap:Show()
-			else
-				cap:Hide()
-			end
-		else
-			element.HealingCap:Hide()
-			element.HealingBar:Hide()
+		local absorbs = UnitGetTotalAbsorbs(unit) or 0
+		local healing = UnitGetIncomingHeals(unit) or 0
+		if healing > 0 and ns.config.ignoreOwnHeals then
+			healing = healing - (UnitGetIncomingHeals(unit, "player") or 0)
 		end
 
-		missing = missing - incoming
+		-- print(unit, "H", si(health), "D", si(maxHealth - health), "I", si(healing), "A", si(absorbs))
 
-		if absorbing > 0 then
-			local bar, cap = element.AbsorbsBar, element.AbsorbsCap
-
-			if missing > 0 then
-				bar:Show()
-				bar:SetPoint("LEFT", incoming > 0 and element.HealingBar or self.Health.texture, "RIGHT")
-				if missing > absorbing then
-					bar:SetWidth(missing / maxHealth * width)
-					bar:SetTexCoord((health + incoming) / maxHealth, (health + incoming + absorbing) / maxHealth, 0, 1)
-				else
-					bar:SetWidth((absorbing - missing) / maxHealth * width)
-					bar:SetTexCoord(health / maxHealth, 1, 0, 1)
-				end
-			end
-
-			if absorbing > missing then
-				cap:Show()
-				cap:SetPoint("LEFT", element.HealingCap:IsShown() and element.HealingCap or self.Health, "RIGHT")
+		if healing > 0 and missing > 0 then
+			local bar, cap = element.healingBar, element.healingCap
+			bar:Show()
+			bar:SetMinMaxValues(0, maxHealth)
+			if healing > missing then
+				bar:SetValue(missing)
+	--			cap:SetShown((healing - missing) / maxHealth > element.maxOverflow)
+				missing = 0
 			else
-				cap:Hide()
+				bar:SetValue(healing)
+	--			cap:Hide()
+				missing = missing - healing
+			end
+			parent = bar
+		else
+			element.healingBar:Hide()
+	--		element.healingCap:SetShown(healing / maxHealth > element.maxOverflow)
+		end
+
+		if absorbs > 0 and missing > 0 then
+			local bar, cap = element.absorbsBar, element.absorbsCap
+			bar:Show()
+			bar:SetPoint("TOPLEFT", parent.texture, "TOPRIGHT")
+			bar:SetPoint("BOTTOMLEFT", parent.texture, "BOTTOMRIGHT")
+			bar:SetMinMaxValues(0, maxHealth)
+			if absorbs > missing then
+				bar:SetValue(missing)
+	--			cap:SetShown((absorbs - missing) / maxHealth > element.maxOverflow)
+			else
+				bar:SetValue(absorbs)
+	--			cap:Hide()
 			end
 		else
-			element.AbsorbsCap:Hide()
-			element.AbsorbsBar:Hide()
+			element.absorbsBar:Hide()
+	--		element.absorbsCap:SetShown(absorbs / maxHealth > element.maxOverflow)
 		end
 	end
 end
@@ -520,7 +505,7 @@ function ns.Auras_PostUpdateIcon(element, unit, button, index, offset)
 		button.icon:SetDesaturated(true)
 	end
 
-	if not button.timer then return end
+	if not button.timer then
 		button.timer = FindAuraTimer(button, unit)
 	end
 end
