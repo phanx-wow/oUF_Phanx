@@ -98,13 +98,13 @@ ns.uconfigDefault = {
 		width = 0.5,
 		power = true,
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25 },
-		visible = "party",
+		visible = "custom [group:party,@party1,exists][group:raid,@raid6,noexists]show;hide",
 	},
 	partypet = {
 		point = "TOPLEFT party TOPRIGHT 12 0",
 		width = 0.25,
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "useOwnerUnit", true, "unitsuffix", "pet" },
-		visible = "party",
+		visible = "custom [group:party,@party1,exists][group:raid,@raid6,noexists]show;hide",
 	},
 	-------------
 	--	Bosses --
@@ -266,7 +266,21 @@ function Loader:ADDON_LOADED(event, addon)
 	ns.uconfig = oUFPhanxUnitConfig
 
 	-- Aura settings stored per character:
-	oUFPhanxAuraConfig = initDB(oUFPhanxAuraConfig)
+	if oUFPhanxAuraConfig and not oUFPhanxConfig.VERSION then
+		-- Upgrade from pre-bitflag filter values
+		local bitflags = {
+			[0] = ns.auraFilterValues.DISABLE,
+			[1] = ns.auraFilterValues.ALL,
+			[2] = ns.auraFilterValues.BY_PLAYER,
+			[3] = ns.auraFilterValues.ON_FRIEND,
+			[4] = ns.auraFilterValues.ON_PLAYER,
+		}
+		for id, flag in pairs(oUFPhanxAuraConfig) do
+			oUFPhanxAuraConfig[id] = bitflags[flag]
+		end
+		oUFPhanxAuraConfig.VERSION = 1
+	end
+	oUFPhanxAuraConfig = initDB(oUFPhanxAuraConfig, ns.defaultAuras)
 	ns.UpdateAuraList()
 
 	-- SharedMedia
@@ -383,6 +397,7 @@ function Loader:PLAYER_LOGOUT(event)
 
 	oUFPhanxConfig = cleanDB(oUFPhanxConfig, ns.configDefault)
 	oUFPhanxUnitConfig = cleanDB(oUFPhanxUnitConfig, ns.uconfigDefault)
+	oUFPhanxAuraConfig = cleanDB(oUFPhanxAuraConfig, ns.defaultAuras)
 end
 
 ------------------------------------------------------------------------
