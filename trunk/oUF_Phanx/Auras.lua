@@ -6,981 +6,1119 @@
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
-	Values:
-	1 = by anyone on anyone
-	2 = by player on anyone
-	3 = by anyone on friendly
-	4 = by anyone on player
+	Filter settings stored as bitfields.
+	0x MODE SOURCE DEST ROLE 0 CLASSx3
+	See below for related constants. Class takes up 3 bits, and has
+	an empty bit in front of it in case Blizzard adds more classes.
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
 local _, playerClass = UnitClass("player")
-local _, playerRace = UnitRace("player")
 
-local updateFuncs = {} -- functions to call to add/remove auras
+local bit_band, bit_bor = bit.band, bit.bor
 
-local BaseAuras = {
-	[1022]   = 4, -- Hand of Protection
-	[29166]  = 4, -- Innervate
-	[102342] = 4, -- Ironbark
-	[33206]  = 4, -- Pain Suppression
-	[10060]  = 4, -- Power Infusion
-	[49016]  = 4, -- Unholy Frenzy
-	-- Bloodlust
-	[90355]  = 4, -- Ancient Hysteria (core hound)
-	[2825]   = 4, -- Bloodlust (shaman)
-	[32182]  = 4, -- Heroism (shaman)
-	[80353]  = 4, -- Time Warp (mage)
-	-- Herbalism
-	[81708]  = 2, -- Lifeblood (Rank 1)
-	[55428]  = 2, -- Lifeblood (Rank 2)
-	[55480]  = 2, -- Lifeblood (Rank 3)
-	[55500]  = 2, -- Lifeblood (Rank 4)
-	[55501]  = 2, -- Lifeblood (Rank 5)
-	[55502]  = 2, -- Lifeblood (Rank 6)
-	[55503]  = 2, -- Lifeblood (Rank 7)
-	[74497]  = 2, -- Lifeblood (Rank 8)
-	[121279] = 2, -- Lifeblood (Rank 9)
-	-- Crowd Control
-	[710]    = 1, -- Banish
-	[76780]  = 1, -- Bind Elemental
-	[33786]  = 1, -- Cyclone
-	[339]    = 1, -- Entangling Roots
-	[5782]   = 1, -- Fear -- NEEDS CHECK
-	[118699] = 1, -- Fear
-	[3355]   = 1, -- Freezing Trap, -- NEEDS CHECK
-	[43448]  = 1, -- Freezing Trap, -- NEEDS CHECK
-	[51514]  = 1, -- Hex
-	[2637]   = 1, -- Hibernate
-	[118]    = 1, -- Polymorph
-	[61305]  = 1, -- Polymorph [Black Cat]
-	[28272]  = 1, -- Polymorph [Pig]
-	[61721]  = 1, -- Polymorph [Rabbit]
-	[61780]  = 1, -- Polymorph [Turkey]
-	[28271]  = 1, -- Polymorph [Turtle]
-	[20066]  = 1, -- Repentance
-	[6770]   = 1, -- Sap
-	[6358]   = 1, -- Seduction
-	[9484]   = 1, -- Shackle Undead
-	[10326]  = 1, -- Turn Evil
-	[114404] = 1, -- Void Tendrils
-	[19386]  = 1, -- Wyvern Sting
+------------------------------------------------------------------------
+
+-- Permanent filters, only checked on login, role change, options change:
+local FILTER_ALL               = 0x10000000
+local FILTER_DISABLE           = 0x20000000
+local FILTER_PVP               = 0x30000000
+local FILTER_PVE               = 0x40000000
+
+local FILTER_ROLE_TANK         = 0x00010000
+local FILTER_ROLE_HEALER       = 0x00020000
+local FILTER_ROLE_DAMAGER      = 0x00040000
+local FILTER_ROLE_MASK         = 0x000F0000
+
+local FILTER_CLASS_MASK        = 0x00000FFF
+local FILTER_CLASS_WARRIOR     = 0x00000001
+local FILTER_CLASS_PALADIN     = 0x00000002
+local FILTER_CLASS_HUNTER      = 0x00000004
+local FILTER_CLASS_ROGUE       = 0x00000008
+local FILTER_CLASS_PRIEST      = 0x00000010
+local FILTER_CLASS_DEATHKNIGHT = 0x00000020
+local FILTER_CLASS_SHAMAN      = 0x00000040
+local FILTER_CLASS_MAGE        = 0x00000080
+local FILTER_CLASS_WARLOCK     = 0x00000100
+local FILTER_CLASS_MONK        = 0x00000200
+local FILTER_CLASS_DRUID       = 0x00000400
+
+-- Temporary filters, checked in realtime:
+local FILTER_BY_PLAYER         = 0x01000000
+local FILTER_BY_MASK           = 0x0F000000
+
+local FILTER_ON_PLAYER         = 0x00100000
+local FILTER_ON_OTHER          = 0x00200000
+local FILTER_ON_FRIEND         = 0x00400000
+local FILTER_ON_ENEMY          = 0x00800000
+local FILTER_ON_MASK           = 0x00F00000
+
+ns.auraFilterValues = {
+	ALL               = FILTER_ALL,
+	DISABLE           = FILTER_DISABLE,
+	PVP               = FILTER_PVP,
+	PVE               = FILTER_PVE,
+
+	BY_PLAYER         = FILTER_BY_PLAYER,
+	BY_MASK           = FILTER_BY_MASK,
+
+	ON_PLAYER         = FILTER_ON_PLAYER,
+	ON_OTHER          = FILTER_ON_OTHER,
+	ON_FRIEND         = FILTER_ON_FRIEND,
+	ON_ENEMY          = FILTER_ON_ENEMY,
+	ON_MASK           = FILTER_ON_MASK,
+
+	ROLE_TANK         = FILTER_ROLE_TANK,
+	ROLE_HEALER       = FILTER_ROLE_HEALER,
+	ROLE_DAMAGER      = FILTER_ROLE_DAMAGER,
+	ROLE_MASK         = FILTER_ROLE_MASK,
+
+	CLASS_MASK        = FILTER_CLASS_MASK,
+	CLASS_WARRIOR     = FILTER_CLASS_WARRIOR,
+	CLASS_PALADIN     = FILTER_CLASS_PALADIN,
+	CLASS_HUNTER      = FILTER_CLASS_HUNTER,
+	CLASS_ROGUE       = FILTER_CLASS_ROGUE,
+	CLASS_PRIEST      = FILTER_CLASS_PRIEST,
+	CLASS_DEATHKNIGHT = FILTER_CLASS_DEATHKNIGHT,
+	CLASS_SHAMAN      = FILTER_CLASS_SHAMAN,
+	CLASS_MAGE        = FILTER_CLASS_MAGE,
+	CLASS_WARLOCK     = FILTER_CLASS_WARLOCK,
+	CLASS_MONK        = FILTER_CLASS_MONK,
+	CLASS_DRUID       = FILTER_CLASS_DRUID,
+}
+
+local classFilter = {
+	WARRIOR     = FILTER_CLASS_WARRIOR,
+	PALADIN     = FILTER_CLASS_PALADIN,
+	HUNTER      = FILTER_CLASS_HUNTER,
+	ROGUE       = FILTER_CLASS_ROGUE,
+	PRIEST      = FILTER_CLASS_PRIEST,
+	DEATHKNIGHT = FILTER_CLASS_DEATHKNIGHT,
+	SHAMAN      = FILTER_CLASS_SHAMAN,
+	MAGE        = FILTER_CLASS_MAGE,
+	WARLOCK     = FILTER_CLASS_WARLOCK,
+	MONK        = FILTER_CLASS_MONK,
+	DRUID       = FILTER_CLASS_DRUID,
+}
+
+local roleFilter = {
+	TANK    = FILTER_ROLE_TANK,
+	HEALER  = FILTER_ROLE_HEALER,
+	DAMAGER = FILTER_ROLE_DAMAGER,
 }
 
 ------------------------------------------------------------------------
---	Death Knight
+
+local defaultAuras = {
+	[1022]   = FILTER_ON_PLAYER, -- Hand of Protection
+	[29166]  = FILTER_ON_PLAYER, -- Innervate
+	[102342] = FILTER_ON_PLAYER, -- Ironbark
+	[33206]  = FILTER_ON_PLAYER, -- Pain Suppression
+	[10060]  = FILTER_ON_PLAYER, -- Power Infusion
+	[49016]  = FILTER_ON_PLAYER, -- Unholy Frenzy
+
+	-- Bloodlust
+	[90355]  = FILTER_ON_PLAYER, -- Ancient Hysteria (core hound)
+	[2825]   = FILTER_ON_PLAYER, -- Bloodlust (shaman)
+	[32182]  = FILTER_ON_PLAYER, -- Heroism (shaman)
+	[80353]  = FILTER_ON_PLAYER, -- Time Warp (mage)
+
+	-- Herbalism
+	[81708]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 1)
+	[55428]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 2)
+	[55480]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 3)
+	[55500]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 4)
+	[55501]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 5)
+	[55502]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 6)
+	[55503]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 7)
+	[74497]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 8)
+	[121279] = FILTER_BY_PLAYER, -- Lifeblood (Rank 9)
+
+	-- Crowd Control
+	[710]    = FILTER_ALL, -- Banish
+	[76780]  = FILTER_ALL, -- Bind Elemental
+	[33786]  = FILTER_ALL, -- Cyclone
+	[339]    = FILTER_ALL, -- Entangling Roots
+	[5782]   = FILTER_ALL, -- Fear -- NEEDS CHECK
+	[118699] = FILTER_ALL, -- Fear
+	[3355]   = FILTER_ALL, -- Freezing Trap, -- NEEDS CHECK
+	[43448]  = FILTER_ALL, -- Freezing Trap, -- NEEDS CHECK
+	[51514]  = FILTER_ALL, -- Hex
+	[2637]   = FILTER_ALL, -- Hibernate
+	[118]    = FILTER_ALL, -- Polymorph
+	[61305]  = FILTER_ALL, -- Polymorph [Black Cat]
+	[28272]  = FILTER_ALL, -- Polymorph [Pig]
+	[61721]  = FILTER_ALL, -- Polymorph [Rabbit]
+	[61780]  = FILTER_ALL, -- Polymorph [Turkey]
+	[28271]  = FILTER_ALL, -- Polymorph [Turtle]
+	[20066]  = FILTER_ALL, -- Repentance
+	[6770]   = FILTER_ALL, -- Sap
+	[6358]   = FILTER_ALL, -- Seduction
+	[9484]   = FILTER_ALL, -- Shackle Undead
+	[10326]  = FILTER_ALL, -- Turn Evil
+	[114404] = FILTER_ALL, -- Void Tendrils
+	[19386]  = FILTER_ALL, -- Wyvern Sting
+}
+
+ns.defaultAuras = defaultAuras
+-- Class auras are still wrapped in if/end checks because
+-- a) there's no point in loading DK auras if the player never plays a DK, and
+-- b) this allows using block locals for the class filters.
+
+------------------------------------------------------------------------
+-- Death Knight
 
 if playerClass == "DEATHKNIGHT" then
+	local SELF   = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[48707]  = 4 -- Anti-Magic Shell
-	BaseAuras[49222]  = 4 -- Bone Shield
-	BaseAuras[53386]  = 4 -- Cinderglacier
-	BaseAuras[119975] = 4 -- Conversion
-	BaseAuras[101568] = 4 -- Dark Succor <= glyph
-	BaseAuras[96268]  = 4 -- Death's Advance
-	BaseAuras[59052]  = 4 -- Freezing Fog <= Rime
-	BaseAuras[48792]  = 4 -- Icebound Fortitude
-	BaseAuras[51124]  = 4 -- Killing Machine
-	BaseAuras[49039]  = 4 -- Lichborne
-	BaseAuras[51271]  = 4 -- Pillar of Frost
-	BaseAuras[46584]  = 4 -- Raise Dead
-	BaseAuras[108200] = 4 -- Remorseless Winter
-	BaseAuras[51460]  = 4 -- Runic Corruption
-	BaseAuras[50421]  = 4 -- Scent of Blood
-	BaseAuras[116888] = 4 -- Shroud of Purgatory
-	BaseAuras[8134]   = 4 -- Soul Reaper
-	BaseAuras[81340]  = 4 -- Sudden Doom
-	BaseAuras[115989] = 4 -- Unholy Blight
---	BaseAuras[53365]  = 4 -- Unholy Strength <= Rune of the Fallen Crusader
-	BaseAuras[55233]  = 4 -- Vampiric Blood
-	BaseAuras[81162]  = 4 -- Will of the Necropolis (damage reduction)
-	BaseAuras[96171]  = 4 -- Will of the Necropolis (free Rune Tap)
+	defaultAuras[48707]  = SELF -- Anti-Magic Shell
+	defaultAuras[49222]  = SELF -- Bone Shield
+	defaultAuras[53386]  = SELF -- Cinderglacier
+	defaultAuras[119975] = SELF -- Conversion
+	defaultAuras[101568] = SELF -- Dark Succor <-- glyph
+	defaultAuras[96268]  = SELF -- Death's Advance
+	defaultAuras[59052]  = SELF -- Freezing Fog <-- Rime
+	defaultAuras[48792]  = SELF -- Icebound Fortitude
+	defaultAuras[51124]  = SELF -- Killing Machine
+	defaultAuras[49039]  = SELF -- Lichborne
+	defaultAuras[51271]  = SELF -- Pillar of Frost
+	defaultAuras[46584]  = SELF -- Raise Dead
+	defaultAuras[108200] = SELF -- Remorseless Winter
+	defaultAuras[51460]  = SELF -- Runic Corruption
+	defaultAuras[50421]  = SELF -- Scent of Blood
+	defaultAuras[116888] = SELF -- Shroud of Purgatory
+	defaultAuras[8134]   = SELF -- Soul Reaper
+	defaultAuras[81340]  = SELF -- Sudden Doom
+	defaultAuras[115989] = SELF -- Unholy Blight
+--	defaultAuras[53365]  = SELF -- Unholy Strength <-- Rune of the Fallen Crusader
+	defaultAuras[55233]  = SELF -- Vampiric Blood
+	defaultAuras[81162]  = SELF -- Will of the Necropolis (damage reduction)
+	defaultAuras[96171]  = SELF -- Will of the Necropolis (free Rune Tap)
 
 	-- Pet Buffs
-	BaseAuras[63560]  = 2 -- Dark Transformation
+	defaultAuras[63560]  = MINE -- Dark Transformation
 
 	-- Buffs
-	BaseAuras[49016]  = 3 -- Unholy Frenzy
+	defaultAuras[49016]  = BUFF -- Unholy Frenzy
 
 	-- Debuffs
-	BaseAuras[108194] = 1 -- Asphyxiate
-	BaseAuras[55078]  = 2 -- Blood Plague
-	BaseAuras[45524]  = 1 -- Chains of Ice
---	BaseAuras[50435]  = 1 -- Chilblains
-	BaseAuras[111673] = 2 -- Control Undead -- needs check
-	BaseAuras[77606]  = 2 -- Dark Simulacrum
-	BaseAuras[55095]  = 2 -- Frost Fever
-	BaseAuras[51714]  = 2 -- Frost Vulernability <= Rune of Razorice
-	BaseAuras[73975]  = 1 -- Necrotic Strike
-	BaseAuras[115000] = 2 -- Remorseless Winter (slow)
-	BaseAuras[115001] = 2 -- Remorseless Winter (stun)
-	BaseAuras[114866] = 2 -- Soul Reaper (blood)
-	BaseAuras[130735] = 2 -- Soul Reaper (frost)
-	BaseAuras[130736] = 2 -- Soul Reaper (unholy)
-	BaseAuras[47476]  = 1 -- Strangulate
-
+	defaultAuras[108194] = DEBUFF  -- Asphyxiate
+	defaultAuras[55078]  = MINE -- Blood Plague
+	defaultAuras[45524]  = DEBUFF  -- Chains of Ice
+	--defaultAuras[50435]  = DEBUFF  -- Chilblains
+	defaultAuras[111673] = MINE -- Control Undead -- needs check
+	defaultAuras[77606]  = MINE -- Dark Simulacrum
+	defaultAuras[55095]  = MINE -- Frost Fever
+	defaultAuras[51714]  = MINE -- Frost Vulernability <-- Rune of Razorice
+	defaultAuras[73975]  = DEBUFF  -- Necrotic Strike
+	defaultAuras[115000] = MINE -- Remorseless Winter (slow)
+	defaultAuras[115001] = MINE -- Remorseless Winter (stun)
+	defaultAuras[114866] = MINE -- Soul Reaper (blood)
+	defaultAuras[130735] = MINE -- Soul Reaper (frost)
+	defaultAuras[130736] = MINE -- Soul Reaper (unholy)
+	defaultAuras[47476]  = DEBUFF  -- Strangulate
 end
 
 ------------------------------------------------------------------------
---	Druid
+-- Druid
 
 if playerClass == "DRUID" then
+	local SELF   = bit_bor(FILTER_CLASS_DRUID, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_DRUID, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_DRUID, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_DRUID, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[22812]  = 4 -- Barkskin
-	BaseAuras[106951] = 4 -- Berserk (cat)
-	BaseAuras[50334]  = 4 -- Berserk (bear)
-	BaseAuras[112071] = 4 -- Celestial Alignment
-	BaseAuras[16870]  = 4 -- Clearcasting <= Omen of Clarity
-	BaseAuras[1850]   = 4 -- Dash
-	BaseAuras[108381] = 4 -- Dream of Cenarius (+damage)
-	BaseAuras[108382] = 4 -- Dream of Cenarius (+healing)
-	BaseAuras[48518]  = 4 -- Eclipse (Lunar)
-	BaseAuras[48517]  = 4 -- Eclipse (Solar)
-	BaseAuras[5229]   = 4 -- Enrage
-	BaseAuras[124769] = 4 -- Frenzied Regeneration <= glyph
-	BaseAuras[102560] = 4 -- Incarnation: Chosen of Elune
-	BaseAuras[102543] = 4 -- Incarnation: King of the Jungle
-	BaseAuras[102558] = 4 -- Incarnation: Son of Ursoc
-	BaseAuras[33891]  = 4 -- Incarnation: Tree of Life -- NEEDS CHECK
-	BaseAuras[81192]  = 4 -- Lunar Shower
-	BaseAuras[106922] = 4 -- Might of Ursoc
-	BaseAuras[16689]  = 4 -- Nature's Grasp
-	BaseAuras[132158] = 4 -- Nature's Swiftness
-	BaseAuras[124974] = 4 -- Nature's Vigil
-	BaseAuras[48391]  = 4 -- Owlkin Frenzy
-	BaseAuras[69369]  = 4 -- Predator's Swiftness
-	BaseAuras[132402] = 4 -- Savage Defense
-	BaseAuras[52610]  = 4 -- Savage Roar -- VERIFIED 13/02/20 on tauren feral
-	BaseAuras[127538] = 4 -- Savage Roar -- NEEDS CHECK
-	BaseAuras[93400]  = 4 -- Shooting Stars
-	BaseAuras[114108] = 2 -- Soul of the Forest (resto)
-	BaseAuras[48505]  = 4 -- Starfall
-	BaseAuras[61336]  = 4 -- Survival Instincts
-	BaseAuras[5217]   = 4 -- Tiger's Fury
-	BaseAuras[102416] = 4 -- Wild Charge (aquatic)
+	defaultAuras[22812]  = SELF -- Barkskin
+	defaultAuras[106951] = SELF -- Berserk (cat)
+	defaultAuras[50334]  = SELF -- Berserk (bear)
+	defaultAuras[112071] = SELF -- Celestial Alignment
+	defaultAuras[16870]  = SELF -- Clearcasting <-- Omen of Clarity
+	defaultAuras[1850]   = SELF -- Dash
+	defaultAuras[108381] = SELF -- Dream of Cenarius (+damage)
+	defaultAuras[108382] = SELF -- Dream of Cenarius (+healing)
+	defaultAuras[48518]  = SELF -- Eclipse (Lunar)
+	defaultAuras[48517]  = SELF -- Eclipse (Solar)
+	defaultAuras[5229]   = SELF -- Enrage
+	defaultAuras[124769] = SELF -- Frenzied Regeneration <-- glyph
+	defaultAuras[102560] = SELF -- Incarnation: Chosen of Elune
+	defaultAuras[102543] = SELF -- Incarnation: King of the Jungle
+	defaultAuras[102558] = SELF -- Incarnation: Son of Ursoc
+	defaultAuras[33891]  = SELF -- Incarnation: Tree of Life -- NEEDS CHECK
+	defaultAuras[81192]  = SELF -- Lunar Shower
+	defaultAuras[106922] = SELF -- Might of Ursoc
+	defaultAuras[16689]  = SELF -- Nature's Grasp
+	defaultAuras[132158] = SELF -- Nature's Swiftness
+	defaultAuras[124974] = SELF -- Nature's Vigil
+	defaultAuras[48391]  = SELF -- Owlkin Frenzy
+	defaultAuras[69369]  = SELF -- Predator's Swiftness
+	defaultAuras[132402] = SELF -- Savage Defense
+	defaultAuras[52610]  = SELF -- Savage Roar -- VERIFIED 13/02/20 on tauren feral
+	defaultAuras[127538] = SELF -- Savage Roar -- NEEDS CHECK
+	defaultAuras[93400]  = SELF -- Shooting Stars
+	defaultAuras[114108] = SELF -- Soul of the Forest (resto)
+	defaultAuras[48505]  = SELF -- Starfall
+	defaultAuras[61336]  = SELF -- Survival Instincts
+	defaultAuras[5217]   = SELF -- Tiger's Fury
+	defaultAuras[102416] = SELF -- Wild Charge (aquatic)
 
 	-- Buffs
-	BaseAuras[102351] = 2 -- Cenarion Ward (buff)
-	BaseAuras[102352] = 2 -- Cenarion Ward (heal)
-	BaseAuras[29166]  = 3 -- Innervate
-	BaseAuras[102342] = 3 -- Ironbark
-	BaseAuras[33763]  = 2 -- Lifebloom
-	BaseAuras[94447]  = 2 -- Lifebloom (tree)
-	BaseAuras[8936]   = 2 -- Regrowth
-	BaseAuras[774]    = 2 -- Rejuvenation
-	BaseAuras[77761]  = 3 -- Stampeding Roar (bear)
-	BaseAuras[77764]  = 3 -- Stampeding Roar (cat)
-	BaseAuras[106898] = 3 -- Stampeding Roar (caster)
-	BaseAuras[48438]  = 2 -- Wild Growth
+	defaultAuras[102351] = MINE -- Cenarion Ward (buff)
+	defaultAuras[102352] = MINE -- Cenarion Ward (heal)
+	defaultAuras[29166]  = BUFF -- Innervate
+	defaultAuras[102342] = BUFF -- Ironbark
+	defaultAuras[33763]  = MINE -- Lifebloom
+	defaultAuras[94447]  = MINE -- Lifebloom (tree)
+	defaultAuras[8936]   = MINE -- Regrowth
+	defaultAuras[774]    = MINE -- Rejuvenation
+	defaultAuras[77761]  = BUFF -- Stampeding Roar (bear)
+	defaultAuras[77764]  = BUFF -- Stampeding Roar (cat)
+	defaultAuras[106898] = BUFF -- Stampeding Roar (caster)
+	defaultAuras[48438]  = MINE -- Wild Growth
 
 	-- Debuffs
-	BaseAuras[102795] = 1 -- Bear Hug
-	BaseAuras[33786]  = 1 -- Cyclone
-	BaseAuras[99]     = 1 -- Disorienting Roar
-	BaseAuras[339]    = 1 -- Entangling Roots
-	BaseAuras[114238] = 1 -- Fae Silence <= glpyh
-	BaseAuras[81281]  = 1 -- Fungal Growth <= Wild Mushroom: Detonate
-	BaseAuras[2637]   = 1 -- Hibernate
-	BaseAuras[33745]  = 2 -- Lacerate
-	BaseAuras[22570]  = 1 -- Maim
-	BaseAuras[5211]   = 1 -- Mighty Bash
-	BaseAuras[8921]   = 2 -- Moonfire
-	BaseAuras[9005]   = 2 -- Pounce -- NEEDS CHECK
-	BaseAuras[102546] = 2 -- Pounce -- NEEDS CHECK
-	BaseAuras[9007]   = 2 -- Pounce Bleed
-	BaseAuras[1822]   = 2 -- Rake
-	BaseAuras[1079]   = 2 -- Rip
-	BaseAuras[106839] = 1 -- Skull Bash -- NOT CURRENTLY USED
-	BaseAuras[78675]  = 1 -- Solar Beam (silence)
-	BaseAuras[97547]  = 1 -- Solar Beam (interrupt)
-	BaseAuras[93402]  = 2 -- Sunfire
-	BaseAuras[77758]  = 2 -- Thrash (bear)
-	BaseAuras[106830] = 2 -- Thrash (cat)
-	BaseAuras[61391]  = 3 -- Typhoon
-	BaseAuras[102793] = 1 -- Ursol's Vortex
-	BaseAuras[45334]  = 1 -- Immobilize <= Wild Charge (bear)
-	BaseAuras[50259]  = 1 -- Dazed <= Wild Charge (cat)
---[[
-	if PVP_MODE then
-		BaseAuras[770]    = 1 -- Faerie Fire
-		BaseAuras[102355] = 1 -- Faerie Swarm
-	end
-]]
+	defaultAuras[102795] = DEBUFF  -- Bear Hug
+	defaultAuras[33786]  = DEBUFF  -- Cyclone
+	defaultAuras[99]     = DEBUFF  -- Disorienting Roar
+	defaultAuras[339]    = DEBUFF  -- Entangling Roots
+	defaultAuras[114238] = DEBUFF  -- Fae Silence <-- glpyh
+	defaultAuras[81281]  = DEBUFF  -- Fungal Growth <-- Wild Mushroom: Detonate
+	defaultAuras[2637]   = DEBUFF  -- Hibernate
+	defaultAuras[33745]  = MINE -- Lacerate
+	defaultAuras[22570]  = DEBUFF  -- Maim
+	defaultAuras[5211]   = DEBUFF  -- Mighty Bash
+	defaultAuras[8921]   = MINE -- Moonfire
+	defaultAuras[9005]   = MINE -- Pounce -- NEEDS CHECK
+	defaultAuras[102546] = MINE -- Pounce -- NEEDS CHECK
+	defaultAuras[9007]   = MINE -- Pounce Bleed
+	defaultAuras[1822]   = MINE -- Rake
+	defaultAuras[1079]   = MINE -- Rip
+	defaultAuras[106839] = DEBUFF  -- Skull Bash -- NOT CURRENTLY USED
+	defaultAuras[78675]  = DEBUFF  -- Solar Beam (silence)
+	defaultAuras[97547]  = DEBUFF  -- Solar Beam (interrupt)
+	defaultAuras[93402]  = MINE -- Sunfire
+	defaultAuras[77758]  = MINE -- Thrash (bear)
+	defaultAuras[106830] = MINE -- Thrash (cat)
+	defaultAuras[61391]  = DEBUFF  -- Typhoon
+	defaultAuras[102793] = DEBUFF  -- Ursol's Vortex
+	defaultAuras[45334]  = DEBUFF  -- Immobilize <-- Wild Charge (bear)
+	defaultAuras[50259]  = DEBUFF  -- Dazed <-- Wild Charge (cat)
+
+	defaultAuras[770]    = bit_bor(FILTER_CLASS_DRUID, FILTER_PVP) -- Faerie Fire
+	defaultAuras[102355] = bit_bor(FILTER_CLASS_DRUID, FILTER_PVP) -- Faerie Swarm
 end
 
 ------------------------------------------------------------------------
---	Hunter
+-- Hunter
 
 if playerClass == "HUNTER" then
+	local SELF   = bit_bor(FILTER_CLASS_HUNTER, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_HUNTER, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_HUNTER, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_HUNTER, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[83559]  = 4 -- Black Ice
---	BaseAuras[82921]  = 4 -- Bombardment
---	BaseAuras[53257]  = 4 -- Cobra Strikes
-	BaseAuras[51755]  = 4 -- Camouflage
-	BaseAuras[19263]  = 4 -- Deterrence
-	BaseAuras[15571]  = 4 -- Dazed <== Aspect of the Cheetah
-	BaseAuras[6197]   = 4 -- Eagle Eye
-	BaseAuras[5384]   = 4 -- Feign Death
-	BaseAuras[82726]  = 4 -- Fervor
-	BaseAuras[82926]  = 4 -- Fire! <= Master Marksman
-	BaseAuras[82692]  = 4 -- Focus Fire
-	BaseAuras[56453]  = 4 -- Lock and Load
-	BaseAuras[54216]  = 4 -- Master's Call
-	BaseAuras[34477]  = 4 -- Misdirection
-	BaseAuras[118922] = 4 -- Posthaste
-	BaseAuras[3045]   = 4 -- Rapid Fire
---	BaseAuras[82925]  = 4 -- Ready, Set, Aim... <= Master Marksman
-	BaseAuras[53220]  = 4 -- Steady Focus
-	BaseAuras[34471]  = 4 -- The Beast Within
-	BaseAuras[34720]  = 4 -- Thrill of the Hunt
+	defaultAuras[83559]  = SELF -- Black Ice
+	--defaultAuras[82921]  = SELF -- Bombardment
+	--defaultAuras[53257]  = SELF -- Cobra Strikes
+	defaultAuras[51755]  = SELF -- Camouflage
+	defaultAuras[19263]  = SELF -- Deterrence
+	defaultAuras[15571]  = SELF -- Dazed <-- Aspect of the Cheetah
+	defaultAuras[6197]   = SELF -- Eagle Eye
+	defaultAuras[5384]   = SELF -- Feign Death
+	defaultAuras[82726]  = SELF -- Fervor
+	defaultAuras[82926]  = SELF -- Fire! <-- Master Marksman
+	defaultAuras[82692]  = SELF -- Focus Fire
+	defaultAuras[56453]  = SELF -- Lock and Load
+	defaultAuras[54216]  = SELF -- Master's Call
+	defaultAuras[34477]  = SELF -- Misdirection
+	defaultAuras[118922] = SELF -- Posthaste
+	defaultAuras[3045]   = SELF -- Rapid Fire
+	--defaultAuras[82925]  = SELF -- Ready, Set, Aim... <-- Master Marksman
+	defaultAuras[53220]  = SELF -- Steady Focus
+	defaultAuras[34471]  = SELF -- The Beast Within
+	defaultAuras[34720]  = SELF -- Thrill of the Hunt
 
 	-- Pet Buffs
-	BaseAuras[19615]  = 2 -- Frenzy
-	BaseAuras[19574]  = 2 -- Bestial Wrath
-	BaseAuras[136]    = 2 -- Mend Pet
+	defaultAuras[19615]  = MINE -- Frenzy
+	defaultAuras[19574]  = MINE -- Bestial Wrath
+	defaultAuras[136]    = MINE -- Mend Pet
 
 	-- Buffs
-	BaseAuras[34477]  = 1 -- Misdirection (30 sec threat)
-	BaseAuras[35079]  = 1 -- Misdirection (4 sec transfer)
+	defaultAuras[34477]  = BUFF -- Misdirection (30 sec threat)
+	defaultAuras[35079]  = BUFF -- Misdirection (4 sec transfer)
 
 	-- Debuffs
-	BaseAuras[131894] = 2 -- BaseAuras Murder of Crows
-	BaseAuras[117526] = 2 -- Binding Shot (stun)
-	BaseAuras[117405] = 2 -- Binding Shot (tether)
-	BaseAuras[3674]   = 2 -- Black Arrow
-	BaseAuras[35101]  = 2 -- Concussive Barrage
-	BaseAuras[5116]   = 2 -- Concussive Shot
-	BaseAuras[20736]  = 2 -- Distracting Shot
-	BaseAuras[64803]  = 2 -- Entrapment
-	BaseAuras[53301]  = 2 -- Explosive Shot
-	BaseAuras[13812]  = 2 -- Explosive Trap
-	BaseAuras[43446]  = 2 -- Explosive Trap Effect -- NEEDS CHECK
-	BaseAuras[128961] = 2 -- Explosive Trap Effect -- NEEDS CHECK
-	BaseAuras[3355]   = 2 -- Freezing Trap
-	BaseAuras[61394]  = 2 -- Frozen Wake <= Glyph of Freezing Trap
-	BaseAuras[120761] = 2 -- Glaive Toss -- NEEDS CHECK
-	BaseAuras[121414] = 2 -- Glaive Toss -- NEEDS CHECK
-	BaseAuras[1130]   = 1 -- Hunter's Mark
-	BaseAuras[135299] = 1 -- Ice Trap
-	BaseAuras[34394]  = 2 -- Intimidation
-	BaseAuras[115928] = 2 -- Narrow Escape -- NEEDS CHECK
-	BaseAuras[128405] = 2 -- Narrow Escape -- NEEDS CHECK
---	BaseAuras[63468]  = 2 -- Piercing Shots
-	BaseAuras[1513]   = 2 -- Scare Beast
-	BaseAuras[19503]  = 2 -- Scatter Shot
-	BaseAuras[118253] = 2 -- Serpent Sting
-	BaseAuras[34490]  = 2 -- Silencing Shot
-	BaseAuras[82654]  = 2 -- Widow Venom
-	BaseAuras[19386]  = 2 -- Wyvern Sting
+	defaultAuras[131894] = MINE -- defaultAuras Murder of Crows
+	defaultAuras[117526] = MINE -- Binding Shot (stun)
+	defaultAuras[117405] = MINE -- Binding Shot (tether)
+	defaultAuras[3674]   = MINE -- Black Arrow
+	defaultAuras[35101]  = MINE -- Concussive Barrage
+	defaultAuras[5116]   = MINE -- Concussive Shot
+	defaultAuras[20736]  = MINE -- Distracting Shot
+	defaultAuras[64803]  = MINE -- Entrapment
+	defaultAuras[53301]  = MINE -- Explosive Shot
+	defaultAuras[13812]  = MINE -- Explosive Trap
+	defaultAuras[43446]  = MINE -- Explosive Trap Effect -- NEEDS CHECK
+	defaultAuras[128961] = MINE -- Explosive Trap Effect -- NEEDS CHECK
+	defaultAuras[3355]   = MINE -- Freezing Trap
+	defaultAuras[61394]  = MINE -- Frozen Wake <-- Glyph of Freezing Trap
+	defaultAuras[120761] = MINE -- Glaive Toss -- NEEDS CHECK
+	defaultAuras[121414] = MINE -- Glaive Toss -- NEEDS CHECK
+	defaultAuras[1130]   = DEBUFF  -- Hunter's Mark
+	defaultAuras[135299] = DEBUFF  -- Ice Trap
+	defaultAuras[34394]  = MINE -- Intimidation
+	defaultAuras[115928] = MINE -- Narrow Escape -- NEEDS CHECK
+	defaultAuras[128405] = MINE -- Narrow Escape -- NEEDS CHECK
+	--defaultAuras[63468]  = MINE -- Piercing Shots
+	defaultAuras[1513]   = MINE -- Scare Beast
+	defaultAuras[19503]  = MINE -- Scatter Shot
+	defaultAuras[118253] = MINE -- Serpent Sting
+	defaultAuras[34490]  = MINE -- Silencing Shot
+	defaultAuras[82654]  = MINE -- Widow Venom
+	defaultAuras[19386]  = MINE -- Wyvern Sting
 end
 
 ------------------------------------------------------------------------
---	Mage
+-- Mage
 
 if playerClass == "MAGE" then
+	local SELF   = bit_bor(FILTER_CLASS_MAGE, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_MAGE, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_MAGE, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_MAGE, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[110909] = 4 -- Alter Time
-	BaseAuras[36032]  = 4 -- Arcane Charge
-	BaseAuras[12042]  = 4 -- Arcane Power
-	BaseAuras[108843] = 4 -- Blazing Speed
-	BaseAuras[57761]  = 4 -- Brain Freeze
-	BaseAuras[87023]  = 4 -- Cauterize
-	BaseAuras[44544]  = 4 -- Fingers of Frost
-	BaseAuras[110960] = 4 -- Greater Invisibility
-	BaseAuras[48107]  = 4 -- Heating Up
-	BaseAuras[11426]  = 4 -- Ice Barrier
-	BaseAuras[45438]  = 4 -- Ice Block
-	BaseAuras[108839] = 4 -- Ice Floes
-	BaseAuras[12472]  = 4 -- Icy Veins
-	BaseAuras[116267] = 4 -- Inacnter's Absorption
-	BaseAuras[1463]   = 4 -- Inacnter's Ward
-	BaseAuras[66]     = 4 -- Invisibility
-	BaseAuras[12043]  = 4 -- Presence of Mind
-	BaseAuras[116014] = 4 -- Rune of Power
-	BaseAuras[48108]  = 4 -- Pyroblast!
-	BaseAuras[115610] = 4 -- Temporal Shield (shield)
-	BaseAuras[115611] = 4 -- Temporal Shield (heal)
+	defaultAuras[110909] = SELF -- Alter Time
+	defaultAuras[36032]  = SELF -- Arcane Charge
+	defaultAuras[12042]  = SELF -- Arcane Power
+	defaultAuras[108843] = SELF -- Blazing Speed
+	defaultAuras[57761]  = SELF -- Brain Freeze
+	defaultAuras[87023]  = SELF -- Cauterize
+	defaultAuras[44544]  = SELF -- Fingers of Frost
+	defaultAuras[110960] = SELF -- Greater Invisibility
+	defaultAuras[48107]  = SELF -- Heating Up
+	defaultAuras[11426]  = SELF -- Ice Barrier
+	defaultAuras[45438]  = SELF -- Ice Block
+	defaultAuras[108839] = SELF -- Ice Floes
+	defaultAuras[12472]  = SELF -- Icy Veins
+	defaultAuras[116267] = SELF -- Inacnter's Absorption
+	defaultAuras[1463]   = SELF -- Inacnter's Ward
+	defaultAuras[66]     = SELF -- Invisibility
+	defaultAuras[12043]  = SELF -- Presence of Mind
+	defaultAuras[116014] = SELF -- Rune of Power
+	defaultAuras[48108]  = SELF -- Pyroblast!
+	defaultAuras[115610] = SELF -- Temporal Shield (shield)
+	defaultAuras[115611] = SELF -- Temporal Shield (heal)
 
 	-- Debuffs
-	BaseAuras[34356]  = 2 -- Blizzard (slow) -- NEEDS CHECK
-	BaseAuras[83853]  = 2 -- Combustion
-	BaseAuras[120]    = 2 -- Cone of Cold
-	BaseAuras[44572]  = 2 -- Deep Freeze
-	BaseAuras[31661]  = 2 -- Dragon's Breath
-	BaseAuras[112948] = 2 -- Frost Bomb
-	BaseAuras[113092] = 2 -- Frost Bomb (slow)
-	BaseAuras[122]    = 2 -- Frost Nova
-	BaseAuras[116]    = 2 -- Frostbolt
-	BaseAuras[44614]  = 2 -- Frostfire Bolt
-	BaseAuras[102051] = 2 -- Frostjaw
-	BaseAuras[84721]  = 2 -- Frozen Orb
---	BaseAuras[12654]  = 2 -- Ignite
-	BaseAuras[44457]  = 2 -- Living Bomb
-	BaseAuras[114923] = 2 -- Nether Tempest
-	BaseAuras[118]    = 2 -- Polymorph
-	BaseAuras[61305]  = 2 -- Polymorph (Black Cat)
-	BaseAuras[28272]  = 2 -- Polymorph (Pig)
-	BaseAuras[61721]  = 2 -- Polymorph (Rabbit)
-	BaseAuras[61780]  = 2 -- Polymorph (Turkey)
-	BaseAuras[28217]  = 2 -- Polymorph (Turtle)
---	BaseAuras[11366]  = 2 -- Pyroblast
-	BaseAuras[132210] = 2 -- Pyromaniac
-	BaseAuras[82691]  = 2 -- Ring of Frost
-	BaseAuras[55021]  = 2 -- Silenced - Improved Counterspell
-	BaseAuras[31589]  = 2 -- Slow
+	defaultAuras[34356]  = MINE -- Blizzard (slow) -- NEEDS CHECK
+	defaultAuras[83853]  = MINE -- Combustion
+	defaultAuras[120]    = MINE -- Cone of Cold
+	defaultAuras[44572]  = MINE -- Deep Freeze
+	defaultAuras[31661]  = MINE -- Dragon's Breath
+	defaultAuras[112948] = MINE -- Frost Bomb
+	defaultAuras[113092] = MINE -- Frost Bomb (slow)
+	defaultAuras[122]    = DEBUFF  -- Frost Nova
+	defaultAuras[116]    = MINE -- Frostbolt
+	defaultAuras[44614]  = MINE -- Frostfire Bolt
+	defaultAuras[102051] = MINE -- Frostjaw
+	defaultAuras[84721]  = MINE -- Frozen Orb
+	--defaultAuras[12654]  = MINE -- Ignite
+	defaultAuras[44457]  = MINE -- Living Bomb
+	defaultAuras[114923] = MINE -- Nether Tempest
+	--defaultAuras[11366]  = MINE -- Pyroblast
+	defaultAuras[132210] = MINE -- Pyromaniac
+	defaultAuras[82691]  = MINE -- Ring of Frost
+	defaultAuras[55021]  = DEBUFF  -- Silenced - Improved Counterspell
+	defaultAuras[31589]  = DEBUFF  -- Slow
 end
 
 ------------------------------------------------------------------------
---	Monk
+-- Monk
 
 if playerClass == "MONK" then
+	local SELF   = bit_bor(FILTER_CLASS_MONK, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_MONK, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_MONK, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_MONK, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[122278] = 4 -- Dampen Harm
-	BaseAuras[121125] = 4 -- Death Note
-	BaseAuras[122783] = 4 -- Diffuse Magic
-	BaseAuras[128939] = 4 -- Elusive Brew (stack)
-	BaseAuras[115308] = 4 -- Elusive Brew (consume)
-	BaseAuras[115288] = 4 -- Energizing Brew
-	BaseAuras[115203] = 4 -- Fortifying Brew
-	BaseAuras[115295] = 4 -- Guard
-	BaseAuras[123402] = 4 -- Guard (glyphed)
-	BaseAuras[124458] = 4 -- Healing Sphere (count)
-	BaseAuras[115867] = 4 -- Mana Tea (stack)
-	BaseAuras[119085] = 4 -- Momentum
-	BaseAuras[124968] = 4 -- Retreat
-	BaseAuras[127722] = 4 -- Serpent's Zeal
-	BaseAuras[125359] = 4 -- Tiger Power
-	BaseAuras[116841] = 4 -- Tiger's Lust
-	BaseAuras[125195] = 4 -- Tigereye Brew (stack)
-	BaseAuras[116740] = 4 -- Tigereye Brew (consume)
-	BaseAuras[122470] = 4 -- Touch of Karma
-	BaseAuras[118674] = 4 -- Vital Mists
+	defaultAuras[122278] = SELF -- Dampen Harm
+	defaultAuras[121125] = SELF -- Death Note
+	defaultAuras[122783] = SELF -- Diffuse Magic
+	defaultAuras[128939] = SELF -- Elusive Brew (stack)
+	defaultAuras[115308] = SELF -- Elusive Brew (consume)
+	defaultAuras[115288] = SELF -- Energizing Brew
+	defaultAuras[115203] = SELF -- Fortifying Brew
+	defaultAuras[115295] = SELF -- Guard
+	defaultAuras[123402] = SELF -- Guard (glyphed)
+	defaultAuras[124458] = SELF -- Healing Sphere (count)
+	defaultAuras[115867] = SELF -- Mana Tea (stack)
+	defaultAuras[119085] = SELF -- Momentum
+	defaultAuras[124968] = SELF -- Retreat
+	defaultAuras[127722] = SELF -- Serpent's Zeal
+	defaultAuras[125359] = SELF -- Tiger Power
+	defaultAuras[116841] = SELF -- Tiger's Lust
+	defaultAuras[125195] = SELF -- Tigereye Brew (stack)
+	defaultAuras[116740] = SELF -- Tigereye Brew (consume)
+	defaultAuras[122470] = SELF -- Touch of Karma
+	defaultAuras[118674] = SELF -- Vital Mists
 
 	-- Buffs
-	BaseAuras[132120] = 2 -- Enveloping Mist
-	BaseAuras[116849] = 3 -- Life Cocoon
-	BaseAuras[119607] = 2 -- Renewing Mist (jump)
-	BaseAuras[119611] = 2 -- Renewing Mist (hot)
-	BaseAuras[124081] = 2 -- Zen Sphere
+	defaultAuras[132120] = MINE -- Enveloping Mist
+	defaultAuras[116849] = BUFF -- Life Cocoon
+	defaultAuras[119607] = MINE -- Renewing Mist (jump)
+	defaultAuras[119611] = MINE -- Renewing Mist (hot)
+	defaultAuras[124081] = MINE -- Zen Sphere
 
 	-- Debuffs
-	BaseAuras[123393] = 2 -- Breath of Fire (disorient)
-	BaseAuras[123725] = 2 -- Breath of Fire (dot)
-	BaseAuras[119392] = 2 -- Charging Ox Wave
-	BaseAuras[122242] = 2 -- Clash (stun) -- NEEDS CHECK
-	BaseAuras[126451] = 2 -- Clash (stun) -- NEEDS CHECK
-	BaseAuras[128846] = 2 -- Clash (stun) -- NEEDS CHECK
-	BaseAuras[116095] = 2 -- Disable
-	BaseAuras[116330] = 2 -- Dizzying Haze -- NEEDS CHECK
-	BaseAuras[123727] = 2 -- Dizzying Haze -- NEEDS CHECK
-	BaseAuras[117368] = 2 -- Grapple Weapon
-	BaseAuras[118585] = 2 -- Leer of the Ox
-	BaseAuras[119381] = 2 -- Leg Sweep
-	BaseAuras[115078] = 2 -- Paralysis
-	BaseAuras[118635] = 2 -- Provoke -- NEEDS CHECK
-	BaseAuras[116189] = 2 -- Provoke -- NEEDS CHECK
-	BaseAuras[130320] = 2 -- Rising Sun Kick
-	BaseAuras[116847] = 2 -- Rushing Jade Wind
-	BaseAuras[116709] = 2 -- Spear Hand Strike
-	BaseAuras[123407] = 2 -- Spinning Fire Blossom
+	defaultAuras[123393] = MINE -- Breath of Fire (disorient)
+	defaultAuras[123725] = MINE -- Breath of Fire (dot)
+	defaultAuras[119392] = MINE -- Charging Ox Wave
+	defaultAuras[122242] = MINE -- Clash (stun) -- NEEDS CHECK
+	defaultAuras[126451] = MINE -- Clash (stun) -- NEEDS CHECK
+	defaultAuras[128846] = MINE -- Clash (stun) -- NEEDS CHECK
+	defaultAuras[116095] = MINE -- Disable
+	defaultAuras[116330] = MINE -- Dizzying Haze -- NEEDS CHECK
+	defaultAuras[123727] = MINE -- Dizzying Haze -- NEEDS CHECK
+	defaultAuras[117368] = MINE -- Grapple Weapon
+	defaultAuras[118585] = MINE -- Leer of the Ox
+	defaultAuras[119381] = MINE -- Leg Sweep
+	defaultAuras[115078] = MINE -- Paralysis
+	defaultAuras[118635] = MINE -- Provoke -- NEEDS CHECK
+	defaultAuras[116189] = MINE -- Provoke -- NEEDS CHECK
+	defaultAuras[130320] = MINE -- Rising Sun Kick
+	defaultAuras[116847] = MINE -- Rushing Jade Wind
+	defaultAuras[116709] = MINE -- Spear Hand Strike
+	defaultAuras[123407] = MINE -- Spinning Fire Blossom
 end
 
 ------------------------------------------------------------------------
---	Paladin
+-- Paladin
 
 if playerClass == "PALADIN" then
+	local SELF   = bit_bor(FILTER_CLASS_PALADIN, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_PALADIN, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_PALADIN, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_PALADIN, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[121467] = 4 -- Alabaster Shield
-	BaseAuras[31850]  = 4 -- Ardent Defender
-	BaseAuras[31884]  = 4 -- Avenging Wrath
-	BaseAuras[114637] = 4 -- Bastion of Glory
-	BaseAuras[88819]  = 4 -- Daybreak
-	BaseAuras[31842]  = 4 -- Divine Favor
-	BaseAuras[54428]  = 4 -- Divine Plea
-	BaseAuras[498]    = 4 -- Divine Protection
-	BaseAuras[90174]  = 4 -- Divine Purpose
-	BaseAuras[642]    = 4 -- Divine Shield
-	BaseAuras[54957]  = 4 -- Glyph of Flash of Light
-	BaseAuras[85416]  = 4 -- Grand Crusader
-	BaseAuras[86659]  = 4 -- Guardian of Ancient Kings (protection)
-	BaseAuras[86669]  = 4 -- Guardian of Ancient Kings (holy)
-	BaseAuras[86698]  = 4 -- Guardian of Ancient Kings (retribution)
-	BaseAuras[105809] = 4 -- Holy Avenger
-	BaseAuras[54149]  = 4 -- Infusion of Light
-	BaseAuras[84963]  = 4 -- Inquisition
-	BaseAuras[114250] = 4 -- Selfless Healer
---	BaseAuras[132403] = 4 -- Shield of the Righteous
-	BaseAuras[85499]  = 4 -- Speed of Light
-	BaseAuras[94686]  = 4 -- Supplication
+	defaultAuras[121467] = SELF -- Alabaster Shield
+	defaultAuras[31850]  = SELF -- Ardent Defender
+	defaultAuras[31884]  = SELF -- Avenging Wrath
+	defaultAuras[114637] = SELF -- Bastion of Glory
+	defaultAuras[88819]  = SELF -- Daybreak
+	defaultAuras[31842]  = SELF -- Divine Favor
+	defaultAuras[54428]  = SELF -- Divine Plea
+	defaultAuras[498]    = SELF -- Divine Protection
+	defaultAuras[90174]  = SELF -- Divine Purpose
+	defaultAuras[642]    = SELF -- Divine Shield
+	defaultAuras[54957]  = SELF -- Glyph of Flash of Light
+	defaultAuras[85416]  = SELF -- Grand Crusader
+	defaultAuras[86659]  = SELF -- Guardian of Ancient Kings (protection)
+	defaultAuras[86669]  = SELF -- Guardian of Ancient Kings (holy)
+	defaultAuras[86698]  = SELF -- Guardian of Ancient Kings (retribution)
+	defaultAuras[105809] = SELF -- Holy Avenger
+	defaultAuras[54149]  = SELF -- Infusion of Light
+	defaultAuras[84963]  = SELF -- Inquisition
+	defaultAuras[114250] = SELF -- Selfless Healer
+	--defaultAuras[132403] = SELF -- Shield of the Righteous
+	defaultAuras[85499]  = SELF -- Speed of Light
+	defaultAuras[94686]  = SELF -- Supplication
 
 	-- Buffs
-	BaseAuras[53563]  = 3 -- Beacon of Light
-	BaseAuras[31821]  = 3 -- Devotion Aura
-	BaseAuras[114163] = 3 -- Eternal Flame
-	BaseAuras[1044]   = 3 -- Hand of Freedom
-	BaseAuras[1022]   = 3 -- Hand of Protection
-	BaseAuras[114039] = 3 -- Hand of Purity
-	BaseAuras[6940]   = 3 -- Hand of Sacrifice
-	BaseAuras[1038]   = 3 -- Hand of Salvation
-	BaseAuras[86273]  = 3 -- Illuminated Healing
-	BaseAuras[20925]  = 3 -- Sacred Shield
-	BaseAuras[20170]  = 3 -- Seal of Justice
-	BaseAuras[114917] = 3 -- Stay of Execution
+	defaultAuras[53563]  = BUFF -- Beacon of Light
+	defaultAuras[31821]  = BUFF -- Devotion Aura
+	defaultAuras[114163] = BUFF -- Eternal Flame
+	defaultAuras[1044]   = BUFF -- Hand of Freedom
+	defaultAuras[1022]   = BUFF -- Hand of Protection
+	defaultAuras[114039] = BUFF -- Hand of Purity
+	defaultAuras[6940]   = BUFF -- Hand of Sacrifice
+	defaultAuras[1038]   = BUFF -- Hand of Salvation
+	defaultAuras[86273]  = BUFF -- Illuminated Healing
+	defaultAuras[20925]  = BUFF -- Sacred Shield
+	defaultAuras[20170]  = BUFF -- Seal of Justice
+	defaultAuras[114917] = BUFF -- Stay of Execution
 
 	-- Buff Debuffs
-	BaseAuras[25771]  = 3 -- Forbearace
+	defaultAuras[25771]  = BUFF -- Forbearace
 
 	-- Debuffs
-	BaseAuras[31935]  = 2 -- Avenger's Shield
---	BaseAuras[110300] = 2 -- Burden of Guilt
-	BaseAuras[105421] = 2 -- Blinding Light
-	BaseAuras[31803]  = 2 -- Censure
-	BaseAuras[63529]  = 2 -- Dazed - Avenger's Shield
-	BaseAuras[2812]   = 2 -- Denounce
-	BaseAuras[114916] = 2 -- Execution Sentence
-	BaseAuras[105593] = 2 -- Fist of Justice
-	BaseAuras[853]    = 2 -- Hammer of Justice
-	BaseAuras[119072] = 2 -- Holy Wrath
-	BaseAuras[20066]  = 2 -- Repentance
-	BaseAuras[10326]  = 2 -- Turn Evil
+	defaultAuras[31935]  = MINE -- Avenger's Shield
+	--defaultAuras[110300] = MINE -- Burden of Guilt
+	defaultAuras[105421] = MINE -- Blinding Light
+	defaultAuras[31803]  = MINE -- Censure
+	defaultAuras[63529]  = MINE -- Dazed - Avenger's Shield
+	defaultAuras[2812]   = MINE -- Denounce
+	defaultAuras[114916] = MINE -- Execution Sentence
+	defaultAuras[105593] = MINE -- Fist of Justice
+	defaultAuras[853]    = MINE -- Hammer of Justice
+	defaultAuras[119072] = MINE -- Holy Wrath
+	defaultAuras[20066]  = MINE -- Repentance
+	defaultAuras[10326]  = MINE -- Turn Evil
 end
 
 ------------------------------------------------------------------------
---	Priest
+-- Priest
 
 if playerClass == "PRIEST" then
+	local SELF   = bit_bor(FILTER_CLASS_PRIEST, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_PRIEST, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_PRIEST, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_PRIEST, FILTER_BY_PLAYER)
+
 	-- Self Buffs
---	BaseAuras[114214] = 4 -- Angelic Bulwark
-	BaseAuras[81700]  = 4 -- Archangel
---	BaseAuras[59889]  = 4 -- Borrowed Time
-	BaseAuras[47585]  = 4 -- Dispersion
-	BaseAuras[123266] = 4 -- Divine Insight (discipline)
-	BaseAuras[123267] = 4 -- Divine Insight (holy)
-	BaseAuras[124430] = 4 -- Divine Insight (shadow)
-	BaseAuras[81661]  = 4 -- Evangelism
-	BaseAuras[586]    = 4 -- Fade
-	BaseAuras[2096]   = 4 -- Mind Vision
-	BaseAuras[114239] = 4 -- Phantasm
-	BaseAuras[10060]  = 4 -- Power Infusion
-	BaseAuras[63735]  = 4 -- Serendipity
-	BaseAuras[112833] = 4 -- Spectral Guise
-	BaseAuras[109964] = 4 -- Spirit Shell (self)
-	BaseAuras[87160]  = 4 -- Surge of Darkness
-	BaseAuras[114255] = 4 -- Surge of Light
-	BaseAuras[123254] = 4 -- Twist of Fate
-	BaseAuras[15286]  = 4 -- Vampiric Embrace
+	--defaultAuras[114214] = SELF -- Angelic Bulwark
+	defaultAuras[81700]  = SELF -- Archangel
+	--defaultAuras[59889]  = SELF -- Borrowed Time
+	defaultAuras[47585]  = SELF -- Dispersion
+	defaultAuras[123266] = SELF -- Divine Insight (discipline)
+	defaultAuras[123267] = SELF -- Divine Insight (holy)
+	defaultAuras[124430] = SELF -- Divine Insight (shadow)
+	defaultAuras[81661]  = SELF -- Evangelism
+	defaultAuras[586]    = SELF -- Fade
+	defaultAuras[2096]   = SELF -- Mind Vision
+	defaultAuras[114239] = SELF -- Phantasm
+	defaultAuras[10060]  = SELF -- Power Infusion
+	defaultAuras[63735]  = SELF -- Serendipity
+	defaultAuras[112833] = SELF -- Spectral Guise
+	defaultAuras[109964] = SELF -- Spirit Shell (self)
+	defaultAuras[87160]  = SELF -- Surge of Darkness
+	defaultAuras[114255] = SELF -- Surge of Light
+	defaultAuras[123254] = SELF -- Twist of Fate
+	defaultAuras[15286]  = SELF -- Vampiric Embrace
 
 	-- Buffs
-	BaseAuras[47753]  = 3 -- Divine Aegis
-	BaseAuras[77613]  = 2 -- Grace
-	BaseAuras[47788]  = 3 -- Guardian Spirit
-	BaseAuras[88684]  = 3 -- Holy Word: Serenity
-	BaseAuras[33206]  = 3 -- Pain Suppression
-	BaseAuras[81782]  = 3 -- Power Word: Barrier
-	BaseAuras[17]     = 3 -- Power Word: Shield
-	BaseAuras[41635]  = 3 -- Prayer of Mending
-	BaseAuras[139]    = 3 -- Renew
-	BaseAuras[114908] = 3 -- Spirit Shell (shield)
+	defaultAuras[47753]  = BUFF -- Divine Aegis
+	defaultAuras[77613]  = MINE -- Grace
+	defaultAuras[47788]  = BUFF -- Guardian Spirit
+	defaultAuras[88684]  = BUFF -- Holy Word: Serenity
+	defaultAuras[33206]  = BUFF -- Pain Suppression
+	defaultAuras[81782]  = BUFF -- Power Word: Barrier
+	defaultAuras[17]     = BUFF -- Power Word: Shield
+	defaultAuras[41635]  = BUFF -- Prayer of Mending
+	defaultAuras[139]    = BUFF -- Renew
+	defaultAuras[114908] = BUFF -- Spirit Shell (shield)
 
 	-- Buff Debuffs
-	BaseAuras[6788]   = 1 -- Weakened Soul
+	defaultAuras[6788]   = BUFF -- Weakened Soul
 
 	-- Debuffs
-	BaseAuras[2944]   = 2 -- Devouring Plague
-	BaseAuras[14914]  = 2 -- Holy Fire
-	BaseAuras[88625]  = 2 -- Holy Word: Chastise
-	BaseAuras[89485]  = 2 -- Inner Focus
-	BaseAuras[64044]  = 2 -- Psychic Horror (horror)
---	BaseAuras[64058]  = 2 -- Psychic Horror (disarm)
-	BaseAuras[8122]   = 2 -- Psychic Scream
-	BaseAuras[113792] = 2 -- Psychic Terror
-	BaseAuras[9484]   = 2 -- Shackle Undead
-	BaseAuras[589]    = 2 -- Shadow Word: Pain
-	BaseAuras[15487]  = 2 -- Silence
-	BaseAuras[34914]  = 2 -- Vampiric Touch
+	defaultAuras[2944]   = MINE -- Devouring Plague
+	defaultAuras[14914]  = MINE -- Holy Fire
+	defaultAuras[88625]  = MINE -- Holy Word: Chastise
+	defaultAuras[89485]  = MINE -- Inner Focus
+	defaultAuras[64044]  = MINE -- Psychic Horror (horror, FILTER_ON_ENEMY)
+	--defaultAuras[64058]  = MINE -- Psychic Horror (disarm, FILTER_ON_ENEMY)
+	defaultAuras[8122]   = MINE -- Psychic Scream
+	defaultAuras[113792] = MINE -- Psychic Terror
+	defaultAuras[9484]   = MINE -- Shackle Undead
+	defaultAuras[589]    = MINE -- Shadow Word: Pain
+	defaultAuras[15487]  = MINE -- Silence
+	defaultAuras[34914]  = MINE -- Vampiric Touch
 end
 
 ------------------------------------------------------------------------
---	Rogue
+-- Rogue
 
 if playerClass == "ROGUE" then
+	local SELF   = bit_bor(FILTER_CLASS_ROGUE, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_ROGUE, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_ROGUE, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_ROGUE, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[13750]  = 4 -- Adrenaline Rush
-	BaseAuras[115189] = 4 -- Anticipation
-	BaseAuras[18377]  = 4 -- Blade Flurry
-	BaseAuras[121153] = 4 -- Blindside
-	BaseAuras[108212] = 4 -- Burst of Speed
-	BaseAuras[31224]  = 4 -- Cloak of Shadows
-	BaseAuras[74002]  = 4 -- Combat Insight
-	BaseAuras[74001]  = 4 -- Combat Readiness
-	BaseAuras[84747]  = 4 -- Deep Insight
-	BaseAuras[56814]  = 4 -- Detection
-	BaseAuras[32645]  = 4 -- Envenom
-	BaseAuras[5277]   = 4 -- Evasion
-	BaseAuras[1966]   = 4 -- Feint
-	BaseAuras[51690]  = 4 -- Killing Spree
-	BaseAuras[84746]  = 4 -- Moderate Insight
-	BaseAuras[73651]  = 4 -- Recuperate
-	BaseAuras[121472] = 4 -- Shadow Blades
-	BaseAuras[51713]  = 4 -- Shadow Dance
-	BaseAuras[114842] = 4 -- Shadow Walk
-	BaseAuras[36554]  = 4 -- Shadowstep
-	BaseAuras[84745]  = 4 -- Shallow Insight
-	BaseAuras[114018] = 4 -- Shroud of Concealment
-	BaseAuras[5171]   = 4 -- Slice and Dice
-	BaseAuras[76577]  = 4 -- Smoke Bomb
-	BaseAuras[2983]   = 4 -- Sprint
-	BaseAuras[57934]  = 4 -- Tricks of the Trade
-	BaseAuras[1856]   = 4 -- Vanish
+	defaultAuras[13750]  = SELF -- Adrenaline Rush
+	defaultAuras[115189] = SELF -- Anticipation
+	defaultAuras[18377]  = SELF -- Blade Flurry
+	defaultAuras[121153] = SELF -- Blindside
+	defaultAuras[108212] = SELF -- Burst of Speed
+	defaultAuras[31224]  = SELF -- Cloak of Shadows
+	defaultAuras[74002]  = SELF -- Combat Insight
+	defaultAuras[74001]  = SELF -- Combat Readiness
+	defaultAuras[84747]  = SELF -- Deep Insight
+	defaultAuras[56814]  = SELF -- Detection
+	defaultAuras[32645]  = SELF -- Envenom
+	defaultAuras[5277]   = SELF -- Evasion
+	defaultAuras[1966]   = SELF -- Feint
+	defaultAuras[51690]  = SELF -- Killing Spree
+	defaultAuras[84746]  = SELF -- Moderate Insight
+	defaultAuras[73651]  = SELF -- Recuperate
+	defaultAuras[121472] = SELF -- Shadow Blades
+	defaultAuras[51713]  = SELF -- Shadow Dance
+	defaultAuras[114842] = SELF -- Shadow Walk
+	defaultAuras[36554]  = SELF -- Shadowstep
+	defaultAuras[84745]  = SELF -- Shallow Insight
+	defaultAuras[114018] = SELF -- Shroud of Concealment
+	defaultAuras[5171]   = SELF -- Slice and Dice
+	defaultAuras[76577]  = SELF -- Smoke Bomb
+	defaultAuras[2983]   = SELF -- Sprint
+	defaultAuras[57934]  = SELF -- Tricks of the Trade
+	defaultAuras[1856]   = SELF -- Vanish
 
 	-- Debuffs
-	BaseAuras[2094]   = 2 -- Blind
-	BaseAuras[1833]   = 2 -- Cheap Shot
---	BaseAuras[122233] = 2 -- Crimson Tempest
---	BaseAuras[3409]   = 2 -- Crippling Poison
---	BaseAuras[2818]   = 2 -- Deadly Poison
-	BaseAuras[26679]  = 2 -- Deadly Throw
-	BaseAuras[51722]  = 2 -- Dismantle
-	BaseAuras[91021]  = 2 -- Find Weakness
-	BaseAuras[703]    = 2 -- Garrote
-	BaseAuras[1330]   = 2 -- Garrote - Silence
-	BaseAuras[1773]   = 2 -- Gouge
-	BaseAuras[89774]  = 2 -- Hemorrhage
-	BaseAuras[408]    = 2 -- Kidney Shot
-	BaseAuras[112961] = 2 -- Leeching Poison
-	BaseAuras[5760]   = 2 -- Mind-numbing Poison
-	BaseAuras[112947] = 2 -- Nerve Strike
-	BaseAuras[113952] = 2 -- Paralytic Poison
-	BaseAuras[84617]  = 2 -- Revealing Strike
-	BaseAuras[1943]   = 2 -- Rupture
-	BaseAuras[6770]   = 2 -- Sap
-	BaseAuras[57933]  = 2 -- Tricks of the Trade
-	BaseAuras[79140]  = 2 -- Vendetta
-	BaseAuras[8680]   = 2 -- Wound Poison
+	defaultAuras[2094]   = DEBUFF -- Blind
+	defaultAuras[1833]   = DEBUFF -- Cheap Shot
+	--defaultAuras[122233] = MINE -- Crimson Tempest
+	--defaultAuras[3409]   = MINE -- Crippling Poison
+	--defaultAuras[2818]   = MINE -- Deadly Poison
+	defaultAuras[26679]  = MINE -- Deadly Throw
+	defaultAuras[51722]  = DEBUFF -- Dismantle -- TODO: generic Disarm group
+	defaultAuras[91021]  = MINE -- Find Weakness
+	defaultAuras[703]    = MINE -- Garrote
+	defaultAuras[1330]   = MINE -- Garrote - Silence
+	defaultAuras[1773]   = MINE -- Gouge
+	defaultAuras[89774]  = MINE -- Hemorrhage
+	defaultAuras[408]    = MINE -- Kidney Shot
+	defaultAuras[112961] = MINE -- Leeching Poison
+	defaultAuras[5760]   = MINE -- Mind-numbing Poison
+	defaultAuras[112947] = MINE -- Nerve Strike
+	defaultAuras[113952] = MINE -- Paralytic Poison
+	defaultAuras[84617]  = MINE -- Revealing Strike
+	defaultAuras[1943]   = MINE -- Rupture
+	defaultAuras[6770]   = DEBUFF -- Sap -- TODO: move to CC group
+	defaultAuras[57933]  = MINE -- Tricks of the Trade
+	defaultAuras[79140]  = MINE -- Vendetta
+	defaultAuras[8680]   = MINE -- Wound Poison
 end
 
 ------------------------------------------------------------------------
---	Shaman
+-- Shaman
 
 if playerClass == "SHAMAN" then
+	local SELF   = bit_bor(FILTER_CLASS_SHAMAN, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_SHAMAN, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_SHAMAN, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_SHAMAN, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[108281] = 4 -- Ancestral Guidance
-	BaseAuras[16188]  = 4 -- Ancestral Swiftness
-	BaseAuras[114050] = 4 -- Ascendance (elemental)
-	BaseAuras[114051] = 4 -- Ascendance (enhancement)
-	BaseAuras[114052] = 4 -- Ascendance (restoration)
-	BaseAuras[108271] = 4 -- Astral Shift
-	BaseAuras[16166]  = 4 -- Elemental Mastery
-	BaseAuras[77762]  = 4 -- Lava Surge
-	BaseAuras[31616]  = 4 -- Nature's Guardian
-	BaseAuras[77661]  = 4 -- Searing Flames
-	BaseAuras[30823]  = 4 -- Shamanistic Rage
-	BaseAuras[58876]  = 4 -- Spirit Walk
-	BaseAuras[79206]  = 4 -- Spiritwalker's Grace
-	BaseAuras[53390]  = 4 -- Tidal Waves
+	defaultAuras[108281] = SELF -- Ancestral Guidance
+	defaultAuras[16188]  = SELF -- Ancestral Swiftness
+	defaultAuras[114050] = SELF -- Ascendance (elemental)
+	defaultAuras[114051] = SELF -- Ascendance (enhancement)
+	defaultAuras[114052] = SELF -- Ascendance (restoration)
+	defaultAuras[108271] = SELF -- Astral Shift
+	defaultAuras[16166]  = SELF -- Elemental Mastery
+	defaultAuras[77762]  = SELF -- Lava Surge
+	defaultAuras[31616]  = SELF -- Nature's Guardian
+	defaultAuras[77661]  = SELF -- Searing Flames
+	defaultAuras[30823]  = SELF -- Shamanistic Rage
+	defaultAuras[58876]  = SELF -- Spirit Walk
+	defaultAuras[79206]  = SELF -- Spiritwalker's Grace
+	defaultAuras[53390]  = SELF -- Tidal Waves
 
 	-- Buffs
-	--BaseAuras[2825]   = 3 -- Bloodlust (shaman) -- show all
-	BaseAuras[32182]  = 3 -- Heroism (shaman)
-	BaseAuras[974]    = 2 -- Earth Shield
-	BaseAuras[8178]   = 1 -- Grounding Totem Effect
-	BaseAuras[89523]  = 1 -- Grounding Totem (reflect)
-	BaseAuras[119523] = 3 -- Healing Stream Totem (resistance)
-	BaseAuras[16191]  = 3 -- Mana Tide
-	BaseAuras[61295]  = 2 -- Riptide
-	BaseAuras[98007]  = 3 -- Spirit Link Totem
-	BaseAuras[114893] = 3 -- Stone Bulwark
-	--BaseAuras[120676] = 1 -- Stormlash Totem -- see totem timer
-	BaseAuras[73685]  = 4 -- Unleash Life
-	BaseAuras[118473] = 2 -- Unleashed Fury (earthliving)
-	BaseAuras[114896] = 3 -- Windwalk Totem
+	--defaultAuras[2825]   = BUFF -- Bloodlust (shaman) -- show all
+	defaultAuras[32182]  = BUFF -- Heroism (shaman)
+	defaultAuras[974]    = MINE -- Earth Shield
+	defaultAuras[8178]   = BUFF -- Grounding Totem Effect
+	defaultAuras[89523]  = BUFF -- Grounding Totem (reflect)
+	defaultAuras[119523] = BUFF -- Healing Stream Totem (resistance)
+	defaultAuras[16191]  = BUFF -- Mana Tide
+	defaultAuras[61295]  = MINE -- Riptide
+	defaultAuras[98007]  = BUFF -- Spirit Link Totem
+	defaultAuras[114893] = BUFF -- Stone Bulwark
+	--defaultAuras[120676] = BUFF -- Stormlash Totem -- see totem timer
+	defaultAuras[73685]  = SELF -- Unleash Life
+	defaultAuras[118473] = MINE -- Unleashed Fury (Earthliving)
+	defaultAuras[114896] = BUFF -- Windwalk Totem
 
 	-- Debuffs
-	BaseAuras[61882]  = 2 -- Earthquake
-	BaseAuras[8050]   = 2 -- Flame Shock
-	BaseAuras[115356] = 2 -- Stormblast
-	BaseAuras[17364]  = 2 -- Stormstrike
-	--BaseAuras[73684]  = 2 -- Unleash Earth
-	BaseAuras[73682]  = 2 -- Unleash Frost
-	BaseAuras[118470] = 2 -- Unleashed Fury (flametongue)
+	defaultAuras[61882]  = MINE -- Earthquake
+	defaultAuras[8050]   = MINE -- Flame Shock
+	defaultAuras[115356] = MINE -- Stormblast
+	defaultAuras[17364]  = MINE -- Stormstrike
+	--defaultAuras[73684]  = MINE -- Unleash Earth
+	defaultAuras[73682]  = MINE -- Unleash Frost
+	defaultAuras[118470] = MINE -- Unleashed Fury (Flametongue)
 
 	-- Debuffs - Crowd Control
-	BaseAuras[76780]  = 1 -- Bind Elemental
-	BaseAuras[51514]  = 1 -- Hex
+	defaultAuras[76780]  = DEBUFF  -- Bind Elemental
+	defaultAuras[51514]  = DEBUFF  -- Hex
 
 	-- Debuffs - Root/Slow
-	BaseAuras[3600]   = 1 -- Earthbind <= Earthbind Totem
-	BaseAuras[64695]  = 1 -- Earthgrab <= Earthgrab Totem
-	BaseAuras[8056]   = 1 -- Frost Shock
-	BaseAuras[8034]   = 2 -- Frostbrand Attack <= Frostbrand Weapon
-	BaseAuras[63685]  = 1 -- Freeze <= Frozen Power
-	BaseAuras[118905] = 1 -- Static Charge <= Capacitor Totem
-	--BaseAuras[51490]  = 1 -- Thunderstorm
+	defaultAuras[3600]   = DEBUFF  -- Earthbind <-- Earthbind Totem
+	defaultAuras[64695]  = DEBUFF  -- Earthgrab <-- Earthgrab Totem
+	defaultAuras[8056]   = DEBUFF  -- Frost Shock
+	defaultAuras[8034]   = MINE -- Frostbrand Attack <-- Frostbrand Weapon
+	defaultAuras[63685]  = DEBUFF  -- Freeze <-- Frozen Power
+	defaultAuras[118905] = DEBUFF  -- Static Charge <-- Capacitor Totem
+	--defaultAuras[51490]  = DEBUFF  -- Thunderstorm
 end
 
 ------------------------------------------------------------------------
---	Warlock
+-- Warlock
 
 if playerClass == "WARLOCK" then
+	local SELF   = bit_bor(FILTER_CLASS_WARLOCK, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_WARLOCK, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_WARLOCK, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_WARLOCK, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[116198] = 2 -- Aura of Enfeeblement
-	BaseAuras[116202] = 2 -- Aura of the Elements
-	BaseAuras[117828] = 4 -- Backdraft
-	BaseAuras[111400] = 4 -- Burning Rush
-	BaseAuras[114168] = 4 -- Dark Apotheosis
-	BaseAuras[110913] = 4 -- Dark Bargain (absorb)
-	BaseAuras[110914] = 4 -- Dark Bargain (dot)
-	BaseAuras[108359] = 4 -- Dark Regeneration
-	BaseAuras[113858] = 4 -- Dark Soul: Instability
-	BaseAuras[113861] = 4 -- Dark Soul: Knowledge
-	BaseAuras[113860] = 4 -- Dark Soul: Misery
-	BaseAuras[88448]  = 4 -- Demonic Rebirth
-	BaseAuras[126]    = 4 -- Eye of Kilrogg
-	BaseAuras[108683] = 4 -- Fire and Brimstone
-	BaseAuras[119839] = 4 -- Fury Ward
-	BaseAuras[119049] = 4 -- Kil'jaeden's Cunning
-	BaseAuras[126090] = 4 -- Molten Core -- NEEDS CHECK
-	BaseAuras[122355] = 4 -- Molten Core -- NEEDS CHECK
-	BaseAuras[104232] = 4 -- Rain of Fire
-	BaseAuras[108416] = 4 -- Sacrificial Pact
-	BaseAuras[86211]  = 4 -- Soul Swap
-	BaseAuras[104773] = 4 -- Unending Resolve
+	defaultAuras[116198] = MINE -- Aura of Enfeeblement
+	defaultAuras[116202] = MINE -- Aura of the Elements
+	defaultAuras[117828] = SELF -- Backdraft
+	defaultAuras[111400] = SELF -- Burning Rush
+	defaultAuras[114168] = SELF -- Dark Apotheosis
+	defaultAuras[110913] = SELF -- Dark Bargain (absorb)
+	defaultAuras[110914] = SELF -- Dark Bargain (dot)
+	defaultAuras[108359] = SELF -- Dark Regeneration
+	defaultAuras[113858] = SELF -- Dark Soul: Instability
+	defaultAuras[113861] = SELF -- Dark Soul: Knowledge
+	defaultAuras[113860] = SELF -- Dark Soul: Misery
+	defaultAuras[88448]  = SELF -- Demonic Rebirth
+	defaultAuras[126]    = SELF -- Eye of Kilrogg
+	defaultAuras[108683] = SELF -- Fire and Brimstone
+	defaultAuras[119839] = SELF -- Fury Ward
+	defaultAuras[119049] = SELF -- Kil'jaeden's Cunning
+	defaultAuras[126090] = SELF -- Molten Core -- NEEDS CHECK
+	defaultAuras[122355] = SELF -- Molten Core -- NEEDS CHECK
+	defaultAuras[104232] = SELF -- Rain of Fire
+	defaultAuras[108416] = SELF -- Sacrificial Pact
+	defaultAuras[86211]  = SELF -- Soul Swap
+	defaultAuras[104773] = SELF -- Unending Resolve
 
 	-- Buffs
-	BaseAuras[20707]  = 1 -- Soulstone
+	defaultAuras[20707]  = BUFF -- Soulstone -- TODO: hide on self?
 
 	-- Debuffs
-	BaseAuras[980]    = 2 -- Agony
-	BaseAuras[108505] = 2 -- Archimonde's Vengeance
-	BaseAuras[124915] = 2 -- Chaos Wave
-	BaseAuras[17962]  = 2 -- Conflagrate (slow)
-	BaseAuras[172]    = 2 -- Corruption -- NEEDS CHECK
-	BaseAuras[131740] = 2 -- Corruption -- NEEDS CHECK
-	BaseAuras[146739] = 2 -- Corruption -- NEEDS CHECK
-	BaseAuras[109466] = 2 -- Curse of Enfeeblement
-	BaseAuras[18223]  = 2 -- Curse of Exhaustion
-	BaseAuras[1490]   = 2 -- Curse of the Elements
-	BaseAuras[603]    = 2 -- Doom
-	BaseAuras[48181]  = 2 -- Haunt
-	BaseAuras[80240]  = 2 -- Havoc
-	BaseAuras[348]    = 2 -- Immolate
-	BaseAuras[108686] = 2 -- Immolate <= Fire and Brimstone
-	BaseAuras[60947]  = 2 -- Nightmare
-	BaseAuras[30108]  = 2 -- Seed of Corruption
-	BaseAuras[47960]  = 2 -- Shadowflame
-	BaseAuras[30283]  = 2 -- Shadowfury
-	BaseAuras[27243]  = 2 -- Unstable Affliction
+	defaultAuras[980]    = MINE -- Agony
+	defaultAuras[108505] = MINE -- Archimonde's Vengeance
+	defaultAuras[124915] = MINE -- Chaos Wave
+	defaultAuras[17962]  = MINE -- Conflagrate (slow)
+	defaultAuras[172]    = MINE -- Corruption -- NEEDS CHECK
+	defaultAuras[131740] = MINE -- Corruption -- NEEDS CHECK
+	defaultAuras[146739] = MINE -- Corruption -- NEEDS CHECK
+	defaultAuras[109466] = MINE -- Curse of Enfeeblement
+	defaultAuras[18223]  = MINE -- Curse of Exhaustion
+	defaultAuras[1490]   = MINE -- Curse of the Elements
+	defaultAuras[603]    = MINE -- Doom
+	defaultAuras[48181]  = MINE -- Haunt
+	defaultAuras[80240]  = MINE -- Havoc
+	defaultAuras[348]    = MINE -- Immolate
+	defaultAuras[108686] = MINE -- Immolate <-- Fire and Brimstone
+	defaultAuras[60947]  = MINE -- Nightmare
+	defaultAuras[30108]  = MINE -- Seed of Corruption
+	defaultAuras[47960]  = MINE -- Shadowflame
+	defaultAuras[30283]  = MINE -- Shadowfury
+	defaultAuras[27243]  = MINE -- Unstable Affliction
 
 	-- Debuffs - Crowd Control
-	BaseAuras[170]    = 2 -- Banish
-	BaseAuras[111397] = 2 -- Blood Fear
-	BaseAuras[137143] = 2 -- Blood Horror
-	BaseAuras[1098]   = 2 -- Enslave Demon
-	BaseAuras[5782]   = 2 -- Fear
-	BaseAuras[5484]   = 2 -- Howl of Terror
-	BaseAuras[6789]   = 2 -- Mortal Coil
+	defaultAuras[170]    = DEBUFF -- Banish -- TODO: move to CC group ?
+	defaultAuras[111397] = MINE   -- Blood Fear
+	defaultAuras[137143] = MINE   -- Blood Horror
+	defaultAuras[1098]   = MINE   -- Enslave Demon
+	defaultAuras[5782]   = DEBUFF -- Fear
+	defaultAuras[5484]   = DEBUFF -- Howl of Terror
+	defaultAuras[6789]   = MINE   -- Mortal Coil
 end
 
 ------------------------------------------------------------------------
---	Warrior
+-- Warrior
 
 if playerClass == "WARRIOR" then
+	local SELF   = bit_bor(FILTER_CLASS_WARRIOR, FILTER_ON_PLAYER)
+	local BUFF   = bit_bor(FILTER_CLASS_WARRIOR, FILTER_ON_FRIEND)
+	local DEBUFF = bit_bor(FILTER_CLASS_WARRIOR, FILTER_ON_ENEMY)
+	local MINE   = bit_bor(FILTER_CLASS_WARRIOR, FILTER_BY_PLAYER)
+
 	-- Self Buffs
-	BaseAuras[107574] = 4 -- Avatar
-	BaseAuras[18499]  = 4 -- Berserker Rage
-	BaseAuras[46924]  = 4 -- Bladestorm
-	BaseAuras[12292]  = 4 -- Bloodbath
-	BaseAuras[46916]  = 4 -- Bloodsurge
-	BaseAuras[85730]  = 4 -- Deadly Calm
-	BaseAuras[125565] = 4 -- Demoralizing Shout
-	BaseAuras[118038] = 4 -- Die by the Sword
-	BaseAuras[12880]  = 4 -- Enrage
-	BaseAuras[55964]  = 4 -- Enraged Regeneration
-	BaseAuras[115945] = 4 -- Glyph of Hamstring
-	BaseAuras[12975]  = 4 -- Last Stand
-	BaseAuras[114028] = 4 -- Mass Spell Reflection
-	BaseAuras[85739]  = 4 -- Meat Cleaver
-	BaseAuras[114192] = 4 -- Mocking Banner
-	BaseAuras[97463]  = 4 -- Rallying Cry
-	BaseAuras[1719]   = 4 -- Recklessness
-	BaseAuras[112048] = 4 -- Shield Barrier
-	BaseAuras[2565]   = 4 -- Shield Block
-	BaseAuras[871]    = 4 -- Shield Wall
-	BaseAuras[114206] = 4 -- Skull Banner
-	BaseAuras[23920]  = 4 -- Spell Banner
-	BaseAuras[52437]  = 4 -- Sudden Death
-	BaseAuras[12328]  = 4 -- Sweeping Strikes
-	BaseAuras[50227]  = 4 -- Sword and Board
-	BaseAuras[125831] = 4 -- Taste for Blood
-	BaseAuras[122510] = 4 -- Ultimatum
+	defaultAuras[107574] = SELF -- Avatar
+	defaultAuras[18499]  = SELF -- Berserker Rage
+	defaultAuras[46924]  = SELF -- Bladestorm
+	defaultAuras[12292]  = SELF -- Bloodbath
+	defaultAuras[46916]  = SELF -- Bloodsurge
+	defaultAuras[85730]  = SELF -- Deadly Calm
+	defaultAuras[125565] = SELF -- Demoralizing Shout
+	defaultAuras[118038] = SELF -- Die by the Sword
+	defaultAuras[12880]  = SELF -- Enrage
+	defaultAuras[55964]  = SELF -- Enraged Regeneration
+	defaultAuras[115945] = SELF -- Glyph of Hamstring
+	defaultAuras[12975]  = SELF -- Last Stand
+	defaultAuras[114028] = SELF -- Mass Spell Reflection
+	defaultAuras[85739]  = SELF -- Meat Cleaver
+	defaultAuras[114192] = SELF -- Mocking Banner
+	defaultAuras[97463]  = SELF -- Rallying Cry
+	defaultAuras[1719]   = SELF -- Recklessness
+	defaultAuras[112048] = SELF -- Shield Barrier
+	defaultAuras[2565]   = SELF -- Shield Block
+	defaultAuras[871]    = SELF -- Shield Wall
+	defaultAuras[114206] = SELF -- Skull Banner
+	defaultAuras[23920]  = SELF -- Spell Banner
+	defaultAuras[52437]  = SELF -- Sudden Death
+	defaultAuras[12328]  = SELF -- Sweeping Strikes
+	defaultAuras[50227]  = SELF -- Sword and Board
+	defaultAuras[125831] = SELF -- Taste for Blood
+	defaultAuras[122510] = SELF -- Ultimatum
 
 	-- Buffs
-	BaseAuras[46947]  = 3 -- Safeguard (damage reduction)
-	BaseAuras[114029] = 3 -- Safeguard (intercept)
-	BaseAuras[114030] = 3 -- Vigilance
+	defaultAuras[46947]  = BUFF -- Safeguard (damage reduction)
+	defaultAuras[114029] = BUFF -- Safeguard (intercept)
+	defaultAuras[114030] = BUFF -- Vigilance
 
 	-- Debuffs
-	BaseAuras[86346]  = 2 -- Colossus Smash
-	BaseAuras[114205] = 2 -- Demoralizing Banner
-	BaseAuras[1160]   = 2 -- Demoralizing Shout
-	BaseAuras[676]    = 2 -- Disarm
-	BaseAuras[118895] = 2 -- Dragon Roar
-	BaseAuras[1715]   = 2 -- Hamstring
-	BaseAuras[5246]   = 2 -- Intimidating Shout -- NEEDS CHECK
-	BaseAuras[20511]  = 2 -- Intimidating Shout -- NEEDS CHECK
-	BaseAuras[12323]  = 2 -- Piercing Howl
-	BaseAuras[64382]  = 2 -- Shattering Throw
-	BaseAuras[46968]  = 2 -- Shockwave
-	BaseAuras[18498]  = 2 -- Silenced - Gag Order
-	BaseAuras[107566] = 2 -- Staggering Shout
-	BaseAuras[107570] = 2 -- Storm Bolt
-	BaseAuras[355]    = 2 -- Taunt
-	BaseAuras[105771] = 2 -- Warbringer
+	defaultAuras[86346]  = MINE -- Colossus Smash
+	defaultAuras[114205] = MINE -- Demoralizing Banner
+	defaultAuras[1160]   = MINE -- Demoralizing Shout
+	defaultAuras[676]    = MINE -- Disarm
+	defaultAuras[118895] = MINE -- Dragon Roar
+	defaultAuras[1715]   = MINE -- Hamstring
+	defaultAuras[5246]   = MINE -- Intimidating Shout -- NEEDS CHECK
+	defaultAuras[20511]  = MINE -- Intimidating Shout -- NEEDS CHECK
+	defaultAuras[12323]  = MINE -- Piercing Howl
+	defaultAuras[64382]  = MINE -- Shattering Throw
+	defaultAuras[46968]  = MINE -- Shockwave
+	defaultAuras[18498]  = MINE -- Silenced - Gag Order
+	defaultAuras[107566] = MINE -- Staggering Shout
+	defaultAuras[107570] = MINE -- Storm Bolt
+	defaultAuras[355]    = MINE -- Taunt
+	defaultAuras[105771] = MINE -- Warbringer
 end
 
 ------------------------------------------------------------------------
 -- Racials
 
-if playerRace == "BloodElf" then
-	BaseAuras[50613]  = 2 -- Arcane Torrent (death knight)
-	BaseAuras[80483]  = 2 -- Arcane Torrent (hunter)
-	BaseAuras[28730]  = 2 -- Arcane Torrent (mage, paladin, priest, warlock)
-	BaseAuras[129597] = 2 -- Arcane Torrent (monk)
-	BaseAuras[25046]  = 2 -- Arcane Torrent (rogue)
-	BaseAuras[69179]  = 2 -- Arcane Torrent (warrior)
-elseif playerRace == "Draenei" then
-	BaseAuras[59545]  = 4 -- Gift of the Naaru (death knight)
-	BaseAuras[59543]  = 4 -- Gift of the Naaru (hunter)
-	BaseAuras[59548]  = 4 -- Gift of the Naaru (mage)
-	BaseAuras[121093] = 4 -- Gift of the Naaru (monk)
-	BaseAuras[59542]  = 4 -- Gift of the Naaru (paladin)
-	BaseAuras[59544]  = 4 -- Gift of the Naaru (priest)
-	BaseAuras[59547]  = 4 -- Gift of the Naaru (shaman)
-	BaseAuras[28880]  = 4 -- Gift of the Naaru (warrior)
-elseif playerRace == "Dwarf" then
-	BaseAuras[20594]  = 4 -- Stoneform
-elseif playerRace == "NightElf" then
-	BaseAuras[58984]  = 4 -- Shadowmeld
-elseif playerRace == "Orc" then
-	BaseAuras[20572]  = 4 -- Blood Fury (attack power)
-	BaseAuras[33702]  = 4 -- Blood Fury (spell power)
-	BaseAuras[33697]  = 4 -- Blood Fury (attack power and spell damage)
-elseif playerRace == "Pandaren" then
-	BaseAuras[107079] = 4 -- Quaking Palm
-elseif playerRace == "Scourge" then
-	BaseAuras[7744]   = 4 -- Will of the Forsaken
-elseif playerRace == "Tauren" then
-	BaseAuras[20549]  = 1 -- War Stomp
-elseif playerRace == "Troll" then
-	BaseAuras[26297]  = 4 -- Berserking
-elseif playerRace == "Worgen" then
-	BaseAuras[68992]  = 4 -- Darkflight
-end
+-- Blood Elf
+defaultAuras[50613]  = FILTER_BY_PLAYER -- Arcane Torrent (death knight)
+defaultAuras[80483]  = FILTER_BY_PLAYER -- Arcane Torrent (hunter)
+defaultAuras[28730]  = FILTER_BY_PLAYER -- Arcane Torrent (mage, paladin, priest, warlock)
+defaultAuras[129597] = FILTER_BY_PLAYER -- Arcane Torrent (monk)
+defaultAuras[25046]  = FILTER_BY_PLAYER -- Arcane Torrent (rogue)
+defaultAuras[69179]  = FILTER_BY_PLAYER -- Arcane Torrent (warrior)
+-- Draenei
+defaultAuras[59545]  = FILTER_BY_PLAYER -- Gift of the Naaru (death knight)
+defaultAuras[59543]  = FILTER_BY_PLAYER -- Gift of the Naaru (hunter)
+defaultAuras[59548]  = FILTER_BY_PLAYER -- Gift of the Naaru (mage)
+defaultAuras[121093] = FILTER_BY_PLAYER -- Gift of the Naaru (monk)
+defaultAuras[59542]  = FILTER_BY_PLAYER -- Gift of the Naaru (paladin)
+defaultAuras[59544]  = FILTER_BY_PLAYER -- Gift of the Naaru (priest)
+defaultAuras[59547]  = FILTER_BY_PLAYER -- Gift of the Naaru (shaman)
+defaultAuras[28880]  = FILTER_BY_PLAYER -- Gift of the Naaru (warrior)
+-- Dwarf
+defaultAuras[20594]  = FILTER_ON_PLAYER -- Stoneform
+-- NightElf
+defaultAuras[58984]  = FILTER_ON_PLAYER -- Shadowmeld
+-- Orc
+defaultAuras[20572]  = FILTER_ON_PLAYER -- Blood Fury (attack power)
+defaultAuras[33702]  = FILTER_ON_PLAYER -- Blood Fury (spell power)
+defaultAuras[33697]  = FILTER_ON_PLAYER -- Blood Fury (attack power and spell damage)
+-- Pandaren
+defaultAuras[107079] = FILTER_ON_PLAYER -- Quaking Palm
+-- Scourge
+defaultAuras[7744]   = FILTER_ON_PLAYER -- Will of the Forsaken
+-- Tauren
+defaultAuras[20549]  = FILTER_ALL -- War Stomp
+-- Troll
+defaultAuras[26297]  = FILTER_ON_PLAYER -- Berserking
+-- Worgen
+defaultAuras[68992]  = FILTER_ON_PLAYER -- Darkflight
 
 ------------------------------------------------------------------------
---	Magic Vulnerability
+-- Magic Vulnerability
 
 if playerClass == "ROGUE" or playerClass == "WARLOCK" then
-	BaseAuras[1490]  = 1 -- Curse of the Elements (warlock)
-	BaseAuras[34889] = 1 -- Fire Breath (hunter dragonhawk)
-	BaseAuras[24844] = 1 -- Lightning Breath (hunter wind serpent)
-	BaseAuras[93068] = 1 -- Master Poisoner (rogue)
+	local FILTER = bit_bor(FILTER_CLASS_ROGUE, FILTER_CLASS_WARLOCK)
+
+	defaultAuras[1490]  = FILTER -- Curse of the Elements (warlock)
+	defaultAuras[34889] = FILTER -- Fire Breath (hunter dragonhawk)
+	defaultAuras[24844] = FILTER -- Lightning Breath (hunter wind serpent)
+	defaultAuras[93068] = FILTER -- Master Poisoner (rogue)
 end
 
 ------------------------------------------------------------------------
---	Mortal Wounds
+-- Mortal Wounds
 
 if playerClass == "HUNTER" or playerClass == "MONK" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
-	BaseAuras[54680]  = 1 -- Monstrous Bite (hunter devilsaur)
-	BaseAuras[115804] = 1 -- Mortal Wounds (monk, warrior)
-	BaseAuras[82654]  = 1 -- Widow Venom (hunter)
-	BaseAuras[8680]   = 1 -- Wound Poison (rogue)
+	local FILTER = bit_bor(FILTER_CLASS_HUNTER, FILTER_CLASS_MONK, FILTER_CLASS_ROGUE, FILTER_CLASS_WARRIOR)
+
+	defaultAuras[54680]  = FILTER -- Monstrous Bite (hunter devilsaur)
+	defaultAuras[115804] = FILTER -- Mortal Wounds (monk, warrior)
+	defaultAuras[82654]  = FILTER -- Widow Venom (hunter)
+	defaultAuras[8680]   = FILTER -- Wound Poison (rogue)
 end
 
 ------------------------------------------------------------------------
---	Physical Vulnerability
+-- Physical Vulnerability
 
 if playerClass == "DEATHKNIGHT" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
-	BaseAuras[55749] = 1 -- Acid Rain (hunter worm)
-	BaseAuras[35290] = 1 -- Gore (hunter boar)
-	BaseAuras[81326] = 1 -- Physical Vulnerability (death knight, paladin, warrior)
-	BaseAuras[50518] = 1 -- Ravage (hunter ravager)
-	BaseAuras[57386] = 1 -- Stampede (hunter rhino)
+	local FILTER = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_PALADIN, FILTER_CLASS_WARRIOR)
+
+	defaultAuras[55749] = FILTER -- Acid Rain (hunter worm)
+	defaultAuras[35290] = FILTER -- Gore (hunter boar)
+	defaultAuras[81326] = FILTER -- Physical Vulnerability (death knight, paladin, warrior)
+	defaultAuras[50518] = FILTER -- Ravage (hunter ravager)
+	defaultAuras[57386] = FILTER -- Stampede (hunter rhino)
 end
 
 ------------------------------------------------------------------------
---	Slow Casting
+-- Slow Casting
 
 if playerClass == "DEATHKNIGHT" or playerClass == "MAGE" or playerClass == "ROGUE" or playerClass == "WARLOCK" then
-	BaseAuras[109466] = 1 -- Curse of Enfeeblement (warlock)
-	BaseAuras[5760]   = 1 -- Mind-numbing Poison (rogue)
-	BaseAuras[73975]  = 1 -- Necrotic Strike (death knight)
-	BaseAuras[31589]  = 1 -- Slow (mage)
-	BaseAuras[50274]  = 1 -- Spore Cloud (hunter sporebat)
-	BaseAuras[90315]  = 1 -- Tailspin (hunter fox)
-	BaseAuras[126406] = 1 -- Trample (hunter goat)
-	BaseAuras[58604]  = 1 -- Lava Breath (hunter core hound)
+	local FILTER = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_MAGE, FILTER_CLASS_WARLOCK)
+
+	defaultAuras[109466] = FILTER -- Curse of Enfeeblement (warlock)
+	defaultAuras[5760]   = FILTER -- Mind-numbing Poison (rogue)
+	defaultAuras[73975]  = FILTER -- Necrotic Strike (death knight)
+	defaultAuras[31589]  = FILTER -- Slow (mage)
+	defaultAuras[50274]  = FILTER -- Spore Cloud (hunter sporebat)
+	defaultAuras[90315]  = FILTER -- Tailspin (hunter fox)
+	defaultAuras[126406] = FILTER -- Trample (hunter goat)
+	defaultAuras[58604]  = FILTER -- Lava Breath (hunter core hound)
 end
 
 ------------------------------------------------------------------------
---	Weakened Armor
+-- Taunts (tanks only)
+
+if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
+	local FILTER = bit_bor(FILTER_ROLE_TANK, FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_DRUID, FILTER_CLASS_MONK, FILTER_CLASS_PALADIN, FILTER_CLASS_WARRIOR)
+
+	defaultAuras[56222]  = FILTER -- Dark Command
+	defaultAuras[57604]  = FILTER -- Death Grip -- NEEDS CHECK 57603
+	defaultAuras[20736]  = FILTER -- Distracting Shot
+	defaultAuras[6795]   = FILTER -- Growl
+	defaultAuras[118585] = FILTER -- Leer of the Ox
+	defaultAuras[62124]  = FILTER -- Reckoning
+	defaultAuras[355]    = FILTER -- Taunt
+end
+
+------------------------------------------------------------------------
+-- Weakened Armor
 
 if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
 	-- druids need to keep Faerie Fire/Swarm up anyway, no need to see both, this has the shorter duration
-	BaseAuras[113746] = 1 -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
+	local FILTER = bit_bor(FILTER_CLASS_DRUID, FILTER_CLASS_ROGUE, FILTER_CLASS_WARRIOR)
+
+	defaultAuras[113746] = FILTER -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
 end
 
 ------------------------------------------------------------------------
---	Weakened Blows (tanks only)
+-- Weakened Blows (tanks only)
 
 if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
 	-- druids need to keep Thrash up anyway, no need to see both
-	tinsert(updateFuncs, function(auraList)
-		if ns.GetPlayerRole() == "TANK" then
-			--print("Adding Weakened Blows")
-			auraList[109466] = 1 -- Curse of Enfeeblement (warlock)
-			auraList[60256]  = 1 -- Demoralizing Roar (hunter bear)
-			auraList[24423]  = 1 -- Demoralizing Screech (hunter carrion bird)
-			auraList[115798] = 1 -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
-		end
-	end)
+	local FILTER = bit_bor(FILTER_ROLE_TANK, FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_MONK, FILTER_CLASS_PALADIN, FILTER_CLASS_WARRIOR)
+
+	auraList[109466] = FILTER -- Curse of Enfeeblement (warlock)
+	auraList[60256]  = FILTER -- Demoralizing Roar (hunter bear)
+	auraList[24423]  = FILTER -- Demoralizing Screech (hunter carrion bird)
+	auraList[115798] = FILTER -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
 end
 
 ------------------------------------------------------------------------
---	PvP
+-- PvP
 
-tinsert(updateFuncs, function(auraList)
-	if ns.config.PVP then
-		--print("Adding PVP auras")
-		-- Disarmed
-		auraList[50541]  = 1 -- Clench (hunter scorpid)
-		auraList[676]    = 1 -- Disarm (warrior)
-		auraList[51722]  = 1 -- Dismantle (rogue)
-		auraList[117368] = 1 -- Grapple Weapon (monk)
-		auraList[91644]  = 1 -- Snatch (hunter bird of prey)
-		--	Silenced
-		auraList[25046]  = 1 -- Arcane Torrent (blood elf - rogue)
-		auraList[28730]  = 1 -- Arcane Torrent (blood elf - mage, paladin, priest, warlock)
-		auraList[50613]  = 1 -- Arcane Torrent (blood elf - death knight)
-		auraList[69179]  = 1 -- Arcane Torrent (blood elf - warrior)
-		auraList[80483]  = 1 -- Arcane Torrent (blood elf - hunter)
-		auraList[129597] = 1 -- Arcane Torrent (blood elf - monk)
-		auraList[31935]  = 1 -- Avenger's Shield (paladin)
-		auraList[102051] = 1 -- Frostjaw (mage)
-		auraList[1330]   = 1 -- Garrote - Silence (rogue)
-		auraList[50479]  = 1 -- Nether Shock (hunter nether ray)
-		auraList[15487]  = 1 -- Silence (priest)
-		auraList[18498]  = 1 -- Silenced - Gag Order (warrior)
-		auraList[34490]  = 1 -- Silencing Shot (hunter)
-		auraList[78675]  = 1 -- Solar Beam (druid)
-		auraList[97547]  = 1 -- Solar Beam (druid)
-		auraList[113286] = 1 -- Solar Beam (symbiosis)
-		auraList[113287] = 1 -- Solar Beam (symbiosis)
-		auraList[113288] = 1 -- Solar Beam (symbiosis)
-		auraList[116709] = 1 -- Spear Hand Strike (monk)
-		auraList[24259]  = 1 -- Spell Lock (warlock felhunter)
-		auraList[47476]  = 1 -- Strangulate (death knight)
-	end
-end)
+-- Disarmed
+defaultAuras[50541]  = FILTER_PVP -- Clench (hunter scorpid)
+defaultAuras[676]    = FILTER_PVP -- Disarm (warrior)
+defaultAuras[51722]  = FILTER_PVP -- Dismantle (rogue)
+defaultAuras[117368] = FILTER_PVP -- Grapple Weapon (monk)
+defaultAuras[91644]  = FILTER_PVP -- Snatch (hunter bird of prey)
+
+-- Silenced
+defaultAuras[25046]  = FILTER_PVP -- Arcane Torrent (blood elf - rogue)
+defaultAuras[28730]  = FILTER_PVP -- Arcane Torrent (blood elf - mage, paladin, priest, warlock)
+defaultAuras[50613]  = FILTER_PVP -- Arcane Torrent (blood elf - death knight)
+defaultAuras[69179]  = FILTER_PVP -- Arcane Torrent (blood elf - warrior)
+defaultAuras[80483]  = FILTER_PVP -- Arcane Torrent (blood elf - hunter)
+defaultAuras[129597] = FILTER_PVP -- Arcane Torrent (blood elf - monk)
+defaultAuras[31935]  = FILTER_PVP -- Avenger's Shield (paladin)
+defaultAuras[102051] = FILTER_PVP -- Frostjaw (mage)
+defaultAuras[1330]   = FILTER_PVP -- Garrote - Silence (rogue)
+defaultAuras[50479]  = FILTER_PVP -- Nether Shock (hunter nether ray)
+defaultAuras[15487]  = FILTER_PVP -- Silence (priest)
+defaultAuras[18498]  = FILTER_PVP -- Silenced - Gag Order (warrior)
+defaultAuras[34490]  = FILTER_PVP -- Silencing Shot (hunter)
+defaultAuras[78675]  = FILTER_PVP -- Solar Beam (druid)
+defaultAuras[97547]  = FILTER_PVP -- Solar Beam (druid)
+defaultAuras[113286] = FILTER_PVP -- Solar Beam (symbiosis)
+defaultAuras[113287] = FILTER_PVP -- Solar Beam (symbiosis)
+defaultAuras[113288] = FILTER_PVP -- Solar Beam (symbiosis)
+defaultAuras[116709] = FILTER_PVP -- Spear Hand Strike (monk)
+defaultAuras[24259]  = FILTER_PVP -- Spell Lock (warlock felhunter)
+defaultAuras[47476]  = FILTER_PVP -- Strangulate (death knight)
 
 ------------------------------------------------------------------------
---	Taunted
+-- Random quest related auras
 
-if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
-	local Taunts = {
-		[56222]  = 1, -- Dark Command
-		[57604]  = 1, -- Death Grip -- NEEDS CHECK 57603
-		[20736]  = 1, -- Distracting Shot
-		[6795]   = 1, -- Growl
-		[118585] = 1, -- Leer of the Ox
-		[62124]  = 1, -- Reckoning
-		[355]    = 1, -- Taunt
-	}
-	tinsert(updateFuncs, function(auraList)
-		if ns.config.PVP then
-			--print("Removing taunts for PVP")
-			for aura in pairs(Taunts) do
-				BaseAuras[aura] = nil
-			end
-		else
-			--print("Adding taunts for PVE")
-			for aura, filter in pairs(Taunts) do
-				auraList[aura] = filter
-			end
-		end
-	end)
-end
+defaultAuras[127372] = FILTER_BY_PLAYER -- Unstable Serum (Klaxxi Enhancement: Raining Blood)
 
 ------------------------------------------------------------------------
---	Random quest related auras
+-- Boss debuffs that Blizzard forgot to flag
 
-BaseAuras[127372] = 2 -- Unstable Serum (Klaxxi Enhancement: Raining Blood)
-
-------------------------------------------------------------------------
---	Boss debuffs that Blizzard forgot to flag
-
-BaseAuras[106648] = 1 -- Brew Explosion (Ook Ook in Stormsnout Brewery)
-BaseAuras[106784] = 1 -- Brew Explosion (Ook Ook in Stormsnout Brewery)
-BaseAuras[123059] = 1 -- Destabilize (Amber-Shaper Un'sok)
+defaultAuras[106648] = FILTER_ALL -- Brew Explosion (Ook Ook in Stormsnout Brewery)
+defaultAuras[106784] = FILTER_ALL -- Brew Explosion (Ook Ook in Stormsnout Brewery)
+defaultAuras[123059] = FILTER_ALL -- Destabilize (Amber-Shaper Un'sok)
 
 ------------------------------------------------------------------------
---	Enchant procs that Blizzard failed to flag with their caster
+-- Enchant procs that Blizzard failed to flag with their caster
 
-BaseAuras[116631] = 0 -- Colossus
-BaseAuras[118334] = 0 -- Dancing Steel (agi)
-BaseAuras[118335] = 0 -- Dancing Steel (str)
-BaseAuras[104993] = 0 -- Jade Spirit
-BaseAuras[116660] = 0 -- River's Song
-BaseAuras[104509] = 0 -- Windsong (crit)
-BaseAuras[104423] = 0 -- Windsong (haste)
-BaseAuras[104510] = 0 -- Windsong (mastery)
+defaultAuras[116631] = FILTER_DISABLE -- Colossus
+defaultAuras[118334] = FILTER_DISABLE -- Dancing Steel (agi)
+defaultAuras[118335] = FILTER_DISABLE -- Dancing Steel (str)
+defaultAuras[104993] = FILTER_DISABLE -- Jade Spirit
+defaultAuras[116660] = FILTER_DISABLE -- River's Song
+defaultAuras[104509] = FILTER_DISABLE -- Windsong (crit)
+defaultAuras[104423] = FILTER_DISABLE -- Windsong (haste)
+defaultAuras[104510] = FILTER_DISABLE -- Windsong (mastery)
 
 ------------------------------------------------------------------------
---	NPC buffs that are completely useless
+-- NPC buffs that are completely useless
 
-BaseAuras[63501] = 0 -- Argent Crusade Champion's Pennant
-BaseAuras[60023] = 0 -- Scourge Banner Aura (Boneguard Commander in Icecrown)
-BaseAuras[63406] = 0 -- Darnassus Champion's Pennant
-BaseAuras[63405] = 0 -- Darnassus Valiant's Pennant
-BaseAuras[63423] = 0 -- Exodar Champion's Pennant
-BaseAuras[63422] = 0 -- Exodar Valiant's Pennant
-BaseAuras[63396] = 0 -- Gnomeregan Champion's Pennant
-BaseAuras[63395] = 0 -- Gnomeregan Valiant's Pennant
-BaseAuras[63427] = 0 -- Ironforge Champion's Pennant
-BaseAuras[63426] = 0 -- Ironforge Valiant's Pennant
-BaseAuras[63433] = 0 -- Orgrimmar Champion's Pennant
-BaseAuras[63432] = 0 -- Orgrimmar Valiant's Pennant
-BaseAuras[63399] = 0 -- Sen'jin Champion's Pennant
-BaseAuras[63398] = 0 -- Sen'jin Valiant's Pennant
-BaseAuras[63403] = 0 -- Silvermoon Champion's Pennant
-BaseAuras[63402] = 0 -- Silvermoon Valiant's Pennant
-BaseAuras[62594] = 0 -- Stormwind Champion's Pennant
-BaseAuras[62596] = 0 -- Stormwind Valiant's Pennant
-BaseAuras[63436] = 0 -- Thunder Bluff Champion's Pennant
-BaseAuras[63435] = 0 -- Thunder Bluff Valiant's Pennant
-BaseAuras[63430] = 0 -- Undercity Champion's Pennant
-BaseAuras[63429] = 0 -- Undercity Valiant's Pennant
+defaultAuras[63501] = FILTER_DISABLE -- Argent Crusade Champion's Pennant
+defaultAuras[60023] = FILTER_DISABLE -- Scourge Banner Aura (Boneguard Commander in Icecrown)
+defaultAuras[63406] = FILTER_DISABLE -- Darnassus Champion's Pennant
+defaultAuras[63405] = FILTER_DISABLE -- Darnassus Valiant's Pennant
+defaultAuras[63423] = FILTER_DISABLE -- Exodar Champion's Pennant
+defaultAuras[63422] = FILTER_DISABLE -- Exodar Valiant's Pennant
+defaultAuras[63396] = FILTER_DISABLE -- Gnomeregan Champion's Pennant
+defaultAuras[63395] = FILTER_DISABLE -- Gnomeregan Valiant's Pennant
+defaultAuras[63427] = FILTER_DISABLE -- Ironforge Champion's Pennant
+defaultAuras[63426] = FILTER_DISABLE -- Ironforge Valiant's Pennant
+defaultAuras[63433] = FILTER_DISABLE -- Orgrimmar Champion's Pennant
+defaultAuras[63432] = FILTER_DISABLE -- Orgrimmar Valiant's Pennant
+defaultAuras[63399] = FILTER_DISABLE -- Sen'jin Champion's Pennant
+defaultAuras[63398] = FILTER_DISABLE -- Sen'jin Valiant's Pennant
+defaultAuras[63403] = FILTER_DISABLE -- Silvermoon Champion's Pennant
+defaultAuras[63402] = FILTER_DISABLE -- Silvermoon Valiant's Pennant
+defaultAuras[62594] = FILTER_DISABLE -- Stormwind Champion's Pennant
+defaultAuras[62596] = FILTER_DISABLE -- Stormwind Valiant's Pennant
+defaultAuras[63436] = FILTER_DISABLE -- Thunder Bluff Champion's Pennant
+defaultAuras[63435] = FILTER_DISABLE -- Thunder Bluff Valiant's Pennant
+defaultAuras[63430] = FILTER_DISABLE -- Undercity Champion's Pennant
+defaultAuras[63429] = FILTER_DISABLE -- Undercity Valiant's Pennant
 
 ------------------------------------------------------------------------
 
 local auraList = {}
 ns.AuraList = auraList
-
+_G.OPNS = ns
 ns.UpdateAuraList = function()
 	--print("UpdateAuraList")
 	wipe(auraList)
-	-- Add base auras
-	for aura, filter in pairs(BaseAuras) do
-		auraList[aura] = filter
+	local PVP = ns.config.PVP
+	local filterForRole = roleFilter[ns.GetPlayerRole()]
+	local filterForClass = classFilter[playerClass]
+	for id, v in pairs(oUFPhanxAuraConfig) do
+		local skip
+		if bit_band(v, FILTER_ALL) == 0 then
+			if (bit_band(v, FILTER_PVP) > 0 and not PVP)
+			or (bit_band(v, FILTER_PVE) > 0 and PVP)
+			or (bit_band(v, FILTER_ROLE_MASK) > 0 and bit_band(v, filterForRole) == 0)
+			or (bit_band(v, FILTER_CLASS_MASK) > 0 and bit_band(v,filterForClass ) == 0) then
+				skip = true
+			end
+		end
+		if not skip then
+			auraList[id] = v
+		end
 	end
-	-- Add auras that depend on spec or PVP mode
-	for i = 1, #updateFuncs do
-		updateFuncs[i](auraList)
-	end
-	-- Add custom auras
-	for aura, filter in pairs(oUFPhanxAuraConfig) do
-		auraList[aura] = filter
-	end
+
 	-- Update all the things
 	for _, obj in pairs(oUF.objects) do
 		if obj.Auras then
@@ -1008,28 +1146,36 @@ local filters = {
 	[4] = function(self, unit, caster) return unit == "player" and not self.__owner.isGroupFrame end,
 }
 
+local function checkFilter(v, unit, caster)
+	if bit_band(v, FILTER_BY_PLAYER) > 0 then
+		return unitIsPlayer[caster]
+	elseif bit_band(v, FILTER_ON_FRIEND) > 0 then
+		return UnitIsFriend(unit, "player") and UnitPlayerControlled(unit)
+	elseif bit_band(v, FILTER_ON_PLAYER) > 0 then
+		return unit == "player" and not self.__owner.isGroupFrame
+	else
+		return bit_band(v, FILTER_DISABLE) == 0
+	end
+end
+
 ns.CustomAuraFilters = {
 	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
-		-- print("CustomAuraFilter", self.__owner:GetName(), "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, caster == "vehicle")
 		local v = auraList[spellID]
-		if v and filters[v] then
-			return filters[v](self, unit, caster)
-		elseif v then
-			return v > 0
-		else
-			return caster and UnitIsUnit(caster, "vehicle")
+		--ChatFrame3:AddMessage(strjoin(" ", tostringall("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, "[vehicle]", caster == "vehicle")))
+		if v then
+			return checkFilter(v, unit, caster)
 		end
+		return caster and UnitIsUnit(caster, "vehicle")
 	end,
 	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
-		return caster and unitIsPlayer[caster] and auraList[spellID] == 2
+		local v = auraList[spellID]
+		return caster and unitIsPlayer[caster] and (not v or bit_band(v, FILTER_BY_PLAYER) > 0)
 	end,
 	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
 		-- print("CustomAuraFilter", unit, spellID, name, caster, v)
-		if v and filters[v] then
-			return filters[v](self, unit, caster)
-		elseif v then
-			return v > 0
+		if v then
+			return checkFilter(v, unit, caster)
 		elseif not caster and not IsInInstance() then
 			-- test
 			return
@@ -1045,6 +1191,6 @@ ns.CustomAuraFilters = {
 	end,
 	party = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
-		return v and v < 4
+		return v and bit_band(v, FILTER_ON_PLAYER) == 0
 	end,
 }
