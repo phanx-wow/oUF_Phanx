@@ -6,7 +6,7 @@
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
-
+do return end -- needs update for bitfield stuff
 local _, ns = ...
 local L = ns.L
 
