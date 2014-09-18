@@ -1146,7 +1146,7 @@ local filters = {
 	[4] = function(self, unit, caster) return unit == "player" and not self.__owner.isGroupFrame end,
 }
 
-local function checkFilter(v, unit, caster)
+local function checkFilter(v, self, unit, caster)
 	if bit_band(v, FILTER_BY_PLAYER) > 0 then
 		return unitIsPlayer[caster]
 	elseif bit_band(v, FILTER_ON_FRIEND) > 0 then
@@ -1163,7 +1163,7 @@ ns.CustomAuraFilters = {
 		local v = auraList[spellID]
 		--ChatFrame3:AddMessage(strjoin(" ", tostringall("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, "[vehicle]", caster == "vehicle")))
 		if v then
-			return checkFilter(v, unit, caster)
+			return checkFilter(v, self, unit, caster)
 		end
 		return caster and UnitIsUnit(caster, "vehicle")
 	end,
@@ -1175,7 +1175,7 @@ ns.CustomAuraFilters = {
 		local v = auraList[spellID]
 		-- print("CustomAuraFilter", unit, spellID, name, caster, v)
 		if v then
-			return checkFilter(v, unit, caster)
+			return checkFilter(v, self, unit, caster)
 		elseif not caster and not IsInInstance() then
 			-- test
 			return
