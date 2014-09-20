@@ -37,7 +37,6 @@ Elements\DemonicFury.lua
 Elements\DispelHighlight.lua
 Elements\ResInfo.lua
 Elements\SoulShards.lua
-Elements\ThreatHighlight.lua
 Elements\WildMushrooms.lua
 
 Features\Border.lua
