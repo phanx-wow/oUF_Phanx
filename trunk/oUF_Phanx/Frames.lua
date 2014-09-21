@@ -244,20 +244,16 @@ local function Spawn(self, unit, isSingle)
 	------------------
 	-- Combo points --
 	------------------
+	-- TODO: extra bar on target frame OK?
 	if unit == "target" then
-		local t = ns.Orbs.Create(self.overlay, MAX_COMBO_POINTS, 20)
-		for i = MAX_COMBO_POINTS, 1, -1 do
-			local orb = t[i]
-			if i == 1 then
-				orb:SetPoint("TOPLEFT", self, "BOTTOMLEFT", -2, 5)
-			else
-				orb:SetPoint("BOTTOMLEFT", t[i - 1], "BOTTOMRIGHT", -2, 0)
-			end
-			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-			orb.fg:SetVertexColor(1, 0.8, 0)
+		local cp = ns.CreateMultiBar(self, MAX_COMBO_POINTS)
+		for i = 1, #cp do
+			cp[i]:SetStatusBarColor(1, 0.8, 0)
+			cp[i].bg:SetVertexColor(0.25, 0.2, 0)
+			cp[i].bg:SetParent(cp)
 		end
-		self.CPoints = t
-		self.CPoints.Override = ns.ComboPoints_Override
+		--cp.Override = ns.ComboPoints_Override
+		self.CPoints = cp
 	end
 
 	------------------------------
@@ -303,41 +299,25 @@ local function Spawn(self, unit, isSingle)
 			powerType = SPELL_POWER_SOUL_SHARDS
 		end
 
-		local function SetAlpha(self, alpha)
-			--print("SetAlpha", self.id, alpha)
-			if alpha == 1 then
-				self.bg:SetVertexColor(0.25, 0.25, 0.25)
-				self.bg:SetAlpha(1)
-				self.fg:Show()
-			else
-				self.bg:SetVertexColor(0.4, 0.4, 0.4)
-				self.bg:SetAlpha(0.5)
-				self.fg:Hide()
-			end
-		end
+		local el = ns.CreateMultiBar(self, 5)
+		el.powerType = powerType
+		el.Override = updateFunc
+		el.UpdateTexture = noop -- fuck off oUF >:(
+		self[element] = el
 
-		local t = ns.Orbs.Create(self.overlay, 5, 20)
-		for i = 1, 5 do
-			local orb = t[i]
-			if i == 1 then
-				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
-			else
-				orb:SetPoint("BOTTOMRIGHT", t[i - 1], "BOTTOMLEFT", 2, 0)
-			end
-			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-			orb.fg:SetVertexColor(color.r, color.g, color.b)
-			orb.SetAlpha = SetAlpha
+		local mu = config.powerBG
+		for i = 1, #el do
+			el[i]:SetStatusBarColor(color.r, color.g, color.b)
+			el[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 		end
-		t.powerType = powerType
-		t.Override = updateFunc
-		t.UpdateTexture = noop -- fuck off oUF >:(
-		self[element] = t
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				local color = CUSTOM_CLASS_COLORS[playerClass]
-				for i = 1, #t do
-					t[i].fg:SetVertexColor(color.r, color.g, color.b)
+				local mu = config.powerBG
+				for i = 1, #el do
+					el[i]:SetStatusBarColor(color.r, color.g, color.b)
+					el[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 				end
 			end)
 		end
@@ -348,18 +328,6 @@ local function Spawn(self, unit, isSingle)
 	--------------------
 	if unit == "player" and (playerClass == "MAGE" or playerClass == "SHAMAN") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
-
-		local function SetAlpha(orb, alpha)
-			if alpha == 1 then
-				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-				orb.bg:SetAlpha(1)
-				orb.fg:Show()
-			else
-				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
-				orb.bg:SetAlpha(0.5)
-				orb.fg:Hide()
-			end
-		end
 
 		local aura, filter, maxCount, actviate, activateEvents
 		if playerClass == "MAGE" then
@@ -379,30 +347,26 @@ local function Spawn(self, unit, isSingle)
 			activateEvents = "PLAYER_SPECIALIZATION_CHANGED PLAYER_LEVEL_UP"
 		end
 
-		local t = ns.Orbs.Create(self.overlay, maxCount, 20)
+		local t = ns.CreateMultiBar(self, maxCount)
 		t.aura = aura
 		t.filter = filter
 		t.activate = activate
 		t.activateEvents = activateEvents
 
+		local mu = config.powerBG
 		for i = 1, #t do
-			local orb = t[i]
-			if i == 1 then
-				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
-			else
-				orb:SetPoint("BOTTOMRIGHT", t[i - 1], "BOTTOMLEFT", 2, 0)
-			end
-			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-			orb.fg:SetVertexColor(color.r, color.g, color.b)
-			orb.SetAlpha = SetAlpha
+			t[i]:SetStatusBarColor(color.r, color.g, color.b)
+			t[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 		end
 		self.AuraStack = t
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				color = CUSTOM_CLASS_COLORS[playerClass]
+				mu = config.powerBG
 				for i = 1, #t do
-					t[i].fg:SetVertexColor(color.r, color.g, color.b)
+					t[i]:SetStatusBarColor(color.r, color.g, color.b)
+					t[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 				end
 			end)
 		end
