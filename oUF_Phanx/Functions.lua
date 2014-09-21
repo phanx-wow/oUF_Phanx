@@ -45,6 +45,21 @@ ns.framePrototype = {
 }
 
 ------------------------------------------------------------------------
+--	General utility
+------------------------------------------------------------------------
+
+if playerClass == "HUNTER" or playerClass == "MAGE" or playerClass == "ROGUE" or playerClass == "WARLOCK" then
+	function ns.GetPlayerRole()
+		return "DAMAGER"
+	end
+else
+	function ns.GetPlayerRole()
+		local spec = GetSpecialization()
+		local role = spec and spec > 0 and select(6, GetSpecializationInfo(spec)) or "DAMAGER"
+	end
+end
+
+------------------------------------------------------------------------
 --	Border
 ------------------------------------------------------------------------
 
@@ -289,19 +304,10 @@ end
 
 ------------------------------------------------------------------------
 --	Combo points
+-- NOT CURRENTLY USED
 ------------------------------------------------------------------------
 
 function ns.ComboPoints_Override(self, event, unit)
-	if unit == "pet" then return end
-
-	local cp
-	if UnitHasVehicleUI("player") then
-		cp = GetComboPoints("vehicle", "target")
-	else
-		cp = GetComboPoints("player", "target")
-	end
-
-	ns.Orbs.Update(self.CPoints, cp)
 end
 
 ------------------------------------------------------------------------

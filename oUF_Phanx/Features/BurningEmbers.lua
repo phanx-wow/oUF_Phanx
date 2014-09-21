@@ -37,46 +37,12 @@ ns.CreateBurningEmbers = function(frame)
 		return BurningEmbers
 	end
 
-	BurningEmbers = CreateFrame("Frame", nil, frame)
-	BurningEmbers:Hide()
-
-	BurningEmbers:SetBackdrop(ns.config.backdrop)
-	BurningEmbers:SetBackdropColor(0, 0, 0, 1)
-	BurningEmbers:SetBackdropBorderColor(unpack(ns.config.borderColor))
-
-	BurningEmbers:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, -1)
-	BurningEmbers:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, -1)
-	BurningEmbers:SetHeight(frame:GetHeight() * ns.config.powerHeight + 2)
-
-	local numEmbers = 4
-	local emberGap = 1
-	local emberWidth = (frame:GetWidth() - (emberGap * (numEmbers + 1))) / numEmbers
-
-	for i = 1, numEmbers do
-		local bar = ns.CreateStatusBar(BurningEmbers)
-		bar:SetWidth(emberWidth)
-		bar:SetReverseFill(true)
-		bar.bg.multiplier = ns.config.powerBG
-
-		if i > 1 then
-			bar:SetPoint("TOPRIGHT", BurningEmbers[i-1], "TOPLEFT", -1, 0)
-			bar:SetPoint("BOTTOMRIGHT", BurningEmbers[i-1], "BOTTOMLEFT", -1, 0)
-		else
-			bar:SetPoint("TOPRIGHT", BurningEmbers, -1, -1)
-			bar:SetPoint("BOTTOMRIGHT", BurningEmbers, -1, 1)
-		end
-
-		bar.__owner = frame
-		BurningEmbers[i] = bar
+	BurningEmbers = ns.CreateMultiBar(frame, 4)
+	BurningEmbers.PostUpdate = BurningEmbers_PostUpdate
+	
+	for i = 1, #BurningEmbers do
+		BurningEmbers[i]:SetReverseFill(true)
 	end
 
-	BurningEmbers:SetScript("OnEnter", ns.UnitFrame_OnEnter)
-	BurningEmbers:SetScript("OnLeave", ns.UnitFrame_OnLeave)
-	
-	BurningEmbers:Hide()
-	BurningEmbers:SetScript("OnShow", ns.ExtraBar_OnShow)
-	BurningEmbers:SetScript("OnHide", ns.ExtraBar_OnHide)
-
-	BurningEmbers.PostUpdate = BurningEmbers_PostUpdate
 	return BurningEmbers
 end

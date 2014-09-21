@@ -6,6 +6,7 @@
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
+-- TODO: check interaction between default bar behavior vs MultiBar
 
 if select(2, UnitClass("player")) ~= "DEATHKNIGHT" then return end
 
@@ -69,52 +70,18 @@ ns.CreateRunes = function(frame)
 		return Runes
 	end
 
-	Runes = CreateFrame("Frame", nil, frame)
-	Runes:SetFrameLevel(frame:GetFrameLevel() - 2) -- ???
-	Runes:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, -1)
-	Runes:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, -1)
-	Runes:SetHeight(frame:GetHeight() * ns.config.powerHeight + 2)
+	Runes = ns.CreateMultiBar(frame, 6, 16, true)
+	Runes.PostUpdateRune = PostUpdateRune
 
-	Runes:SetBackdrop(ns.config.backdrop)
-	Runes:SetBackdropColor(0, 0, 0, 1)
-	Runes:SetBackdropBorderColor(unpack(ns.config.borderColor))
-
-	local MAX_RUNES = 6
-	local RUNE_WIDTH = floor((frame:GetWidth() - (MAX_RUNES + 1)) / MAX_RUNES + 0.5)
-
-	for i = 1, MAX_RUNES do
-		local bar = ns.CreateStatusBar(Runes, 16, "CENTER")
-		bar:SetWidth(RUNE_WIDTH)
-		if i > 1 then
-			bar:SetPoint("TOPLEFT", Runes[i-1], "TOPRIGHT", 1, 0)
-			bar:SetPoint("BOTTOMLEFT", Runes[i-1], "BOTTOMRIGHT", 1, 0)
-			if i == MAX_RUNES then
-				-- Fill up remaining space (probably 1px) left by rounding
-				-- the bars down to avoid fuzzy edges.
-				bar:SetPoint("TOPRIGHT", Runes, -1, -1)
-				bar:SetPoint("BOTTOMRIGHT", Runes, -1, 1)
-			end
-		else
-			bar:SetPoint("TOPLEFT", Runes, 1, -1)
-			bar:SetPoint("BOTTOMLEFT", Runes, 1, 1)
-		end
-
+	for i = 1, #Runes do
+		local bar = Runes[i]
 		bar:EnableMouse(false)
 		bar:SetScript("OnEnter", Rune_OnEnter)
 		bar:SetScript("OnLeave", Rune_OnLeave)
 
-		bar.bg.multiplier = ns.config.powerBG
-
 		bar.value:SetPoint("CENTER", bar, 0, 1)
 		bar.value:Hide()
-
-		Runes[i] = bar
 	end
-
-	Runes.__name = "Runes"
-	Runes:Hide()
-	Runes:SetScript("OnShow", ns.ExtraBar_OnShow)
-	Runes:SetScript("OnHide", ns.ExtraBar_OnHide)
 
 	tinsert(frame.mouseovers, function(self, isMouseOver)
 		local func = isMouseOver and Rune_OnEnter or Rune_OnLeave
@@ -123,6 +90,5 @@ ns.CreateRunes = function(frame)
 		end
 	end)
 
-	Runes.PostUpdateRune = PostUpdateRune
 	return Runes
 end

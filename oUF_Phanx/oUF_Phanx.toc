@@ -29,6 +29,9 @@ Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibResInfo-1.0\LibResInfo-1.0.lua
 Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 
+Features\MultiBar.lua
+Features\Orbs.lua
+
 Elements\AFK.lua
 Elements\AuraStack.lua
 Elements\BurningEmbers.lua
@@ -43,7 +46,6 @@ Features\Border.lua
 Features\BurningEmbers.lua
 Features\Castbar.lua
 Features\EclipseBar.lua
-Features\Orbs.lua
 Features\Runes.lua
 Features\Tags.lua
 Features\Totems.lua
@@ -52,7 +54,4 @@ Core.lua
 
 Auras.lua
 Functions.lua
-Role.lua
-
-Frames.xml
 Frames.lua

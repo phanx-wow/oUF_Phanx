@@ -23,6 +23,7 @@ oUF.colors.totems = TOTEM_COLORS
 
 local ColorGradient = oUF.ColorGradient
 local SMOOTH_COLORS = oUF.colors.smooth
+local SecondsToTimeAbbrev = SecondsToTimeAbbrev
 local unpack = unpack
 
 local function Totem_OnEnter(bar)
@@ -46,7 +47,6 @@ local function Totem_OnUpdate(bar, elapsed)
 	if duration > 0 then
 		bar.duration = duration
 		bar:SetValue(duration)
-
 		if bar.isMouseOver or bar.__owner.isMouseOver then
 			bar.value:SetFormattedText(SecondsToTimeAbbrev(duration))
 			bar.value:SetTextColor(ColorGradient(bar.duration, bar.max, unpack(SMOOTH_COLORS)))
@@ -58,25 +58,29 @@ end
 
 local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
 	local bar = element[id]
-	if not bar.scripted then
-		bar:HookScript("OnEnter", Totem_OnEnter)
-		bar:HookScript("OnLeave", Totem_OnLeave)
-		bar.scripted = true
-	end
 
 	bar.duration = duration
 	bar.max = duration
 
 	if duration > 0 then
+		bar:EnableMouse(true)
 		bar:SetMinMaxValues(0, duration)
-	end
-
-	for i = 1, #element do
-		if element[i]:IsShown() then
-			return element:Show()
+		bar:SetScript("OnUpdate", Totem_OnUpdate)
+		bar.icon:SetTexture(icon)
+		element:Show()
+	else
+		Totem_OnLeave(bar)
+		bar:EnableMouse(false)
+		bar:SetScript("OnUpdate", nil)
+		bar:SetValue(0)
+		bar.icon:SetTexture(nil)
+		for i = 1, #element do
+			if element[i].duration > 0 then
+				return element:Show()
+			end
 		end
+		element:Hide()
 	end
-	element:Hide()
 end
 
 ns.CreateTotems = function(frame)
@@ -84,54 +88,37 @@ ns.CreateTotems = function(frame)
 		return Totems
 	end
 
-	Totems = CreateFrame("Frame", nil, frame)
-	Totems:SetFrameLevel(frame:GetFrameLevel() - 2)
-	Totems:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0, -1)
-	Totems:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 0, -1)
-	Totems:SetHeight(frame:GetHeight() * ns.config.powerHeight + 2)
+	Totems = ns.CreateMultiBar(frame, 4, 16, true)
+	Totems.PostUpdate = Totems_PostUpdate
 
-	Totems:SetBackdrop(ns.config.backdrop)
-	Totems:SetBackdropColor(0, 0, 0, 1)
-	Totems:SetBackdropBorderColor(unpack(ns.config.borderColor))
+	local iconSize = Totems[1]:GetWidth() * 0.5
 
-	local totemGap = 1
-	local totemWidth = (frame:GetWidth() - (totemGap * (MAX_TOTEMS + 1))) / MAX_TOTEMS
+	for i = 1, #Totems do
+		local bar = Totems[i]
+		
+		bar.duration = 0
+		bar:SetMinMaxValues(0, 1)
 
-	for i = 1, MAX_TOTEMS do
-		local bar = ns.CreateStatusBar(Totems, 16, "CENTER")
-		bar:SetWidth(totemWidth)
 		bar:SetHitRectInsets(0, 0, -10, 0)
+		bar:SetReverseFill(true) -- TODO: experimental
 
 		bar:EnableMouse(true)
-		bar:Hide()
-		bar:SetScript("OnUpdate", Totem_OnUpdate)
-
-		if i > 1 then
-			bar:SetPoint("TOPLEFT", Totems[i-1], "TOPRIGHT", 1, 0)
-			bar:SetPoint("BOTTOMLEFT", Totems[i-1], "BOTTOMRIGHT", 1, 0)
-		else
-			bar:SetPoint("TOPLEFT", Totems, 1, -1)
-			bar:SetPoint("BOTTOMLEFT", Totems, 1, 1)
-		end
-
-		bar.bg.multiplier = ns.config.powerBG
-		bar.bg:SetParent(Totems)
-		bar.bg:SetDrawLayer("ARTWORK")
-		bar.bg:Show()
-
-		bar.iconFrame = CreateFrame("Frame", nil, bar)
-		bar.iconFrame:SetPoint("CENTER")
-		bar.iconFrame:SetSize(totemWidth * 0.5, totemWidth * 0.5)
-		bar.iconFrame:Hide()
-
-		ns.CreateBorder(bar.iconFrame)
-
-		bar.Icon = bar.iconFrame:CreateTexture(nil, "BACKGROUND")
-		bar.Icon:SetAllPoints(true)
-		bar.Icon:SetTexCoord(0.09, 0.91, 0.08, 0.91)
+		bar:SetScript("OnEnter", Totem_OnEnter)
+		bar:SetScript("OnLeave", Totem_OnLeave)
 
 		bar.value:SetPoint("CENTER", bar, 1, 1)
 		bar.value:Hide()
+
+		bar.iconFrame = CreateFrame("Frame", nil, bar)
+		bar.iconFrame:SetPoint("CENTER")
+		bar.iconFrame:SetSize(iconSize, iconSize)
+		bar.iconFrame:Hide()
+
+		bar.icon = bar.iconFrame:CreateTexture(nil, "BACKGROUND")
+		bar.icon:SetAllPoints(true)
+		bar.icon:SetTexCoord(0.09, 0.91, 0.08, 0.91)
+
+		ns.CreateBorder(bar.iconFrame)
 
 		local color = bar.color or TOTEM_COLORS[i]
 		local r, g, b, mu = color[1], color[2], color[3], bar.bg.multiplier or 1
@@ -139,16 +126,7 @@ ns.CreateTotems = function(frame)
 		bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
 
 		tinsert(frame.mouseovers, bar.value)
-
-		bar.__owner = frame
-		Totems[i] = bar
 	end
 
-	Totems.__name = "Totems"
-	Totems:Hide()
-	Totems:SetScript("OnShow", ns.ExtraBar_OnShow)
-	Totems:SetScript("OnHide", ns.ExtraBar_OnHide)
-
-	Totems.PostUpdate = Totems_PostUpdate
 	return Totems
 end
