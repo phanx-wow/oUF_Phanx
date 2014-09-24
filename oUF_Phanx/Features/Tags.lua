@@ -22,7 +22,7 @@ oUF.Tags.Methods["unitcolor"] = function(unit)
 	elseif UnitIsPlayer(unit) then
 		local _, class = UnitClass(unit)
 		color = oUF.colors.class[class]
-	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) then
+	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) and not UnitIsTappedByAllThreatList(unit) then
 		color = oUF.colors.tapped
 	elseif UnitIsEnemy(unit, "player") then
 		color = oUF.colors.reaction[1]
