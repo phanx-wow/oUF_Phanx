@@ -199,13 +199,21 @@ end
 ------------------------------------------------------------------------
 
 do
-	local UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals
-	    = UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals
+	local UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals, UnitIsDeadOrGhost
+	    = UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals, UnitIsDeadOrGhost
 
 	function ns.HealPrediction_Override(self, event, unit)
 		--print("HealPrediction Override", event, unit)
 		local element = self.HealPrediction
 		local parent = self.Health
+		
+		if UnitIsDeadOrGhost(unit) then
+			element.healingBar:Hide()
+			element.healingBar.cap:Hide()
+			element.absorbsBar:Hide()
+			element.absorbsBar.cap:Hide()
+			return
+		end
 
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
 		local missing = maxHealth - health
@@ -215,13 +223,13 @@ do
 			healing = healing - (UnitGetIncomingHeals(unit, "player") or 0)
 		end
 
-		if (healing / maxHealth) >= 0.1 and missing > 0 then
+		if missing > 0 and (healing / maxHealth) >= 0.1 then
 			local bar = element.healingBar
 			bar:Show()
 			bar:SetMinMaxValues(0, maxHealth)
 			if healing > missing then
 				bar:SetValue(missing)
-				bar.cap:SetShown((healing - missing) / maxHealth > element.maxOverflow)
+				bar.cap:SetShown((healing - missing) / maxHealth > 0.05)
 				missing = 0
 			else
 				bar:SetValue(healing)
@@ -231,26 +239,27 @@ do
 			parent = bar
 		else
 			element.healingBar:Hide()
-			element.healingBar.cap:SetShown(healing / maxHealth > element.maxOverflow)
+			element.healingBar.cap:SetShown(healing / maxHealth > 0.05)
 		end
 
 		local absorbs = UnitGetTotalAbsorbs(unit) or 0
-		if (absorbs / maxHealth) >= 0.1 and missing > 0 then
+		if missing > 0 and (absorbs / maxHealth) >= 0.1 then
 			local bar = element.absorbsBar
 			bar:Show()
 			bar:SetPoint("TOPLEFT", parent.texture, "TOPRIGHT")
 			bar:SetPoint("BOTTOMLEFT", parent.texture, "BOTTOMRIGHT")
 			bar:SetMinMaxValues(0, maxHealth)
+			bar.spark:SetShown(parent == element.healingBar)
 			if absorbs > missing then
 				bar:SetValue(missing)
-				bar.cap:SetShown((absorbs - missing) / maxHealth > element.maxOverflow)
+				bar.cap:SetShown((absorbs - missing) / maxHealth > 0.05)
 			else
 				bar:SetValue(absorbs)
 				bar.cap:Hide()
 			end
 		else
 			element.absorbsBar:Hide()
-			element.absorbsBar.cap:SetShown(absorbs / maxHealth > element.maxOverflow)
+			element.absorbsBar.cap:SetShown(absorbs / maxHealth > 0.05)
 		end
 	end
 end
