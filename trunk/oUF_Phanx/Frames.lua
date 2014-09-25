@@ -122,7 +122,7 @@ local function Spawn(self, unit, isSingle)
 		healing:SetPoint("TOPLEFT", health.texture, "TOPRIGHT")
 		healing:SetPoint("BOTTOMLEFT", health.texture, "BOTTOMRIGHT")
 		healing:SetStatusBarColor(0.25, 1, 0.25, 0.5)
-
+--[[
 		local spark = healing:CreateTexture(nil, "OVERLAY")
 		spark:SetPoint("TOP", healing, "TOPLEFT")
 		spark:SetPoint("BOTTOM", healing, "BOTTOMLEFT")
@@ -132,13 +132,15 @@ local function Spawn(self, unit, isSingle)
 		spark:SetBlendMode("ADD")
 		spark:SetAlpha(0.25)
 		healing.spark = spark
-
+]]
 		local cap = self.overlay:CreateTexture(nil, "OVERLAY")
-		cap:SetPoint("CENTER", health, "RIGHT")
+		cap:SetPoint("CENTER", self, "RIGHT")
 		cap:SetSize(16, 32)
-		cap:SetTexture("Interface\\RaidFrame\\Shield-Overshield")
+		cap:SetTexture("Interface\\RaidFrame\\Absorb-Overabsorb")
 		cap:SetBlendMode("ADD")
 		cap:SetAlpha(0.75)
+		cap:SetDesaturated(true)
+		cap:SetVertexColor(0, 1, 0)
 		healing.cap = cap
 
 		local absorbs = ns.CreateStatusBar(health, nil, nil, true)
@@ -158,13 +160,11 @@ local function Spawn(self, unit, isSingle)
 		absorbs.spark = spark
 
 		local cap = self.overlay:CreateTexture(nil, "OVERLAY")
-		cap:SetPoint("CENTER", health, "RIGHT")
+		cap:SetPoint("CENTER", self, "RIGHT")
 		cap:SetSize(16, 32)
-		cap:SetTexture("Interface\\RaidFrame\\Absorb-Overabsorb")
+		cap:SetTexture("Interface\\RaidFrame\\Shield-Overshield")
 		cap:SetBlendMode("ADD")
 		cap:SetAlpha(0.75)
-		cap:SetDesaturated(true)
-		cap:SetVertexColor(0, 1, 0)
 		absorbs.cap = cap
 
 		self.HealPrediction = {
