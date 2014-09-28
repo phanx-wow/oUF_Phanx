@@ -55,7 +55,8 @@ if playerClass == "HUNTER" or playerClass == "MAGE" or playerClass == "ROGUE" or
 else
 	function ns.GetPlayerRole()
 		local spec = GetSpecialization()
-		local role = spec and spec > 0 and select(6, GetSpecializationInfo(spec)) or "DAMAGER"
+		local role = spec and spec > 0 and select(6, GetSpecializationInfo(spec))
+		return role or "DAMAGER"
 	end
 end
 
