@@ -98,13 +98,13 @@ ns.uconfigDefault = {
 		width = 0.5,
 		power = true,
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25 },
-		visible = "custom [group:party,@party1,exists][group:raid,@raid6,noexists]show;hide",
+		visible = "custom [nogroup][group:party,@party1,noexists][group:raid,@raid6,exists]hide;show",
 	},
 	partypet = {
 		point = "TOPLEFT party TOPRIGHT 12 0",
 		width = 0.25,
 		attributes = { "showPlayer", true, "showParty", true, "showRaid", false, "xOffset", 0, "yOffset", -25, "useOwnerUnit", true, "unitsuffix", "pet" },
-		visible = "custom [group:party,@party1,exists][group:raid,@raid6,noexists]show;hide",
+		visible = "custom [nogroup][group:party,@party1,noexists][group:raid,@raid6,exists]hide;show",
 	},
 	-------------
 	--	Bosses --
