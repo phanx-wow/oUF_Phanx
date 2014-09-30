@@ -101,13 +101,12 @@ end
 --	Threat
 
 do
-	local colors = setmetatable({}, { __index = function(t, i)
-		local r, g, b = GetThreatStatusColor(i)
-		if r then
-			t[i] = format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
-			return t[i]
-		end
-	end })
+	local colors = {
+		[0] = "|cffffffff",
+		[1] = "|cffffff33",
+		[2] = "|cffff9933",
+		[3] = "|cffff3333",
+	}
 	oUF.Tags.Events["threatpct"] = "UNIT_THREAT_LIST_UPDATE"
 	oUF.Tags.Methods["threatpct"] = function(unit)
 		local isTanking, status, percentage, rawPercentage = UnitDetailedThreatSituation("player", unit)
@@ -115,8 +114,8 @@ do
 		if isTanking then
 			pct = UnitThreatPercentageOfLead("player", unit)
 		end
-		if pct and pct > 0 then
-			return format("%s%d%%", colors[status] or "", pct + 0.5)
+		if pct and pct > 0 and pct < 200 then
+			return format("%s%d%%", colors[status] or colors[0], pct + 0.5)
 		end
 	end
 end
