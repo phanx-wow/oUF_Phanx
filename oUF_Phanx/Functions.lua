@@ -533,7 +533,10 @@ end
 ------------------------------------------------------------------------
 
 function ns.Threat_Override(frame, event, unit)
-	local status = UnitThreatSituation(unit or frame.unit)
+	unit = unit or frame.unit
+	if not unit then return end
+
+	local status = UnitThreatSituation(unit)
 	if not status then
 		status = 0
 	elseif not ns.config.threatLevels then
