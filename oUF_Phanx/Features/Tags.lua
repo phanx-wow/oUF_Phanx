@@ -114,7 +114,7 @@ do
 		if isTanking then
 			pct = UnitThreatPercentageOfLead("player", unit)
 		end
-		if pct and pct > 0 and pct < 200 then
+		if pct and pct > 0 and pct < 300 then
 			return format("%s%d%%", colors[status] or colors[0], pct + 0.5)
 		end
 	end
