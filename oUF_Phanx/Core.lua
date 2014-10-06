@@ -458,6 +458,7 @@ function Loader:MODIFIER_STATE_CHANGED(event, key, state)
 	if key ~= "LSHIFT" and key ~= "RSHIFT" then
 		return
 	end
+	local a, b
 	if state == 1 then
 		a, b = "CustomFilter", "__CustomFilter"
 	else
@@ -470,6 +471,12 @@ function Loader:MODIFIER_STATE_CHANGED(event, key, state)
 			buffs[b] = buffs[a]
 			buffs[a] = nil
 			buffs:ForceUpdate()
+		end
+		local debuffs = object.Debuffs
+		if debuffs and debuffs[a] then
+			debuffs[b] = debuffs[a]
+			debuffs[a] = nil
+			debuffs:ForceUpdate()
 		end
 	end
 end
