@@ -132,6 +132,7 @@ function Enable(self)
 	local element = self.BurningEmbers
 	if not element or self.unit ~= "player" then return end
 
+	element.__name = "BurningEmbers"
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 

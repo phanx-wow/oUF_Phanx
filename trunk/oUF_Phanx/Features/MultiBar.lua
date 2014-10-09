@@ -23,6 +23,7 @@ end
 
 function ns.CreateMultiBar(frame, numBars, textSize, leftToRight)
 	local multibar = CreateFrame("Frame", nil, frame)
+	multibar.__owner = frame
 
 	multibar:SetBackdrop(ns.config.backdrop)
 	multibar:SetBackdropColor(0, 0, 0, 1)

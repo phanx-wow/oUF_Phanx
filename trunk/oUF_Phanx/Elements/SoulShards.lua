@@ -121,6 +121,7 @@ function Enable(self)
 	local element = self.SoulShards
 	if not element or self.unit ~= "player" then return end
 
+	element.__name = "SoulShards"
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 

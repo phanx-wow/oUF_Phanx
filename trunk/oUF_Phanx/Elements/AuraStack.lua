@@ -60,6 +60,9 @@ function UpdateVisibility(self, event)
 		for i = 1, #element do
 			element[i]:Hide()
 		end
+		if element.SetShown then
+			element:SetShown(false) -- use SetShown instead of Hide so there's one less method to fake if the layout needs to
+		end
 		element.__disabled = true
 		return
 	end
@@ -95,6 +98,10 @@ function Update(self, event, unit)
 		end
 	end
 
+	if element.SetShown then
+		element:SetShown(count > 0)
+	end
+
 	if element.PostUpdate then
 		element:PostUpdate(count)
 	end
@@ -112,6 +119,7 @@ function Enable(self)
 	local element = self.AuraStack
 	if not element then return end
 
+	element.__name = "AuraStack"
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 

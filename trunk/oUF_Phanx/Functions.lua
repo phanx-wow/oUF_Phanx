@@ -66,7 +66,8 @@ end
 
 function ns.ExtraBar_OnShow(self) --if self.__name then print("Show", self.__name) end
 	local frame = self.__owner
-	frame:SetBorderSize(nil, 0, 0, self:GetHeight() - 1, 0)
+	local _, dL, dR, dT, dB = frame:GetBorderSize()
+	frame:SetBorderSize(nil, dL, dR, dT + (self:GetHeight() - 1), dB)
 	if self.value then
 		return self.value:SetParent(frame.overlay)
 	end
@@ -80,7 +81,8 @@ end
 
 function ns.ExtraBar_OnHide(self) --if self.__name then print("Hide", self.__name) end
 	local frame = self.__owner
-	frame:SetBorderSize(nil, 0, 0, 0, 0)
+	local _, dL, dR, dT, dB = frame:GetBorderSize()
+	frame:SetBorderSize(nil, dL, dR, max(0, dT - (self:GetHeight() - 1)), dB)
 	if self.value then
 		return self.value:SetParent(self)
 	end
@@ -207,7 +209,7 @@ do
 		--print("HealPrediction Override", event, unit)
 		local element = self.HealPrediction
 		local parent = self.Health
-		
+
 		if UnitIsDeadOrGhost(unit) then
 			element.healingBar:Hide()
 			element.healingBar.cap:Hide()

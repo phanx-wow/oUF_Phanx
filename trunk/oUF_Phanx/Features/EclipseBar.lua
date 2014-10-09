@@ -26,11 +26,13 @@ local NORMAL = 0.8
 local DIMMED = 0.5
 
 local function PostUpdateVisibility(self, unit) --print("EclipseBar PostUpdateVisibility", self:IsShown())
+	print("PostUpdateVisibility", self:IsShown())
 	self.shown = self:IsShown()
 end
 
 local function PostUpdatePower(self, unit, power, maxPower)
 	if not power or not self.shown then return end
+	print("PostUpdatePower", power, maxPower)
 	local x = (power / maxPower) * (self:GetWidth() / 2)
 	self.lunarBG:SetPoint("RIGHT", self, "CENTER", x, 0)
 end
@@ -38,7 +40,7 @@ end
 local function PostUnitAura(self, unit)
 	if not self.shown then return end
 	local hasLunarEclipse, hasSolarEclipse = self.hasLunarEclipse, self.hasSolarEclipse
-	--print("PostUnitAura", hasLunarEclipse, hasSolarEclipse)
+	print("PostUnitAura", hasLunarEclipse, hasSolarEclipse)
 
 	if hasLunarEclipse then
 		self.lunarBG:SetVertexColor(LUNAR_COLOR[1] * DIMMED, LUNAR_COLOR[2] * DIMMED, LUNAR_COLOR[3] * DIMMED)
@@ -114,7 +116,7 @@ end
 local function PostDirectionChange(self, unit)
 	if not self.shown then return end
 	local direction = self.directionIsLunar or "none" -- GetEclipseDirection()
-	--print("PostDirectionChanged", direction)
+	print("PostDirectionChanged", direction)
 
 	local coords = ECLIPSE_MARKER_COORDS[direction]
 	self.directionArrow:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
@@ -242,10 +244,10 @@ function ns.CreateEclipseBar(self)
 	EclipseBar:SetScript("OnShow", ns.ExtraBar_OnShow)
 	EclipseBar:SetScript("OnHide", ns.ExtraBar_OnHide)
 
+	EclipseBar.PostDirectionChange  = PostDirectionChange
+	EclipseBar.PostUnitAura         = PostUnitAura
+	EclipseBar.PostUpdatePower      = PostUpdatePower
 	EclipseBar.PostUpdateVisibility = PostUpdateVisibility
-	EclipseBar.PostDirectionChange = PostDirectionChange
-	EclipseBar.PostUnitAura = PostUnitAura
-	EclipseBar.PostUpdatePower = PostUpdatePower
 
 	return EclipseBar
 end

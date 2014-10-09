@@ -79,6 +79,7 @@ function Enable(self)
 	local element = self.WildMushrooms
 	if not element then return end
 
+	element.__name = "WildMushrooms"
 	element.__owner = self
 	element.ForceUpdate = ForceUpdate
 

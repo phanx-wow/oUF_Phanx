@@ -299,25 +299,27 @@ local function Spawn(self, unit, isSingle)
 			powerType = SPELL_POWER_SOUL_SHARDS
 		end
 
-		local el = ns.CreateMultiBar(self, 5)
-		el.powerType = powerType
-		el.Override = updateFunc
-		el.UpdateTexture = noop -- fuck off oUF >:(
-		self[element] = el
+		local bars = ns.CreateMultiBar(self, 5)
+		bars.powerType = powerType
+		bars:Show()
+
+		bars.Override = updateFunc
+		bars.UpdateTexture = noop -- fuck off oUF >:(
+		self[element] = bars
 
 		local mu = config.powerBG
-		for i = 1, #el do
-			el[i]:SetStatusBarColor(color.r, color.g, color.b)
-			el[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+		for i = 1, #bars do
+			bars[i]:SetStatusBarColor(color.r, color.g, color.b)
+			bars[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 		end
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				local color = CUSTOM_CLASS_COLORS[playerClass]
 				local mu = config.powerBG
-				for i = 1, #el do
-					el[i]:SetStatusBarColor(color.r, color.g, color.b)
-					el[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+				for i = 1, #bars do
+					bars[i]:SetStatusBarColor(color.r, color.g, color.b)
+					bars[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 				end
 			end)
 		end
@@ -347,26 +349,26 @@ local function Spawn(self, unit, isSingle)
 			activateEvents = "PLAYER_SPECIALIZATION_CHANGED PLAYER_LEVEL_UP"
 		end
 
-		local t = ns.CreateMultiBar(self, maxCount)
-		t.aura = aura
-		t.filter = filter
-		t.activate = activate
-		t.activateEvents = activateEvents
+		local bars = ns.CreateMultiBar(self, maxCount)
+		bars.aura = aura
+		bars.filter = filter
+		bars.activate = activate
+		bars.activateEvents = activateEvents
 
 		local mu = config.powerBG
-		for i = 1, #t do
-			t[i]:SetStatusBarColor(color.r, color.g, color.b)
-			t[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+		for i = 1, #bars do
+			bars[i]:SetStatusBarColor(color.r, color.g, color.b)
+			bars[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 		end
-		self.AuraStack = t
+		self.AuraStack = bars
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				color = CUSTOM_CLASS_COLORS[playerClass]
 				mu = config.powerBG
-				for i = 1, #t do
-					t[i]:SetStatusBarColor(color.r, color.g, color.b)
-					t[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+				for i = 1, #bars do
+					bars[i]:SetStatusBarColor(color.r, color.g, color.b)
+					bars[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 				end
 			end)
 		end
