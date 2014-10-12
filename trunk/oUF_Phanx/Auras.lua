@@ -1004,10 +1004,10 @@ if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALA
 	-- druids need to keep Thrash up anyway, no need to see both
 	local FILTER = bit_bor(FILTER_ROLE_TANK, FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_MONK, FILTER_CLASS_PALADIN, FILTER_CLASS_WARRIOR)
 
-	auraList[109466] = FILTER -- Curse of Enfeeblement (warlock)
-	auraList[60256]  = FILTER -- Demoralizing Roar (hunter bear)
-	auraList[24423]  = FILTER -- Demoralizing Screech (hunter carrion bird)
-	auraList[115798] = FILTER -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
+	defaultAuras[109466] = FILTER -- Curse of Enfeeblement (warlock)
+	defaultAuras[60256]  = FILTER -- Demoralizing Roar (hunter bear)
+	defaultAuras[24423]  = FILTER -- Demoralizing Screech (hunter carrion bird)
+	defaultAuras[115798] = FILTER -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
 end
 
 ------------------------------------------------------------------------
@@ -1097,12 +1097,13 @@ defaultAuras[63429] = FILTER_DISABLE -- Undercity Valiant's Pennant
 
 local auraList = {}
 ns.AuraList = auraList
-_G.OPNS = ns
+
 ns.UpdateAuraList = function()
 	--print("UpdateAuraList")
 	wipe(auraList)
 	local PVP = ns.config.PVP
-	local filterForRole = roleFilter[ns.GetPlayerRole()]
+	local role = ns.GetPlayerRole()
+	local filterForRole = roleFilter[role]
 	local filterForClass = classFilter[playerClass]
 	for id, v in pairs(oUFPhanxAuraConfig) do
 		local skip
@@ -1158,38 +1159,60 @@ local function checkFilter(v, self, unit, caster)
 	end
 end
 
+local function debug(...)
+	ChatFrame3:AddMessage(strjoin(" ", tostringall(...)))
+end
+
 ns.CustomAuraFilters = {
-	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
+	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
-		--ChatFrame3:AddMessage(strjoin(" ", tostringall("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, "[vehicle]", caster == "vehicle")))
+		--debug("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, "[vehicle]", caster == "vehicle")
 		if v then
 			return checkFilter(v, self, unit, caster)
 		end
 		return caster and UnitIsUnit(caster, "vehicle")
 	end,
-	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
+	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
-		return caster and unitIsPlayer[caster] and (not v or bit_band(v, FILTER_BY_PLAYER) > 0)
+		--debug("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, "[vehicle]", caster == "vehicle")
+		return caster and unitIsPlayer[caster] and v and bit_band(v, FILTER_BY_PLAYER) > 0
 	end,
-	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
+	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
-		-- print("CustomAuraFilter", unit, spellID, name, caster, v)
-		if v then
-			return checkFilter(v, self, unit, caster)
+		if isBossAura then
+			local show = not v or bit_band(v, FILTER_DISABLE) == 0
+			if show then
+				debug("CustomAuraFilter", spellID, name, "BOSS")
+			end
+			return show
+		elseif v then
+			local show = checkFilter(v, self, unit, caster)
+			if show then
+				debug("CustomAuraFilter", spellID, name, "FILTER", v, caster)
+			end
+			return show
 		elseif not caster and not IsInInstance() then
-			-- test
+			-- EXPERIMENTAL: ignore debuffs from players outside the group, eg. on world bosses.
 			return
 		elseif UnitCanAttack("player", unit) and not UnitPlayerControlled(unit) then
-			-- Hostile NPC. Show boss debuffs, auraList cast by the unit, or auras cast by the player's vehicle.
+			-- Hostile NPC. Show auras cast by the unit, or auras cast by the player's vehicle.
 			-- print("hostile NPC")
-			return isBossDebuff or not caster or caster == unit or UnitIsUnit(caster, "vehicle")
+			local show = not caster or caster == unit or UnitIsUnit(caster, "vehicle")
+			if show then
+				debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or (caster == unit) and "SELFCAST" or "VEHICLE")
+			end
+			return show
 		else
-			-- Friendly target or hostile player. Show boss debuffs, or auras cast by the player's vehicle.
+			-- Friendly target or hostile player. Show auras cast by the player's vehicle.
 			-- print("hostile player / friendly unit")
-			return isBossDebuff or not caster or UnitIsUnit(caster, "vehicle")
+			local show = not caster or UnitIsUnit(caster, "vehicle")
+			if show then
+				debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or "VEHICLE")
+			end
+			return show
 		end
 	end,
-	party = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossDebuff, isCastByPlayer, value1, value2, value3)
+	party = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
 		return v and bit_band(v, FILTER_ON_PLAYER) == 0
 	end,
