@@ -114,7 +114,7 @@ function ns.AddCastbar(self)
 
 	if unit == "player" then
 		local SafeZone = Castbar:CreateTexture(nil, "BORDER")
-		SafeZone:SetTexture(BAR_TEXTURE)
+		SafeZone:SetTexture(Castbar.texture:GetTexture())
 		SafeZone:SetVertexColor(1, 0.5, 0, 0.75)
 		tinsert(ns.statusbars, SafeZone)
 		Castbar.SafeZone = SafeZone
