@@ -122,7 +122,7 @@ local function Spawn(self, unit, isSingle)
 		healing:SetPoint("TOPLEFT", health.texture, "TOPRIGHT")
 		healing:SetPoint("BOTTOMLEFT", health.texture, "BOTTOMRIGHT")
 		healing:SetStatusBarColor(0.25, 1, 0.25, 0.5)
---[[
+
 		local spark = healing:CreateTexture(nil, "OVERLAY")
 		spark:SetPoint("TOP", healing, "TOPLEFT")
 		spark:SetPoint("BOTTOM", healing, "BOTTOMLEFT")
@@ -132,15 +132,13 @@ local function Spawn(self, unit, isSingle)
 		spark:SetBlendMode("ADD")
 		spark:SetAlpha(0.25)
 		healing.spark = spark
-]]
+
 		local cap = self.overlay:CreateTexture(nil, "OVERLAY")
-		cap:SetPoint("CENTER", self, "RIGHT")
+		cap:SetPoint("CENTER", health, "RIGHT")
 		cap:SetSize(16, 32)
-		cap:SetTexture("Interface\\RaidFrame\\Absorb-Overabsorb")
+		cap:SetTexture("Interface\\RaidFrame\\Shield-Overshield")
 		cap:SetBlendMode("ADD")
 		cap:SetAlpha(0.75)
-		cap:SetDesaturated(true)
-		cap:SetVertexColor(0, 1, 0)
 		healing.cap = cap
 
 		local absorbs = ns.CreateStatusBar(health, nil, nil, true)
@@ -160,11 +158,13 @@ local function Spawn(self, unit, isSingle)
 		absorbs.spark = spark
 
 		local cap = self.overlay:CreateTexture(nil, "OVERLAY")
-		cap:SetPoint("CENTER", self, "RIGHT")
+		cap:SetPoint("CENTER", health, "RIGHT")
 		cap:SetSize(16, 32)
-		cap:SetTexture("Interface\\RaidFrame\\Shield-Overshield")
+		cap:SetTexture("Interface\\RaidFrame\\Absorb-Overabsorb")
 		cap:SetBlendMode("ADD")
 		cap:SetAlpha(0.75)
+		cap:SetDesaturated(true)
+		cap:SetVertexColor(0, 1, 0)
 		absorbs.cap = cap
 
 		self.HealPrediction = {
@@ -246,14 +246,19 @@ local function Spawn(self, unit, isSingle)
 	------------------
 	-- TODO: extra bar on target frame OK?
 	if unit == "target" then
-		local cp = ns.CreateMultiBar(self, MAX_COMBO_POINTS)
-		for i = 1, #cp do
-			cp[i]:SetStatusBarColor(1, 0.8, 0)
-			cp[i].bg:SetVertexColor(0.25, 0.2, 0)
-			cp[i].bg:SetParent(cp)
+		local t = ns.Orbs.Create(self.overlay, MAX_COMBO_POINTS, 20)
+		for i = MAX_COMBO_POINTS, 1, -1 do
+			local orb = t[i]
+			if i == 1 then
+				orb:SetPoint("TOPLEFT", self, "BOTTOMLEFT", -2, 5)
+			else
+				orb:SetPoint("BOTTOMLEFT", t[i - 1], "BOTTOMRIGHT", -2, 0)
 		end
-		--cp.Override = ns.ComboPoints_Override
-		self.CPoints = cp
+			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+			orb.fg:SetVertexColor(1, 0.8, 0)
+	end
+		self.CPoints = t
+		self.CPoints.Override = ns.ComboPoints_Override
 	end
 
 	------------------------------
@@ -299,27 +304,25 @@ local function Spawn(self, unit, isSingle)
 			powerType = SPELL_POWER_SOUL_SHARDS
 		end
 
-		local bars = ns.CreateMultiBar(self, 5)
-		bars.powerType = powerType
-		bars:Show()
-
-		bars.Override = updateFunc
-		bars.UpdateTexture = noop -- fuck off oUF >:(
-		self[element] = bars
+		local el = ns.CreateMultiBar(self, 5)
+		el.powerType = powerType
+		el.Override = updateFunc
+		el.UpdateTexture = noop -- fuck off oUF >:(
+		self[element] = el
 
 		local mu = config.powerBG
-		for i = 1, #bars do
-			bars[i]:SetStatusBarColor(color.r, color.g, color.b)
-			bars[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+		for i = 1, #el do
+			el[i]:SetStatusBarColor(color.r, color.g, color.b)
+			el[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 		end
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				local color = CUSTOM_CLASS_COLORS[playerClass]
 				local mu = config.powerBG
-				for i = 1, #bars do
-					bars[i]:SetStatusBarColor(color.r, color.g, color.b)
-					bars[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+				for i = 1, #el do
+					el[i]:SetStatusBarColor(color.r, color.g, color.b)
+					el[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
 				end
 			end)
 		end
@@ -330,6 +333,18 @@ local function Spawn(self, unit, isSingle)
 	--------------------
 	if unit == "player" and (playerClass == "MAGE" or playerClass == "SHAMAN") then
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
+
+		local function SetAlpha(orb, alpha)
+			if alpha == 1 then
+				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+				orb.bg:SetAlpha(1)
+				orb.fg:Show()
+			else
+				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
+				orb.bg:SetAlpha(0.5)
+				orb.fg:Hide()
+			end
+		end
 
 		local aura, filter, maxCount, actviate, activateEvents
 		if playerClass == "MAGE" then
@@ -349,26 +364,30 @@ local function Spawn(self, unit, isSingle)
 			activateEvents = "PLAYER_SPECIALIZATION_CHANGED PLAYER_LEVEL_UP"
 		end
 
-		local bars = ns.CreateMultiBar(self, maxCount)
-		bars.aura = aura
-		bars.filter = filter
-		bars.activate = activate
-		bars.activateEvents = activateEvents
+		local t = ns.Orbs.Create(self.overlay, maxCount, 20)
+		t.aura = aura
+		t.filter = filter
+		t.activate = activate
+		t.activateEvents = activateEvents
 
-		local mu = config.powerBG
-		for i = 1, #bars do
-			bars[i]:SetStatusBarColor(color.r, color.g, color.b)
-			bars[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+		for i = 1, #t do
+			local orb = t[i]
+			if i == 1 then
+				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
+			else
+				orb:SetPoint("BOTTOMRIGHT", t[i - 1], "BOTTOMLEFT", 2, 0)
 		end
-		self.AuraStack = bars
+			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+			orb.fg:SetVertexColor(color.r, color.g, color.b)
+			orb.SetAlpha = SetAlpha
+		end
+		self.AuraStack = t
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				color = CUSTOM_CLASS_COLORS[playerClass]
-				mu = config.powerBG
-				for i = 1, #bars do
-					bars[i]:SetStatusBarColor(color.r, color.g, color.b)
-					bars[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+				for i = 1, #t do
+					t[i].fg:SetVertexColor(color.r, color.g, color.b)
 				end
 			end)
 		end
@@ -419,6 +438,7 @@ local function Spawn(self, unit, isSingle)
 		otherPower:Hide()
 		otherPower:SetScript("OnShow", ns.ExtraBar_OnShow)
 		otherPower:SetScript("OnHide", ns.ExtraBar_OnHide)
+		otherPower.borderOffset = 2
 
 		otherPower.colorPower = true
 		otherPower.bg.multiplier = config.powerBG

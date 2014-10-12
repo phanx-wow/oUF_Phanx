@@ -54,8 +54,8 @@ if playerClass == "HUNTER" or playerClass == "MAGE" or playerClass == "ROGUE" or
 	end
 else
 	function ns.GetPlayerRole()
-		local spec = GetSpecialization()
-		local role = spec and spec > 0 and select(6, GetSpecializationInfo(spec))
+		local spec = GetSpecialization() or 0
+		local _, _, _, _, _, role = GetSpecializationInfo(spec)
 		return role or "DAMAGER"
 	end
 end
@@ -66,8 +66,7 @@ end
 
 function ns.ExtraBar_OnShow(self) --if self.__name then print("Show", self.__name) end
 	local frame = self.__owner
-	local _, dL, dR, dT, dB = frame:GetBorderSize()
-	frame:SetBorderSize(nil, dL, dR, dT + (self:GetHeight() - 1), dB)
+	frame:SetBorderSize(nil, 0, 0, self:GetHeight() - 1 + (self.borderOffset or 0), 0)
 	if self.value then
 		return self.value:SetParent(frame.overlay)
 	end
@@ -81,8 +80,7 @@ end
 
 function ns.ExtraBar_OnHide(self) --if self.__name then print("Hide", self.__name) end
 	local frame = self.__owner
-	local _, dL, dR, dT, dB = frame:GetBorderSize()
-	frame:SetBorderSize(nil, dL, dR, max(0, dT - (self:GetHeight() - 1)), dB)
+	frame:SetBorderSize(nil, 0, 0, 0, 0)
 	if self.value then
 		return self.value:SetParent(self)
 	end
@@ -202,21 +200,13 @@ end
 ------------------------------------------------------------------------
 
 do
-	local UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals, UnitIsDeadOrGhost
-	    = UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals, UnitIsDeadOrGhost
+	local UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals
+	    = UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals
 
 	function ns.HealPrediction_Override(self, event, unit)
 		--print("HealPrediction Override", event, unit)
 		local element = self.HealPrediction
 		local parent = self.Health
-
-		if UnitIsDeadOrGhost(unit) then
-			element.healingBar:Hide()
-			element.healingBar.cap:Hide()
-			element.absorbsBar:Hide()
-			element.absorbsBar.cap:Hide()
-			return
-		end
 
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
 		local missing = maxHealth - health
@@ -226,13 +216,13 @@ do
 			healing = healing - (UnitGetIncomingHeals(unit, "player") or 0)
 		end
 
-		if missing > 0 and (healing / maxHealth) >= 0.1 then
+		if (healing / maxHealth) >= 0.1 and missing > 0 then
 			local bar = element.healingBar
 			bar:Show()
 			bar:SetMinMaxValues(0, maxHealth)
 			if healing > missing then
 				bar:SetValue(missing)
-				bar.cap:SetShown((healing - missing) / maxHealth > 0.05)
+				bar.cap:SetShown((healing - missing) / maxHealth > element.maxOverflow)
 				missing = 0
 			else
 				bar:SetValue(healing)
@@ -242,27 +232,26 @@ do
 			parent = bar
 		else
 			element.healingBar:Hide()
-			element.healingBar.cap:SetShown(healing / maxHealth > 0.05)
+			element.healingBar.cap:SetShown(healing / maxHealth > element.maxOverflow)
 		end
 
 		local absorbs = UnitGetTotalAbsorbs(unit) or 0
-		if missing > 0 and (absorbs / maxHealth) >= 0.1 then
+		if (absorbs / maxHealth) >= 0.1 and missing > 0 then
 			local bar = element.absorbsBar
 			bar:Show()
 			bar:SetPoint("TOPLEFT", parent.texture, "TOPRIGHT")
 			bar:SetPoint("BOTTOMLEFT", parent.texture, "BOTTOMRIGHT")
 			bar:SetMinMaxValues(0, maxHealth)
-			bar.spark:SetShown(parent == element.healingBar)
 			if absorbs > missing then
 				bar:SetValue(missing)
-				bar.cap:SetShown((absorbs - missing) / maxHealth > 0.05)
+				bar.cap:SetShown((absorbs - missing) / maxHealth > element.maxOverflow)
 			else
 				bar:SetValue(absorbs)
 				bar.cap:Hide()
 			end
 		else
 			element.absorbsBar:Hide()
-			element.absorbsBar.cap:SetShown(absorbs / maxHealth > 0.05)
+			element.absorbsBar.cap:SetShown(absorbs / maxHealth > element.maxOverflow)
 		end
 	end
 end
@@ -316,10 +305,19 @@ end
 
 ------------------------------------------------------------------------
 --	Combo points
--- NOT CURRENTLY USED
 ------------------------------------------------------------------------
 
 function ns.ComboPoints_Override(self, event, unit)
+	if unit == "pet" then return end
+
+	local cp
+	if UnitHasVehicleUI("player") then
+		cp = GetComboPoints("vehicle", "target")
+	else
+		cp = GetComboPoints("player", "target")
+end
+
+	ns.Orbs.Update(self.CPoints, cp)
 end
 
 ------------------------------------------------------------------------
@@ -535,10 +533,7 @@ end
 ------------------------------------------------------------------------
 
 function ns.Threat_Override(frame, event, unit)
-	unit = unit or frame.unit
-	if not unit then return end
-
-	local status = UnitThreatSituation(unit)
+	local status = UnitThreatSituation(unit or frame.unit)
 	if not status then
 		status = 0
 	elseif not ns.config.threatLevels then
