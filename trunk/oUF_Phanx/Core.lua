@@ -361,12 +361,12 @@ function Loader:ADDON_LOADED(event, addon)
 			end
 			if #tmp > 0 then
 				sort(tmp)
-				print(format("|cff00ddbaoUF Phanx:|r Your current target has %d %s:", #tmp, cmd))
+				DEFAULT_CHAT_FRAME:AddMessage(format("|cff00ddbaoUF Phanx:|r Your current target has %d %s:", #tmp, cmd))
 				for i = 1, #tmp do
-					print("   ", tmp[i])
+					DEFAULT_CHAT_FRAME:AddMessage("   ", tmp[i])
 				end
 			else
-				print(format("|cff00ddbaoUF Phanx:|r Your current target does not have any %s.", cmd))
+				DEFAULT_CHAT_FRAME:AddMessage(format("|cff00ddbaoUF Phanx:|r Your current target does not have any %s.", cmd))
 			end
 		else
 			InterfaceOptionsFrame_OpenToCategory("oUF Phanx")
