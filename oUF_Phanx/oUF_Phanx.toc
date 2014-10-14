@@ -1,5 +1,5 @@
-## Interface: 50400
-## Version: 5.4.8.wowi:revision
+## Interface: 60000
+## Version: 6.0.2.wowi:revision
 
 ## Title: oUF: Phanx
 ## Notes: oUF unit frames with many PvE-oriented features and a few options.
@@ -38,6 +38,7 @@ Elements\BurningEmbers.lua
 Elements\CombatText.lua
 Elements\DemonicFury.lua
 Elements\DispelHighlight.lua
+Elements\Eclipse.lua
 Elements\ResInfo.lua
 Elements\SoulShards.lua
 Elements\WildMushrooms.lua
@@ -45,7 +46,7 @@ Elements\WildMushrooms.lua
 Features\Border.lua
 Features\BurningEmbers.lua
 Features\Castbar.lua
-Features\EclipseBar.lua
+# Features\EclipseBar.lua
 Features\Runes.lua
 Features\Tags.lua
 Features\Totems.lua
