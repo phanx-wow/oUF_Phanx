@@ -266,7 +266,10 @@ function Loader:ADDON_LOADED(event, addon)
 	ns.uconfig = oUFPhanxUnitConfig
 
 	-- Aura settings stored per character:
-	if oUFPhanxAuraConfig and not oUFPhanxConfig.VERSION then
+	if not oUFPhanxAuraConfig then
+		oUFPhanxAuraConfig = initDB(oUFPhanxAuraConfig, ns.defaultAuras)
+		oUFPhanxAuraConfig.VERSION = 1
+	elseif not oUFPhanxConfig.VERSION then
 		-- Upgrade from pre-bitflag filter values
 		local bitflags = {
 			[0] = ns.auraFilterValues.DISABLE,
@@ -278,9 +281,9 @@ function Loader:ADDON_LOADED(event, addon)
 		for id, flag in pairs(oUFPhanxAuraConfig) do
 			oUFPhanxAuraConfig[id] = bitflags[flag]
 		end
+		initDB(oUFPhanxAuraConfig, ns.defaultAuras)
 		oUFPhanxAuraConfig.VERSION = 1
 	end
-	oUFPhanxAuraConfig = initDB(oUFPhanxAuraConfig, ns.defaultAuras)
 	ns.UpdateAuraList()
 
 	-- SharedMedia

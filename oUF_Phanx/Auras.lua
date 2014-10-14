@@ -161,14 +161,11 @@ local defaultAuras = {
 }
 
 ns.defaultAuras = defaultAuras
--- Class auras are still wrapped in if/end checks because
--- a) there's no point in loading DK auras if the player never plays a DK, and
--- b) this allows using block locals for the class filters.
 
 ------------------------------------------------------------------------
 -- Death Knight
 
-if playerClass == "DEATHKNIGHT" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_ON_ENEMY)
@@ -226,7 +223,7 @@ end
 ------------------------------------------------------------------------
 -- Druid
 
-if playerClass == "DRUID" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_DRUID, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_DRUID, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_DRUID, FILTER_ON_ENEMY)
@@ -241,8 +238,6 @@ if playerClass == "DRUID" then
 	defaultAuras[1850]   = SELF -- Dash
 	defaultAuras[108381] = SELF -- Dream of Cenarius (+damage)
 	defaultAuras[108382] = SELF -- Dream of Cenarius (+healing)
-	defaultAuras[48518]  = SELF -- Eclipse (Lunar)
-	defaultAuras[48517]  = SELF -- Eclipse (Solar)
 	defaultAuras[5229]   = SELF -- Enrage
 	defaultAuras[124769] = SELF -- Frenzied Regeneration <-- glyph
 	defaultAuras[102560] = SELF -- Incarnation: Chosen of Elune
@@ -265,6 +260,11 @@ if playerClass == "DRUID" then
 	defaultAuras[61336]  = SELF -- Survival Instincts
 	defaultAuras[5217]   = SELF -- Tiger's Fury
 	defaultAuras[102416] = SELF -- Wild Charge (aquatic)
+	-- WOD
+	defaultAuras[164547] = SELF -- Lunar Empowerment
+	defaultAuras[171743] = SELF -- Lunar Peak
+	defaultAuras[164545] = SELF -- Solar Empowerment
+	defaultAuras[171744] = SELF -- Solar Peak
 
 	-- Buffs
 	defaultAuras[102351] = MINE -- Cenarion Ward (buff)
@@ -315,7 +315,7 @@ end
 ------------------------------------------------------------------------
 -- Hunter
 
-if playerClass == "HUNTER" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_HUNTER, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_HUNTER, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_HUNTER, FILTER_ON_ENEMY)
@@ -386,7 +386,7 @@ end
 ------------------------------------------------------------------------
 -- Mage
 
-if playerClass == "MAGE" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_MAGE, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_MAGE, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_MAGE, FILTER_ON_ENEMY)
@@ -441,7 +441,7 @@ end
 ------------------------------------------------------------------------
 -- Monk
 
-if playerClass == "MONK" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_MONK, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_MONK, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_MONK, FILTER_ON_ENEMY)
@@ -501,7 +501,7 @@ end
 ------------------------------------------------------------------------
 -- Paladin
 
-if playerClass == "PALADIN" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_PALADIN, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_PALADIN, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_PALADIN, FILTER_ON_ENEMY)
@@ -566,7 +566,7 @@ end
 ------------------------------------------------------------------------
 -- Priest
 
-if playerClass == "PRIEST" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_PRIEST, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_PRIEST, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_PRIEST, FILTER_ON_ENEMY)
@@ -626,7 +626,7 @@ end
 ------------------------------------------------------------------------
 -- Rogue
 
-if playerClass == "ROGUE" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_ROGUE, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_ROGUE, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_ROGUE, FILTER_ON_ENEMY)
@@ -690,7 +690,7 @@ end
 ------------------------------------------------------------------------
 -- Shaman
 
-if playerClass == "SHAMAN" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_SHAMAN, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_SHAMAN, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_SHAMAN, FILTER_ON_ENEMY)
@@ -745,7 +745,7 @@ if playerClass == "SHAMAN" then
 	defaultAuras[3600]   = DEBUFF  -- Earthbind <-- Earthbind Totem
 	defaultAuras[64695]  = DEBUFF  -- Earthgrab <-- Earthgrab Totem
 	defaultAuras[8056]   = DEBUFF  -- Frost Shock
-	defaultAuras[8034]   = MINE -- Frostbrand Attack <-- Frostbrand Weapon
+	defaultAuras[8034]   = MINE    -- Frostbrand Attack <-- Frostbrand Weapon
 	defaultAuras[63685]  = DEBUFF  -- Freeze <-- Frozen Power
 	defaultAuras[118905] = DEBUFF  -- Static Charge <-- Capacitor Totem
 	--defaultAuras[51490]  = DEBUFF  -- Thunderstorm
@@ -754,7 +754,7 @@ end
 ------------------------------------------------------------------------
 -- Warlock
 
-if playerClass == "WARLOCK" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_WARLOCK, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_WARLOCK, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_WARLOCK, FILTER_ON_ENEMY)
@@ -822,7 +822,7 @@ end
 ------------------------------------------------------------------------
 -- Warrior
 
-if playerClass == "WARRIOR" then
+do
 	local SELF   = bit_bor(FILTER_CLASS_WARRIOR, FILTER_ON_PLAYER)
 	local BUFF   = bit_bor(FILTER_CLASS_WARRIOR, FILTER_ON_FRIEND)
 	local DEBUFF = bit_bor(FILTER_CLASS_WARRIOR, FILTER_ON_ENEMY)
@@ -922,7 +922,7 @@ defaultAuras[68992]  = FILTER_ON_PLAYER -- Darkflight
 ------------------------------------------------------------------------
 -- Magic Vulnerability
 
-if playerClass == "ROGUE" or playerClass == "WARLOCK" then
+do
 	local FILTER = bit_bor(FILTER_CLASS_ROGUE, FILTER_CLASS_WARLOCK)
 
 	defaultAuras[1490]  = FILTER -- Curse of the Elements (warlock)
@@ -934,7 +934,7 @@ end
 ------------------------------------------------------------------------
 -- Mortal Wounds
 
-if playerClass == "HUNTER" or playerClass == "MONK" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
+do
 	local FILTER = bit_bor(FILTER_CLASS_HUNTER, FILTER_CLASS_MONK, FILTER_CLASS_ROGUE, FILTER_CLASS_WARRIOR)
 
 	defaultAuras[54680]  = FILTER -- Monstrous Bite (hunter devilsaur)
@@ -946,7 +946,7 @@ end
 ------------------------------------------------------------------------
 -- Physical Vulnerability
 
-if playerClass == "DEATHKNIGHT" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
+do
 	local FILTER = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_PALADIN, FILTER_CLASS_WARRIOR)
 
 	defaultAuras[55749] = FILTER -- Acid Rain (hunter worm)
@@ -959,7 +959,7 @@ end
 ------------------------------------------------------------------------
 -- Slow Casting
 
-if playerClass == "DEATHKNIGHT" or playerClass == "MAGE" or playerClass == "ROGUE" or playerClass == "WARLOCK" then
+do
 	local FILTER = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_MAGE, FILTER_CLASS_WARLOCK)
 
 	defaultAuras[109466] = FILTER -- Curse of Enfeeblement (warlock)
@@ -975,8 +975,8 @@ end
 ------------------------------------------------------------------------
 -- Taunts (tanks only)
 
-if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
-	local FILTER = bit_bor(FILTER_ROLE_TANK, FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_DRUID, FILTER_CLASS_MONK, FILTER_CLASS_PALADIN, FILTER_CLASS_WARRIOR)
+do
+	local FILTER = FILTER_ROLE_TANK
 
 	defaultAuras[56222]  = FILTER -- Dark Command
 	defaultAuras[57604]  = FILTER -- Death Grip -- NEEDS CHECK 57603
@@ -990,9 +990,9 @@ end
 ------------------------------------------------------------------------
 -- Weakened Armor
 
-if playerClass == "DRUID" or playerClass == "ROGUE" or playerClass == "WARRIOR" then
+do
 	-- druids need to keep Faerie Fire/Swarm up anyway, no need to see both, this has the shorter duration
-	local FILTER = bit_bor(FILTER_CLASS_DRUID, FILTER_CLASS_ROGUE, FILTER_CLASS_WARRIOR)
+	local FILTER = bit_bor(FILTER_ROLE_TANK, FILTER_CLASS_DRUID, FILTER_CLASS_ROGUE, FILTER_CLASS_WARRIOR)
 
 	defaultAuras[113746] = FILTER -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
 end
@@ -1000,7 +1000,7 @@ end
 ------------------------------------------------------------------------
 -- Weakened Blows (tanks only)
 
-if playerClass == "DEATHKNIGHT" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
+do
 	-- druids need to keep Thrash up anyway, no need to see both
 	local FILTER = bit_bor(FILTER_ROLE_TANK, FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_MONK, FILTER_CLASS_PALADIN, FILTER_CLASS_WARRIOR)
 
