@@ -209,6 +209,7 @@ do
 		local parent = self.Health
 
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
+		if maxHealth == 0 then return end -- probably target doesn't exist
 		local missing = maxHealth - health
 
 		local healing = UnitGetIncomingHeals(unit) or 0
