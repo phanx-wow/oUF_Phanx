@@ -214,7 +214,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		end
 		eclipseBar.checkedKey = "eclipseBar"
 		tinsert(classFeatures, eclipseBar)
-
+--[[
 		local eclipseBarIcons = panel.CreateCheckbox(unitSettings, L.EclipseBarIcons, L.EclipseBarIcons_Desc)
 		eclipseBarIcons:SetPoint("TOPLEFT", eclipseBar, "BOTTOMLEFT", 0, -12)
 		function eclipseBarIcons:OnValueChanged(value)
@@ -223,7 +223,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		eclipseBarIcons.checkedKey = "eclipseBarIcons"
 		eclipseBarIcons.enabledKey = "eclipseBar"
 		tinsert(classFeatures, eclipseBarIcons)
-
+]]
 	elseif playerClass == "MONK" then
 
 		local staggerBar = panel.CreateCheckbox(unitSettings, L.StaggerBar, L.StaggerBar_Desc)
