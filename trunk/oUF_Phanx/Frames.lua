@@ -404,7 +404,26 @@ local function Spawn(self, unit, isSingle)
 	-- EclipseBar --
 	----------------
 	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
-		self.EclipseBar = ns.CreateEclipseBar(self)
+		-- self.EclipseBar = ns.CreateEclipseBar(self) -- TEMPORARY
+
+		local eclipseBar = ns.CreateStatusBar(self, 16, "CENTER")
+		eclipseBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
+		eclipseBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
+		eclipseBar:SetHeight(FRAME_HEIGHT * config.powerHeight)
+
+		eclipseBar.value:Hide()
+		eclipseBar.value:SetPoint("CENTER", eclipseBar, 0, 1)
+		self:RegisterForMouseover(eclipseBar.value)
+
+		eclipseBar:Hide()
+		eclipseBar:SetScript("OnShow", ns.ExtraBar_OnShow)
+		eclipseBar:SetScript("OnHide", ns.ExtraBar_OnHide)
+		eclipseBar.borderOffset = 2
+
+		eclipseBar.bg.multiplier = config.powerBG
+
+		eclipseBar.PostUpdate = ns.Eclipse_PostUpdate
+		self.Eclipse = eclipseBar
 	end
 
 	-----------
