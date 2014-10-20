@@ -20,28 +20,28 @@ local bit_band, bit_bor = bit.band, bit.bor
 ------------------------------------------------------------------------
 
 -- Permanent filters, only checked on login, role change, options change:
-local FILTER_ALL               = "0x10000000"
-local FILTER_DISABLE           = "0x20000000"
-local FILTER_PVP               = "0x30000000"
-local FILTER_PVE               = "0x40000000"
+local FILTER_ALL               = 0x10000000
+local FILTER_DISABLE           = 0x20000000
+local FILTER_PVP               = 0x30000000
+local FILTER_PVE               = 0x40000000
 
-local FILTER_ROLE_TANK         = "0x00010000"
-local FILTER_ROLE_HEALER       = "0x00020000"
-local FILTER_ROLE_DAMAGER      = "0x00040000"
-local FILTER_ROLE_MASK         = "0x000F0000"
+local FILTER_ROLE_TANK         = 0x00010000
+local FILTER_ROLE_HEALER       = 0x00020000
+local FILTER_ROLE_DAMAGER      = 0x00040000
+local FILTER_ROLE_MASK         = 0x000F0000
 
-local FILTER_CLASS_MASK        = "0x00000FFF"
-local FILTER_CLASS_WARRIOR     = "0x00000001"
-local FILTER_CLASS_PALADIN     = "0x00000002"
-local FILTER_CLASS_HUNTER      = "0x00000004"
-local FILTER_CLASS_ROGUE       = "0x00000008"
-local FILTER_CLASS_PRIEST      = "0x00000010"
-local FILTER_CLASS_DEATHKNIGHT = "0x00000020"
-local FILTER_CLASS_SHAMAN      = "0x00000040"
-local FILTER_CLASS_MAGE        = "0x00000080"
-local FILTER_CLASS_WARLOCK     = "0x00000100"
-local FILTER_CLASS_MONK        = "0x00000200"
-local FILTER_CLASS_DRUID       = "0x00000400"
+local FILTER_CLASS_MASK        = 0x00000FFF
+local FILTER_CLASS_WARRIOR     = 0x00000001
+local FILTER_CLASS_PALADIN     = 0x00000002
+local FILTER_CLASS_HUNTER      = 0x00000004
+local FILTER_CLASS_ROGUE       = 0x00000008
+local FILTER_CLASS_PRIEST      = 0x00000010
+local FILTER_CLASS_DEATHKNIGHT = 0x00000020
+local FILTER_CLASS_SHAMAN      = 0x00000040
+local FILTER_CLASS_MAGE        = 0x00000080
+local FILTER_CLASS_WARLOCK     = 0x00000100
+local FILTER_CLASS_MONK        = 0x00000200
+local FILTER_CLASS_DRUID       = 0x00000400
 
 -- Temporary filters, checked in realtime:
 local FILTER_BY_PLAYER         = "0x01000000"

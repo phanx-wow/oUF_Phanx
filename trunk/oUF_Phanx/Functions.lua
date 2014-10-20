@@ -209,7 +209,14 @@ do
 		local parent = self.Health
 
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
-		if maxHealth == 0 then return end -- probably target doesn't exist
+		if maxHealth == 0 or UnitIsDeadOrGhost(unit) then
+			element.healingBar:Hide()
+			element.healingBar.cap:Hide()
+			element.absorbsBar:Hide()
+			element.absorbsBar.cap:Hide()
+			return
+		end
+
 		local missing = maxHealth - health
 
 		local healing = UnitGetIncomingHeals(unit) or 0
@@ -542,10 +549,11 @@ end
 ------------------------------------------------------------------------
 
 function ns.Threat_Override(frame, event, unit)
-	local status = UnitThreatSituation(unit or frame.unit)
-	if not status then
-		status = 0
-	elseif not ns.config.threatLevels then
+	unit = unit or frame.unit
+	if not unit then return end
+
+	local status = UnitThreatSituation(unit) or 0
+	if not ns.config.threatLevels then
 		status = status > 1 and 3 or 0
 	end
 
