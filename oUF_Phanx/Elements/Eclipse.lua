@@ -29,7 +29,7 @@ function UpdateVisibility(self, event, unit)
 	local element = self.Eclipse
 	local direction = GetEclipseDirection() or "none"
 	local hidden = direction == "none" or UnitHasVehicleUI("player") or GetSpecialization() ~= 1
-	if element.hidden = hidden then return end
+	if element.hidden == hidden then return end
 	element.hidden = hidden
 
 	if hidden then

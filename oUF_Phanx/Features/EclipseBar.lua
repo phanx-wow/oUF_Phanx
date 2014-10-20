@@ -53,65 +53,6 @@ local function PostUnitAura(self, unit)
 		self.lunarBG:SetVertexColor(LUNAR_COLOR[1] * NORMAL, LUNAR_COLOR[2] * NORMAL, LUNAR_COLOR[3] * NORMAL)
 		self.solarBG:SetVertexColor(SOLAR_COLOR[1] * NORMAL, SOLAR_COLOR[2] * NORMAL, SOLAR_COLOR[3] * NORMAL)
 	end
-
-	local glow = self.glow
-	if not glow then return end
-
-	local moonActivate, moonDeactivate = self.moonActivate, self.moonDeactivate
-	local sunActivate, sunDeactivate = self.sunActivate, self.sunDeactivate
-
-	if hasLunarEclipse then
-		local t = ECLIPSE_ICONS.moon.big
-		glow:ClearAllPoints()
-		glow:SetPoint("CENTER", self.moon, "CENTER", 0, 0)
-		glow:SetWidth(t.x)
-		glow:SetHeight(t.y)
-		glow:SetTexCoord(t.left, t.right, t.top, t.bottom)
-
-		self.darkSun:Show()
-		if moonDeactivate:IsPlaying() then
-			moonDeactivate:Stop()
-		end
-		if not moonActivate:IsPlaying() and EclipseBarFrame.hasLunarEclipse ~= hasLunarEclipse then
-			moonActivate:Play()
-		end
-	else
-		self.darkSun:Hide()
-		if moonActivate:IsPlaying() then
-			moonActivate:Stop()
-		end
-		if not moonDeactivate:IsPlaying() and EclipseBarFrame.hasLunarEclipse ~= hasLunarEclipse then
-			moonDeactivate:Play()
-		end
-	end
-
-	if hasSolarEclipse then
-		local t = ECLIPSE_ICONS.sun.big
-		glow:ClearAllPoints()
-		glow:SetPoint("CENTER", self.sun, "CENTER", 0, 0)
-		glow:SetWidth(t.x)
-		glow:SetHeight(t.y)
-		glow:SetTexCoord(t.left, t.right, t.top, t.bottom)
-
-		self.darkMoon:Show()
-		if sunDeactivate:IsPlaying() then
-			sunDeactivate:Stop()
-		end
-		if not sunActivate:IsPlaying() and EclipseBarFrame.hasSolarEclipse ~= hasSolarEclipse then
-			sunActivate:Play()
-		end
-	else
-		self.darkMoon:Hide()
-		if sunActivate:IsPlaying() then
-			sunActivate:Stop()
-		end
-		if not sunDeactivate:IsPlaying() and EclipseBarFrame.hasSolarEclipse ~= hasSolarEclipse then
-			sunDeactivate:Play()
-		end
-	end
-
-	EclipseBarFrame.hasLunarEclipse = hasLunarEclipse
-	EclipseBarFrame.hasSolarEclipse = hasSolarEclipse
 end
 
 local function PostDirectionChange(self, unit)
@@ -181,61 +122,6 @@ function ns.CreateEclipseBar(self)
 	self:Tag(eclipseText, "[pereclipse]%")
 	tinsert(self.mouseovers, eclipseText)
 	EclipseBar.value = eclipseText
-
-	if ns.config.eclipseBarIcons then
-		local moon = EclipseBarFrame.moon
-		moon:ClearAllPoints()
-		moon:SetParent(EclipseBar)
-		moon:SetPoint("CENTER", EclipseBar, "LEFT", -8, 0)
-		moon:SetDrawLayer("OVERLAY", 1)
-		EclipseBar.moon = moon
-
-		local darkMoon = EclipseBarFrame.darkMoon
-		darkMoon:ClearAllPoints()
-		darkMoon:SetParent(EclipseBar)
-		darkMoon:SetPoint("CENTER", moon)
-		darkMoon:SetDrawLayer("OVERLAY", 1)
-		EclipseBar.darkMoon = darkMoon
-
-		local sun = EclipseBarFrame.sun
-		sun:ClearAllPoints()
-		sun:SetParent(EclipseBar)
-		sun:SetPoint("CENTER", EclipseBar, "RIGHT", 8, 0)
-		sun:SetDrawLayer("OVERLAY")
-		EclipseBar.sun = sun
-
-		local darkSun = EclipseBarFrame.darkSun
-		darkSun:ClearAllPoints()
-		darkSun:SetParent(EclipseBar)
-		darkSun:SetPoint("CENTER", sun)
-		darkSun:SetDrawLayer("OVERLAY", 1)
-		EclipseBar.darkSun = darkSun
-
-		local glow = EclipseBarFrame.glow
-		glow:SetParent(EclipseBar)
-		glow:SetDrawLayer("OVERLAY", 2)
-		EclipseBar.glow = glow
-
-		EclipseBar.moonActivate = EclipseBarFrame.moonActivate
-		EclipseBar.moonDeactivate = EclipseBarFrame.moonDeactivate
-		EclipseBar.sunActivate = EclipseBarFrame.sunActivate
-		EclipseBar.sunDeactivate = EclipseBarFrame.sunDeactivate
-
-		EclipseBarFrame:EnableMouse(false)
-		EclipseBarFrame:SetParent(self)
-		EclipseBarFrame:SetScript("OnShow", nil)
-		EclipseBarFrame:SetScript("OnEvent", nil)
-		EclipseBarFrame:SetScript("OnUpdate", nil)
-		EclipseBarFrame:Show()
-
-		EclipseBarFrameBar:SetTexture("")
-		EclipseBarFrameMarker:SetTexture("")
-		EclipseBarFrameMoonBar:SetTexture("")
-		EclipseBarFrameSunBar:SetTexture("")
-
-		EclipseBarFrame.hasLunarEclipse = false
-		EclipseBarFrame.hasSolarEclipse = false
-	end
 
 	EclipseBar:SetScript("OnEnter", ns.UnitFrame_OnEnter)
 	EclipseBar:SetScript("OnLeave", ns.UnitFrame_OnLeave)

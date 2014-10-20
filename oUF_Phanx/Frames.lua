@@ -404,8 +404,8 @@ local function Spawn(self, unit, isSingle)
 	-- EclipseBar --
 	----------------
 	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
-		-- self.EclipseBar = ns.CreateEclipseBar(self) -- TEMPORARY
-
+		self.EclipseBar = ns.CreateEclipseBar(self)
+		--[[
 		local eclipseBar = ns.CreateStatusBar(self, 16, "CENTER")
 		eclipseBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
 		eclipseBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
@@ -424,6 +424,7 @@ local function Spawn(self, unit, isSingle)
 
 		eclipseBar.PostUpdate = ns.Eclipse_PostUpdate
 		self.Eclipse = eclipseBar
+		]]
 	end
 
 	-----------
