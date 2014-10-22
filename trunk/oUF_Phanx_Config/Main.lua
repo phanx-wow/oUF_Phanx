@@ -264,54 +264,37 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	local healthColorMode = panel:CreateDropdown(L.HealthColor, L.HealthColor_Desc)
 	healthColorMode:SetPoint("TOPLEFT", borderSize, "BOTTOMLEFT", 0, -12)
 	healthColorMode:SetPoint("TOPRIGHT", borderSize, "BOTTOMRIGHT", 0, -12)
+	
+	healthColorMode:SetList({
+		{ value = "CLASS",  text = L.ColorClass  },
+		{ value = "HEALTH", text = L.ColorHealth },
+		{ value = "CUSTOM", text = L.ColorCustom },
+	})
 
-	do
-		local info = {}
-		info.func = function(self)
-			local value = self.value
-			healthColorMode:SetValue(value, healthColorModes[value])
-			db.healthColorMode = value
-			for i = 1, #ns.objects do
-				local frame = ns.objects[i]
-				local health = frame.Health
-				if type(health) == "table" then
-					health.colorClass = value == "CLASS"
-					health.colorReaction = value == "CLASS"
-					health.colorSmooth = value == "HEALTH"
-					if value == "CUSTOM" then
-						local mu = health.bg.multiplier
-						local r, g, b = unpack(db.healthColor)
-						health:SetStatusBarColor(r, g, b)
-						health.bg:SetVertexColor(r * mu, g * mu, b * mu)
-					elseif frame:IsShown() then
-						health:ForceUpdate()
-					end
+	function healthColorMode:OnValueChanged(value, text)
+		db.healthColorMode = value
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
+			local health = frame.Health
+			if type(health) == "table" then
+				health.colorClass = value == "CLASS"
+				health.colorReaction = value == "CLASS"
+				health.colorSmooth = value == "HEALTH"
+				if value == "CUSTOM" then
+					local mu = health.bg.multiplier
+					local r, g, b = unpack(db.healthColor)
+					health:SetStatusBarColor(r, g, b)
+					health.bg:SetVertexColor(r * mu, g * mu, b * mu)
+				elseif frame:IsShown() then
+					health:ForceUpdate()
 				end
 			end
-			if value == "CUSTOM" then
-				healthColor:Show()
-			else
-				healthColor:Hide()
-			end
 		end
-		UIDropDownMenu_Initialize(healthColorMode.dropdown, function()
-			local selected = db.healthColorMode
-
-			info.text = L.ColorClass
-			info.value = "CLASS"
-			info.checked = "CLASS" == selected
-			UIDropDownMenu_AddButton(info)
-
-			info.text = L.ColorHealth
-			info.value = "HEALTH"
-			info.checked = "HEALTH" == selected
-			UIDropDownMenu_AddButton(info)
-
-			info.text = L.ColorCustom
-			info.value = "CUSTOM"
-			info.checked = "CUSTOM" == selected
-			UIDropDownMenu_AddButton(info)
-		end)
+		if value == "CUSTOM" then
+			healthColor:Show()
+		else
+			healthColor:Hide()
+		end
 	end
 
 	--------------------------------------------------------------------
@@ -371,58 +354,37 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	local powerColorMode = panel:CreateDropdown(L.PowerColor, L.PowerColor_Desc)
 	powerColorMode:SetPoint("TOPLEFT", healthBG, "BOTTOMLEFT", 0, -12)
 	powerColorMode:SetPoint("TOPRIGHT", healthBG, "BOTTOMRIGHT", 0, -12)
+	
+	powerColorMode:SetList({
+		{ value = "CLASS",  text = L.ColorClass  },
+		{ value = "POWER",  text = L.ColorPower  },
+		{ value = "CUSTOM", text = L.ColorCustom },
+	})
 
-	do
-		local function OnClick(self)
-			local value = self.value
-			db.powerColorMode = value
-			powerColorMode:SetValue(value, powerColorModes[value])
-			for i = 1, #ns.objects do
-				local frame = ns.objects[i]
-				local power = frame.Power
-				if type(power) == "table" then
-					power.colorClass = value == "CLASS"
-					power.colorReaction = value == "CLASS"
-					power.colorPower = value == "POWER"
-					if value == "CUSTOM" then
-						local mu = power.bg.multiplier
-						local r, g, b = unpack(db.powerColor)
-						power:SetStatusBarColor(r, g, b)
-						power.bg:SetVertexColor(r * mu, g * mu, b * mu)
-					elseif frame:IsShown() then
-						power:ForceUpdate()
-					end
+	function powerColorMode:OnValueChanged(value, text)
+		db.powerColorMode = value
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
+			local power = frame.Power
+			if type(power) == "table" then
+				power.colorClass = value == "CLASS"
+				power.colorReaction = value == "CLASS"
+				power.colorPower = value == "POWER"
+				if value == "CUSTOM" then
+					local mu = power.bg.multiplier
+					local r, g, b = unpack(db.powerColor)
+					power:SetStatusBarColor(r, g, b)
+					power.bg:SetVertexColor(r * mu, g * mu, b * mu)
+				elseif frame:IsShown() then
+					power:ForceUpdate()
 				end
 			end
-			if value == "CUSTOM" then
-				powerColor:Show()
-			else
-				powerColor:Hide()
-			end
 		end
-
-		local info = {}
-		UIDropDownMenu_Initialize(powerColorMode.dropdown, function()
-			local selected = db.powerColorMode
-
-			info.text = L.ColorClass
-			info.value = "CLASS"
-			info.func = OnClick
-			info.checked = "CLASS" == selected
-			UIDropDownMenu_AddButton(info)
-
-			info.text = L.ColorPower
-			info.value = "POWER"
-			info.func = OnClick
-			info.checked = "HEALTH" == selected
-			UIDropDownMenu_AddButton(info)
-
-			info.text = L.ColorCustom
-			info.value = "CUSTOM"
-			info.func = OnClick
-			info.checked = "CUSTOM" == selected
-			UIDropDownMenu_AddButton(info)
-		end)
+		if value == "CUSTOM" then
+			powerColor:Show()
+		else
+			powerColor:Hide()
+		end
 	end
 
 	--------------------------------------------------------------------
