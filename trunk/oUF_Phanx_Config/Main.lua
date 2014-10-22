@@ -49,7 +49,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
 
-	local valueBG = statusbar.dropdown:CreateTexture(nil, "OVERLAY")
+	local valueBG = statusbar:CreateTexture(nil, "OVERLAY")
 	valueBG:SetPoint("LEFT", statusbar.valueText, -2, 1)
 	valueBG:SetPoint("RIGHT", statusbar.valueText, 5, 1)
 	valueBG:SetHeight(15)
@@ -70,7 +70,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		local button_OnClick = statusbar.button:GetScript("OnClick")
 		statusbar.button:SetScript("OnClick", function(self)
 			button_OnClick(self)
-			statusbar.dropdown.list:Hide()
+			statusbar.list:Hide()
 
 			local function GetButtonBackground(self)
 				if not self.bg then
@@ -85,7 +85,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 			local function SetButtonBackgroundTextures(self)
 				local numButtons = 0
-				local buttons = statusbar.dropdown.list.buttons
+				local buttons = statusbar.list.buttons
 				for i = 1, #buttons do
 					local button = buttons[i]
 					if i > 1 then
@@ -99,17 +99,17 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 						numButtons = numButtons + 1
 					end
 				end
-				statusbar.dropdown.list:SetHeight(statusbar.dropdown.list:GetHeight() + (numButtons * 1))
+				statusbar.list:SetHeight(statusbar.list:GetHeight() + (numButtons * 1))
 			end
 
-			local OnShow = statusbar.dropdown.list:GetScript("OnShow")
-			statusbar.dropdown.list:SetScript("OnShow", function(self)
+			local OnShow = statusbar.list:GetScript("OnShow")
+			statusbar.list:SetScript("OnShow", function(self)
 				OnShow(self)
 				SetButtonBackgroundTextures(self)
 			end)
 
-			local OnVerticalScroll = statusbar.dropdown.list.scrollFrame:GetScript("OnVerticalScroll")
-			statusbar.dropdown.list.scrollFrame:SetScript("OnVerticalScroll", function(self, delta)
+			local OnVerticalScroll = statusbar.list.scrollFrame:GetScript("OnVerticalScroll")
+			statusbar.list.scrollFrame:SetScript("OnVerticalScroll", function(self, delta)
 				OnVerticalScroll(self, delta)
 				SetButtonBackgroundTextures(self)
 			end)
@@ -150,40 +150,17 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local outline
-	do
-		local function OnClick(self)
-			local value = self.value
-			outline:SetValue(value, outlineWeights[value])
-			db.fontOutline = value
-			ns.SetAllFonts()
-		end
-
-		outline = panel:CreateDropdown(L.Outline, nil, function()
-			local selected = db.fontOutline
-
-			local info = {}
-			info.func = OnClick
-
-			info.text = L.None
-			info.value = "NONE"
-			info.checked = "NONE" == selected
-			UIDropDownMenu_AddButton(info)
-
-			info.text = L.Thin
-			info.value = "OUTLINE"
-			info.checked = "OUTLINE" == selected
-			UIDropDownMenu_AddButton(info)
-
-			info.text = L.Thick
-			info.value = "THICKOUTLINE"
-			info.checked = "THICKOUTLINE" == selected
-			UIDropDownMenu_AddButton(info)
-		end)
-
-		outline:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -12)
-		outline:SetPoint("TOPRIGHT", font, "BOTTOMRIGHT", 0, -12)
+	local outline = panel:CreateDropdown(L.Outline, nil, {
+		{ value = "NONE", text = L.None },
+		{ value = "OUTLINE", text = L.Thin },
+		{ value = "THICKOUTLINE", text = L.Thick },
+	})
+	function outline:OnValueChanged(value)
+		db.fontOutline = value
+		ns.SetAllFonts()
 	end
+	outline:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -12)
+	outline:SetPoint("TOPRIGHT", font, "BOTTOMRIGHT", 0, -12)
 
 	--------------------------------------------------------------------
 
