@@ -45,7 +45,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local statusbar = panel:CreateScrollingDropdown(L.Texture, nil, Media:List("statusbar"))
+	local statusbar = panel:CreateDropdown(L.Texture, nil, Media:List("statusbar"))
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
 
@@ -121,7 +121,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local font = panel:CreateScrollingDropdown(L.Font, nil, Media:List("font"))
+	local font = panel:CreateDropdown(L.Font, nil, Media:List("font"))
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
