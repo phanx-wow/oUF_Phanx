@@ -266,7 +266,7 @@ function Loader:ADDON_LOADED(event, addon)
 	ns.uconfig = oUFPhanxUnitConfig
 
 	-- Aura settings stored per character:
-	if oUFPhanxConfig.VERSION == nil then
+	if oUFPhanxAuraConfig and oUFPhanxAuraConfig.VERSION == nil then
 		-- Upgrade from pre-bitflag filter values
 		local bitflags = {
 			[0] = ns.auraFilterValues.DISABLE,
