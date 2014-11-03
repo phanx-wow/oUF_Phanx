@@ -6,12 +6,13 @@
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 ----------------------------------------------------------------------]]
-do return end -- needs update for bitfield stuff
+
 local _, ns = ...
 local L = ns.L
 
 LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", function(panel)
 	local title, notes = panel:CreateHeader(panel.name, L.Auras_Desc)
+	local showDefaults, showAllDefaults = {}
 
 	local scrollFrame = CreateFrame("ScrollFrame", "oUFPCAuraScrollFrame", panel, "UIPanelScrollFrameTemplate")
 	scrollFrame:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -16)
@@ -84,7 +85,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	dialog.Title, dialog.Notes = panel.CreateHeader(dialog, L.AddAura, L.AddAura_Desc)
 	dialog.Notes:SetHeight(16) -- only one line
 
-	local dialogBox = CreateFrame("EditBox", "oUFPCAuraEditBox", dialog, "InputBoxTemplate")
+	local dialogBox = CreateFrame("EditBox", nil, dialog, "InputBoxTemplate")
 	dialogBox:SetPoint("TOPLEFT", dialog.Notes, "BOTTOMLEFT", 6, -12)
 	dialogBox:SetSize(160, 24)
 	dialogBox:SetAltArrowKeyMode(false)
@@ -94,17 +95,21 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	dialogBox:SetScript("OnTextChanged", function(self, userInput)
 		if not userInput then return end
 
-		local spell = self:GetNumber()
-		if spell == 0 then
+		local id = self:GetNumber()
+		if id == 0 then
 			dialog.Text:SetText("")
-			dialog.Button:SetEnabled(false)
+			dialog.Button:Disable()
 			return
 		end
 
-		local name, _, icon = GetSpellInfo(spell)
+		local name, _, icon = GetSpellInfo(id)
 		if name and icon then
+			if oUFPhanxAuraConfig[id] and oUFPhanxAuraConfig[id] ~= ns.defaultAuras[id] then
+				dialog.Text:SetText(RED_FONT_COLOR_CODE .. L.AddAura_Duplicate .. "|r")
+				dialog.Button:Disable()
+			end
 			dialog.Text:SetFormattedText("|T%s:0|t %s", icon, name)
-			dialog.Button:SetEnabled(true)
+			dialog.Button:Enable()
 		else
 			dialog.Text:SetText(RED_FONT_COLOR_CODE .. L.AddAura_Invalid .. "|r")
 			dialog.Button:Disable()
@@ -114,9 +119,13 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		if not dialog.Button:IsEnabled() then return end
 		local id = self:GetNumber()
 		if id and id > 0 and GetSpellInfo(id) then
-			oUFPhanxAuraConfig[id] = 1
+			if ns.defaultAuras[id] then
+				showDefaults[id] = true
+			elseif not oUFPhanxConfig[id] then
+				oUFPhanxAuraConfig[id] = ns.auraFilterValues.ALL
+			end
 			ns.UpdateAuraList()
-			dialog:Hide()
+			panel.refresh()
 		end
 	end)
 	dialog.EditBox = dialogBox
@@ -166,6 +175,16 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		end
 	end)
 
+	local showAll = panel:CreateCheckbox(L.ShowDefaultAuras, L.ShowDefaultAuras_Desc)
+	showAll:SetPoint("BOTTOMRIGHT", add, "TOPRIGHT", 4, 5)
+	showAll.labelText:ClearAllPoints()
+	showAll.labelText:SetPoint("RIGHT", showAll, "LEFT", -2, 1)
+	showAll:SetHitRectInsets(-1 * min(186, max(showAll.labelText:GetStringWidth(), 100)), 0, 0, 0)
+	function showAll:OnValueChanged(enable)
+		showAllDefaults = enable
+		panel.refresh()
+	end
+
 	--------------------------------------------------------------------
 
 	local function Row_OnEnter(self)
@@ -210,29 +229,21 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 
 	-- Filter dropdown functions:
 	local CURRENT_AURA, CURRENT_DROPDOWN
-	local function Dropdown_ClickFunc(info)
-		oUFPhanxAuraConfig[CURRENT_AURA] = info.value
-		CURRENT_DROPDOWN:SetValue(info.value, L["AuraFilter"..info.value])
+	local filterValues = {
+		{ value = ns.auraFilterValues.ALL,       text = L["AuraFilter1"] },
+		{ value = ns.auraFilterValues.BY_PLAYER, text = L["AuraFilter2"] },
+		{ value = ns.auraFilterValues.ON_FRIEND, text = L["AuraFilter3"] },
+		{ value = ns.auraFilterValues.ON_PLAYER, text = L["AuraFilter4"] },
+		{ value = ns.auraFilterValues.DISABLE,   text = L["AuraFilter0"] },
+	}
+	local function Filter_Callback(self, value)
+		oUFPhanxAuraConfig[CURRENT_AURA] = value
 		ns.UpdateAuraList()
 	end
-	local function Dropdown_Initialize(self, level) -- self is the dropdown menu
-		if not level then return end
-		CURRENT_DROPDOWN = self:GetParent()
-		CURRENT_AURA = CURRENT_DROPDOWN:GetParent().id
-		local selected = oUFPhanxAuraConfig[CURRENT_AURA]
-		local info = UIDropDownMenu_CreateInfo()
-		for i = 0, 4 do
-			info.text = L["AuraFilter"..i]
-			info.value = i
-			info.checked = i == selected
-			info.func = Dropdown_ClickFunc
-			UIDropDownMenu_AddButton(info, level)
-		end
-	end
-	local function Dropdown_OnEnter(self)
+	local function Filter_OnEnter(self)
 		Row_OnEnter(self:GetParent())
 	end
-	local function Dropdown_OnLeave(self)
+	local function Filter_OnLeave(self)
 		Row_OnLeave(self:GetParent())
 	end
 
@@ -283,11 +294,12 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		name:SetPoint("LEFT", icon, "RIGHT", 8, 0)
 		row.name = name
 
-		local filter = panel.CreateDropdown(row, nil, nil, Dropdown_Initialize)
+		local filter = panel.CreateDropdown(row, nil, nil, filterValues)
 		filter:SetPoint("RIGHT", 0, 5)
 		filter:SetWidth(200)
-		filter.OnEnter = Dropdown_OnEnter
-		filter.OnLeave = Dropdown_OnLeave
+		filter.OnEnter = Filter_OnEnter
+		filter.OnLeave = Filter_OnLeave
+		filter.OnValueChanged = Filter_OnValueChanged
 		row.filter = filter
 
 		t[i] = row
@@ -310,7 +322,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 
 		for id, filter in pairs(oUFPhanxAuraConfig) do
 			local name, _, icon = GetSpellInfo(id)
-			if name and icon then
+			if name and icon and (showAllDefaults or showDefaults[id] or filter ~= ns.defaultAuras[id]) then
 				local aura = next(pool) or {}
 				pool[aura] = nil
 				aura.name = name
@@ -330,7 +342,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 				row.id = aura.id
 				row.name:SetText(aura.name)
 				row.icon:SetTexture(aura.icon)
-				row.filter:SetValue(aura.filter, L["AuraFilter"..aura.filter])
+				row.filter:SetValue(aura.filter)
 				row:Show()
 				height = height + 4 + row:GetHeight()
 			end
@@ -338,6 +350,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 				rows[i]:Hide()
 			end
 			scrollChild:SetHeight(height)
+			dialog:Hide()
 			add:Show()
 		else
 			for i = 1, #rows do
