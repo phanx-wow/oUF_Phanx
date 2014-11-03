@@ -7,9 +7,8 @@
 	http://www.curse.com/addons/wow/ouf-phanx
 ------------------------------------------------------------------------
 	Filter settings stored as bitfields.
-	0x MODE SOURCE DEST ROLE 0 CLASSx3
-	See below for related constants. Class takes up 3 bits, and has
-	an empty bit in front of it in case Blizzard adds more classes.
+	0x MODE SOURCE DEST ROLE
+	See below for related constants.
 ----------------------------------------------------------------------]]
 
 local _, ns = ...
@@ -20,38 +19,25 @@ local bit_band, bit_bor = bit.band, bit.bor
 ------------------------------------------------------------------------
 
 -- Permanent filters, only checked on login, role change, options change:
-local FILTER_ALL               = 0x10000000
-local FILTER_DISABLE           = 0x20000000
-local FILTER_PVP               = 0x30000000
-local FILTER_PVE               = 0x40000000
+local FILTER_ALL               = 0x1000
+local FILTER_DISABLE           = 0x2000
+local FILTER_PVP               = 0x3000
+local FILTER_PVE               = 0x4000
 
-local FILTER_ROLE_TANK         = 0x00010000
-local FILTER_ROLE_HEALER       = 0x00020000
-local FILTER_ROLE_DAMAGER      = 0x00040000
-local FILTER_ROLE_MASK         = 0x000F0000
-
-local FILTER_CLASS_MASK        = 0x00000FFF
-local FILTER_CLASS_WARRIOR     = 0x00000001
-local FILTER_CLASS_PALADIN     = 0x00000002
-local FILTER_CLASS_HUNTER      = 0x00000004
-local FILTER_CLASS_ROGUE       = 0x00000008
-local FILTER_CLASS_PRIEST      = 0x00000010
-local FILTER_CLASS_DEATHKNIGHT = 0x00000020
-local FILTER_CLASS_SHAMAN      = 0x00000040
-local FILTER_CLASS_MAGE        = 0x00000080
-local FILTER_CLASS_WARLOCK     = 0x00000100
-local FILTER_CLASS_MONK        = 0x00000200
-local FILTER_CLASS_DRUID       = 0x00000400
+local FILTER_ROLE_MASK         = 0x000F
+local FILTER_ROLE_TANK         = 0x0001
+local FILTER_ROLE_HEALER       = 0x0002
+local FILTER_ROLE_DAMAGER      = 0x0004
 
 -- Temporary filters, checked in realtime:
-local FILTER_BY_PLAYER         = "0x01000000"
-local FILTER_BY_MASK           = "0x0F000000"
+local FILTER_BY_MASK           = 0x0F00
+local FILTER_BY_PLAYER         = 0x0100
 
-local FILTER_ON_PLAYER         = "0x00100000"
-local FILTER_ON_OTHER          = "0x00200000"
-local FILTER_ON_FRIEND         = "0x00400000"
-local FILTER_ON_ENEMY          = "0x00800000"
-local FILTER_ON_MASK           = "0x00F00000"
+local FILTER_ON_MASK           = 0x00F0
+local FILTER_ON_PLAYER         = 0x0010
+local FILTER_ON_OTHER          = 0x0020
+local FILTER_ON_FRIEND         = 0x0040
+local FILTER_ON_ENEMY          = 0x0080
 
 ns.auraFilterValues = {
 	ALL               = FILTER_ALL,
@@ -59,46 +45,19 @@ ns.auraFilterValues = {
 	PVP               = FILTER_PVP,
 	PVE               = FILTER_PVE,
 
-	BY_PLAYER         = FILTER_BY_PLAYER,
-	BY_MASK           = FILTER_BY_MASK,
+	ROLE_MASK         = FILTER_ROLE_MASK,
+	ROLE_TANK         = FILTER_ROLE_TANK,
+	ROLE_HEALER       = FILTER_ROLE_HEALER,
+	ROLE_DAMAGER      = FILTER_ROLE_DAMAGER,
 
+	BY_MASK           = FILTER_BY_MASK,
+	BY_PLAYER         = FILTER_BY_PLAYER,
+
+	ON_MASK           = FILTER_ON_MASK,
 	ON_PLAYER         = FILTER_ON_PLAYER,
 	ON_OTHER          = FILTER_ON_OTHER,
 	ON_FRIEND         = FILTER_ON_FRIEND,
 	ON_ENEMY          = FILTER_ON_ENEMY,
-	ON_MASK           = FILTER_ON_MASK,
-
-	ROLE_TANK         = FILTER_ROLE_TANK,
-	ROLE_HEALER       = FILTER_ROLE_HEALER,
-	ROLE_DAMAGER      = FILTER_ROLE_DAMAGER,
-	ROLE_MASK         = FILTER_ROLE_MASK,
-
-	CLASS_MASK        = FILTER_CLASS_MASK,
-	CLASS_WARRIOR     = FILTER_CLASS_WARRIOR,
-	CLASS_PALADIN     = FILTER_CLASS_PALADIN,
-	CLASS_HUNTER      = FILTER_CLASS_HUNTER,
-	CLASS_ROGUE       = FILTER_CLASS_ROGUE,
-	CLASS_PRIEST      = FILTER_CLASS_PRIEST,
-	CLASS_DEATHKNIGHT = FILTER_CLASS_DEATHKNIGHT,
-	CLASS_SHAMAN      = FILTER_CLASS_SHAMAN,
-	CLASS_MAGE        = FILTER_CLASS_MAGE,
-	CLASS_WARLOCK     = FILTER_CLASS_WARLOCK,
-	CLASS_MONK        = FILTER_CLASS_MONK,
-	CLASS_DRUID       = FILTER_CLASS_DRUID,
-}
-
-local classFilter = {
-	WARRIOR     = FILTER_CLASS_WARRIOR,
-	PALADIN     = FILTER_CLASS_PALADIN,
-	HUNTER      = FILTER_CLASS_HUNTER,
-	ROGUE       = FILTER_CLASS_ROGUE,
-	PRIEST      = FILTER_CLASS_PRIEST,
-	DEATHKNIGHT = FILTER_CLASS_DEATHKNIGHT,
-	SHAMAN      = FILTER_CLASS_SHAMAN,
-	MAGE        = FILTER_CLASS_MAGE,
-	WARLOCK     = FILTER_CLASS_WARLOCK,
-	MONK        = FILTER_CLASS_MONK,
-	DRUID       = FILTER_CLASS_DRUID,
 }
 
 local roleFilter = {
@@ -118,25 +77,15 @@ local defaultAuras = {
 	[49016]  = FILTER_ON_PLAYER, -- Unholy Frenzy
 
 	-- Bloodlust
-	[90355]  = FILTER_ON_PLAYER, -- Ancient Hysteria (core hound)
-	[2825]   = FILTER_ON_PLAYER, -- Bloodlust (shaman)
-	[32182]  = FILTER_ON_PLAYER, -- Heroism (shaman)
-	[80353]  = FILTER_ON_PLAYER, -- Time Warp (mage)
-
-	-- Herbalism
-	[81708]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 1)
-	[55428]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 2)
-	[55480]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 3)
-	[55500]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 4)
-	[55501]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 5)
-	[55502]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 6)
-	[55503]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 7)
-	[74497]  = FILTER_BY_PLAYER, -- Lifeblood (Rank 8)
-	[121279] = FILTER_BY_PLAYER, -- Lifeblood (Rank 9)
+	[90355]  = FILTER_ON_PLAYER, -- Ancient Hysteria (Hunter: Core Hound)
+	[2825]   = FILTER_ON_PLAYER, -- Bloodlust (Shaman)
+	[146555] = FILTER_ON_PLAYER, -- Drums of Rage (25%)
+	[32182]  = FILTER_ON_PLAYER, -- Heroism (Shaman)
+	[160452] = FILTER_ON_PLAYER, -- Netherwinds (Hunter: Nether Ray)
+	[80353]  = FILTER_ON_PLAYER, -- Time Warp (Mage)
 
 	-- Crowd Control
 	[710]    = FILTER_ALL, -- Banish
-	[76780]  = FILTER_ALL, -- Bind Elemental
 	[33786]  = FILTER_ALL, -- Cyclone
 	[339]    = FILTER_ALL, -- Entangling Roots
 	[5782]   = FILTER_ALL, -- Fear -- NEEDS CHECK
@@ -165,862 +114,729 @@ ns.defaultAuras = defaultAuras
 ------------------------------------------------------------------------
 -- Death Knight
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_BY_PLAYER)
-
+if playerClass == "DEATHKNIGHT" then
 	-- Self Buffs
-	defaultAuras[48707]  = SELF -- Anti-Magic Shell
-	defaultAuras[49222]  = SELF -- Bone Shield
-	defaultAuras[53386]  = SELF -- Cinderglacier
-	defaultAuras[119975] = SELF -- Conversion
-	defaultAuras[101568] = SELF -- Dark Succor <-- glyph
-	defaultAuras[96268]  = SELF -- Death's Advance
-	defaultAuras[59052]  = SELF -- Freezing Fog <-- Rime
-	defaultAuras[48792]  = SELF -- Icebound Fortitude
-	defaultAuras[51124]  = SELF -- Killing Machine
-	defaultAuras[49039]  = SELF -- Lichborne
-	defaultAuras[51271]  = SELF -- Pillar of Frost
-	defaultAuras[46584]  = SELF -- Raise Dead
-	defaultAuras[108200] = SELF -- Remorseless Winter
-	defaultAuras[51460]  = SELF -- Runic Corruption
-	defaultAuras[50421]  = SELF -- Scent of Blood
-	defaultAuras[116888] = SELF -- Shroud of Purgatory
-	defaultAuras[8134]   = SELF -- Soul Reaper
-	defaultAuras[81340]  = SELF -- Sudden Doom
-	defaultAuras[115989] = SELF -- Unholy Blight
---	defaultAuras[53365]  = SELF -- Unholy Strength <-- Rune of the Fallen Crusader
-	defaultAuras[55233]  = SELF -- Vampiric Blood
-	defaultAuras[81162]  = SELF -- Will of the Necropolis (damage reduction)
-	defaultAuras[96171]  = SELF -- Will of the Necropolis (free Rune Tap)
+	defaultAuras[48707]  = FILTER_ON_PLAYER -- Anti-Magic Shell
+	defaultAuras[49222]  = FILTER_ON_PLAYER -- Bone Shield
+	defaultAuras[53386]  = FILTER_ON_PLAYER -- Cinderglacier
+	defaultAuras[119975] = FILTER_ON_PLAYER -- Conversion
+	defaultAuras[101568] = FILTER_ON_PLAYER -- Dark Succor <-- glyph
+	defaultAuras[96268]  = FILTER_ON_PLAYER -- Death's Advance
+	defaultAuras[59052]  = FILTER_ON_PLAYER -- Freezing Fog <-- Rime
+	defaultAuras[48792]  = FILTER_ON_PLAYER -- Icebound Fortitude
+	defaultAuras[51124]  = FILTER_ON_PLAYER -- Killing Machine
+	defaultAuras[49039]  = FILTER_ON_PLAYER -- Lichborne
+	defaultAuras[51271]  = FILTER_ON_PLAYER -- Pillar of Frost
+	defaultAuras[46584]  = FILTER_ON_PLAYER -- Raise Dead
+	defaultAuras[108200] = FILTER_ON_PLAYER -- Remorseless Winter
+	defaultAuras[51460]  = FILTER_ON_PLAYER -- Runic Corruption
+	defaultAuras[50421]  = FILTER_ON_PLAYER -- Scent of Blood
+	defaultAuras[116888] = FILTER_ON_PLAYER -- Shroud of Purgatory
+	defaultAuras[8134]   = FILTER_ON_PLAYER -- Soul Reaper
+	defaultAuras[81340]  = FILTER_ON_PLAYER -- Sudden Doom
+	defaultAuras[115989] = FILTER_ON_PLAYER -- Unholy Blight
+--	defaultAuras[53365]  = FILTER_ON_PLAYER -- Unholy Strength <-- Rune of the Fallen Crusader
+	defaultAuras[55233]  = FILTER_ON_PLAYER -- Vampiric Blood
+	defaultAuras[81162]  = FILTER_ON_PLAYER -- Will of the Necropolis (damage reduction)
+	defaultAuras[96171]  = FILTER_ON_PLAYER -- Will of the Necropolis (free Rune Tap)
 
 	-- Pet Buffs
-	defaultAuras[63560]  = MINE -- Dark Transformation
+	defaultAuras[63560]  = FILTER_BY_PLAYER -- Dark Transformation
 
 	-- Buffs
-	defaultAuras[49016]  = BUFF -- Unholy Frenzy
+	defaultAuras[49016]  = FILTER_ON_FRIEND -- Unholy Frenzy
 
 	-- Debuffs
-	defaultAuras[108194] = DEBUFF  -- Asphyxiate
-	defaultAuras[55078]  = MINE -- Blood Plague
-	defaultAuras[45524]  = DEBUFF  -- Chains of Ice
-	--defaultAuras[50435]  = DEBUFF  -- Chilblains
-	defaultAuras[111673] = MINE -- Control Undead -- needs check
-	defaultAuras[77606]  = MINE -- Dark Simulacrum
-	defaultAuras[55095]  = MINE -- Frost Fever
-	defaultAuras[51714]  = MINE -- Frost Vulernability <-- Rune of Razorice
-	defaultAuras[73975]  = DEBUFF  -- Necrotic Strike
-	defaultAuras[115000] = MINE -- Remorseless Winter (slow)
-	defaultAuras[115001] = MINE -- Remorseless Winter (stun)
-	defaultAuras[114866] = MINE -- Soul Reaper (blood)
-	defaultAuras[130735] = MINE -- Soul Reaper (frost)
-	defaultAuras[130736] = MINE -- Soul Reaper (unholy)
-	defaultAuras[47476]  = DEBUFF  -- Strangulate
+	defaultAuras[108194] = FILTER_ON_ENEMY  -- Asphyxiate
+	defaultAuras[55078]  = FILTER_BY_PLAYER -- Blood Plague
+	defaultAuras[45524]  = FILTER_ON_ENEMY  -- Chains of Ice
+--	defaultAuras[50435]  = FILTER_ON_ENEMY  -- Chilblains
+	defaultAuras[111673] = FILTER_BY_PLAYER -- Control Undead -- needs check
+	defaultAuras[77606]  = FILTER_BY_PLAYER -- Dark Simulacrum
+	defaultAuras[55095]  = FILTER_BY_PLAYER -- Frost Fever
+	defaultAuras[51714]  = FILTER_BY_PLAYER -- Frost Vulernability <-- Rune of Razorice
+	defaultAuras[73975]  = FILTER_ON_ENEMY  -- Necrotic Strike
+	defaultAuras[115000] = FILTER_BY_PLAYER -- Remorseless Winter (slow)
+	defaultAuras[115001] = FILTER_BY_PLAYER -- Remorseless Winter (stun)
+	defaultAuras[114866] = FILTER_BY_PLAYER -- Soul Reaper (blood)
+	defaultAuras[130735] = FILTER_BY_PLAYER -- Soul Reaper (frost)
+	defaultAuras[130736] = FILTER_BY_PLAYER -- Soul Reaper (unholy)
+	defaultAuras[47476]  = FILTER_ON_ENEMY  -- Strangulate
 end
 
 ------------------------------------------------------------------------
 -- Druid
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_DRUID, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_DRUID, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_DRUID, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_DRUID, FILTER_BY_PLAYER)
-
+if playerClass == "DRUID" then
 	-- Self Buffs
-	defaultAuras[22812]  = SELF -- Barkskin
-	defaultAuras[106951] = SELF -- Berserk (cat)
-	defaultAuras[50334]  = SELF -- Berserk (bear)
-	defaultAuras[112071] = SELF -- Celestial Alignment
-	defaultAuras[16870]  = SELF -- Clearcasting <-- Omen of Clarity
-	defaultAuras[1850]   = SELF -- Dash
-	defaultAuras[108381] = SELF -- Dream of Cenarius (+damage)
-	defaultAuras[108382] = SELF -- Dream of Cenarius (+healing)
-	defaultAuras[5229]   = SELF -- Enrage
-	defaultAuras[124769] = SELF -- Frenzied Regeneration <-- glyph
-	defaultAuras[102560] = SELF -- Incarnation: Chosen of Elune
-	defaultAuras[102543] = SELF -- Incarnation: King of the Jungle
-	defaultAuras[102558] = SELF -- Incarnation: Son of Ursoc
-	defaultAuras[33891]  = SELF -- Incarnation: Tree of Life -- NEEDS CHECK
-	defaultAuras[81192]  = SELF -- Lunar Shower
-	defaultAuras[106922] = SELF -- Might of Ursoc
-	defaultAuras[16689]  = SELF -- Nature's Grasp
-	defaultAuras[132158] = SELF -- Nature's Swiftness
-	defaultAuras[124974] = SELF -- Nature's Vigil
-	defaultAuras[48391]  = SELF -- Owlkin Frenzy
-	defaultAuras[69369]  = SELF -- Predator's Swiftness
-	defaultAuras[132402] = SELF -- Savage Defense
-	defaultAuras[52610]  = SELF -- Savage Roar -- VERIFIED 13/02/20 on tauren feral
-	defaultAuras[127538] = SELF -- Savage Roar -- NEEDS CHECK
-	defaultAuras[93400]  = SELF -- Shooting Stars
-	defaultAuras[114108] = SELF -- Soul of the Forest (resto)
-	defaultAuras[48505]  = SELF -- Starfall
-	defaultAuras[61336]  = SELF -- Survival Instincts
-	defaultAuras[5217]   = SELF -- Tiger's Fury
-	defaultAuras[102416] = SELF -- Wild Charge (aquatic)
+	defaultAuras[22812]  = FILTER_ON_PLAYER -- Barkskin
+	defaultAuras[106951] = FILTER_ON_PLAYER -- Berserk (cat)
+	defaultAuras[50334]  = FILTER_ON_PLAYER -- Berserk (bear)
+	defaultAuras[112071] = FILTER_ON_PLAYER -- Celestial Alignment
+	defaultAuras[16870]  = FILTER_ON_PLAYER -- Clearcasting <-- Omen of Clarity
+	defaultAuras[1850]   = FILTER_ON_PLAYER -- Dash
+	defaultAuras[108381] = FILTER_ON_PLAYER -- Dream of Cenarius (+damage)
+	defaultAuras[108382] = FILTER_ON_PLAYER -- Dream of Cenarius (+healing)
+	defaultAuras[5229]   = FILTER_ON_PLAYER -- Enrage
+	defaultAuras[124769] = FILTER_ON_PLAYER -- Frenzied Regeneration <-- glyph
+	defaultAuras[102560] = FILTER_ON_PLAYER -- Incarnation: Chosen of Elune
+	defaultAuras[102543] = FILTER_ON_PLAYER -- Incarnation: King of the Jungle
+	defaultAuras[102558] = FILTER_ON_PLAYER -- Incarnation: Son of Ursoc
+	defaultAuras[33891]  = FILTER_ON_PLAYER -- Incarnation: Tree of Life -- NEEDS CHECK
+	defaultAuras[81192]  = FILTER_ON_PLAYER -- Lunar Shower
+	defaultAuras[106922] = FILTER_ON_PLAYER -- Might of Ursoc
+	defaultAuras[16689]  = FILTER_ON_PLAYER -- Nature's Grasp
+	defaultAuras[132158] = FILTER_ON_PLAYER -- Nature's Swiftness
+	defaultAuras[124974] = FILTER_ON_PLAYER -- Nature's Vigil
+	defaultAuras[48391]  = FILTER_ON_PLAYER -- Owlkin Frenzy
+	defaultAuras[69369]  = FILTER_ON_PLAYER -- Predator's Swiftness
+	defaultAuras[132402] = FILTER_ON_PLAYER -- Savage Defense
+	defaultAuras[52610]  = FILTER_ON_PLAYER -- Savage Roar -- VERIFIED 13/02/20 on tauren feral
+	defaultAuras[127538] = FILTER_ON_PLAYER -- Savage Roar -- NEEDS CHECK
+	defaultAuras[93400]  = FILTER_ON_PLAYER -- Shooting Stars
+	defaultAuras[114108] = FILTER_ON_PLAYER -- Soul of the Forest (resto)
+	defaultAuras[48505]  = FILTER_ON_PLAYER -- Starfall
+	defaultAuras[61336]  = FILTER_ON_PLAYER -- Survival Instincts
+	defaultAuras[5217]   = FILTER_ON_PLAYER -- Tiger's Fury
+	defaultAuras[102416] = FILTER_ON_PLAYER -- Wild Charge (aquatic)
 	-- WOD
-	defaultAuras[164547] = SELF -- Lunar Empowerment
-	defaultAuras[171743] = SELF -- Lunar Peak
-	defaultAuras[164545] = SELF -- Solar Empowerment
-	defaultAuras[171744] = SELF -- Solar Peak
+	defaultAuras[164547] = FILTER_ON_PLAYER -- Lunar Empowerment
+	defaultAuras[171743] = FILTER_ON_PLAYER -- Lunar Peak
+	defaultAuras[164545] = FILTER_ON_PLAYER -- Solar Empowerment
+	defaultAuras[171744] = FILTER_ON_PLAYER -- Solar Peak
 
 	-- Buffs
-	defaultAuras[102351] = MINE -- Cenarion Ward (buff)
-	defaultAuras[102352] = MINE -- Cenarion Ward (heal)
-	defaultAuras[29166]  = BUFF -- Innervate
-	defaultAuras[102342] = BUFF -- Ironbark
-	defaultAuras[33763]  = MINE -- Lifebloom
-	defaultAuras[94447]  = MINE -- Lifebloom (tree)
-	defaultAuras[8936]   = MINE -- Regrowth
-	defaultAuras[774]    = MINE -- Rejuvenation
-	defaultAuras[77761]  = BUFF -- Stampeding Roar (bear)
-	defaultAuras[77764]  = BUFF -- Stampeding Roar (cat)
-	defaultAuras[106898] = BUFF -- Stampeding Roar (caster)
-	defaultAuras[48438]  = MINE -- Wild Growth
+	defaultAuras[102351] = FILTER_BY_PLAYER -- Cenarion Ward (buff)
+	defaultAuras[102352] = FILTER_BY_PLAYER -- Cenarion Ward (heal)
+	defaultAuras[29166]  = FILTER_ON_FRIEND -- Innervate
+	defaultAuras[102342] = FILTER_ON_FRIEND -- Ironbark
+	defaultAuras[33763]  = FILTER_BY_PLAYER -- Lifebloom
+	defaultAuras[94447]  = FILTER_BY_PLAYER -- Lifebloom (tree)
+	defaultAuras[8936]   = FILTER_BY_PLAYER -- Regrowth
+	defaultAuras[774]    = FILTER_BY_PLAYER -- Rejuvenation
+	defaultAuras[77761]  = FILTER_ON_FRIEND -- Stampeding Roar (bear)
+	defaultAuras[77764]  = FILTER_ON_FRIEND -- Stampeding Roar (cat)
+	defaultAuras[106898] = FILTER_ON_FRIEND -- Stampeding Roar (caster)
+	defaultAuras[48438]  = FILTER_BY_PLAYER -- Wild Growth
 
 	-- Debuffs
-	defaultAuras[102795] = DEBUFF  -- Bear Hug
-	defaultAuras[33786]  = DEBUFF  -- Cyclone
-	defaultAuras[99]     = DEBUFF  -- Disorienting Roar
-	defaultAuras[339]    = DEBUFF  -- Entangling Roots
-	defaultAuras[114238] = DEBUFF  -- Fae Silence <-- glpyh
-	defaultAuras[81281]  = DEBUFF  -- Fungal Growth <-- Wild Mushroom: Detonate
-	defaultAuras[2637]   = DEBUFF  -- Hibernate
-	defaultAuras[33745]  = MINE -- Lacerate
-	defaultAuras[22570]  = DEBUFF  -- Maim
-	defaultAuras[5211]   = DEBUFF  -- Mighty Bash
-	defaultAuras[8921]   = MINE -- Moonfire
-	defaultAuras[9005]   = MINE -- Pounce -- NEEDS CHECK
-	defaultAuras[102546] = MINE -- Pounce -- NEEDS CHECK
-	defaultAuras[9007]   = MINE -- Pounce Bleed
-	defaultAuras[1822]   = MINE -- Rake
-	defaultAuras[1079]   = MINE -- Rip
-	defaultAuras[106839] = DEBUFF  -- Skull Bash -- NOT CURRENTLY USED
-	defaultAuras[78675]  = DEBUFF  -- Solar Beam (silence)
-	defaultAuras[97547]  = DEBUFF  -- Solar Beam (interrupt)
-	defaultAuras[93402]  = MINE -- Sunfire
-	defaultAuras[77758]  = MINE -- Thrash (bear)
-	defaultAuras[106830] = MINE -- Thrash (cat)
-	defaultAuras[61391]  = DEBUFF  -- Typhoon
-	defaultAuras[102793] = DEBUFF  -- Ursol's Vortex
-	defaultAuras[45334]  = DEBUFF  -- Immobilize <-- Wild Charge (bear)
-	defaultAuras[50259]  = DEBUFF  -- Dazed <-- Wild Charge (cat)
+	defaultAuras[102795] = FILTER_ON_ENEMY  -- Bear Hug
+	defaultAuras[33786]  = FILTER_ON_ENEMY  -- Cyclone
+	defaultAuras[99]     = FILTER_ON_ENEMY  -- Disorienting Roar
+	defaultAuras[339]    = FILTER_ON_ENEMY  -- Entangling Roots
+	defaultAuras[114238] = FILTER_ON_ENEMY  -- Fae Silence <-- glpyh
+	defaultAuras[81281]  = FILTER_ON_ENEMY  -- Fungal Growth <-- Wild Mushroom: Detonate
+	defaultAuras[2637]   = FILTER_ON_ENEMY  -- Hibernate
+	defaultAuras[33745]  = FILTER_BY_PLAYER -- Lacerate
+	defaultAuras[22570]  = FILTER_ON_ENEMY  -- Maim
+	defaultAuras[5211]   = FILTER_ON_ENEMY  -- Mighty Bash
+	defaultAuras[8921]   = FILTER_BY_PLAYER -- Moonfire
+	defaultAuras[9005]   = FILTER_BY_PLAYER -- Pounce -- NEEDS CHECK
+	defaultAuras[102546] = FILTER_BY_PLAYER -- Pounce -- NEEDS CHECK
+	defaultAuras[9007]   = FILTER_BY_PLAYER -- Pounce Bleed
+	defaultAuras[1822]   = FILTER_BY_PLAYER -- Rake
+	defaultAuras[1079]   = FILTER_BY_PLAYER -- Rip
+	defaultAuras[106839] = FILTER_ON_ENEMY  -- Skull Bash -- NOT CURRENTLY USED
+	defaultAuras[78675]  = FILTER_ON_ENEMY  -- Solar Beam (silence)
+	defaultAuras[97547]  = FILTER_ON_ENEMY  -- Solar Beam (interrupt)
+	defaultAuras[93402]  = FILTER_BY_PLAYER -- Sunfire
+	defaultAuras[77758]  = FILTER_BY_PLAYER -- Thrash (bear)
+	defaultAuras[106830] = FILTER_BY_PLAYER -- Thrash (cat)
+	defaultAuras[61391]  = FILTER_ON_ENEMY  -- Typhoon
+	defaultAuras[102793] = FILTER_ON_ENEMY  -- Ursol's Vortex
+	defaultAuras[45334]  = FILTER_ON_ENEMY  -- Immobilize <-- Wild Charge (bear)
+	defaultAuras[50259]  = FILTER_ON_ENEMY  -- Dazed <-- Wild Charge (cat)
 
-	defaultAuras[770]    = bit_bor(FILTER_CLASS_DRUID, FILTER_PVP) -- Faerie Fire
-	defaultAuras[102355] = bit_bor(FILTER_CLASS_DRUID, FILTER_PVP) -- Faerie Swarm
+	defaultAuras[770]    = FILTER_PVP -- Faerie Fire
+	defaultAuras[102355] = FILTER_PVP -- Faerie Swarm
 end
 
 ------------------------------------------------------------------------
 -- Hunter
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_HUNTER, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_HUNTER, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_HUNTER, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_HUNTER, FILTER_BY_PLAYER)
-
+if playerClass == "HUNTER" then
 	-- Self Buffs
-	defaultAuras[83559]  = SELF -- Black Ice
-	--defaultAuras[82921]  = SELF -- Bombardment
-	--defaultAuras[53257]  = SELF -- Cobra Strikes
-	defaultAuras[51755]  = SELF -- Camouflage
-	defaultAuras[19263]  = SELF -- Deterrence
-	defaultAuras[15571]  = SELF -- Dazed <-- Aspect of the Cheetah
-	defaultAuras[6197]   = SELF -- Eagle Eye
-	defaultAuras[5384]   = SELF -- Feign Death
-	defaultAuras[82726]  = SELF -- Fervor
-	defaultAuras[82926]  = SELF -- Fire! <-- Master Marksman
-	defaultAuras[82692]  = SELF -- Focus Fire
-	defaultAuras[56453]  = SELF -- Lock and Load
-	defaultAuras[54216]  = SELF -- Master's Call
-	defaultAuras[34477]  = SELF -- Misdirection
-	defaultAuras[118922] = SELF -- Posthaste
-	defaultAuras[3045]   = SELF -- Rapid Fire
-	--defaultAuras[82925]  = SELF -- Ready, Set, Aim... <-- Master Marksman
-	defaultAuras[53220]  = SELF -- Steady Focus
-	defaultAuras[34471]  = SELF -- The Beast Within
-	defaultAuras[34720]  = SELF -- Thrill of the Hunt
+	defaultAuras[83559]  = FILTER_ON_PLAYER -- Black Ice
+--	defaultAuras[82921]  = FILTER_ON_PLAYER -- Bombardment
+--	defaultAuras[53257]  = FILTER_ON_PLAYER -- Cobra Strikes
+	defaultAuras[51755]  = FILTER_ON_PLAYER -- Camouflage
+	defaultAuras[19263]  = FILTER_ON_PLAYER -- Deterrence
+	defaultAuras[15571]  = FILTER_ON_PLAYER -- Dazed <-- Aspect of the Cheetah
+	defaultAuras[6197]   = FILTER_ON_PLAYER -- Eagle Eye
+	defaultAuras[5384]   = FILTER_ON_PLAYER -- Feign Death
+	defaultAuras[82726]  = FILTER_ON_PLAYER -- Fervor
+	defaultAuras[82926]  = FILTER_ON_PLAYER -- Fire! <-- Master Marksman
+	defaultAuras[82692]  = FILTER_ON_PLAYER -- Focus Fire
+	defaultAuras[56453]  = FILTER_ON_PLAYER -- Lock and Load
+	defaultAuras[54216]  = FILTER_ON_PLAYER -- Master's Call
+	defaultAuras[34477]  = FILTER_ON_PLAYER -- Misdirection
+	defaultAuras[118922] = FILTER_ON_PLAYER -- Posthaste
+	defaultAuras[3045]   = FILTER_ON_PLAYER -- Rapid Fire
+--	defaultAuras[82925]  = FILTER_ON_PLAYER -- Ready, Set, Aim... <-- Master Marksman
+	defaultAuras[53220]  = FILTER_ON_PLAYER -- Steady Focus
+	defaultAuras[34471]  = FILTER_ON_PLAYER -- The Beast Within
+	defaultAuras[34720]  = FILTER_ON_PLAYER -- Thrill of the Hunt
 
 	-- Pet Buffs
-	defaultAuras[19615]  = MINE -- Frenzy
-	defaultAuras[19574]  = MINE -- Bestial Wrath
-	defaultAuras[136]    = MINE -- Mend Pet
+	defaultAuras[19615]  = FILTER_BY_PLAYER -- Frenzy
+	defaultAuras[19574]  = FILTER_BY_PLAYER -- Bestial Wrath
+	defaultAuras[136]    = FILTER_BY_PLAYER -- Mend Pet
 
 	-- Buffs
-	defaultAuras[34477]  = BUFF -- Misdirection (30 sec threat)
-	defaultAuras[35079]  = BUFF -- Misdirection (4 sec transfer)
+	defaultAuras[34477]  = FILTER_ON_FRIEND -- Misdirection (30 sec threat)
+	defaultAuras[35079]  = FILTER_ON_FRIEND -- Misdirection (4 sec transfer)
 
 	-- Debuffs
-	defaultAuras[131894] = MINE -- defaultAuras Murder of Crows
-	defaultAuras[117526] = MINE -- Binding Shot (stun)
-	defaultAuras[117405] = MINE -- Binding Shot (tether)
-	defaultAuras[3674]   = MINE -- Black Arrow
-	defaultAuras[35101]  = MINE -- Concussive Barrage
-	defaultAuras[5116]   = MINE -- Concussive Shot
-	defaultAuras[20736]  = MINE -- Distracting Shot
-	defaultAuras[64803]  = MINE -- Entrapment
-	defaultAuras[53301]  = MINE -- Explosive Shot
-	defaultAuras[13812]  = MINE -- Explosive Trap
-	defaultAuras[43446]  = MINE -- Explosive Trap Effect -- NEEDS CHECK
-	defaultAuras[128961] = MINE -- Explosive Trap Effect -- NEEDS CHECK
-	defaultAuras[3355]   = MINE -- Freezing Trap
-	defaultAuras[61394]  = MINE -- Frozen Wake <-- Glyph of Freezing Trap
-	defaultAuras[120761] = MINE -- Glaive Toss -- NEEDS CHECK
-	defaultAuras[121414] = MINE -- Glaive Toss -- NEEDS CHECK
-	defaultAuras[1130]   = DEBUFF  -- Hunter's Mark
-	defaultAuras[135299] = DEBUFF  -- Ice Trap
-	defaultAuras[34394]  = MINE -- Intimidation
-	defaultAuras[115928] = MINE -- Narrow Escape -- NEEDS CHECK
-	defaultAuras[128405] = MINE -- Narrow Escape -- NEEDS CHECK
-	--defaultAuras[63468]  = MINE -- Piercing Shots
-	defaultAuras[1513]   = MINE -- Scare Beast
-	defaultAuras[19503]  = MINE -- Scatter Shot
-	defaultAuras[118253] = MINE -- Serpent Sting
-	defaultAuras[34490]  = MINE -- Silencing Shot
-	defaultAuras[82654]  = MINE -- Widow Venom
-	defaultAuras[19386]  = MINE -- Wyvern Sting
+	defaultAuras[131894] = FILTER_BY_PLAYER -- defaultAuras Murder of Crows
+	defaultAuras[117526] = FILTER_BY_PLAYER -- Binding Shot (stun)
+	defaultAuras[117405] = FILTER_BY_PLAYER -- Binding Shot (tether)
+	defaultAuras[3674]   = FILTER_BY_PLAYER -- Black Arrow
+	defaultAuras[35101]  = FILTER_BY_PLAYER -- Concussive Barrage
+	defaultAuras[5116]   = FILTER_BY_PLAYER -- Concussive Shot
+	defaultAuras[20736]  = FILTER_BY_PLAYER -- Distracting Shot
+	defaultAuras[64803]  = FILTER_BY_PLAYER -- Entrapment
+	defaultAuras[53301]  = FILTER_BY_PLAYER -- Explosive Shot
+	defaultAuras[13812]  = FILTER_BY_PLAYER -- Explosive Trap
+	defaultAuras[43446]  = FILTER_BY_PLAYER -- Explosive Trap Effect -- NEEDS CHECK
+	defaultAuras[128961] = FILTER_BY_PLAYER -- Explosive Trap Effect -- NEEDS CHECK
+	defaultAuras[3355]   = FILTER_BY_PLAYER -- Freezing Trap
+	defaultAuras[61394]  = FILTER_BY_PLAYER -- Frozen Wake <-- Glyph of Freezing Trap
+	defaultAuras[120761] = FILTER_BY_PLAYER -- Glaive Toss -- NEEDS CHECK
+	defaultAuras[121414] = FILTER_BY_PLAYER -- Glaive Toss -- NEEDS CHECK
+	defaultAuras[1130]   = FILTER_ON_ENEMY  -- Hunter's Mark
+	defaultAuras[135299] = FILTER_ON_ENEMY  -- Ice Trap
+	defaultAuras[34394]  = FILTER_BY_PLAYER -- Intimidation
+	defaultAuras[115928] = FILTER_BY_PLAYER -- Narrow Escape -- NEEDS CHECK
+	defaultAuras[128405] = FILTER_BY_PLAYER -- Narrow Escape -- NEEDS CHECK
+--	defaultAuras[63468]  = FILTER_BY_PLAYER -- Piercing Shots
+	defaultAuras[1513]   = FILTER_BY_PLAYER -- Scare Beast
+	defaultAuras[19503]  = FILTER_BY_PLAYER -- Scatter Shot
+	defaultAuras[118253] = FILTER_BY_PLAYER -- Serpent Sting
+	defaultAuras[34490]  = FILTER_BY_PLAYER -- Silencing Shot
+	defaultAuras[82654]  = FILTER_BY_PLAYER -- Widow Venom
+	defaultAuras[19386]  = FILTER_BY_PLAYER -- Wyvern Sting
 end
 
 ------------------------------------------------------------------------
 -- Mage
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_MAGE, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_MAGE, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_MAGE, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_MAGE, FILTER_BY_PLAYER)
-
+if playerClass == "MAGE" then
 	-- Self Buffs
-	defaultAuras[110909] = SELF -- Alter Time
-	defaultAuras[36032]  = SELF -- Arcane Charge
-	defaultAuras[12042]  = SELF -- Arcane Power
-	defaultAuras[108843] = SELF -- Blazing Speed
-	defaultAuras[57761]  = SELF -- Brain Freeze
-	defaultAuras[87023]  = SELF -- Cauterize
-	defaultAuras[44544]  = SELF -- Fingers of Frost
-	defaultAuras[110960] = SELF -- Greater Invisibility
-	defaultAuras[48107]  = SELF -- Heating Up
-	defaultAuras[11426]  = SELF -- Ice Barrier
-	defaultAuras[45438]  = SELF -- Ice Block
-	defaultAuras[108839] = SELF -- Ice Floes
-	defaultAuras[12472]  = SELF -- Icy Veins
-	defaultAuras[116267] = SELF -- Inacnter's Absorption
-	defaultAuras[1463]   = SELF -- Inacnter's Ward
-	defaultAuras[66]     = SELF -- Invisibility
-	defaultAuras[12043]  = SELF -- Presence of Mind
-	defaultAuras[116014] = SELF -- Rune of Power
-	defaultAuras[48108]  = SELF -- Pyroblast!
-	defaultAuras[115610] = SELF -- Temporal Shield (shield)
-	defaultAuras[115611] = SELF -- Temporal Shield (heal)
+	defaultAuras[110909] = FILTER_ON_PLAYER -- Alter Time
+	defaultAuras[36032]  = FILTER_ON_PLAYER -- Arcane Charge
+	defaultAuras[12042]  = FILTER_ON_PLAYER -- Arcane Power
+	defaultAuras[108843] = FILTER_ON_PLAYER -- Blazing Speed
+	defaultAuras[57761]  = FILTER_ON_PLAYER -- Brain Freeze
+	defaultAuras[87023]  = FILTER_ON_PLAYER -- Cauterize
+	defaultAuras[44544]  = FILTER_ON_PLAYER -- Fingers of Frost
+	defaultAuras[110960] = FILTER_ON_PLAYER -- Greater Invisibility
+	defaultAuras[48107]  = FILTER_ON_PLAYER -- Heating Up
+	defaultAuras[11426]  = FILTER_ON_PLAYER -- Ice Barrier
+	defaultAuras[45438]  = FILTER_ON_PLAYER -- Ice Block
+	defaultAuras[108839] = FILTER_ON_PLAYER -- Ice Floes
+	defaultAuras[12472]  = FILTER_ON_PLAYER -- Icy Veins
+	defaultAuras[116267] = FILTER_ON_PLAYER -- Inacnter's Absorption
+	defaultAuras[1463]   = FILTER_ON_PLAYER -- Inacnter's Ward
+	defaultAuras[66]     = FILTER_ON_PLAYER -- Invisibility
+	defaultAuras[12043]  = FILTER_ON_PLAYER -- Presence of Mind
+	defaultAuras[116014] = FILTER_ON_PLAYER -- Rune of Power
+	defaultAuras[48108]  = FILTER_ON_PLAYER -- Pyroblast!
+	defaultAuras[115610] = FILTER_ON_PLAYER -- Temporal Shield (shield)
+	defaultAuras[115611] = FILTER_ON_PLAYER -- Temporal Shield (heal)
 
 	-- Debuffs
-	defaultAuras[34356]  = MINE -- Blizzard (slow) -- NEEDS CHECK
-	defaultAuras[83853]  = MINE -- Combustion
-	defaultAuras[120]    = MINE -- Cone of Cold
-	defaultAuras[44572]  = MINE -- Deep Freeze
-	defaultAuras[31661]  = MINE -- Dragon's Breath
-	defaultAuras[112948] = MINE -- Frost Bomb
-	defaultAuras[113092] = MINE -- Frost Bomb (slow)
-	defaultAuras[122]    = DEBUFF  -- Frost Nova
-	defaultAuras[116]    = MINE -- Frostbolt
-	defaultAuras[44614]  = MINE -- Frostfire Bolt
-	defaultAuras[102051] = MINE -- Frostjaw
-	defaultAuras[84721]  = MINE -- Frozen Orb
-	--defaultAuras[12654]  = MINE -- Ignite
-	defaultAuras[44457]  = MINE -- Living Bomb
-	defaultAuras[114923] = MINE -- Nether Tempest
-	--defaultAuras[11366]  = MINE -- Pyroblast
-	defaultAuras[132210] = MINE -- Pyromaniac
-	defaultAuras[82691]  = MINE -- Ring of Frost
-	defaultAuras[55021]  = DEBUFF  -- Silenced - Improved Counterspell
-	defaultAuras[31589]  = DEBUFF  -- Slow
+	defaultAuras[34356]  = FILTER_BY_PLAYER -- Blizzard (slow) -- NEEDS CHECK
+	defaultAuras[83853]  = FILTER_BY_PLAYER -- Combustion
+	defaultAuras[120]    = FILTER_BY_PLAYER -- Cone of Cold
+	defaultAuras[44572]  = FILTER_BY_PLAYER -- Deep Freeze
+	defaultAuras[31661]  = FILTER_BY_PLAYER -- Dragon's Breath
+	defaultAuras[112948] = FILTER_BY_PLAYER -- Frost Bomb
+	defaultAuras[113092] = FILTER_BY_PLAYER -- Frost Bomb (slow)
+	defaultAuras[122]    = FILTER_ON_ENEMY  -- Frost Nova
+	defaultAuras[116]    = FILTER_BY_PLAYER -- Frostbolt
+	defaultAuras[44614]  = FILTER_BY_PLAYER -- Frostfire Bolt
+	defaultAuras[102051] = FILTER_BY_PLAYER -- Frostjaw
+	defaultAuras[84721]  = FILTER_BY_PLAYER -- Frozen Orb
+--	defaultAuras[12654]  = FILTER_BY_PLAYER -- Ignite
+	defaultAuras[44457]  = FILTER_BY_PLAYER -- Living Bomb
+	defaultAuras[114923] = FILTER_BY_PLAYER -- Nether Tempest
+--	defaultAuras[11366]  = FILTER_BY_PLAYER -- Pyroblast
+	defaultAuras[132210] = FILTER_BY_PLAYER -- Pyromaniac
+	defaultAuras[82691]  = FILTER_BY_PLAYER -- Ring of Frost
+	defaultAuras[55021]  = FILTER_ON_ENEMY  -- Silenced - Improved Counterspell
+	defaultAuras[31589]  = FILTER_ON_ENEMY  -- Slow
 end
 
 ------------------------------------------------------------------------
 -- Monk
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_MONK, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_MONK, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_MONK, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_MONK, FILTER_BY_PLAYER)
-
+if playerClass == "MONK" then
 	-- Self Buffs
-	defaultAuras[122278] = SELF -- Dampen Harm
-	defaultAuras[121125] = SELF -- Death Note
-	defaultAuras[122783] = SELF -- Diffuse Magic
-	defaultAuras[128939] = SELF -- Elusive Brew (stack)
-	defaultAuras[115308] = SELF -- Elusive Brew (consume)
-	defaultAuras[115288] = SELF -- Energizing Brew
-	defaultAuras[115203] = SELF -- Fortifying Brew
-	defaultAuras[115295] = SELF -- Guard
-	defaultAuras[123402] = SELF -- Guard (glyphed)
-	defaultAuras[124458] = SELF -- Healing Sphere (count)
-	defaultAuras[115867] = SELF -- Mana Tea (stack)
-	defaultAuras[119085] = SELF -- Momentum
-	defaultAuras[124968] = SELF -- Retreat
-	defaultAuras[127722] = SELF -- Serpent's Zeal
-	defaultAuras[125359] = SELF -- Tiger Power
-	defaultAuras[116841] = SELF -- Tiger's Lust
-	defaultAuras[125195] = SELF -- Tigereye Brew (stack)
-	defaultAuras[116740] = SELF -- Tigereye Brew (consume)
-	defaultAuras[122470] = SELF -- Touch of Karma
-	defaultAuras[118674] = SELF -- Vital Mists
+	defaultAuras[122278] = FILTER_ON_PLAYER -- Dampen Harm
+	defaultAuras[121125] = FILTER_ON_PLAYER -- Death Note
+	defaultAuras[122783] = FILTER_ON_PLAYER -- Diffuse Magic
+	defaultAuras[128939] = FILTER_ON_PLAYER -- Elusive Brew (stack)
+	defaultAuras[115308] = FILTER_ON_PLAYER -- Elusive Brew (consume)
+	defaultAuras[115288] = FILTER_ON_PLAYER -- Energizing Brew
+	defaultAuras[115203] = FILTER_ON_PLAYER -- Fortifying Brew
+	defaultAuras[115295] = FILTER_ON_PLAYER -- Guard
+	defaultAuras[123402] = FILTER_ON_PLAYER -- Guard (glyphed)
+	defaultAuras[124458] = FILTER_ON_PLAYER -- Healing Sphere (count)
+	defaultAuras[115867] = FILTER_ON_PLAYER -- Mana Tea (stack)
+	defaultAuras[119085] = FILTER_ON_PLAYER -- Momentum
+	defaultAuras[124968] = FILTER_ON_PLAYER -- Retreat
+	defaultAuras[127722] = FILTER_ON_PLAYER -- Serpent's Zeal
+	defaultAuras[125359] = FILTER_ON_PLAYER -- Tiger Power
+	defaultAuras[116841] = FILTER_ON_PLAYER -- Tiger's Lust
+	defaultAuras[125195] = FILTER_ON_PLAYER -- Tigereye Brew (stack)
+	defaultAuras[116740] = FILTER_ON_PLAYER -- Tigereye Brew (consume)
+	defaultAuras[122470] = FILTER_ON_PLAYER -- Touch of Karma
+	defaultAuras[118674] = FILTER_ON_PLAYER -- Vital Mists
 
 	-- Buffs
-	defaultAuras[132120] = MINE -- Enveloping Mist
-	defaultAuras[116849] = BUFF -- Life Cocoon
-	defaultAuras[119607] = MINE -- Renewing Mist (jump)
-	defaultAuras[119611] = MINE -- Renewing Mist (hot)
-	defaultAuras[124081] = MINE -- Zen Sphere
+	defaultAuras[132120] = FILTER_BY_PLAYER -- Enveloping Mist
+	defaultAuras[116849] = FILTER_ON_FRIEND -- Life Cocoon
+	defaultAuras[119607] = FILTER_BY_PLAYER -- Renewing Mist (jump)
+	defaultAuras[119611] = FILTER_BY_PLAYER -- Renewing Mist (hot)
+	defaultAuras[124081] = FILTER_BY_PLAYER -- Zen Sphere
 
 	-- Debuffs
-	defaultAuras[123393] = MINE -- Breath of Fire (disorient)
-	defaultAuras[123725] = MINE -- Breath of Fire (dot)
-	defaultAuras[119392] = MINE -- Charging Ox Wave
-	defaultAuras[122242] = MINE -- Clash (stun) -- NEEDS CHECK
-	defaultAuras[126451] = MINE -- Clash (stun) -- NEEDS CHECK
-	defaultAuras[128846] = MINE -- Clash (stun) -- NEEDS CHECK
-	defaultAuras[116095] = MINE -- Disable
-	defaultAuras[116330] = MINE -- Dizzying Haze -- NEEDS CHECK
-	defaultAuras[123727] = MINE -- Dizzying Haze -- NEEDS CHECK
-	defaultAuras[117368] = MINE -- Grapple Weapon
-	defaultAuras[118585] = MINE -- Leer of the Ox
-	defaultAuras[119381] = MINE -- Leg Sweep
-	defaultAuras[115078] = MINE -- Paralysis
-	defaultAuras[118635] = MINE -- Provoke -- NEEDS CHECK
-	defaultAuras[116189] = MINE -- Provoke -- NEEDS CHECK
-	defaultAuras[130320] = MINE -- Rising Sun Kick
-	defaultAuras[116847] = MINE -- Rushing Jade Wind
-	defaultAuras[116709] = MINE -- Spear Hand Strike
-	defaultAuras[123407] = MINE -- Spinning Fire Blossom
+	defaultAuras[123393] = FILTER_BY_PLAYER -- Breath of Fire (disorient)
+	defaultAuras[123725] = FILTER_BY_PLAYER -- Breath of Fire (dot)
+	defaultAuras[119392] = FILTER_BY_PLAYER -- Charging Ox Wave
+	defaultAuras[122242] = FILTER_BY_PLAYER -- Clash (stun) -- NEEDS CHECK
+	defaultAuras[126451] = FILTER_BY_PLAYER -- Clash (stun) -- NEEDS CHECK
+	defaultAuras[128846] = FILTER_BY_PLAYER -- Clash (stun) -- NEEDS CHECK
+	defaultAuras[116095] = FILTER_BY_PLAYER -- Disable
+	defaultAuras[116330] = FILTER_BY_PLAYER -- Dizzying Haze -- NEEDS CHECK
+	defaultAuras[123727] = FILTER_BY_PLAYER -- Dizzying Haze -- NEEDS CHECK
+	defaultAuras[117368] = FILTER_BY_PLAYER -- Grapple Weapon
+	defaultAuras[118585] = FILTER_BY_PLAYER -- Leer of the Ox
+	defaultAuras[119381] = FILTER_BY_PLAYER -- Leg Sweep
+	defaultAuras[115078] = FILTER_BY_PLAYER -- Paralysis
+	defaultAuras[118635] = FILTER_BY_PLAYER -- Provoke -- NEEDS CHECK
+	defaultAuras[116189] = FILTER_BY_PLAYER -- Provoke -- NEEDS CHECK
+	defaultAuras[130320] = FILTER_BY_PLAYER -- Rising Sun Kick
+	defaultAuras[116847] = FILTER_BY_PLAYER -- Rushing Jade Wind
+	defaultAuras[116709] = FILTER_BY_PLAYER -- Spear Hand Strike
+	defaultAuras[123407] = FILTER_BY_PLAYER -- Spinning Fire Blossom
 end
 
 ------------------------------------------------------------------------
 -- Paladin
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_PALADIN, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_PALADIN, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_PALADIN, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_PALADIN, FILTER_BY_PLAYER)
-
+if playerClass == "PALADIN" then
 	-- Self Buffs
-	defaultAuras[121467] = SELF -- Alabaster Shield
-	defaultAuras[31850]  = SELF -- Ardent Defender
-	defaultAuras[31884]  = SELF -- Avenging Wrath
-	defaultAuras[114637] = SELF -- Bastion of Glory
-	defaultAuras[88819]  = SELF -- Daybreak
-	defaultAuras[31842]  = SELF -- Divine Favor
-	defaultAuras[54428]  = SELF -- Divine Plea
-	defaultAuras[498]    = SELF -- Divine Protection
-	defaultAuras[90174]  = SELF -- Divine Purpose
-	defaultAuras[642]    = SELF -- Divine Shield
-	defaultAuras[54957]  = SELF -- Glyph of Flash of Light
-	defaultAuras[85416]  = SELF -- Grand Crusader
-	defaultAuras[86659]  = SELF -- Guardian of Ancient Kings (protection)
-	defaultAuras[86669]  = SELF -- Guardian of Ancient Kings (holy)
-	defaultAuras[86698]  = SELF -- Guardian of Ancient Kings (retribution)
-	defaultAuras[105809] = SELF -- Holy Avenger
-	defaultAuras[54149]  = SELF -- Infusion of Light
-	defaultAuras[84963]  = SELF -- Inquisition
-	defaultAuras[114250] = SELF -- Selfless Healer
-	--defaultAuras[132403] = SELF -- Shield of the Righteous
-	defaultAuras[85499]  = SELF -- Speed of Light
-	defaultAuras[94686]  = SELF -- Supplication
+	defaultAuras[121467] = FILTER_ON_PLAYER -- Alabaster Shield
+	defaultAuras[31850]  = FILTER_ON_PLAYER -- Ardent Defender
+	defaultAuras[31884]  = FILTER_ON_PLAYER -- Avenging Wrath
+	defaultAuras[114637] = FILTER_ON_PLAYER -- Bastion of Glory
+	defaultAuras[88819]  = FILTER_ON_PLAYER -- Daybreak
+	defaultAuras[31842]  = FILTER_ON_PLAYER -- Divine Favor
+	defaultAuras[54428]  = FILTER_ON_PLAYER -- Divine Plea
+	defaultAuras[498]    = FILTER_ON_PLAYER -- Divine Protection
+	defaultAuras[90174]  = FILTER_ON_PLAYER -- Divine Purpose
+	defaultAuras[642]    = FILTER_ON_PLAYER -- Divine Shield
+	defaultAuras[54957]  = FILTER_ON_PLAYER -- Glyph of Flash of Light
+	defaultAuras[85416]  = FILTER_ON_PLAYER -- Grand Crusader
+	defaultAuras[86659]  = FILTER_ON_PLAYER -- Guardian of Ancient Kings (protection)
+	defaultAuras[86669]  = FILTER_ON_PLAYER -- Guardian of Ancient Kings (holy)
+	defaultAuras[86698]  = FILTER_ON_PLAYER -- Guardian of Ancient Kings (retribution)
+	defaultAuras[105809] = FILTER_ON_PLAYER -- Holy Avenger
+	defaultAuras[54149]  = FILTER_ON_PLAYER -- Infusion of Light
+	defaultAuras[84963]  = FILTER_ON_PLAYER -- Inquisition
+	defaultAuras[114250] = FILTER_ON_PLAYER -- Selfless Healer
+--	defaultAuras[132403] = FILTER_ON_PLAYER -- Shield of the Righteous
+	defaultAuras[85499]  = FILTER_ON_PLAYER -- Speed of Light
+	defaultAuras[94686]  = FILTER_ON_PLAYER -- Supplication
 
 	-- Buffs
-	defaultAuras[53563]  = BUFF -- Beacon of Light
-	defaultAuras[31821]  = BUFF -- Devotion Aura
-	defaultAuras[114163] = BUFF -- Eternal Flame
-	defaultAuras[1044]   = BUFF -- Hand of Freedom
-	defaultAuras[1022]   = BUFF -- Hand of Protection
-	defaultAuras[114039] = BUFF -- Hand of Purity
-	defaultAuras[6940]   = BUFF -- Hand of Sacrifice
-	defaultAuras[1038]   = BUFF -- Hand of Salvation
-	defaultAuras[86273]  = BUFF -- Illuminated Healing
-	defaultAuras[20925]  = BUFF -- Sacred Shield
-	defaultAuras[20170]  = BUFF -- Seal of Justice
-	defaultAuras[114917] = BUFF -- Stay of Execution
+	defaultAuras[53563]  = FILTER_ON_FRIEND -- Beacon of Light
+	defaultAuras[31821]  = FILTER_ON_FRIEND -- Devotion Aura
+	defaultAuras[114163] = FILTER_ON_FRIEND -- Eternal Flame
+	defaultAuras[1044]   = FILTER_ON_FRIEND -- Hand of Freedom
+	defaultAuras[1022]   = FILTER_ON_FRIEND -- Hand of Protection
+	defaultAuras[114039] = FILTER_ON_FRIEND -- Hand of Purity
+	defaultAuras[6940]   = FILTER_ON_FRIEND -- Hand of Sacrifice
+	defaultAuras[1038]   = FILTER_ON_FRIEND -- Hand of Salvation
+	defaultAuras[86273]  = FILTER_ON_FRIEND -- Illuminated Healing
+	defaultAuras[20925]  = FILTER_ON_FRIEND -- Sacred Shield
+	defaultAuras[20170]  = FILTER_ON_FRIEND -- Seal of Justice
+	defaultAuras[114917] = FILTER_ON_FRIEND -- Stay of Execution
 
 	-- Buff Debuffs
-	defaultAuras[25771]  = BUFF -- Forbearace
+	defaultAuras[25771]  = FILTER_ON_FRIEND -- Forbearace
 
 	-- Debuffs
-	defaultAuras[31935]  = MINE -- Avenger's Shield
-	--defaultAuras[110300] = MINE -- Burden of Guilt
-	defaultAuras[105421] = MINE -- Blinding Light
-	defaultAuras[31803]  = MINE -- Censure
-	defaultAuras[63529]  = MINE -- Dazed - Avenger's Shield
-	defaultAuras[2812]   = MINE -- Denounce
-	defaultAuras[114916] = MINE -- Execution Sentence
-	defaultAuras[105593] = MINE -- Fist of Justice
-	defaultAuras[853]    = MINE -- Hammer of Justice
-	defaultAuras[119072] = MINE -- Holy Wrath
-	defaultAuras[20066]  = MINE -- Repentance
-	defaultAuras[10326]  = MINE -- Turn Evil
+	defaultAuras[31935]  = FILTER_BY_PLAYER -- Avenger's Shield
+--	defaultAuras[110300] = FILTER_BY_PLAYER -- Burden of Guilt
+	defaultAuras[105421] = FILTER_BY_PLAYER -- Blinding Light
+	defaultAuras[31803]  = FILTER_BY_PLAYER -- Censure
+	defaultAuras[63529]  = FILTER_BY_PLAYER -- Dazed - Avenger's Shield
+	defaultAuras[2812]   = FILTER_BY_PLAYER -- Denounce
+	defaultAuras[114916] = FILTER_BY_PLAYER -- Execution Sentence
+	defaultAuras[105593] = FILTER_BY_PLAYER -- Fist of Justice
+	defaultAuras[853]    = FILTER_BY_PLAYER -- Hammer of Justice
+	defaultAuras[119072] = FILTER_BY_PLAYER -- Holy Wrath
+	defaultAuras[20066]  = FILTER_BY_PLAYER -- Repentance
+	defaultAuras[10326]  = FILTER_BY_PLAYER -- Turn Evil
 end
 
 ------------------------------------------------------------------------
 -- Priest
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_PRIEST, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_PRIEST, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_PRIEST, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_PRIEST, FILTER_BY_PLAYER)
-
+if playerClass == "PRIEST" then
 	-- Self Buffs
-	--defaultAuras[114214] = SELF -- Angelic Bulwark
-	defaultAuras[81700]  = SELF -- Archangel
-	--defaultAuras[59889]  = SELF -- Borrowed Time
-	defaultAuras[47585]  = SELF -- Dispersion
-	defaultAuras[123266] = SELF -- Divine Insight (discipline)
-	defaultAuras[123267] = SELF -- Divine Insight (holy)
-	defaultAuras[124430] = SELF -- Divine Insight (shadow)
-	defaultAuras[81661]  = SELF -- Evangelism
-	defaultAuras[586]    = SELF -- Fade
-	defaultAuras[2096]   = SELF -- Mind Vision
-	defaultAuras[114239] = SELF -- Phantasm
-	defaultAuras[10060]  = SELF -- Power Infusion
-	defaultAuras[63735]  = SELF -- Serendipity
-	defaultAuras[112833] = SELF -- Spectral Guise
-	defaultAuras[109964] = SELF -- Spirit Shell (self)
-	defaultAuras[87160]  = SELF -- Surge of Darkness
-	defaultAuras[114255] = SELF -- Surge of Light
-	defaultAuras[123254] = SELF -- Twist of Fate
-	defaultAuras[15286]  = SELF -- Vampiric Embrace
+--	defaultAuras[114214] = FILTER_ON_PLAYER -- Angelic Bulwark
+	defaultAuras[81700]  = FILTER_ON_PLAYER -- Archangel
+--	defaultAuras[59889]  = FILTER_ON_PLAYER -- Borrowed Time
+	defaultAuras[47585]  = FILTER_ON_PLAYER -- Dispersion
+	defaultAuras[123266] = FILTER_ON_PLAYER -- Divine Insight (discipline)
+	defaultAuras[123267] = FILTER_ON_PLAYER -- Divine Insight (holy)
+	defaultAuras[124430] = FILTER_ON_PLAYER -- Divine Insight (shadow)
+	defaultAuras[81661]  = FILTER_ON_PLAYER -- Evangelism
+	defaultAuras[586]    = FILTER_ON_PLAYER -- Fade
+	defaultAuras[2096]   = FILTER_ON_PLAYER -- Mind Vision
+	defaultAuras[114239] = FILTER_ON_PLAYER -- Phantasm
+	defaultAuras[10060]  = FILTER_ON_PLAYER -- Power Infusion
+	defaultAuras[63735]  = FILTER_ON_PLAYER -- Serendipity
+	defaultAuras[112833] = FILTER_ON_PLAYER -- Spectral Guise
+	defaultAuras[109964] = FILTER_ON_PLAYER -- Spirit Shell (self)
+	defaultAuras[87160]  = FILTER_ON_PLAYER -- Surge of Darkness
+	defaultAuras[114255] = FILTER_ON_PLAYER -- Surge of Light
+	defaultAuras[123254] = FILTER_ON_PLAYER -- Twist of Fate
+	defaultAuras[15286]  = FILTER_ON_PLAYER -- Vampiric Embrace
 
 	-- Buffs
-	defaultAuras[47753]  = BUFF -- Divine Aegis
-	defaultAuras[77613]  = MINE -- Grace
-	defaultAuras[47788]  = BUFF -- Guardian Spirit
-	defaultAuras[88684]  = BUFF -- Holy Word: Serenity
-	defaultAuras[33206]  = BUFF -- Pain Suppression
-	defaultAuras[81782]  = BUFF -- Power Word: Barrier
-	defaultAuras[17]     = BUFF -- Power Word: Shield
-	defaultAuras[41635]  = BUFF -- Prayer of Mending
-	defaultAuras[139]    = BUFF -- Renew
-	defaultAuras[114908] = BUFF -- Spirit Shell (shield)
+	defaultAuras[47753]  = FILTER_ON_FRIEND -- Divine Aegis
+	defaultAuras[77613]  = FILTER_BY_PLAYER -- Grace
+	defaultAuras[47788]  = FILTER_ON_FRIEND -- Guardian Spirit
+	defaultAuras[88684]  = FILTER_ON_FRIEND -- Holy Word: Serenity
+	defaultAuras[33206]  = FILTER_ON_FRIEND -- Pain Suppression
+	defaultAuras[81782]  = FILTER_ON_FRIEND -- Power Word: Barrier
+	defaultAuras[17]     = FILTER_ON_FRIEND -- Power Word: Shield
+	defaultAuras[41635]  = FILTER_ON_FRIEND -- Prayer of Mending
+	defaultAuras[139]    = FILTER_ON_FRIEND -- Renew
+	defaultAuras[114908] = FILTER_ON_FRIEND -- Spirit Shell (shield)
 
 	-- Buff Debuffs
-	defaultAuras[6788]   = BUFF -- Weakened Soul
+	defaultAuras[6788]   = FILTER_ON_FRIEND -- Weakened Soul
 
 	-- Debuffs
-	defaultAuras[2944]   = MINE -- Devouring Plague
-	defaultAuras[14914]  = MINE -- Holy Fire
-	defaultAuras[88625]  = MINE -- Holy Word: Chastise
-	defaultAuras[89485]  = MINE -- Inner Focus
-	defaultAuras[64044]  = MINE -- Psychic Horror (horror, FILTER_ON_ENEMY)
-	--defaultAuras[64058]  = MINE -- Psychic Horror (disarm, FILTER_ON_ENEMY)
-	defaultAuras[8122]   = MINE -- Psychic Scream
-	defaultAuras[113792] = MINE -- Psychic Terror
-	defaultAuras[9484]   = MINE -- Shackle Undead
-	defaultAuras[589]    = MINE -- Shadow Word: Pain
-	defaultAuras[15487]  = MINE -- Silence
-	defaultAuras[34914]  = MINE -- Vampiric Touch
+	defaultAuras[2944]   = FILTER_BY_PLAYER -- Devouring Plague
+	defaultAuras[14914]  = FILTER_BY_PLAYER -- Holy Fire
+	defaultAuras[88625]  = FILTER_BY_PLAYER -- Holy Word: Chastise
+	defaultAuras[89485]  = FILTER_BY_PLAYER -- Inner Focus
+	defaultAuras[64044]  = FILTER_BY_PLAYER -- Psychic Horror (horror, FILTER_ON_ENEMY)
+--	defaultAuras[64058]  = FILTER_BY_PLAYER -- Psychic Horror (disarm, FILTER_ON_ENEMY)
+	defaultAuras[8122]   = FILTER_BY_PLAYER -- Psychic Scream
+	defaultAuras[113792] = FILTER_BY_PLAYER -- Psychic Terror
+	defaultAuras[9484]   = FILTER_BY_PLAYER -- Shackle Undead
+	defaultAuras[589]    = FILTER_BY_PLAYER -- Shadow Word: Pain
+	defaultAuras[15487]  = FILTER_BY_PLAYER -- Silence
+	defaultAuras[34914]  = FILTER_BY_PLAYER -- Vampiric Touch
 end
 
 ------------------------------------------------------------------------
 -- Rogue
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_ROGUE, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_ROGUE, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_ROGUE, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_ROGUE, FILTER_BY_PLAYER)
-
+if playerClass == "ROGUE" then
 	-- Self Buffs
-	defaultAuras[13750]  = SELF -- Adrenaline Rush
-	defaultAuras[115189] = SELF -- Anticipation
-	defaultAuras[18377]  = SELF -- Blade Flurry
-	defaultAuras[121153] = SELF -- Blindside
-	defaultAuras[108212] = SELF -- Burst of Speed
-	defaultAuras[31224]  = SELF -- Cloak of Shadows
-	defaultAuras[74002]  = SELF -- Combat Insight
-	defaultAuras[74001]  = SELF -- Combat Readiness
-	defaultAuras[84747]  = SELF -- Deep Insight
-	defaultAuras[56814]  = SELF -- Detection
-	defaultAuras[32645]  = SELF -- Envenom
-	defaultAuras[5277]   = SELF -- Evasion
-	defaultAuras[1966]   = SELF -- Feint
-	defaultAuras[51690]  = SELF -- Killing Spree
-	defaultAuras[84746]  = SELF -- Moderate Insight
-	defaultAuras[73651]  = SELF -- Recuperate
-	defaultAuras[121472] = SELF -- Shadow Blades
-	defaultAuras[51713]  = SELF -- Shadow Dance
-	defaultAuras[114842] = SELF -- Shadow Walk
-	defaultAuras[36554]  = SELF -- Shadowstep
-	defaultAuras[84745]  = SELF -- Shallow Insight
-	defaultAuras[114018] = SELF -- Shroud of Concealment
-	defaultAuras[5171]   = SELF -- Slice and Dice
-	defaultAuras[76577]  = SELF -- Smoke Bomb
-	defaultAuras[2983]   = SELF -- Sprint
-	defaultAuras[57934]  = SELF -- Tricks of the Trade
-	defaultAuras[1856]   = SELF -- Vanish
+	defaultAuras[13750]  = FILTER_ON_PLAYER -- Adrenaline Rush
+	defaultAuras[115189] = FILTER_ON_PLAYER -- Anticipation
+	defaultAuras[18377]  = FILTER_ON_PLAYER -- Blade Flurry
+	defaultAuras[121153] = FILTER_ON_PLAYER -- Blindside
+	defaultAuras[108212] = FILTER_ON_PLAYER -- Burst of Speed
+	defaultAuras[31224]  = FILTER_ON_PLAYER -- Cloak of Shadows
+	defaultAuras[74002]  = FILTER_ON_PLAYER -- Combat Insight
+	defaultAuras[74001]  = FILTER_ON_PLAYER -- Combat Readiness
+	defaultAuras[84747]  = FILTER_ON_PLAYER -- Deep Insight
+	defaultAuras[56814]  = FILTER_ON_PLAYER -- Detection
+	defaultAuras[32645]  = FILTER_ON_PLAYER -- Envenom
+	defaultAuras[5277]   = FILTER_ON_PLAYER -- Evasion
+	defaultAuras[1966]   = FILTER_ON_PLAYER -- Feint
+	defaultAuras[51690]  = FILTER_ON_PLAYER -- Killing Spree
+	defaultAuras[84746]  = FILTER_ON_PLAYER -- Moderate Insight
+	defaultAuras[73651]  = FILTER_ON_PLAYER -- Recuperate
+	defaultAuras[121472] = FILTER_ON_PLAYER -- Shadow Blades
+	defaultAuras[51713]  = FILTER_ON_PLAYER -- Shadow Dance
+	defaultAuras[114842] = FILTER_ON_PLAYER -- Shadow Walk
+	defaultAuras[36554]  = FILTER_ON_PLAYER -- Shadowstep
+	defaultAuras[84745]  = FILTER_ON_PLAYER -- Shallow Insight
+	defaultAuras[114018] = FILTER_ON_PLAYER -- Shroud of Concealment
+	defaultAuras[5171]   = FILTER_ON_PLAYER -- Slice and Dice
+	defaultAuras[76577]  = FILTER_ON_PLAYER -- Smoke Bomb
+	defaultAuras[2983]   = FILTER_ON_PLAYER -- Sprint
+	defaultAuras[57934]  = FILTER_ON_PLAYER -- Tricks of the Trade
+	defaultAuras[1856]   = FILTER_ON_PLAYER -- Vanish
 
 	-- Debuffs
-	defaultAuras[2094]   = DEBUFF -- Blind
-	defaultAuras[1833]   = DEBUFF -- Cheap Shot
-	--defaultAuras[122233] = MINE -- Crimson Tempest
-	--defaultAuras[3409]   = MINE -- Crippling Poison
-	--defaultAuras[2818]   = MINE -- Deadly Poison
-	defaultAuras[26679]  = MINE -- Deadly Throw
-	defaultAuras[51722]  = DEBUFF -- Dismantle -- TODO: generic Disarm group
-	defaultAuras[91021]  = MINE -- Find Weakness
-	defaultAuras[703]    = MINE -- Garrote
-	defaultAuras[1330]   = MINE -- Garrote - Silence
-	defaultAuras[1773]   = MINE -- Gouge
-	defaultAuras[89774]  = MINE -- Hemorrhage
-	defaultAuras[408]    = MINE -- Kidney Shot
-	defaultAuras[112961] = MINE -- Leeching Poison
-	defaultAuras[5760]   = MINE -- Mind-numbing Poison
-	defaultAuras[112947] = MINE -- Nerve Strike
-	defaultAuras[113952] = MINE -- Paralytic Poison
-	defaultAuras[84617]  = MINE -- Revealing Strike
-	defaultAuras[1943]   = MINE -- Rupture
-	defaultAuras[6770]   = DEBUFF -- Sap -- TODO: move to CC group
-	defaultAuras[57933]  = MINE -- Tricks of the Trade
-	defaultAuras[79140]  = MINE -- Vendetta
-	defaultAuras[8680]   = MINE -- Wound Poison
+	defaultAuras[2094]   = FILTER_ON_ENEMY -- Blind
+	defaultAuras[1833]   = FILTER_ON_ENEMY -- Cheap Shot
+--	defaultAuras[122233] = FILTER_BY_PLAYER -- Crimson Tempest
+--	defaultAuras[3409]   = FILTER_BY_PLAYER -- Crippling Poison
+--	defaultAuras[2818]   = FILTER_BY_PLAYER -- Deadly Poison
+	defaultAuras[26679]  = FILTER_BY_PLAYER -- Deadly Throw
+	defaultAuras[51722]  = FILTER_ON_ENEMY -- Dismantle -- TODO: generic Disarm group
+	defaultAuras[91021]  = FILTER_BY_PLAYER -- Find Weakness
+	defaultAuras[703]    = FILTER_BY_PLAYER -- Garrote
+	defaultAuras[1330]   = FILTER_BY_PLAYER -- Garrote - Silence
+	defaultAuras[1773]   = FILTER_BY_PLAYER -- Gouge
+	defaultAuras[89774]  = FILTER_BY_PLAYER -- Hemorrhage
+	defaultAuras[408]    = FILTER_BY_PLAYER -- Kidney Shot
+	defaultAuras[112961] = FILTER_BY_PLAYER -- Leeching Poison
+	defaultAuras[5760]   = FILTER_BY_PLAYER -- Mind-numbing Poison
+	defaultAuras[112947] = FILTER_BY_PLAYER -- Nerve Strike
+	defaultAuras[113952] = FILTER_BY_PLAYER -- Paralytic Poison
+	defaultAuras[84617]  = FILTER_BY_PLAYER -- Revealing Strike
+	defaultAuras[1943]   = FILTER_BY_PLAYER -- Rupture
+	defaultAuras[57933]  = FILTER_BY_PLAYER -- Tricks of the Trade
+	defaultAuras[79140]  = FILTER_BY_PLAYER -- Vendetta
+	defaultAuras[8680]   = FILTER_BY_PLAYER -- Wound Poison
 end
 
 ------------------------------------------------------------------------
 -- Shaman
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_SHAMAN, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_SHAMAN, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_SHAMAN, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_SHAMAN, FILTER_BY_PLAYER)
-
+if playerClass == "SHAMAN" then
 	-- Self Buffs
-	defaultAuras[108281] = SELF -- Ancestral Guidance
-	defaultAuras[16188]  = SELF -- Ancestral Swiftness
-	defaultAuras[114050] = SELF -- Ascendance (elemental)
-	defaultAuras[114051] = SELF -- Ascendance (enhancement)
-	defaultAuras[114052] = SELF -- Ascendance (restoration)
-	defaultAuras[108271] = SELF -- Astral Shift
-	defaultAuras[16166]  = SELF -- Elemental Mastery
-	defaultAuras[77762]  = SELF -- Lava Surge
-	defaultAuras[31616]  = SELF -- Nature's Guardian
-	defaultAuras[77661]  = SELF -- Searing Flames
-	defaultAuras[30823]  = SELF -- Shamanistic Rage
-	defaultAuras[58876]  = SELF -- Spirit Walk
-	defaultAuras[79206]  = SELF -- Spiritwalker's Grace
-	defaultAuras[53390]  = SELF -- Tidal Waves
+	defaultAuras[108281] = FILTER_ON_PLAYER -- Ancestral Guidance
+	defaultAuras[16188]  = FILTER_ON_PLAYER -- Ancestral Swiftness
+	defaultAuras[114050] = FILTER_ON_PLAYER -- Ascendance (elemental)
+	defaultAuras[114051] = FILTER_ON_PLAYER -- Ascendance (enhancement)
+	defaultAuras[114052] = FILTER_ON_PLAYER -- Ascendance (restoration)
+	defaultAuras[108271] = FILTER_ON_PLAYER -- Astral Shift
+	defaultAuras[16166]  = FILTER_ON_PLAYER -- Elemental Mastery
+	defaultAuras[77762]  = FILTER_ON_PLAYER -- Lava Surge
+	defaultAuras[31616]  = FILTER_ON_PLAYER -- Nature's Guardian
+	defaultAuras[77661]  = FILTER_ON_PLAYER -- Searing Flames
+	defaultAuras[30823]  = FILTER_ON_PLAYER -- Shamanistic Rage
+	defaultAuras[58876]  = FILTER_ON_PLAYER -- Spirit Walk
+	defaultAuras[79206]  = FILTER_ON_PLAYER -- Spiritwalker's Grace
+	defaultAuras[53390]  = FILTER_ON_PLAYER -- Tidal Waves
 
 	-- Buffs
-	--defaultAuras[2825]   = BUFF -- Bloodlust (shaman) -- show all
-	defaultAuras[32182]  = BUFF -- Heroism (shaman)
-	defaultAuras[974]    = MINE -- Earth Shield
-	defaultAuras[8178]   = BUFF -- Grounding Totem Effect
-	defaultAuras[89523]  = BUFF -- Grounding Totem (reflect)
-	defaultAuras[119523] = BUFF -- Healing Stream Totem (resistance)
-	defaultAuras[16191]  = BUFF -- Mana Tide
-	defaultAuras[61295]  = MINE -- Riptide
-	defaultAuras[98007]  = BUFF -- Spirit Link Totem
-	defaultAuras[114893] = BUFF -- Stone Bulwark
-	--defaultAuras[120676] = BUFF -- Stormlash Totem -- see totem timer
-	defaultAuras[73685]  = SELF -- Unleash Life
-	defaultAuras[118473] = MINE -- Unleashed Fury (Earthliving)
-	defaultAuras[114896] = BUFF -- Windwalk Totem
+--	defaultAuras[2825]   = FILTER_ON_FRIEND -- Bloodlust (shaman) -- show all
+--	defaultAuras[32182]  = FILTER_ON_FRIEND -- Heroism (shaman) -- show all
+	defaultAuras[974]    = FILTER_BY_PLAYER -- Earth Shield
+	defaultAuras[8178]   = FILTER_ON_FRIEND -- Grounding Totem Effect
+	defaultAuras[89523]  = FILTER_ON_FRIEND -- Grounding Totem (reflect)
+	defaultAuras[119523] = FILTER_ON_FRIEND -- Healing Stream Totem (resistance)
+	defaultAuras[16191]  = FILTER_ON_FRIEND -- Mana Tide
+	defaultAuras[61295]  = FILTER_BY_PLAYER -- Riptide
+	defaultAuras[98007]  = FILTER_ON_FRIEND -- Spirit Link Totem
+	defaultAuras[114893] = FILTER_ON_FRIEND -- Stone Bulwark
+	defaultAuras[73685]  = FILTER_ON_PLAYER -- Unleash Life
+	defaultAuras[118473] = FILTER_BY_PLAYER -- Unleashed Fury (Earthliving)
+	defaultAuras[114896] = FILTER_ON_FRIEND -- Windwalk Totem
 
 	-- Debuffs
-	defaultAuras[61882]  = MINE -- Earthquake
-	defaultAuras[8050]   = MINE -- Flame Shock
-	defaultAuras[115356] = MINE -- Stormblast
-	defaultAuras[17364]  = MINE -- Stormstrike
-	--defaultAuras[73684]  = MINE -- Unleash Earth
-	defaultAuras[73682]  = MINE -- Unleash Frost
-	defaultAuras[118470] = MINE -- Unleashed Fury (Flametongue)
-
-	-- Debuffs - Crowd Control
-	defaultAuras[76780]  = DEBUFF  -- Bind Elemental
-	defaultAuras[51514]  = DEBUFF  -- Hex
+	defaultAuras[61882]  = FILTER_BY_PLAYER -- Earthquake
+	defaultAuras[8050]   = FILTER_BY_PLAYER -- Flame Shock
+	defaultAuras[115356] = FILTER_BY_PLAYER -- Stormblast
+	defaultAuras[17364]  = FILTER_BY_PLAYER -- Stormstrike
+--	defaultAuras[73684]  = FILTER_BY_PLAYER -- Unleash Earth
+	defaultAuras[73682]  = FILTER_BY_PLAYER -- Unleash Frost
+	defaultAuras[118470] = FILTER_BY_PLAYER -- Unleashed Fury (Flametongue)
 
 	-- Debuffs - Root/Slow
-	defaultAuras[3600]   = DEBUFF  -- Earthbind <-- Earthbind Totem
-	defaultAuras[64695]  = DEBUFF  -- Earthgrab <-- Earthgrab Totem
-	defaultAuras[8056]   = DEBUFF  -- Frost Shock
-	defaultAuras[8034]   = MINE    -- Frostbrand Attack <-- Frostbrand Weapon
-	defaultAuras[63685]  = DEBUFF  -- Freeze <-- Frozen Power
-	defaultAuras[118905] = DEBUFF  -- Static Charge <-- Capacitor Totem
-	--defaultAuras[51490]  = DEBUFF  -- Thunderstorm
+	defaultAuras[3600]   = FILTER_ON_ENEMY  -- Earthbind <-- Earthbind Totem
+	defaultAuras[64695]  = FILTER_ON_ENEMY  -- Earthgrab <-- Earthgrab Totem
+	defaultAuras[8056]   = FILTER_ON_ENEMY  -- Frost Shock
+	defaultAuras[8034]   = FILTER_BY_PLAYER -- Frostbrand Attack <-- Frostbrand Weapon
+	defaultAuras[63685]  = FILTER_ON_ENEMY  -- Freeze <-- Frozen Power
+	defaultAuras[118905] = FILTER_ON_ENEMY  -- Static Charge <-- Capacitor Totem
+--	defaultAuras[51490]  = FILTER_ON_ENEMY  -- Thunderstorm
 end
 
 ------------------------------------------------------------------------
 -- Warlock
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_WARLOCK, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_WARLOCK, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_WARLOCK, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_WARLOCK, FILTER_BY_PLAYER)
-
+if playerClass == "WARLOCK" then
 	-- Self Buffs
-	defaultAuras[116198] = MINE -- Aura of Enfeeblement
-	defaultAuras[116202] = MINE -- Aura of the Elements
-	defaultAuras[117828] = SELF -- Backdraft
-	defaultAuras[111400] = SELF -- Burning Rush
-	defaultAuras[114168] = SELF -- Dark Apotheosis
-	defaultAuras[110913] = SELF -- Dark Bargain (absorb)
-	defaultAuras[110914] = SELF -- Dark Bargain (dot)
-	defaultAuras[108359] = SELF -- Dark Regeneration
-	defaultAuras[113858] = SELF -- Dark Soul: Instability
-	defaultAuras[113861] = SELF -- Dark Soul: Knowledge
-	defaultAuras[113860] = SELF -- Dark Soul: Misery
-	defaultAuras[88448]  = SELF -- Demonic Rebirth
-	defaultAuras[126]    = SELF -- Eye of Kilrogg
-	defaultAuras[108683] = SELF -- Fire and Brimstone
-	defaultAuras[119839] = SELF -- Fury Ward
-	defaultAuras[119049] = SELF -- Kil'jaeden's Cunning
-	defaultAuras[126090] = SELF -- Molten Core -- NEEDS CHECK
-	defaultAuras[122355] = SELF -- Molten Core -- NEEDS CHECK
-	defaultAuras[104232] = SELF -- Rain of Fire
-	defaultAuras[108416] = SELF -- Sacrificial Pact
-	defaultAuras[86211]  = SELF -- Soul Swap
-	defaultAuras[104773] = SELF -- Unending Resolve
+	defaultAuras[116198] = FILTER_BY_PLAYER -- Aura of Enfeeblement
+	defaultAuras[116202] = FILTER_BY_PLAYER -- Aura of the Elements
+	defaultAuras[117828] = FILTER_ON_PLAYER -- Backdraft
+	defaultAuras[111400] = FILTER_ON_PLAYER -- Burning Rush
+	defaultAuras[114168] = FILTER_ON_PLAYER -- Dark Apotheosis
+	defaultAuras[110913] = FILTER_ON_PLAYER -- Dark Bargain (absorb)
+	defaultAuras[110914] = FILTER_ON_PLAYER -- Dark Bargain (dot)
+	defaultAuras[108359] = FILTER_ON_PLAYER -- Dark Regeneration
+	defaultAuras[113858] = FILTER_ON_PLAYER -- Dark Soul: Instability
+	defaultAuras[113861] = FILTER_ON_PLAYER -- Dark Soul: Knowledge
+	defaultAuras[113860] = FILTER_ON_PLAYER -- Dark Soul: Misery
+	defaultAuras[88448]  = FILTER_ON_PLAYER -- Demonic Rebirth
+	defaultAuras[126]    = FILTER_ON_PLAYER -- Eye of Kilrogg
+	defaultAuras[108683] = FILTER_ON_PLAYER -- Fire and Brimstone
+	defaultAuras[119839] = FILTER_ON_PLAYER -- Fury Ward
+	defaultAuras[119049] = FILTER_ON_PLAYER -- Kil'jaeden's Cunning
+	defaultAuras[126090] = FILTER_ON_PLAYER -- Molten Core -- NEEDS CHECK
+	defaultAuras[122355] = FILTER_ON_PLAYER -- Molten Core -- NEEDS CHECK
+	defaultAuras[104232] = FILTER_ON_PLAYER -- Rain of Fire
+	defaultAuras[108416] = FILTER_ON_PLAYER -- Sacrificial Pact
+	defaultAuras[86211]  = FILTER_ON_PLAYER -- Soul Swap
+	defaultAuras[104773] = FILTER_ON_PLAYER -- Unending Resolve
 
 	-- Buffs
-	defaultAuras[20707]  = BUFF -- Soulstone -- TODO: hide on self?
+	defaultAuras[20707]  = FILTER_ON_FRIEND -- Soulstone -- TODO: hide on self?
 
 	-- Debuffs
-	defaultAuras[980]    = MINE -- Agony
-	defaultAuras[108505] = MINE -- Archimonde's Vengeance
-	defaultAuras[124915] = MINE -- Chaos Wave
-	defaultAuras[17962]  = MINE -- Conflagrate (slow)
-	defaultAuras[172]    = MINE -- Corruption -- NEEDS CHECK
-	defaultAuras[131740] = MINE -- Corruption -- NEEDS CHECK
-	defaultAuras[146739] = MINE -- Corruption -- NEEDS CHECK
-	defaultAuras[109466] = MINE -- Curse of Enfeeblement
-	defaultAuras[18223]  = MINE -- Curse of Exhaustion
-	defaultAuras[1490]   = MINE -- Curse of the Elements
-	defaultAuras[603]    = MINE -- Doom
-	defaultAuras[48181]  = MINE -- Haunt
-	defaultAuras[80240]  = MINE -- Havoc
-	defaultAuras[157736] = MINE -- Immolate (changed in WOD)
-	defaultAuras[108686] = MINE -- Immolate <-- Fire and Brimstone
-	defaultAuras[60947]  = MINE -- Nightmare
-	defaultAuras[30108]  = MINE -- Seed of Corruption
-	defaultAuras[47960]  = MINE -- Shadowflame
-	defaultAuras[30283]  = MINE -- Shadowfury
-	defaultAuras[27243]  = MINE -- Unstable Affliction
+	defaultAuras[980]    = FILTER_BY_PLAYER -- Agony
+	defaultAuras[108505] = FILTER_BY_PLAYER -- Archimonde's Vengeance
+	defaultAuras[124915] = FILTER_BY_PLAYER -- Chaos Wave
+	defaultAuras[17962]  = FILTER_BY_PLAYER -- Conflagrate (slow)
+	defaultAuras[172]    = FILTER_BY_PLAYER -- Corruption -- NEEDS CHECK
+	defaultAuras[131740] = FILTER_BY_PLAYER -- Corruption -- NEEDS CHECK
+	defaultAuras[146739] = FILTER_BY_PLAYER -- Corruption -- NEEDS CHECK
+	defaultAuras[109466] = FILTER_BY_PLAYER -- Curse of Enfeeblement
+	defaultAuras[18223]  = FILTER_BY_PLAYER -- Curse of Exhaustion
+	defaultAuras[1490]   = FILTER_BY_PLAYER -- Curse of the Elements
+	defaultAuras[603]    = FILTER_BY_PLAYER -- Doom
+	defaultAuras[48181]  = FILTER_BY_PLAYER -- Haunt
+	defaultAuras[80240]  = FILTER_BY_PLAYER -- Havoc
+	defaultAuras[157736] = FILTER_BY_PLAYER -- Immolate (changed in WOD)
+	defaultAuras[108686] = FILTER_BY_PLAYER -- Immolate <-- Fire and Brimstone
+	defaultAuras[60947]  = FILTER_BY_PLAYER -- Nightmare
+	defaultAuras[30108]  = FILTER_BY_PLAYER -- Seed of Corruption
+	defaultAuras[47960]  = FILTER_BY_PLAYER -- Shadowflame
+	defaultAuras[30283]  = FILTER_BY_PLAYER -- Shadowfury
+	defaultAuras[27243]  = FILTER_BY_PLAYER -- Unstable Affliction
 
 	-- Debuffs - Crowd Control
-	defaultAuras[170]    = DEBUFF -- Banish -- TODO: move to CC group ?
-	defaultAuras[111397] = MINE   -- Blood Fear
-	defaultAuras[137143] = MINE   -- Blood Horror
-	defaultAuras[1098]   = MINE   -- Enslave Demon
-	defaultAuras[5782]   = DEBUFF -- Fear
-	defaultAuras[5484]   = DEBUFF -- Howl of Terror
-	defaultAuras[6789]   = MINE   -- Mortal Coil
+	defaultAuras[111397] = FILTER_BY_PLAYER   -- Blood Fear
+	defaultAuras[137143] = FILTER_BY_PLAYER   -- Blood Horror
+	defaultAuras[1098]   = FILTER_BY_PLAYER   -- Enslave Demon
+	defaultAuras[6789]   = FILTER_BY_PLAYER   -- Mortal Coil
 end
 
 ------------------------------------------------------------------------
 -- Warrior
 
-do
-	local SELF   = bit_bor(FILTER_CLASS_WARRIOR, FILTER_ON_PLAYER)
-	local BUFF   = bit_bor(FILTER_CLASS_WARRIOR, FILTER_ON_FRIEND)
-	local DEBUFF = bit_bor(FILTER_CLASS_WARRIOR, FILTER_ON_ENEMY)
-	local MINE   = bit_bor(FILTER_CLASS_WARRIOR, FILTER_BY_PLAYER)
-
+if playerClass == "WARRIOR" then
 	-- Self Buffs
-	defaultAuras[107574] = SELF -- Avatar
-	defaultAuras[18499]  = SELF -- Berserker Rage
-	defaultAuras[46924]  = SELF -- Bladestorm
-	defaultAuras[12292]  = SELF -- Bloodbath
-	defaultAuras[46916]  = SELF -- Bloodsurge
-	defaultAuras[85730]  = SELF -- Deadly Calm
-	defaultAuras[125565] = SELF -- Demoralizing Shout
-	defaultAuras[118038] = SELF -- Die by the Sword
-	defaultAuras[12880]  = SELF -- Enrage
-	defaultAuras[55964]  = SELF -- Enraged Regeneration
-	defaultAuras[115945] = SELF -- Glyph of Hamstring
-	defaultAuras[12975]  = SELF -- Last Stand
-	defaultAuras[114028] = SELF -- Mass Spell Reflection
-	defaultAuras[85739]  = SELF -- Meat Cleaver
-	defaultAuras[114192] = SELF -- Mocking Banner
-	defaultAuras[97463]  = SELF -- Rallying Cry
-	defaultAuras[1719]   = SELF -- Recklessness
-	defaultAuras[112048] = SELF -- Shield Barrier
-	defaultAuras[2565]   = SELF -- Shield Block
-	defaultAuras[871]    = SELF -- Shield Wall
-	defaultAuras[114206] = SELF -- Skull Banner
-	defaultAuras[23920]  = SELF -- Spell Banner
-	defaultAuras[52437]  = SELF -- Sudden Death
-	defaultAuras[12328]  = SELF -- Sweeping Strikes
-	defaultAuras[50227]  = SELF -- Sword and Board
-	defaultAuras[125831] = SELF -- Taste for Blood
-	defaultAuras[122510] = SELF -- Ultimatum
+	defaultAuras[107574] = FILTER_ON_PLAYER -- Avatar
+	defaultAuras[18499]  = FILTER_ON_PLAYER -- Berserker Rage
+	defaultAuras[46924]  = FILTER_ON_PLAYER -- Bladestorm
+	defaultAuras[12292]  = FILTER_ON_PLAYER -- Bloodbath
+	defaultAuras[46916]  = FILTER_ON_PLAYER -- Bloodsurge
+	defaultAuras[85730]  = FILTER_ON_PLAYER -- Deadly Calm
+	defaultAuras[125565] = FILTER_ON_PLAYER -- Demoralizing Shout
+	defaultAuras[118038] = FILTER_ON_PLAYER -- Die by the Sword
+	defaultAuras[12880]  = FILTER_ON_PLAYER -- Enrage
+	defaultAuras[55964]  = FILTER_ON_PLAYER -- Enraged Regeneration
+	defaultAuras[115945] = FILTER_ON_PLAYER -- Glyph of Hamstring
+	defaultAuras[12975]  = FILTER_ON_PLAYER -- Last Stand
+	defaultAuras[114028] = FILTER_ON_PLAYER -- Mass Spell Reflection
+	defaultAuras[85739]  = FILTER_ON_PLAYER -- Meat Cleaver
+	defaultAuras[114192] = FILTER_ON_PLAYER -- Mocking Banner
+	defaultAuras[97463]  = FILTER_ON_PLAYER -- Rallying Cry
+	defaultAuras[1719]   = FILTER_ON_PLAYER -- Recklessness
+	defaultAuras[112048] = FILTER_ON_PLAYER -- Shield Barrier
+	defaultAuras[2565]   = FILTER_ON_PLAYER -- Shield Block
+	defaultAuras[871]    = FILTER_ON_PLAYER -- Shield Wall
+	defaultAuras[114206] = FILTER_ON_PLAYER -- Skull Banner
+	defaultAuras[23920]  = FILTER_ON_PLAYER -- Spell Banner
+	defaultAuras[52437]  = FILTER_ON_PLAYER -- Sudden Death
+	defaultAuras[12328]  = FILTER_ON_PLAYER -- Sweeping Strikes
+	defaultAuras[50227]  = FILTER_ON_PLAYER -- Sword and Board
+	defaultAuras[125831] = FILTER_ON_PLAYER -- Taste for Blood
+	defaultAuras[122510] = FILTER_ON_PLAYER -- Ultimatum
 
 	-- Buffs
-	defaultAuras[46947]  = BUFF -- Safeguard (damage reduction)
-	defaultAuras[114029] = BUFF -- Safeguard (intercept)
-	defaultAuras[114030] = BUFF -- Vigilance
+	defaultAuras[46947]  = FILTER_ON_FRIEND -- Safeguard (damage reduction)
+	defaultAuras[114029] = FILTER_ON_FRIEND -- Safeguard (intercept)
+	defaultAuras[114030] = FILTER_ON_FRIEND -- Vigilance
 
 	-- Debuffs
-	defaultAuras[86346]  = MINE -- Colossus Smash
-	defaultAuras[114205] = MINE -- Demoralizing Banner
-	defaultAuras[1160]   = MINE -- Demoralizing Shout
-	defaultAuras[676]    = MINE -- Disarm
-	defaultAuras[118895] = MINE -- Dragon Roar
-	defaultAuras[1715]   = MINE -- Hamstring
-	defaultAuras[5246]   = MINE -- Intimidating Shout -- NEEDS CHECK
-	defaultAuras[20511]  = MINE -- Intimidating Shout -- NEEDS CHECK
-	defaultAuras[12323]  = MINE -- Piercing Howl
-	defaultAuras[64382]  = MINE -- Shattering Throw
-	defaultAuras[46968]  = MINE -- Shockwave
-	defaultAuras[18498]  = MINE -- Silenced - Gag Order
-	defaultAuras[107566] = MINE -- Staggering Shout
-	defaultAuras[107570] = MINE -- Storm Bolt
-	defaultAuras[355]    = MINE -- Taunt
-	defaultAuras[105771] = MINE -- Warbringer
+	defaultAuras[86346]  = FILTER_BY_PLAYER -- Colossus Smash
+	defaultAuras[114205] = FILTER_BY_PLAYER -- Demoralizing Banner
+	defaultAuras[1160]   = FILTER_BY_PLAYER -- Demoralizing Shout
+	defaultAuras[676]    = FILTER_BY_PLAYER -- Disarm
+	defaultAuras[118895] = FILTER_BY_PLAYER -- Dragon Roar
+	defaultAuras[1715]   = FILTER_BY_PLAYER -- Hamstring
+	defaultAuras[5246]   = FILTER_BY_PLAYER -- Intimidating Shout -- NEEDS CHECK
+	defaultAuras[20511]  = FILTER_BY_PLAYER -- Intimidating Shout -- NEEDS CHECK
+	defaultAuras[12323]  = FILTER_BY_PLAYER -- Piercing Howl
+	defaultAuras[64382]  = FILTER_BY_PLAYER -- Shattering Throw
+	defaultAuras[46968]  = FILTER_BY_PLAYER -- Shockwave
+	defaultAuras[18498]  = FILTER_BY_PLAYER -- Silenced - Gag Order
+	defaultAuras[107566] = FILTER_BY_PLAYER -- Staggering Shout
+	defaultAuras[107570] = FILTER_BY_PLAYER -- Storm Bolt
+	defaultAuras[355]    = FILTER_BY_PLAYER -- Taunt
+	defaultAuras[105771] = FILTER_BY_PLAYER -- Warbringer
 end
 
 ------------------------------------------------------------------------
 -- Racials
 
--- Blood Elf
-defaultAuras[50613]  = FILTER_BY_PLAYER -- Arcane Torrent (death knight)
-defaultAuras[80483]  = FILTER_BY_PLAYER -- Arcane Torrent (hunter)
-defaultAuras[28730]  = FILTER_BY_PLAYER -- Arcane Torrent (mage, paladin, priest, warlock)
-defaultAuras[129597] = FILTER_BY_PLAYER -- Arcane Torrent (monk)
-defaultAuras[25046]  = FILTER_BY_PLAYER -- Arcane Torrent (rogue)
-defaultAuras[69179]  = FILTER_BY_PLAYER -- Arcane Torrent (warrior)
--- Draenei
-defaultAuras[59545]  = FILTER_BY_PLAYER -- Gift of the Naaru (death knight)
-defaultAuras[59543]  = FILTER_BY_PLAYER -- Gift of the Naaru (hunter)
-defaultAuras[59548]  = FILTER_BY_PLAYER -- Gift of the Naaru (mage)
-defaultAuras[121093] = FILTER_BY_PLAYER -- Gift of the Naaru (monk)
-defaultAuras[59542]  = FILTER_BY_PLAYER -- Gift of the Naaru (paladin)
-defaultAuras[59544]  = FILTER_BY_PLAYER -- Gift of the Naaru (priest)
-defaultAuras[59547]  = FILTER_BY_PLAYER -- Gift of the Naaru (shaman)
-defaultAuras[28880]  = FILTER_BY_PLAYER -- Gift of the Naaru (warrior)
--- Dwarf
-defaultAuras[20594]  = FILTER_ON_PLAYER -- Stoneform
--- NightElf
-defaultAuras[58984]  = FILTER_ON_PLAYER -- Shadowmeld
--- Orc
-defaultAuras[20572]  = FILTER_ON_PLAYER -- Blood Fury (attack power)
-defaultAuras[33702]  = FILTER_ON_PLAYER -- Blood Fury (spell power)
-defaultAuras[33697]  = FILTER_ON_PLAYER -- Blood Fury (attack power and spell damage)
--- Pandaren
-defaultAuras[107079] = FILTER_ON_PLAYER -- Quaking Palm
--- Scourge
-defaultAuras[7744]   = FILTER_ON_PLAYER -- Will of the Forsaken
--- Tauren
-defaultAuras[20549]  = FILTER_ALL -- War Stomp
--- Troll
-defaultAuras[26297]  = FILTER_ON_PLAYER -- Berserking
--- Worgen
-defaultAuras[68992]  = FILTER_ON_PLAYER -- Darkflight
+local _, playerRace = UnitRace("player")
 
-------------------------------------------------------------------------
--- Magic Vulnerability
-
-do
-	local FILTER = bit_bor(FILTER_CLASS_ROGUE, FILTER_CLASS_WARLOCK)
-
-	defaultAuras[1490]  = FILTER -- Curse of the Elements (warlock)
-	defaultAuras[34889] = FILTER -- Fire Breath (hunter dragonhawk)
-	defaultAuras[24844] = FILTER -- Lightning Breath (hunter wind serpent)
-	defaultAuras[93068] = FILTER -- Master Poisoner (rogue)
+if playerRace == "BloodElf" then
+	defaultAuras[50613]  = FILTER_BY_PLAYER -- Arcane Torrent (death knight)
+	defaultAuras[80483]  = FILTER_BY_PLAYER -- Arcane Torrent (hunter)
+	defaultAuras[28730]  = FILTER_BY_PLAYER -- Arcane Torrent (mage, paladin, priest, warlock)
+	defaultAuras[129597] = FILTER_BY_PLAYER -- Arcane Torrent (monk)
+	defaultAuras[25046]  = FILTER_BY_PLAYER -- Arcane Torrent (rogue)
+	defaultAuras[69179]  = FILTER_BY_PLAYER -- Arcane Torrent (warrior)
+elseif playerRace == "Draenei" then
+	defaultAuras[59545]  = FILTER_BY_PLAYER -- Gift of the Naaru (death knight)
+	defaultAuras[59543]  = FILTER_BY_PLAYER -- Gift of the Naaru (hunter)
+	defaultAuras[59548]  = FILTER_BY_PLAYER -- Gift of the Naaru (mage)
+	defaultAuras[121093] = FILTER_BY_PLAYER -- Gift of the Naaru (monk)
+	defaultAuras[59542]  = FILTER_BY_PLAYER -- Gift of the Naaru (paladin)
+	defaultAuras[59544]  = FILTER_BY_PLAYER -- Gift of the Naaru (priest)
+	defaultAuras[59547]  = FILTER_BY_PLAYER -- Gift of the Naaru (shaman)
+	defaultAuras[28880]  = FILTER_BY_PLAYER -- Gift of the Naaru (warrior)
+elseif playerRace == "Dwarf" then
+	defaultAuras[20594]  = FILTER_ON_PLAYER -- Stoneform
+elseif playerRace == "NightElf" then
+	defaultAuras[58984]  = FILTER_ON_PLAYER -- Shadowmeld
+elseif playerRace == "Orc" then
+	defaultAuras[20572]  = FILTER_ON_PLAYER -- Blood Fury (attack power)
+	defaultAuras[33702]  = FILTER_ON_PLAYER -- Blood Fury (spell power)
+	defaultAuras[33697]  = FILTER_ON_PLAYER -- Blood Fury (attack power and spell damage)
+elseif playerRace == "Pandaren" then
+	defaultAuras[107079] = FILTER_ON_PLAYER -- Quaking Palm
+elseif playerRace == "Scourge" then
+	defaultAuras[7744]   = FILTER_ON_PLAYER -- Will of the Forsaken
+elseif playerRace == "Tauren" then
+	defaultAuras[20549]  = FILTER_ALL -- War Stomp
+elseif playerRace == "Troll" then
+	defaultAuras[26297]  = FILTER_ON_PLAYER -- Berserking
+elseif playerRace == "Worgen" then
+	defaultAuras[68992]  = FILTER_ON_PLAYER -- Darkflight
 end
 
 ------------------------------------------------------------------------
 -- Mortal Wounds
-
-do
-	local FILTER = bit_bor(FILTER_CLASS_HUNTER, FILTER_CLASS_MONK, FILTER_CLASS_ROGUE, FILTER_CLASS_WARRIOR)
-
-	defaultAuras[54680]  = FILTER -- Monstrous Bite (hunter devilsaur)
-	defaultAuras[115804] = FILTER -- Mortal Wounds (monk, warrior)
+--[[
+if playerClass == "WARRIOR" or playerClass == "ROGUE" or playerClass == "MONK" then
+	Warrior, Monk, Hunter: Carrion Bird, Crocolisk, Riverbeast, Scorpid
+	defaultAuras[115804] = FILTER -- Mortal Wounds
+	defaultAuras[54680]  = FILTER -- Monstrous Bite (Hunter: Devilsaur)
 	defaultAuras[82654]  = FILTER -- Widow Venom (hunter)
-	defaultAuras[8680]   = FILTER -- Wound Poison (rogue)
+	defaultAuras[8680]   = FILTER -- Wound Poison (Rogue)
 end
-
-------------------------------------------------------------------------
--- Physical Vulnerability
-
-do
-	local FILTER = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_PALADIN, FILTER_CLASS_WARRIOR)
-
-	defaultAuras[55749] = FILTER -- Acid Rain (hunter worm)
-	defaultAuras[35290] = FILTER -- Gore (hunter boar)
-	defaultAuras[81326] = FILTER -- Physical Vulnerability (death knight, paladin, warrior)
-	defaultAuras[50518] = FILTER -- Ravage (hunter ravager)
-	defaultAuras[57386] = FILTER -- Stampede (hunter rhino)
-end
-
-------------------------------------------------------------------------
--- Slow Casting
-
-do
-	local FILTER = bit_bor(FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_MAGE, FILTER_CLASS_WARLOCK)
-
-	defaultAuras[109466] = FILTER -- Curse of Enfeeblement (warlock)
-	defaultAuras[5760]   = FILTER -- Mind-numbing Poison (rogue)
-	defaultAuras[73975]  = FILTER -- Necrotic Strike (death knight)
-	defaultAuras[31589]  = FILTER -- Slow (mage)
-	defaultAuras[50274]  = FILTER -- Spore Cloud (hunter sporebat)
-	defaultAuras[90315]  = FILTER -- Tailspin (hunter fox)
-	defaultAuras[126406] = FILTER -- Trample (hunter goat)
-	defaultAuras[58604]  = FILTER -- Lava Breath (hunter core hound)
-end
-
+]]
 ------------------------------------------------------------------------
 -- Taunts (tanks only)
 
-do
-	local FILTER = FILTER_ROLE_TANK
-
-	defaultAuras[56222]  = FILTER -- Dark Command
-	defaultAuras[57604]  = FILTER -- Death Grip -- NEEDS CHECK 57603
-	defaultAuras[20736]  = FILTER -- Distracting Shot
-	defaultAuras[6795]   = FILTER -- Growl
-	defaultAuras[118585] = FILTER -- Leer of the Ox
-	defaultAuras[62124]  = FILTER -- Reckoning
-	defaultAuras[355]    = FILTER -- Taunt
-end
-
-------------------------------------------------------------------------
--- Weakened Armor
-
-do
-	-- druids need to keep Faerie Fire/Swarm up anyway, no need to see both, this has the shorter duration
-	local FILTER = bit_bor(FILTER_ROLE_TANK, FILTER_CLASS_DRUID, FILTER_CLASS_ROGUE, FILTER_CLASS_WARRIOR)
-
-	defaultAuras[113746] = FILTER -- Weakened Armor (druid, hunter raptor, hunter tallstrider, rogue, warrior)
-end
-
-------------------------------------------------------------------------
--- Weakened Blows (tanks only)
-
-do
-	-- druids need to keep Thrash up anyway, no need to see both
-	local FILTER = bit_bor(FILTER_ROLE_TANK, FILTER_CLASS_DEATHKNIGHT, FILTER_CLASS_MONK, FILTER_CLASS_PALADIN, FILTER_CLASS_WARRIOR)
-
-	defaultAuras[109466] = FILTER -- Curse of Enfeeblement (warlock)
-	defaultAuras[60256]  = FILTER -- Demoralizing Roar (hunter bear)
-	defaultAuras[24423]  = FILTER -- Demoralizing Screech (hunter carrion bird)
-	defaultAuras[115798] = FILTER -- Weakened Blows (death knight, druid, monk, paladin, shaman, warrior)
+if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
+	defaultAuras[56222]  = FILTER_ROLE_TANK -- Dark Command
+	defaultAuras[57604]  = FILTER_ROLE_TANK -- Death Grip -- NEEDS CHECK 57603
+	defaultAuras[20736]  = FILTER_ROLE_TANK -- Distracting Shot
+	defaultAuras[6795]   = FILTER_ROLE_TANK -- Growl
+	defaultAuras[118585] = FILTER_ROLE_TANK -- Leer of the Ox
+	defaultAuras[114198] = FILTER_ROLE_TANK -- Mocking Banner
+	defaultAuras[116189] = FILTER_ROLE_TANK -- Provoke
+	defaultAuras[62124]  = FILTER_ROLE_TANK -- Reckoning
+	defaultAuras[355]    = FILTER_ROLE_TANK -- Taunt
 end
 
 ------------------------------------------------------------------------
 -- PvP
 
--- Disarmed
-defaultAuras[50541]  = FILTER_PVP -- Clench (hunter scorpid)
-defaultAuras[676]    = FILTER_PVP -- Disarm (warrior)
-defaultAuras[51722]  = FILTER_PVP -- Dismantle (rogue)
-defaultAuras[117368] = FILTER_PVP -- Grapple Weapon (monk)
-defaultAuras[91644]  = FILTER_PVP -- Snatch (hunter bird of prey)
-
--- Silenced
+-- Silenced -- TODO: update
 defaultAuras[25046]  = FILTER_PVP -- Arcane Torrent (blood elf - rogue)
 defaultAuras[28730]  = FILTER_PVP -- Arcane Torrent (blood elf - mage, paladin, priest, warlock)
 defaultAuras[50613]  = FILTER_PVP -- Arcane Torrent (blood elf - death knight)
@@ -1049,7 +865,7 @@ defaultAuras[47476]  = FILTER_PVP -- Strangulate (death knight)
 defaultAuras[127372] = FILTER_BY_PLAYER -- Unstable Serum (Klaxxi Enhancement: Raining Blood)
 
 ------------------------------------------------------------------------
--- Boss debuffs that Blizzard forgot to flag
+-- Boss debuffs that Blizzard failed to flag
 
 defaultAuras[106648] = FILTER_ALL -- Brew Explosion (Ook Ook in Stormsnout Brewery)
 defaultAuras[106784] = FILTER_ALL -- Brew Explosion (Ook Ook in Stormsnout Brewery)
@@ -1104,14 +920,12 @@ ns.UpdateAuraList = function()
 	local PVP = ns.config.PVP
 	local role = ns.GetPlayerRole()
 	local filterForRole = roleFilter[role]
-	local filterForClass = classFilter[playerClass]
 	for id, v in pairs(oUFPhanxAuraConfig) do
 		local skip
 		if bit_band(v, FILTER_ALL) == 0 then
 			if (bit_band(v, FILTER_PVP) > 0 and not PVP)
 			or (bit_band(v, FILTER_PVE) > 0 and PVP)
-			or (bit_band(v, FILTER_ROLE_MASK) > 0 and bit_band(v, filterForRole) == 0)
-			or (bit_band(v, FILTER_CLASS_MASK) > 0 and bit_band(v,filterForClass ) == 0) then
+			or (bit_band(v, FILTER_ROLE_MASK) > 0 and bit_band(v, filterForRole) == 0) then
 				skip = true
 			end
 		end
