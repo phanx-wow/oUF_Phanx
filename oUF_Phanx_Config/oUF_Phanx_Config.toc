@@ -11,8 +11,8 @@
 
 ## Author: Phanx
 ## X-Email: addons@phanx.net
-## X-Copyright: Copyright (c) 2008-2014 Phanx. All rights reserved.
-## X-License: See the accompanying LICENSE file for details.
+## X-Copyright: Copyright (c) 2008-2014 Phanx.
+## X-License: All rights reserved.
 ## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW
 ## X-Localizations: enUS, deDE, esES, esMX, frFR, ptBR, zhCN
 ## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
@@ -31,13 +31,7 @@ Libs\PhanxConfig-Header\PhanxConfig-Header.lua
 Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
 Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
 
-Locales\Locale-en.lua
-Locales\Locale-de.lua
-Locales\Locale-es.lua
-Locales\Locale-fr.lua
-Locales\Locale-pt.lua
-Locales\Locale-zhCN.lua
-Locales\Locale-zhTW.lua
+Localization.lua
 
 Main.lua
 Auras.lua
