@@ -1,0 +1,38 @@
+## Interface: 60000
+## Version: 6.0.2.wowi:revision
+
+## Title: oUF: Phanx Options
+## Notes: Configuration UI for oUF Phanx.
+## Notes-deDE: Konfigurationsinterface für oUF Phanx.
+## Notes-esES: Interfaz de configuración para oUF Phanx.
+## Notes-esMX: Interfaz de configuración para oUF Phanx.
+## Notes-frFR: Interface de configuration pour oUF Phanx.
+## Notes-ptBR: Interface de configuração para oUF Phanx.
+
+## Author: Phanx
+## X-Email: addons@phanx.net
+## X-Copyright: Copyright (c) 2008-2014 Phanx.
+## X-License: All rights reserved.
+## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW
+## X-Localizations: enUS, deDE, esES, esMX, frFR, ptBR, zhCN
+## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+## X-Curse-Project-ID: ouf-phanx
+## X-WoWI-ID: 13993
+
+## Dependencies: oUF_Phanx
+## OptionalDependencies: LibAboutPanel, PhanxConfigWidgets
+## LoadOnDemand: 1
+
+Libs\LibAboutPanel\LibAboutPanel.lua
+Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
+Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
+Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
+Libs\PhanxConfig-Header\PhanxConfig-Header.lua
+Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
+Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
+
+Localization.lua
+
+Main.lua
+Auras.lua
+Units.lua
