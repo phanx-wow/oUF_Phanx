@@ -1,5 +1,5 @@
 ## Interface: 60000
-## Version: 6.0.3.wowi:revision
+## Version: @project-version@
 
 ## Title: oUF: Phanx
 ## Notes: oUF unit frames with many PvE-oriented features and a few options.
@@ -11,13 +11,8 @@
 
 ## Author: Phanx
 ## X-Email: addons@phanx.net
-## X-Copyright: Copyright (c) 2008-2014 Phanx.
-## X-License: All rights reserved.
-## X-CompatibleLocales: enUS, deDE, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, zhTW
-## X-Localizations: enUS, deDE, esES, esMX, frFR, ptBR
-## X-Website: http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-## X-Curse-Project-ID: ouf-phanx
-## X-WoWI-ID: 13993
+## X-Copyright: Copyright (c) 2008-2014 Phanx. All rights reserved.
+## X-Website: https://github.com/Phanx/oUF_Phanx
 
 ## Dependencies: oUF
 ## OptionalDependencies: LibResInfo-1.0, LibSharedMedia-3.0
@@ -55,3 +50,19 @@ Core.lua
 Auras.lua
 Functions.lua
 Frames.lua
+
+#@do-not-package@
+Config\Libs\LibAboutPanel\LibAboutPanel.lua
+Config\Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
+Config\Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
+Config\Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
+Config\Libs\PhanxConfig-Header\PhanxConfig-Header.lua
+Config\Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
+Config\Libs\PhanxConfig-Slider\PhanxConfig-Slider.lua
+
+Config\Localization.lua
+
+Config\Main.lua
+Config\Auras.lua
+Config\Units.lua
+#@end-do-not-package@
