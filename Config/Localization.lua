@@ -481,7 +481,7 @@ return end
 -- Russian localization
 -- Contributors: Felixod, Yafis
 ------------------------------------------------------------------------
-if LOCALE == "ruRU"
+if LOCALE == "ruRU" then
 
 L.BorderColor = "Цвет рамки"
 L.BorderColor_Desc = "Изменить цвет рамки окна."

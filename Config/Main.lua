@@ -10,9 +10,11 @@
 local _, ns = ...
 local L = ns.L
 
+--[===[@non-debug@
 -- import other ns and remove global
 setmetatable(ns, { __index = oUFPhanx })
 oUFPhanx = nil
+--@end-non-debug@]===]
 
 -- map values to labels
 local outlineWeights = {

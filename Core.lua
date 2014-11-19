@@ -241,6 +241,11 @@ Loader:SetScript("OnEvent", function(self, event, ...)
 	return self[event] and self[event](self, event, ...)
 end)
 
+local Options = CreateFrame("Frame", "oUFPhanxOptions")
+Options:Hide()
+Options.name = "oUF Phanx"
+InterfaceOptions_AddCategory(Options)
+
 function Loader:ADDON_LOADED(event, addon)
 	if addon ~= "oUF_Phanx" then return end
 
@@ -329,12 +334,7 @@ function Loader:ADDON_LOADED(event, addon)
 	end
 
 	-- Load options on demand
-	local Options = CreateFrame("Frame", "oUFPhanxOptions")
-	Options:Hide()
-
-	Options.name = "oUF Phanx"
-	InterfaceOptions_AddCategory(Options)
-
+--[===[@non-debug@
 	Options:SetScript("OnShow", function(self)
 		oUFPhanx = ns
 		local loaded, reason = LoadAddOn("oUF_Phanx_Config")
@@ -346,6 +346,7 @@ function Loader:ADDON_LOADED(event, addon)
 			oUFPhanx = nil
 		end
 	end)
+--@non-debug@]===]
 
 	SLASH_OUFPHANX1 = "/pouf"
 	SLASH_OUFPHANX2 = "/oufphanx"
