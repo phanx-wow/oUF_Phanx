@@ -5,6 +5,7 @@
 *.ods
 .svn/
 Libs/
+CHANGELOG.bbcode
 
 # Windows garbage ----------------------------------------------------------#
 
