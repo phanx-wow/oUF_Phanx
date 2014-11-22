@@ -346,7 +346,7 @@ function Loader:ADDON_LOADED(event, addon)
 			oUFPhanx = nil
 		end
 	end)
---@non-debug@]===]
+--@end-non-debug@]===]
 
 	SLASH_OUFPHANX1 = "/pouf"
 	SLASH_OUFPHANX2 = "/oufphanx"

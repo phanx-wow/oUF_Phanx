@@ -995,15 +995,11 @@ ns.CustomAuraFilters = {
 		local v = auraList[spellID]
 		if isBossAura then
 			local show = not v or bit_band(v, FILTER_DISABLE) == 0
-			if show then
-				debug("CustomAuraFilter", spellID, name, "BOSS")
-			end
+			-- if show then debug("CustomAuraFilter", spellID, name, "BOSS") end
 			return show
 		elseif v then
 			local show = checkFilter(v, self, unit, caster)
-			if show then
-				debug("CustomAuraFilter", spellID, name, "FILTER", v, caster)
-			end
+			-- if show then debug("CustomAuraFilter", spellID, name, "FILTER", v, caster) end
 			return show
 		elseif not caster and not IsInInstance() then
 			-- EXPERIMENTAL: ignore debuffs from players outside the group, eg. on world bosses.
@@ -1012,17 +1008,13 @@ ns.CustomAuraFilters = {
 			-- Hostile NPC. Show auras cast by the unit, or auras cast by the player's vehicle.
 			-- print("hostile NPC")
 			local show = not caster or caster == unit or UnitIsUnit(caster, "vehicle")
-			if show then
-				debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or (caster == unit) and "SELFCAST" or "VEHICLE")
-			end
+			-- if show then debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or (caster == unit) and "SELFCAST" or "VEHICLE") end
 			return show
 		else
 			-- Friendly target or hostile player. Show auras cast by the player's vehicle.
 			-- print("hostile player / friendly unit")
 			local show = not caster or UnitIsUnit(caster, "vehicle")
-			if show then
-				debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or "VEHICLE")
-			end
+			-- if show then debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or "VEHICLE") end
 			return show
 		end
 	end,
