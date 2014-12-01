@@ -58,7 +58,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	valueBG:SetVertexColor(0.35, 0.35, 0.35)
 	statusbar.valueBG = valueBG
 
-	function statusbar:Callback(value)
+	function statusbar:OnValueChanged(value)
 		local file = Media:Fetch("statusbar", value)
 		valueBG:SetTexture(file)
 
@@ -127,7 +127,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
-	function font:Callback(value)
+	function font:OnValueChanged(value)
 		local _, height, flags = self.valueText:GetFont()
 		self.valueText:SetFont(Media:Fetch("font", value), height, flags)
 
@@ -137,7 +137,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		ns.SetAllFonts()
 	end
 
-	function font:ListButtonCallback(button, value, selected)
+	function font:OnListButtonChanged(button, value, selected)
 		if button:IsShown() then
 			button.label:SetFont(Media:Fetch("font", value), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
 		end
