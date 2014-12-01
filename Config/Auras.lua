@@ -104,7 +104,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 
 		local name, _, icon = GetSpellInfo(id)
 		if name and icon then
-			if oUFPhanxAuraConfig[id] and oUFPhanxAuraConfig[id] ~= ns.defaultAuras[id] then
+			if oUFPhanxAuraConfig.customFilters[id] and oUFPhanxAuraConfig.customFilters[id] ~= ns.defaultAuras[id] then
 				dialog.Text:SetText(RED_FONT_COLOR_CODE .. L.AddAura_Duplicate .. "|r")
 				dialog.Button:Disable()
 			end
@@ -121,8 +121,9 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		if id and id > 0 and GetSpellInfo(id) then
 			if ns.defaultAuras[id] then
 				showDefaults[id] = true
-			elseif not oUFPhanxConfig[id] then
-				oUFPhanxAuraConfig[id] = ns.auraFilterValues.ALL
+			elseif not oUFPhanxAuraConfig.customFilters[id] then
+				oUFPhanxAuraConfig.customFilters[id] = ns.auraFilterValues.ALL
+				oUFPhanxAuraConfig.deleted[id] = nil
 			end
 			ns.UpdateAuraList()
 			panel.refresh()
@@ -197,7 +198,13 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		GameTooltip:Show()
 	end
 	local function Row_OnLeave(self)
-		self.name:SetTextColor(1, 0.82, 0)
+		local color
+		if ns.defaultAuras[self.id] == ns.auraFilterValues.DISABLE or oUFPhanxAuraConfig.customFilters[self.id] == ns.auraFilterValues.DISABLE then
+			color = GRAY_FONT_COLOR
+		else
+			color = NORMAL_FONT_COLOR
+		end
+		self.name:SetTextColor(color.r, color.g, color.b)
 		self.highlight:Hide()
 		GameTooltip:Hide()
 	end
@@ -214,22 +221,20 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 			GameTooltip:Hide()
 		end
 		local id = self:GetParent().id
-		oUFPhanxAuraConfig[id] = nil
+		oUFPhanxAuraConfig.customFilters[id] = nil
+		if ns.defaultAuras[id] then
+			oUFPhanxAuraConfig.deleted[id] = true
+		end
 		panel.refresh()
 		ns.UpdateAuraList()
 	end
 	local function Delete_OnEnter(self)
 		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
 		GameTooltip:SetText(L.DeleteAura_Desc)
-		--[[
-		GameTooltip:SetText(L.DeleteAura)
-		GameTooltip:AddLine(L.DeleteAura_Desc)
-		]]
 		GameTooltip:Show()
 	end
 
 	-- Filter dropdown functions:
-	local CURRENT_AURA, CURRENT_DROPDOWN
 	local filterValues = {
 		{ value = ns.auraFilterValues.ALL,       text = L["AuraFilter1"] },
 		{ value = ns.auraFilterValues.BY_PLAYER, text = L["AuraFilter2"] },
@@ -237,8 +242,15 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		{ value = ns.auraFilterValues.ON_PLAYER, text = L["AuraFilter4"] },
 		{ value = ns.auraFilterValues.DISABLE,   text = L["AuraFilter0"] },
 	}
-	local function Filter_Callback(self, value)
-		oUFPhanxAuraConfig[CURRENT_AURA] = value
+	local function Filter_OnValueChanged(self, value)
+		local id = self.owner.id
+		local isDefault = value == ns.defaultAuras[id]
+		if isDefault then
+			oUFPhanxAuraConfig.customFilters[id] = nil
+			showDefaults[id] = true
+		else
+			oUFPhanxAuraConfig.customFilters[id] = value
+		end
 		ns.UpdateAuraList()
 	end
 	local function Filter_OnEnter(self)
@@ -301,6 +313,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		filter.OnEnter = Filter_OnEnter
 		filter.OnLeave = Filter_OnLeave
 		filter.OnValueChanged = Filter_OnValueChanged
+		filter.owner = row
 		row.filter = filter
 
 		t[i] = row
@@ -321,19 +334,62 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 			pool[tremove(sortedAuras, i)] = true
 		end
 
-		for id, filter in pairs(oUFPhanxAuraConfig) do
+		if showAllDefaults then
+			for id, filter in pairs(ns.defaultAuras) do
+				local name, _, icon = GetSpellInfo(id)
+				if name and icon then
+					local aura = next(pool) or {}
+					pool[aura] = nil
+					aura.name = name
+					aura.icon = icon
+					aura.id = id
+					aura.filter = filter
+					tinsert(sortedAuras, aura)
+				end
+			end
+		else
+			for id in pairs(showDefaults) do
+				local filter = ns.defaultAuras[id]
+				local name, _, icon = GetSpellInfo(id)
+				if name and icon then
+					local aura = next(pool) or {}
+					pool[aura] = nil
+					aura.name = name
+					aura.icon = icon
+					aura.id = id
+					aura.filter = filter
+					tinsert(sortedAuras, aura)
+				end
+			end
+		end
+
+		for id, filter in pairs(oUFPhanxAuraConfig.customFilters) do
 			local name, _, icon = GetSpellInfo(id)
-			if name and icon and (showAllDefaults or showDefaults[id] or filter ~= ns.defaultAuras[id]) then
-				local aura = next(pool) or {}
-				pool[aura] = nil
+			if name and icon then
+				local new, aura = true
+				if ns.defaultAuras[id] then
+					for i = 1, #sortedAuras do
+						local t = sortedAuras[i]
+						if t.id == id then
+							aura = t
+							new = nil
+						end
+					end
+				end
+				if not aura then
+					aura = next(pool) or {}
+					pool[aura] = nil
+				end
 				aura.name = name
 				aura.icon = icon
 				aura.id = id
 				aura.filter = filter
-				tinsert(sortedAuras, aura)
+				if new then
+					tinsert(sortedAuras, aura)
+				end
 			end
 		end
-		table.sort(sortedAuras, sortFunc)
+		sort(sortedAuras, sortFunc)
 
 		if #sortedAuras > 0 then
 			local height = 0
@@ -344,6 +400,15 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 				row.name:SetText(aura.name)
 				row.icon:SetTexture(aura.icon)
 				row.filter:SetValue(aura.filter)
+
+				local color
+				if aura.filter == ns.auraFilterValues.DISABLE then
+					color = GRAY_FONT_COLOR
+				else
+					color = NORMAL_FONT_COLOR
+				end
+				row.name:SetTextColor(color.r, color.g, color.b)
+
 				row:Show()
 				height = height + 4 + row:GetHeight()
 			end

@@ -40,12 +40,15 @@ local unitType = {
 }
 
 local function GetUnitConfig(unit, key)
+	local value
 	local children = unitType[unit]
 	if type(children) == "table" then
-		return oUFPhanxUnitConfig[children[1]][key]
+		value = oUFPhanxUnitConfig[children[1]][key]
 	else
-		return oUFPhanxUnitConfig[unit][key]
+		value = oUFPhanxUnitConfig[unit][key]
 	end
+	--print("GetUnitConfig", unit, key, type(value), tostring(value))
+	return value
 end
 
 local function SetUnitConfig(unit, key, value)

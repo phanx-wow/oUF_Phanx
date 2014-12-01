@@ -234,7 +234,8 @@ if playerClass == "DRUID" then
 	defaultAuras[9005]   = FILTER_BY_PLAYER -- Pounce -- NEEDS CHECK
 	defaultAuras[102546] = FILTER_BY_PLAYER -- Pounce -- NEEDS CHECK
 	defaultAuras[9007]   = FILTER_BY_PLAYER -- Pounce Bleed
-	defaultAuras[1822]   = FILTER_BY_PLAYER -- Rake
+--	defaultAuras[1822]   = FILTER_BY_PLAYER -- Rake -- REMOVED?
+	defaultAuras[155722] = FILTER_BY_PLAYER -- Rake
 	defaultAuras[1079]   = FILTER_BY_PLAYER -- Rip
 	defaultAuras[106839] = FILTER_ON_ENEMY  -- Skull Bash -- NOT CURRENTLY USED
 	defaultAuras[78675]  = FILTER_ON_ENEMY  -- Solar Beam (silence)
@@ -914,13 +915,11 @@ defaultAuras[63429] = FILTER_DISABLE -- Undercity Valiant's Pennant
 local auraList = {}
 ns.AuraList = auraList
 
-ns.UpdateAuraList = function()
-	--print("UpdateAuraList")
-	wipe(auraList)
+local function AddAurasToList(auras)
 	local PVP = ns.config.PVP
 	local role = ns.GetPlayerRole()
 	local filterForRole = roleFilter[role]
-	for id, v in pairs(oUFPhanxAuraConfig) do
+	for id, v in pairs(auras) do
 		local skip
 		if bit_band(v, FILTER_ALL) == 0 then
 			if (bit_band(v, FILTER_PVP) > 0 and not PVP)
@@ -932,6 +931,16 @@ ns.UpdateAuraList = function()
 		if not skip then
 			auraList[id] = v
 		end
+	end
+end
+
+ns.UpdateAuraList = function()
+	--print("UpdateAuraList")
+	wipe(auraList)
+	AddAurasToList(ns.defaultAuras)
+	AddAurasToList(oUFPhanxAuraConfig.customFilters)
+	for id in pairs(oUFPhanxAuraConfig.deleted) do
+		auraList[id] = nil
 	end
 
 	-- Update all the things

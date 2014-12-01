@@ -271,7 +271,12 @@ function Loader:ADDON_LOADED(event, addon)
 	ns.uconfig = oUFPhanxUnitConfig
 
 	-- Aura settings stored per character:
-	if oUFPhanxAuraConfig and oUFPhanxAuraConfig.VERSION == nil then
+	if not oUFPhanxAuraConfig then
+		oUFPhanxAuraConfig = {
+			customFilters = {},
+			deleted = {},
+		}
+	elseif oUFPhanxAuraConfig.VERSION == nil then
 		-- Upgrade from pre-bitflag filter values
 		local bitflags = {
 			[0] = ns.auraFilterValues.DISABLE,
@@ -280,12 +285,24 @@ function Loader:ADDON_LOADED(event, addon)
 			[3] = ns.auraFilterValues.ON_FRIEND,
 			[4] = ns.auraFilterValues.ON_PLAYER,
 		}
-		for id, flag in pairs(oUFPhanxAuraConfig) do
-			oUFPhanxAuraConfig[id] = bitflags[flag]
+		for id, flag in pairs(oUFPhanxAuraConfig.customFilters) do
+			oUFPhanxAuraConfig.customFilters[id] = bitflags[flag]
+		end
+	elseif oUFPhanxAuraConfig.VERSION == 1 then
+		local customFilters = oUFPhanxAuraConfig
+		customFilters.VERSION = nil
+		oUFPhanxAuraConfig = {
+			customFilters = customFilters,
+			deleted = {},
+		}
+	end
+	-- Remove default values
+	for id, flag in pairs(oUFPhanxAuraConfig.customFilters) do
+		if flag == ns.defaultAuras[id] then
+			oUFPhanxAuraConfig.customFilters[id] = nil
 		end
 	end
-	oUFPhanxAuraConfig = initDB(oUFPhanxAuraConfig, ns.defaultAuras)
-	oUFPhanxAuraConfig.VERSION = 1
+	oUFPhanxAuraConfig.VERSION = 2
 	ns.UpdateAuraList()
 
 	-- SharedMedia
@@ -398,7 +415,6 @@ function Loader:PLAYER_LOGOUT(event)
 
 	oUFPhanxConfig = cleanDB(oUFPhanxConfig, ns.configDefault)
 	oUFPhanxUnitConfig = cleanDB(oUFPhanxUnitConfig, ns.uconfigDefault)
-	oUFPhanxAuraConfig = cleanDB(oUFPhanxAuraConfig, ns.defaultAuras)
 end
 
 ------------------------------------------------------------------------
