@@ -304,12 +304,21 @@ local function Spawn(self, unit, isSingle)
 			powerType = SPELL_POWER_SOUL_SHARDS
 		end
 
-		local el = ns.CreateMultiBar(self, 5)
+		local el = ns.Orbs.Create(self.overlay, 5, 20) -- TODO: switch to multibar?
 		el.powerType = powerType
-		el.Override = updateFunc
+		--el.Override = updateFunc
 		el.UpdateTexture = noop -- fuck off oUF >:(
 		self[element] = el
 
+		if CUSTOM_CLASS_COLORS then
+			CUSTOM_CLASS_COLORS:RegisterCallback(function()
+				local color = CUSTOM_CLASS_COLORS[playerClass]
+				for i = 1, #t do
+					t.fg:SetVertexColor(color.r, color.g, color.b)
+				end
+			end)
+		end
+--[[
 		local mu = config.powerBG
 		for i = 1, #el do
 			el[i]:SetStatusBarColor(color.r, color.g, color.b)
@@ -326,6 +335,7 @@ local function Spawn(self, unit, isSingle)
 				end
 			end)
 		end
+]]
 	end
 
 	--------------------
