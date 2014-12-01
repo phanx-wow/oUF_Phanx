@@ -15,7 +15,7 @@
 ## X-Website: https://github.com/Phanx/oUF_Phanx
 
 ## Dependencies: oUF
-## OptionalDependencies: LibResInfo-1.0, LibSharedMedia-3.0
+## OptionalDependencies: LibResInfo-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
 ## SavedVariables: oUFPhanxConfig, oUFPhanxUnitConfig
 ## SavedVariablesPerCharacter: oUFPhanxAuraConfig
 
