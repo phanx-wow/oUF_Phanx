@@ -193,6 +193,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		GameTooltip:SetOwner(self, "ANCHOR_NONE")
 		GameTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT")
 		GameTooltip:SetSpellByID(self.id)
+		GameTooltip:AddLine(format(L.SpellID, self.id), 0.5, 0.8, 1)
 		GameTooltip:Show()
 	end
 	local function Row_OnLeave(self)
