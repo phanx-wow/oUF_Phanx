@@ -1,6 +1,12 @@
-### Version 6.0.3.69-fixed
+### Version 6.0.3.71
 
-* Manually fixed and reuploaded ZIP file because the CurseForge packager doesn't know how to read
+* Fixed secondary power orbs (chi, holy power, shadow orbs, wild mushrooms)
+* Fixed dropdowns in the aura config panel not saving changes
+* Minor changes to the aura filter config system
+
+### Version 6.0.3.70
+
+* Fixed an issue preventing the options panel from loading
 
 ### Version 6.0.3.69
 
