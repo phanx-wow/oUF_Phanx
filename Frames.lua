@@ -244,21 +244,22 @@ local function Spawn(self, unit, isSingle)
 	------------------
 	-- Combo points --
 	------------------
-	-- TODO: extra bar on target frame OK?
-	if unit == "target" then
-		local t = ns.Orbs.Create(self.overlay, MAX_COMBO_POINTS, 20)
+	-- TODO: make sure it never overlaps with ClassIcons
+	if unit == "player" then
+		local el = ns.Orbs.Create(self.overlay, MAX_COMBO_POINTS, 20)
+		el.Override = ns.ComboPoints_Override
+		self.CPoints = el
+
 		for i = MAX_COMBO_POINTS, 1, -1 do
-			local orb = t[i]
+			local orb = el[i]
 			if i == 1 then
-				orb:SetPoint("TOPLEFT", self, "BOTTOMLEFT", -2, 5)
+				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
 			else
-				orb:SetPoint("BOTTOMLEFT", t[i - 1], "BOTTOMRIGHT", -2, 0)
-		end
+				orb:SetPoint("BOTTOMRIGHT", el[i - 1], "BOTTOMLEFT", 2, 0)
+			end
 			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
 			orb.fg:SetVertexColor(1, 0.8, 0)
-	end
-		self.CPoints = t
-		self.CPoints.Override = ns.ComboPoints_Override
+		end
 	end
 
 	------------------------------
