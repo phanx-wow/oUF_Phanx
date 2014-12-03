@@ -1,3 +1,8 @@
+### Version 6.0.3.72
+
+* Fixed monk chi display
+* Moved combo points to player frame
+
 ### Version 6.0.3.71
 
 * Fixed secondary power orbs (chi, holy power, shadow orbs, wild mushrooms)
