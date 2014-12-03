@@ -310,52 +310,44 @@ local function Spawn(self, unit, isSingle)
 		el.UpdateTexture = noop -- fuck off oUF >:(
 		self[element] = el
 
-		if CUSTOM_CLASS_COLORS then
-			CUSTOM_CLASS_COLORS:RegisterCallback(function()
-				local color = CUSTOM_CLASS_COLORS[playerClass]
-				for i = 1, #t do
-					t.fg:SetVertexColor(color.r, color.g, color.b)
-				end
-			end)
+		local function SetAlpha(self, alpha)
+			--print("SetAlpha", self.id, alpha)
+			if alpha == 1 then
+				self.bg:SetVertexColor(0.25, 0.25, 0.25)
+				self.bg:SetAlpha(1)
+				self.fg:Show()
+			else
+				self.bg:SetVertexColor(0.4, 0.4, 0.4)
+				self.bg:SetAlpha(0.5)
+				self.fg:Hide()
+			end
 		end
---[[
-		local mu = config.powerBG
-		for i = 1, #el do
-			el[i]:SetStatusBarColor(color.r, color.g, color.b)
-			el[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+		for i = 1, 5 do
+			local orb = el[i]
+			if i == 1 then
+				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
+			else
+				orb:SetPoint("BOTTOMRIGHT", el[i - 1], "BOTTOMLEFT", 2, 0)
+			end
+			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+			orb.fg:SetVertexColor(color.r, color.g, color.b)
+			orb.SetAlpha = SetAlpha
 		end
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				local color = CUSTOM_CLASS_COLORS[playerClass]
-				local mu = config.powerBG
 				for i = 1, #el do
-					el[i]:SetStatusBarColor(color.r, color.g, color.b)
-					el[i].bg:SetVertexColor(color.r * mu, color.g * mu, color.b * mu)
+					el.fg:SetVertexColor(color.r, color.g, color.b)
 				end
 			end)
 		end
-]]
 	end
 
 	--------------------
 	-- Stacking buffs --
 	--------------------
 	if unit == "player" and (playerClass == "MAGE" or playerClass == "SHAMAN") then
-		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
-
-		local function SetAlpha(orb, alpha)
-			if alpha == 1 then
-				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-				orb.bg:SetAlpha(1)
-				orb.fg:Show()
-			else
-				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
-				orb.bg:SetAlpha(0.5)
-				orb.fg:Hide()
-			end
-		end
-
 		local aura, filter, maxCount, actviate, activateEvents
 		if playerClass == "MAGE" then
 			aura = GetSpellInfo(36032) -- Arcane Charge
@@ -374,30 +366,44 @@ local function Spawn(self, unit, isSingle)
 			activateEvents = "PLAYER_SPECIALIZATION_CHANGED PLAYER_LEVEL_UP"
 		end
 
-		local t = ns.Orbs.Create(self.overlay, maxCount, 20)
-		t.aura = aura
-		t.filter = filter
-		t.activate = activate
-		t.activateEvents = activateEvents
+		local el = ns.Orbs.Create(self.overlay, maxCount, 20)
+		el.aura = aura
+		el.filter = filter
+		el.activate = activate
+		el.activateEvents = activateEvents
+		self.AuraStack = el
 
-		for i = 1, #t do
-			local orb = t[i]
+		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
+
+		local function SetAlpha(orb, alpha)
+			if alpha == 1 then
+				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
+				orb.bg:SetAlpha(1)
+				orb.fg:Show()
+			else
+				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
+				orb.bg:SetAlpha(0.5)
+				orb.fg:Hide()
+			end
+		end
+
+		for i = 1, #el do
+			local orb = el[i]
 			if i == 1 then
 				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
 			else
-				orb:SetPoint("BOTTOMRIGHT", t[i - 1], "BOTTOMLEFT", 2, 0)
-		end
+				orb:SetPoint("BOTTOMRIGHT", el[i - 1], "BOTTOMLEFT", 2, 0)
+			end
 			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
 			orb.fg:SetVertexColor(color.r, color.g, color.b)
 			orb.SetAlpha = SetAlpha
 		end
-		self.AuraStack = t
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				color = CUSTOM_CLASS_COLORS[playerClass]
-				for i = 1, #t do
-					t[i].fg:SetVertexColor(color.r, color.g, color.b)
+				for i = 1, #el do
+					el[i].fg:SetVertexColor(color.r, color.g, color.b)
 				end
 			end)
 		end
