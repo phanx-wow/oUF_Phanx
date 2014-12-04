@@ -285,8 +285,11 @@ function Loader:ADDON_LOADED(event, addon)
 			[3] = ns.auraFilterValues.ON_FRIEND,
 			[4] = ns.auraFilterValues.ON_PLAYER,
 		}
-		for id, flag in pairs(oUFPhanxAuraConfig.customFilters) do
+		oUFPhanxAuraConfig.customFilters = {}
+		oUFPhanxAuraConfig.deleted = {}
+		for id, flag in pairs(oUFPhanxAuraConfig) do
 			oUFPhanxAuraConfig.customFilters[id] = bitflags[flag]
+			oUFPhanxAuraConfig[id] = nil
 		end
 	elseif oUFPhanxAuraConfig.VERSION == 1 then
 		local customFilters = oUFPhanxAuraConfig
