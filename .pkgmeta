@@ -16,12 +16,12 @@ externals:
    Libs/LibSharedMedia-3.0: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk/LibSharedMedia-3.0
    Libs/LibStub: svn://svn.wowace.com/wow/libstub/mainline/tags/1.0
    Config/Libs/LibAboutPanel: svn://svn.wowinterface.com/PhanxLibraryMirrors-805/trunk/LibAboutPanel
-   Config/Libs/PhanxConfig-Checkbox: git@github.com:Phanx/PhanxConfig-Button.git
-   Config/Libs/PhanxConfig-ColorPicker: git@github.com:Phanx/PhanxConfig-ColorPicker.git
-   Config/Libs/PhanxConfig-Dropdown: git@github.com:Phanx/PhanxConfig-Dropdown.git
-   Config/Libs/PhanxConfig-Header: git@github.com:Phanx/PhanxConfig-Header.git
-   Config/Libs/PhanxConfig-OptionsPanel: git@github.com:Phanx/PhanxConfig-OptionsPanel.git
-   Config/Libs/PhanxConfig-Slider: git@github.com:Phanx/PhanxConfig-Slider.git
+   Config/Libs/PhanxConfig-Checkbox: https://github.com/Phanx/PhanxConfig-Button.git
+   Config/Libs/PhanxConfig-ColorPicker: https://github.com/Phanx/PhanxConfig-ColorPicker.git
+   Config/Libs/PhanxConfig-Dropdown: https://github.com/Phanx/PhanxConfig-Dropdown.git
+   Config/Libs/PhanxConfig-Header: https://github.com/Phanx/PhanxConfig-Header.git
+   Config/Libs/PhanxConfig-OptionsPanel: https://github.com/Phanx/PhanxConfig-OptionsPanel.git
+   Config/Libs/PhanxConfig-Slider: https://github.com/Phanx/PhanxConfig-Slider.git
 
 move-folders:
    oUF_Phanx/Config: oUF_Phanx_Config
