@@ -428,7 +428,7 @@ function ns.Stagger_PostUpdate(bar, maxHealth, stagger, staggerPercent, r, g, b)
 	if staggerPercent < 5 then
 		return bar:Hide()
 	end
-	print("Stagger PostUpdate", stagger, staggerPercent)
+	--print("Stagger PostUpdate", stagger, staggerPercent)
 	bar.value:SetFormattedText("%.0f%%", staggerPercent)
 	bar:Show()
 end
