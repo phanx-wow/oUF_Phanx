@@ -176,7 +176,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local borderSize = panel:OnValueChanged(L.BorderSize, nil, 12, 24, 2)
+	local borderSize = panel:CreateSlider(L.BorderSize, nil, 12, 24, 2)
 	borderSize:SetPoint("TOPLEFT", shadow, "BOTTOMLEFT", 0, -12)
 	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -24 - shadow:GetHeight())
 
@@ -323,7 +323,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local healthBG = panel:OnValueChanged(L.HealthBG, L.HealthBG_Desc, 0, 3, 0.05, true)
+	local healthBG = panel:CreateSlider(L.HealthBG, L.HealthBG_Desc, 0, 3, 0.05, true)
 	healthBG:SetPoint("TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12)
 	healthBG:SetPoint("TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12)
 
@@ -413,7 +413,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local powerBG = panel:OnValueChanged(L.PowerBG, L.PowerBG_Desc, 0, 3, 0.05, true)
+	local powerBG = panel:CreateSlider(L.PowerBG, L.PowerBG_Desc, 0, 3, 0.05, true)
 	powerBG:SetPoint("TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -12)
 	powerBG:SetPoint("TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -12)
 
