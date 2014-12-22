@@ -305,7 +305,7 @@ local function Spawn(self, unit, isSingle)
 			updateFunc = ns.SoulShards_Override
 		end
 
-		local el = ns.Orbs.Create(self.overlay, 5, 20) -- TODO: switch to multibar?
+		local el = ns.Orbs.Create(self.overlay, 6, 20) -- TODO: switch to multibar?
 		el.powerType = powerType
 		--el.Override = updateFunc
 		el.UpdateTexture = noop -- fuck off oUF >:(
