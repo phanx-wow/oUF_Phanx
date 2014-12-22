@@ -7,7 +7,7 @@
 	https://github.com/Phanx/oUF_Phanx
 ------------------------------------------------------------------------
 	Filter settings stored as bitfields.
-	0x MODE UNIT ROLEx2 SOURCEx2 DESTx2
+	0x MODE EXTRAUNIT ROLEx2 SOURCEx2 DESTx2
 	See below for related constants.
 ----------------------------------------------------------------------]]
 
@@ -18,29 +18,29 @@ local bit_band, bit_bor = bit.band, bit.bor
 
 ------------------------------------------------------------------------
 
--- Permanent filters:
-local FILTER_ALL            = 0x10000000
-local FILTER_DISABLE        = 0x20000000
-local FILTER_PVP            = 0x40000000
-local FILTER_PVE            = 0x80000000
+-- Permanent filters, checked on login and respec:
+local FILTER_ALL            = 0x1000000
+local FILTER_DISABLE        = 0x2000000
+local FILTER_PVP            = 0x4000000 -- only show in PVP
+local FILTER_PVE            = 0x8000000 -- only show in PVE
 
-local FILTER_UNIT_FOCUS     = 0x01000000 -- Additionally show on focus frame
-local FILTER_UNIT_TOT       = 0x02000000 -- Additionally show on tot frame
+local FILTER_UNIT_FOCUS     = 0x0100000 -- Additionally show on focus frame
+local FILTER_UNIT_TOT       = 0x0200000 -- Additionally show on tot frame
 
-local FILTER_ROLE_MASK      = 0x00FF0000
-local FILTER_ROLE_TANK      = 0x00010000
-local FILTER_ROLE_HEALER    = 0x00020000
-local FILTER_ROLE_DAMAGER   = 0x00040000
+local FILTER_ROLE_MASK      = 0x00F0000
+local FILTER_ROLE_TANK      = 0x0010000
+local FILTER_ROLE_HEALER    = 0x0020000
+local FILTER_ROLE_DAMAGER   = 0x0040000
 
 -- Dynamic filters, checked in realtime:
-local FILTER_BY_MASK        = 0x0000FF00
-local FILTER_BY_PLAYER      = 0x00000100
+local FILTER_BY_MASK        = 0x000FF00
+local FILTER_BY_PLAYER      = 0x0000100
 
-local FILTER_ON_MASK        = 0x000000FF
-local FILTER_ON_PLAYER      = 0x00000001
-local FILTER_ON_OTHER       = 0x00000002
-local FILTER_ON_FRIEND      = 0x00000004
-local FILTER_ON_ENEMY       = 0x00000008
+local FILTER_ON_MASK        = 0x00000FF
+local FILTER_ON_PLAYER      = 0x0000001
+local FILTER_ON_OTHER       = 0x0000002
+local FILTER_ON_FRIEND      = 0x0000004
+local FILTER_ON_ENEMY       = 0x0000008
 
 ns.auraFilterValues = {
 	FILTER_ALL               = FILTER_ALL,
@@ -49,7 +49,7 @@ ns.auraFilterValues = {
 	FILTER_PVE               = FILTER_PVE,
 
 	FILTER_UNIT_FOCUS        = FILTER_UNIT_FOCUS,
-	FILTER_UNIT_TOT          = FILTER_UNIT_TPT,
+	FILTER_UNIT_TOT          = FILTER_UNIT_TOT,
 
 	FILTER_ROLE_MASK         = FILTER_ROLE_MASK,
 	FILTER_ROLE_TANK         = FILTER_ROLE_TANK,
