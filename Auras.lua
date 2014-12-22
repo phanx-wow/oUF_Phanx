@@ -589,7 +589,7 @@ if playerClass == "ROGUE" then
 	defaultAuras[703]    = FILTER_BY_PLAYER -- Garrote
 	defaultAuras[1330]   = FILTER_BY_PLAYER -- Garrote - Silence
 	defaultAuras[1773]   = FILTER_BY_PLAYER -- Gouge
-	defaultAuras[89774]  = FILTER_BY_PLAYER -- Hemorrhage
+	defaultAuras[16511]  = FILTER_BY_PLAYER -- Hemorrhage
 	defaultAuras[408]    = FILTER_BY_PLAYER -- Kidney Shot
 	defaultAuras[112961] = FILTER_BY_PLAYER -- Leeching Poison
 	defaultAuras[5760]   = FILTER_BY_PLAYER -- Mind-numbing Poison
