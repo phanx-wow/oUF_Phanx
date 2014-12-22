@@ -339,7 +339,7 @@ local function Spawn(self, unit, isSingle)
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				local color = CUSTOM_CLASS_COLORS[playerClass]
 				for i = 1, #el do
-					el.fg:SetVertexColor(color.r, color.g, color.b)
+					el[i].fg:SetVertexColor(color.r, color.g, color.b)
 				end
 			end)
 		end
