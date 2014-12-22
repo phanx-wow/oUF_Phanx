@@ -271,6 +271,12 @@ function Loader:ADDON_LOADED(event, addon)
 	ns.uconfig = oUFPhanxUnitConfig
 
 	-- Aura settings stored per character:
+	local AURA_CONFIG_VERSION = 3
+	if oUFPhanxAuraConfig and oUFPhanxAuraConfig.VERSION and oUFPhanxAuraConfig.VERSION < AURA_CONFIG_VERSION then
+		-- Just wipe old bitflags, upgrading v1, v2 is too much work.
+		-- Will try to be more vigilant about incremental upgrades in the future.
+		oUFPhanxAuraConfig = nil
+	end
 	oUFPhanxAuraConfig = initDB(oUFPhanxAuraConfig, {
 		customFilters = {},
 		deleted = {},
@@ -278,23 +284,15 @@ function Loader:ADDON_LOADED(event, addon)
 	if oUFPhanxAuraConfig.VERSION == nil then
 		-- Upgrade from pre-bitflag filter values
 		local bitflags = {
-			[0] = ns.auraFilterValues.DISABLE,
-			[1] = ns.auraFilterValues.ALL,
-			[2] = ns.auraFilterValues.BY_PLAYER,
-			[3] = ns.auraFilterValues.ON_FRIEND,
-			[4] = ns.auraFilterValues.ON_PLAYER,
+			[0] = ns.auraFilterValues.FILTER_DISABLE,
+			[1] = ns.auraFilterValues.FILTER_ALL,
+			[2] = ns.auraFilterValues.FILTER_BY_PLAYER,
+			[3] = ns.auraFilterValues.FILTER_ON_FRIEND,
+			[4] = ns.auraFilterValues.FILTER_ON_PLAYER,
 		}
 		for id, flag in pairs(oUFPhanxAuraConfig) do
 			if id ~= "customFilters" and id ~= "deleted" then
 				oUFPhanxAuraConfig.customFilters[id] = bitflags[flag]
-				oUFPhanxAuraConfig[id] = nil
-			end
-		end
-	elseif oUFPhanxAuraConfig.VERSION < 3 then
-		-- Don't bother trying to upgrade, too much work.
-		wipe(oUFPhanxAuraConfig.customFilters)
-		for id, flag in pairs(oUFPhanxAuraConfig) do
-			if id ~= "customFilters" and id ~= "deleted" then
 				oUFPhanxAuraConfig[id] = nil
 			end
 		end
@@ -305,7 +303,7 @@ function Loader:ADDON_LOADED(event, addon)
 			oUFPhanxAuraConfig.customFilters[id] = nil
 		end
 	end
-	oUFPhanxAuraConfig.VERSION = 3
+	oUFPhanxAuraConfig.VERSION = AURA_CONFIG_VERSION
 	ns.UpdateAuraList()
 
 	-- SharedMedia
