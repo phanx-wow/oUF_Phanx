@@ -1,25 +1,26 @@
-### Version 6.0.3.73
+### Version 6.0.3.73 (22 Dec 2014)
 
 * Fixed an error with monk chi and the Ascension talent
 * Fixed an error when disabling the eclipse bar
 * Removed custom soul shards element since oUF now supports them natively
+* **THIS UPDATE WILL REMOVE YOUR OLD CUSTOM AURA SETTINGS.** Somewhere along the line incremental upgrading failed, and rather than go back and try to figure out exactly where that happened and how to fix it, I'm just nuking it. If you're using custom filters because the default filters for your class/spec are out of date, please let me know what needs to be changed!
 
-### Version 6.0.3.72
+### Version 6.0.3.72 (7 Dec 2014)
 
 * Fixed monk chi display
 * Moved combo points to player frame
 
-### Version 6.0.3.71
+### Version 6.0.3.71 (1 Dec 2014)
 
 * Fixed secondary power orbs (chi, holy power, shadow orbs, wild mushrooms)
 * Fixed dropdowns in the aura config panel not saving changes
 * Minor changes to the aura filter config system
 
-### Version 6.0.3.70
+### Version 6.0.3.70 (22 Nov 2014)
 
 * Fixed an issue preventing the options panel from loading
 
-### Version 6.0.3.69
+### Version 6.0.3.69 (20 Nov 2014)
 
 * Changed aura filtering to use bitfields instead of fixed filters -- users should not notice any difference, but this will allow for greater filtering flexibility in the future.
 * The focus frame castbar will no longer be displayed when your target frame is already displaying the same unit.
