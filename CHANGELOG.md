@@ -1,3 +1,9 @@
+### Version 6.0.3.73
+
+* Fixed an error with monk chi and the Ascension talent
+* Fixed an error when disabling the eclipse bar
+* Removed custom soul shards element since oUF now supports them natively
+
 ### Version 6.0.3.72
 
 * Fixed monk chi display
