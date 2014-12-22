@@ -122,7 +122,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 			if ns.defaultAuras[id] then
 				showDefaults[id] = true
 			elseif not oUFPhanxAuraConfig.customFilters[id] then
-				oUFPhanxAuraConfig.customFilters[id] = ns.auraFilterValues.ALL
+				oUFPhanxAuraConfig.customFilters[id] = ns.auraFilterValues.FILTER_ALL
 				oUFPhanxAuraConfig.deleted[id] = nil
 			end
 			ns.UpdateAuraList()
@@ -199,7 +199,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	end
 	local function Row_OnLeave(self)
 		local color
-		if ns.defaultAuras[self.id] == ns.auraFilterValues.DISABLE or oUFPhanxAuraConfig.customFilters[self.id] == ns.auraFilterValues.DISABLE then
+		if ns.defaultAuras[self.id] == ns.auraFilterValues.FILTER_DISABLE or oUFPhanxAuraConfig.customFilters[self.id] == ns.auraFilterValues.FILTER_DISABLE then
 			color = GRAY_FONT_COLOR
 		else
 			color = NORMAL_FONT_COLOR
@@ -235,12 +235,19 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	end
 
 	-- Filter dropdown functions:
+	local handleFilters = {
+		[ns.auraFilterValues.FILTER_ALL] = true,
+		[ns.auraFilterValues.FILTER_BY_PLAYER] = true,
+		[ns.auraFilterValues.FILTER_ON_FRIEND] = true,
+		[ns.auraFilterValues.FILTER_ON_PLAYER] = true,
+		[ns.auraFilterValues.FILTER_DISABLE] = true,
+	}
 	local filterValues = {
-		{ value = ns.auraFilterValues.ALL,       text = L["AuraFilter1"] },
-		{ value = ns.auraFilterValues.BY_PLAYER, text = L["AuraFilter2"] },
-		{ value = ns.auraFilterValues.ON_FRIEND, text = L["AuraFilter3"] },
-		{ value = ns.auraFilterValues.ON_PLAYER, text = L["AuraFilter4"] },
-		{ value = ns.auraFilterValues.DISABLE,   text = L["AuraFilter0"] },
+		{ value = ns.auraFilterValues.FILTER_ALL,       text = L["AuraFilter1"] },
+		{ value = ns.auraFilterValues.FILTER_BY_PLAYER, text = L["AuraFilter2"] },
+		{ value = ns.auraFilterValues.FILTER_ON_FRIEND, text = L["AuraFilter3"] },
+		{ value = ns.auraFilterValues.FILTER_ON_PLAYER, text = L["AuraFilter4"] },
+		{ value = ns.auraFilterValues.FILTER_DISABLE,   text = L["AuraFilter0"] },
 	}
 	local function Filter_OnValueChanged(self, value)
 		local id = self.owner.id
@@ -337,7 +344,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 		if showAllDefaults then
 			for id, filter in pairs(ns.defaultAuras) do
 				local name, _, icon = GetSpellInfo(id)
-				if name and icon then
+				if name and icon and handleFilters[filter] then
 					local aura = next(pool) or {}
 					pool[aura] = nil
 					aura.name = name
@@ -351,7 +358,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 			for id in pairs(showDefaults) do
 				local filter = ns.defaultAuras[id]
 				local name, _, icon = GetSpellInfo(id)
-				if name and icon then
+				if name and icon and handleFilters[filter] then
 					local aura = next(pool) or {}
 					pool[aura] = nil
 					aura.name = name
@@ -365,7 +372,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 
 		for id, filter in pairs(oUFPhanxAuraConfig.customFilters) do
 			local name, _, icon = GetSpellInfo(id)
-			if name and icon then
+			if name and icon and handleFilters[filter] then
 				local new, aura = true
 				if ns.defaultAuras[id] then
 					for i = 1, #sortedAuras do
@@ -402,7 +409,7 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 				row.filter:SetValue(aura.filter)
 
 				local color
-				if aura.filter == ns.auraFilterValues.DISABLE then
+				if aura.filter == ns.auraFilterValues.FILTER_DISABLE then
 					color = GRAY_FONT_COLOR
 				else
 					color = NORMAL_FONT_COLOR
