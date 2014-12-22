@@ -7,7 +7,7 @@
 	https://github.com/Phanx/oUF_Phanx
 ------------------------------------------------------------------------
 	Filter settings stored as bitfields.
-	0x MODE SOURCE DEST ROLE
+	0x MODE UNIT ROLEx2 SOURCEx2 DESTx2
 	See below for related constants.
 ----------------------------------------------------------------------]]
 
@@ -18,46 +18,52 @@ local bit_band, bit_bor = bit.band, bit.bor
 
 ------------------------------------------------------------------------
 
--- Permanent filters, only checked on login, role change, options change:
-local FILTER_ALL               = 0x1000
-local FILTER_DISABLE           = 0x2000
-local FILTER_PVP               = 0x3000
-local FILTER_PVE               = 0x4000
+-- Permanent filters:
+local FILTER_ALL            = 0x10000000
+local FILTER_DISABLE        = 0x20000000
+local FILTER_PVP            = 0x40000000
+local FILTER_PVE            = 0x80000000
 
-local FILTER_ROLE_MASK         = 0x000F
-local FILTER_ROLE_TANK         = 0x0001
-local FILTER_ROLE_HEALER       = 0x0002
-local FILTER_ROLE_DAMAGER      = 0x0004
+local FILTER_UNIT_FOCUS     = 0x01000000 -- Additionally show on focus frame
+local FILTER_UNIT_TOT       = 0x02000000 -- Additionally show on tot frame
 
--- Temporary filters, checked in realtime:
-local FILTER_BY_MASK           = 0x0F00
-local FILTER_BY_PLAYER         = 0x0100
+local FILTER_ROLE_MASK      = 0x00FF0000
+local FILTER_ROLE_TANK      = 0x00010000
+local FILTER_ROLE_HEALER    = 0x00020000
+local FILTER_ROLE_DAMAGER   = 0x00040000
 
-local FILTER_ON_MASK           = 0x00F0
-local FILTER_ON_PLAYER         = 0x0010
-local FILTER_ON_OTHER          = 0x0020
-local FILTER_ON_FRIEND         = 0x0040
-local FILTER_ON_ENEMY          = 0x0080
+-- Dynamic filters, checked in realtime:
+local FILTER_BY_MASK        = 0x0000FF00
+local FILTER_BY_PLAYER      = 0x00000100
+
+local FILTER_ON_MASK        = 0x000000FF
+local FILTER_ON_PLAYER      = 0x00000001
+local FILTER_ON_OTHER       = 0x00000002
+local FILTER_ON_FRIEND      = 0x00000004
+local FILTER_ON_ENEMY       = 0x00000008
 
 ns.auraFilterValues = {
-	ALL               = FILTER_ALL,
-	DISABLE           = FILTER_DISABLE,
-	PVP               = FILTER_PVP,
-	PVE               = FILTER_PVE,
+	FILTER_ALL               = FILTER_ALL,
+	FILTER_DISABLE           = FILTER_DISABLE,
+	FILTER_PVP               = FILTER_PVP,
+	FILTER_PVE               = FILTER_PVE,
 
-	ROLE_MASK         = FILTER_ROLE_MASK,
-	ROLE_TANK         = FILTER_ROLE_TANK,
-	ROLE_HEALER       = FILTER_ROLE_HEALER,
-	ROLE_DAMAGER      = FILTER_ROLE_DAMAGER,
+	FILTER_UNIT_FOCUS        = FILTER_UNIT_FOCUS,
+	FILTER_UNIT_TOT          = FILTER_UNIT_TPT,
 
-	BY_MASK           = FILTER_BY_MASK,
-	BY_PLAYER         = FILTER_BY_PLAYER,
+	FILTER_ROLE_MASK         = FILTER_ROLE_MASK,
+	FILTER_ROLE_TANK         = FILTER_ROLE_TANK,
+	FILTER_ROLE_HEALER       = FILTER_ROLE_HEALER,
+	FILTER_ROLE_DAMAGER      = FILTER_ROLE_DAMAGER,
 
-	ON_MASK           = FILTER_ON_MASK,
-	ON_PLAYER         = FILTER_ON_PLAYER,
-	ON_OTHER          = FILTER_ON_OTHER,
-	ON_FRIEND         = FILTER_ON_FRIEND,
-	ON_ENEMY          = FILTER_ON_ENEMY,
+	FILTER_BY_MASK           = FILTER_BY_MASK,
+	FILTER_BY_PLAYER         = FILTER_BY_PLAYER,
+
+	FILTER_ON_MASK           = FILTER_ON_MASK,
+	FILTER_ON_PLAYER         = FILTER_ON_PLAYER,
+	FILTER_ON_OTHER          = FILTER_ON_OTHER,
+	FILTER_ON_FRIEND         = FILTER_ON_FRIEND,
+	FILTER_ON_ENEMY          = FILTER_ON_ENEMY,
 }
 
 local roleFilter = {
@@ -915,6 +921,9 @@ defaultAuras[63429] = FILTER_DISABLE -- Undercity Valiant's Pennant
 local auraList = {}
 ns.AuraList = auraList
 
+local auraList_focus = {}
+local auraList_targettarget = {}
+
 local function AddAurasToList(auras)
 	local PVP = ns.config.PVP
 	local role = ns.GetPlayerRole()
@@ -930,6 +939,12 @@ local function AddAurasToList(auras)
 		end
 		if not skip then
 			auraList[id] = v
+			if bit_band(v, FILTER_UNIT_FOCUS) > 0 then
+				auraList_focus[id] = v
+			end
+			if bit_band(v, FILTER_UNIT_TOT) > 0 then
+				auraList_targettarget[id] = v
+			end
 		end
 	end
 end
@@ -964,12 +979,6 @@ local IsInInstance, UnitCanAttack, UnitIsFriend, UnitIsUnit, UnitPlayerControlle
 
 local unitIsPlayer = { player = true, pet = true, vehicle = true }
 
-local filters = {
-	[2] = function(self, unit, caster) return unitIsPlayer[caster] end,
-	[3] = function(self, unit, caster) return UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) end,
-	[4] = function(self, unit, caster) return unit == "player" and not self.__owner.isGroupFrame end,
-}
-
 local function checkFilter(v, self, unit, caster)
 	if bit_band(v, FILTER_BY_PLAYER) > 0 then
 		return unitIsPlayer[caster]
@@ -986,7 +995,7 @@ local function debug(...)
 	ChatFrame3:AddMessage(strjoin(" ", tostringall(...)))
 end
 
-ns.CustomAuraFilters = {
+local filterFuncs = {
 	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
 		--debug("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, "[vehicle]", caster == "vehicle")
@@ -1032,3 +1041,17 @@ ns.CustomAuraFilters = {
 		return v and bit_band(v, FILTER_ON_PLAYER) == 0
 	end,
 }
+
+filterFuncs.focus = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
+	if auraList_focus[id] then
+		return filterFuncs.target(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
+	end
+end
+
+filterFuncs.targettarget = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
+	if auraList_targettarget[id] then
+		return filterFuncs.target(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
+	end
+end
+
+ns.CustomAuraFilters = filterFuncs
