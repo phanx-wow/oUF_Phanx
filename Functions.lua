@@ -329,25 +329,7 @@ end
 end
 
 ------------------------------------------------------------------------
---	Druid mushrooms
-------------------------------------------------------------------------
-
-local MAX_MUSHROOMS = 3
-
-function ns.WildMushrooms_Override(self, event)
-	local num = 0
-	for i = 1, MAX_MUSHROOMS do
-		local exists, name, start, duration, icon = GetTotemInfo(i)
-		if duration > 0 then
-			num = num + 1
-		end
-	end
-	--print("UpdateMushrooms", num, MAX_MUSHROOMS)
-	ns.Orbs.Update(self.WildMushrooms, num, MAX_MUSHROOMS)
-end
-
-------------------------------------------------------------------------
--- Monk chi
+-- ClassIcons: monk chi
 ------------------------------------------------------------------------
 
 local SPELL_POWER_CHI = SPELL_POWER_CHI
@@ -363,7 +345,7 @@ function ns.Chi_Override(self, event, unit, powerType)
 end
 
 ------------------------------------------------------------------------
---	Paladin holy power
+--	ClassIcons: paladin holy power
 ------------------------------------------------------------------------
 
 local SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER
@@ -379,17 +361,32 @@ function ns.HolyPower_Override(self, event, unit, powerType)
 end
 
 ------------------------------------------------------------------------
---	Priest shadow orbs
+--	ClassIcons: priest shadow orbs
 ------------------------------------------------------------------------
 
 local SPELL_POWER_SHADOW_ORBS = SPELL_POWER_SHADOW_ORBS
-local PRIEST_BAR_NUM_ORBS = PRIEST_BAR_NUM_ORBS
 
 function ns.ShadowOrbs_Override(self, event, unit, powerType)
 	if unit ~= self.unit or (powerType and powerType ~= "SHADOW_ORBS") then return end
 
 	local num = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
 	local max = UnitPowerMax("player", SPELL_POWER_SHADOW_ORBS)
+
+	--print("UpdateShadowOrbs", num, max)
+	ns.Orbs.Update(self.ClassIcons, num, max)
+end
+
+------------------------------------------------------------------------
+--	ClassIcons: warlock soul shards
+------------------------------------------------------------------------
+
+local SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS
+
+function ns.SoulShards_Override(self, event, unit, powerType)
+	if unit ~= self.unit or (powerType and powerType ~= "SOUL_SHARDS") then return end
+
+	local num = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
+	local max = UnitPowerMax("player", SPELL_POWER_SOUL_SHARDS)
 
 	--print("UpdateShadowOrbs", num, max)
 	ns.Orbs.Update(self.ClassIcons, num, max)

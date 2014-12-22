@@ -301,8 +301,8 @@ local function Spawn(self, unit, isSingle)
 		-- Soul shards --
 		-----------------
 		elseif playerClass == "WARLOCK" then
-			element = "SoulShards"
 			powerType = SPELL_POWER_SOUL_SHARDS
+			updateFunc = ns.SoulShards_Override
 		end
 
 		local el = ns.Orbs.Create(self.overlay, 5, 20) -- TODO: switch to multibar?
