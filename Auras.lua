@@ -196,6 +196,7 @@ if playerClass == "DRUID" then
 	defaultAuras[124974] = FILTER_ON_PLAYER -- Nature's Vigil
 	defaultAuras[48391]  = FILTER_ON_PLAYER -- Owlkin Frenzy
 	defaultAuras[69369]  = FILTER_ON_PLAYER -- Predator's Swiftness
+	defaultAuras[158792] = FILTER_ON_PLAYER -- Pulverize
 	defaultAuras[132402] = FILTER_ON_PLAYER -- Savage Defense
 	defaultAuras[52610]  = FILTER_ON_PLAYER -- Savage Roar -- VERIFIED 13/02/20 on tauren feral
 	defaultAuras[127538] = FILTER_ON_PLAYER -- Savage Roar -- NEEDS CHECK
