@@ -221,6 +221,7 @@ if playerClass == "DRUID" then
 	defaultAuras[94447]  = FILTER_BY_PLAYER -- Lifebloom (tree)
 	defaultAuras[8936]   = FILTER_BY_PLAYER -- Regrowth
 	defaultAuras[774]    = FILTER_BY_PLAYER -- Rejuvenation
+	defaultAuras[155777] = FILTER_BY_PLAYER -- Rejuvenation (Germination)
 	defaultAuras[77761]  = FILTER_ON_FRIEND -- Stampeding Roar (bear)
 	defaultAuras[77764]  = FILTER_ON_FRIEND -- Stampeding Roar (cat)
 	defaultAuras[106898] = FILTER_ON_FRIEND -- Stampeding Roar (caster)
