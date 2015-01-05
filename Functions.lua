@@ -539,6 +539,7 @@ end
 
 function ns.Auras_PostUpdate(self, unit)
 	self.__owner.Health:ForceUpdate() -- required to detect Dead => Ghost
+	-- TODO: check if PLAYER_FLAGS_CHANGED or UNIT_FLAGS can work for this
 end
 
 ------------------------------------------------------------------------
@@ -546,9 +547,9 @@ end
 ------------------------------------------------------------------------
 
 function ns.Threat_Override(frame, event, unit)
-	if not unit or not frame:IsShown() then return end -- WHY
+	if unit ~= frame.unit then return end
 
-	local status = UnitThreatSituation(unit) or 0
+	local status = UnitThreatSituation(unit or frame.unit) or 0
 	if not ns.config.threatLevels then
 		status = status > 1 and 3 or 0
 	end
