@@ -1004,7 +1004,7 @@ local filterFuncs = {
 		if v then
 			return checkFilter(v, self, unit, caster)
 		end
-		return caster and UnitIsUnit(caster, "vehicle")
+		return caster and UnitIsUnit(caster, "vehicle") and not UnitIsPlayer("vehicle")
 	end,
 	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
