@@ -1054,6 +1054,10 @@ local function debug(...)
 end
 
 local filterFuncs = {
+	default = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
+		local v auraList[spellID]
+		return not v or bit_band(v, FILTER_DISABLE) == 0
+	end,
 	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
 		local v = auraList[spellID]
 		--debug("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, "[vehicle]", caster == "vehicle")
@@ -1083,13 +1087,13 @@ local filterFuncs = {
 		elseif UnitCanAttack("player", unit) and not UnitPlayerControlled(unit) then
 			-- Hostile NPC. Show auras cast by the unit, or auras cast by the player's vehicle.
 			-- print("hostile NPC")
-			local show = not caster or caster == unit or UnitIsUnit(caster, "vehicle")
+			local show = not caster or caster == unit or (UnitIsUnit(caster, "vehicle") and not UnitIsPlayer("vehicle"))
 			-- if show then debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or (caster == unit) and "SELFCAST" or "VEHICLE") end
 			return show
 		else
 			-- Friendly target or hostile player. Show auras cast by the player's vehicle.
 			-- print("hostile player / friendly unit")
-			local show = not caster or UnitIsUnit(caster, "vehicle")
+			local show = not caster or (UnitIsUnit(caster, "vehicle") and not UnitIsPlayer("vehicle"))
 			-- if show then debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or "VEHICLE") end
 			return show
 		end

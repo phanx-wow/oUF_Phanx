@@ -476,9 +476,9 @@ function Loader:MODIFIER_STATE_CHANGED(event, key, state)
 	if key ~= "LSHIFT" and key ~= "RSHIFT" then
 		return
 	end
-	local a, b
+	local a, b, c
 	if state == 1 then
-		a, b = "CustomFilter", "__CustomFilter"
+		a, b, c = "CustomFilter", "__CustomFilter", ns.CustomAuraFilters.default
 	else
 		a, b = "__CustomFilter", "CustomFilter"
 	end
@@ -487,13 +487,13 @@ function Loader:MODIFIER_STATE_CHANGED(event, key, state)
 		local buffs = object.Auras or object.Buffs
 		if buffs and buffs[a] then
 			buffs[b] = buffs[a]
-			buffs[a] = nil
+			buffs[a] = c
 			buffs:ForceUpdate()
 		end
 		local debuffs = object.Debuffs
 		if debuffs and debuffs[a] then
 			debuffs[b] = debuffs[a]
-			debuffs[a] = nil
+			debuffs[a] = c
 			debuffs:ForceUpdate()
 		end
 	end
