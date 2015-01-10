@@ -81,23 +81,23 @@ local defaultAuras = {
 	[33206]  = FILTER_ON_PLAYER, -- Pain Suppression
 	[10060]  = FILTER_ON_PLAYER, -- Power Infusion
 	[49016]  = FILTER_ON_PLAYER, -- Unholy Frenzy
-
 	-- Bloodlust
-	[90355]  = FILTER_ON_PLAYER, -- Ancient Hysteria (Hunter: Core Hound)
-	[2825]   = FILTER_ON_PLAYER, -- Bloodlust (Shaman)
+	[90355]  = FILTER_ON_PLAYER, -- Ancient Hysteria (HU: Core Hound)
+	[2825]   = FILTER_ON_PLAYER, -- Bloodlust (SH)
 	[146555] = FILTER_ON_PLAYER, -- Drums of Rage (25%)
-	[32182]  = FILTER_ON_PLAYER, -- Heroism (Shaman)
-	[160452] = FILTER_ON_PLAYER, -- Netherwinds (Hunter: Nether Ray)
-	[80353]  = FILTER_ON_PLAYER, -- Time Warp (Mage)
-
+	[32182]  = FILTER_ON_PLAYER, -- Heroism (SH)
+	[160452] = FILTER_ON_PLAYER, -- Netherwinds (HU: Nether Ray)
+	[80353]  = FILTER_ON_PLAYER, -- Time Warp (MA)
 	-- Crowd Control
 	[710]    = FILTER_ALL, -- Banish
 	[33786]  = FILTER_ALL, -- Cyclone
 	[339]    = FILTER_ALL, -- Entangling Roots
 	[5782]   = FILTER_ALL, -- Fear -- NEEDS CHECK
 	[118699] = FILTER_ALL, -- Fear
+	[1499]   = FILTER_ALL, -- Freezing Trap, -- NEEDS CHECK
 	[3355]   = FILTER_ALL, -- Freezing Trap, -- NEEDS CHECK
 	[43448]  = FILTER_ALL, -- Freezing Trap, -- NEEDS CHECK
+	[60192]  = FILTER_ALL, -- Freezing Trap, -- NEEDS CHECK
 	[51514]  = FILTER_ALL, -- Hex
 	[2637]   = FILTER_ALL, -- Hibernate
 	[118]    = FILTER_ALL, -- Polymorph
@@ -113,6 +113,44 @@ local defaultAuras = {
 	[10326]  = FILTER_ALL, -- Turn Evil
 	[114404] = FILTER_ALL, -- Void Tendrils
 	[19386]  = FILTER_ALL, -- Wyvern Sting
+	-- Random quest related auras
+	[127372] = FILTER_BY_PLAYER, -- Unstable Serum (Klaxxi Enhancement: Raining Blood)
+	-- Boss debuffs that Blizzard failed to flag
+	[106648] = FILTER_ALL, -- Brew Explosion (Ook Ook in Stormsnout Brewery)
+	[106784] = FILTER_ALL, -- Brew Explosion (Ook Ook in Stormsnout Brewery)
+	[123059] = FILTER_ALL, -- Destabilize (Amber-Shaper Un'sok)
+	-- Enchant procs that Blizzard failed to flag with their caster
+	[116631] = FILTER_DISABLE, -- Colossus
+	[118334] = FILTER_DISABLE, -- Dancing Steel (agi)
+	[118335] = FILTER_DISABLE, -- Dancing Steel (str)
+	[104993] = FILTER_DISABLE, -- Jade Spirit
+	[116660] = FILTER_DISABLE, -- River's Song
+	[104509] = FILTER_DISABLE, -- Windsong (crit)
+	[104423] = FILTER_DISABLE, -- Windsong (haste)
+	[104510] = FILTER_DISABLE, -- Windsong (mastery)
+	-- NPC buffs that are completely useless
+	[63501] = FILTER_DISABLE, -- Argent Crusade Champion's Pennant
+	[60023] = FILTER_DISABLE, -- Scourge Banner Aura (Boneguard Commander in Icecrown)
+	[63406] = FILTER_DISABLE, -- Darnassus Champion's Pennant
+	[63405] = FILTER_DISABLE, -- Darnassus Valiant's Pennant
+	[63423] = FILTER_DISABLE, -- Exodar Champion's Pennant
+	[63422] = FILTER_DISABLE, -- Exodar Valiant's Pennant
+	[63396] = FILTER_DISABLE, -- Gnomeregan Champion's Pennant
+	[63395] = FILTER_DISABLE, -- Gnomeregan Valiant's Pennant
+	[63427] = FILTER_DISABLE, -- Ironforge Champion's Pennant
+	[63426] = FILTER_DISABLE, -- Ironforge Valiant's Pennant
+	[63433] = FILTER_DISABLE, -- Orgrimmar Champion's Pennant
+	[63432] = FILTER_DISABLE, -- Orgrimmar Valiant's Pennant
+	[63399] = FILTER_DISABLE, -- Sen'jin Champion's Pennant
+	[63398] = FILTER_DISABLE, -- Sen'jin Valiant's Pennant
+	[63403] = FILTER_DISABLE, -- Silvermoon Champion's Pennant
+	[63402] = FILTER_DISABLE, -- Silvermoon Valiant's Pennant
+	[62594] = FILTER_DISABLE, -- Stormwind Champion's Pennant
+	[62596] = FILTER_DISABLE, -- Stormwind Valiant's Pennant
+	[63436] = FILTER_DISABLE, -- Thunder Bluff Champion's Pennant
+	[63435] = FILTER_DISABLE, -- Thunder Bluff Valiant's Pennant
+	[63430] = FILTER_DISABLE, -- Undercity Champion's Pennant
+	[63429] = FILTER_DISABLE, -- Undercity Valiant's Pennant
 }
 
 ns.defaultAuras = defaultAuras
@@ -285,16 +323,13 @@ if playerClass == "HUNTER" then
 	defaultAuras[53220]  = FILTER_ON_PLAYER -- Steady Focus
 	defaultAuras[34471]  = FILTER_ON_PLAYER -- The Beast Within
 	defaultAuras[34720]  = FILTER_ON_PLAYER -- Thrill of the Hunt
-
 	-- Pet Buffs
 	defaultAuras[19615]  = FILTER_BY_PLAYER -- Frenzy
 	defaultAuras[19574]  = FILTER_BY_PLAYER -- Bestial Wrath
 	defaultAuras[136]    = FILTER_BY_PLAYER -- Mend Pet
-
 	-- Buffs
 	defaultAuras[34477]  = FILTER_ON_FRIEND -- Misdirection (30 sec threat)
 	defaultAuras[35079]  = FILTER_ON_FRIEND -- Misdirection (4 sec transfer)
-
 	-- Debuffs
 	defaultAuras[131894] = FILTER_BY_PLAYER -- defaultAuras Murder of Crows
 	defaultAuras[117526] = FILTER_BY_PLAYER -- Binding Shot (stun)
@@ -352,7 +387,6 @@ if playerClass == "MAGE" then
 	defaultAuras[48108]  = FILTER_ON_PLAYER -- Pyroblast!
 	defaultAuras[115610] = FILTER_ON_PLAYER -- Temporal Shield (shield)
 	defaultAuras[115611] = FILTER_ON_PLAYER -- Temporal Shield (heal)
-
 	-- Debuffs
 	defaultAuras[34356]  = FILTER_BY_PLAYER -- Blizzard (slow) -- NEEDS CHECK
 	defaultAuras[83853]  = FILTER_BY_PLAYER -- Combustion
@@ -401,14 +435,12 @@ if playerClass == "MONK" then
 	defaultAuras[116740] = FILTER_ON_PLAYER -- Tigereye Brew (consume)
 	defaultAuras[122470] = FILTER_ON_PLAYER -- Touch of Karma
 	defaultAuras[118674] = FILTER_ON_PLAYER -- Vital Mists
-
 	-- Buffs
 	defaultAuras[132120] = FILTER_BY_PLAYER -- Enveloping Mist
 	defaultAuras[116849] = FILTER_ON_FRIEND -- Life Cocoon
 	defaultAuras[119607] = FILTER_BY_PLAYER -- Renewing Mist (jump)
 	defaultAuras[119611] = FILTER_BY_PLAYER -- Renewing Mist (hot)
 	defaultAuras[124081] = FILTER_BY_PLAYER -- Zen Sphere
-
 	-- Debuffs
 	defaultAuras[123393] = FILTER_BY_PLAYER -- Breath of Fire (disorient)
 	defaultAuras[123725] = FILTER_BY_PLAYER -- Breath of Fire (dot)
@@ -458,7 +490,6 @@ if playerClass == "PALADIN" then
 --	defaultAuras[132403] = FILTER_ON_PLAYER -- Shield of the Righteous
 	defaultAuras[85499]  = FILTER_ON_PLAYER -- Speed of Light
 	defaultAuras[94686]  = FILTER_ON_PLAYER -- Supplication
-
 	-- Buffs
 	defaultAuras[53563]  = FILTER_ON_FRIEND -- Beacon of Light
 	defaultAuras[31821]  = FILTER_ON_FRIEND -- Devotion Aura
@@ -472,10 +503,8 @@ if playerClass == "PALADIN" then
 	defaultAuras[20925]  = FILTER_ON_FRIEND -- Sacred Shield
 	defaultAuras[20170]  = FILTER_ON_FRIEND -- Seal of Justice
 	defaultAuras[114917] = FILTER_ON_FRIEND -- Stay of Execution
-
 	-- Buff Debuffs
 	defaultAuras[25771]  = FILTER_ON_FRIEND -- Forbearace
-
 	-- Debuffs
 	defaultAuras[31935]  = FILTER_BY_PLAYER -- Avenger's Shield
 --	defaultAuras[110300] = FILTER_BY_PLAYER -- Burden of Guilt
@@ -515,7 +544,6 @@ if playerClass == "PRIEST" then
 	defaultAuras[114255] = FILTER_ON_PLAYER -- Surge of Light
 	defaultAuras[123254] = FILTER_ON_PLAYER -- Twist of Fate
 	defaultAuras[15286]  = FILTER_ON_PLAYER -- Vampiric Embrace
-
 	-- Buffs
 	defaultAuras[47753]  = FILTER_ON_FRIEND -- Divine Aegis
 	defaultAuras[77613]  = FILTER_BY_PLAYER -- Grace
@@ -527,10 +555,8 @@ if playerClass == "PRIEST" then
 	defaultAuras[41635]  = FILTER_ON_FRIEND -- Prayer of Mending
 	defaultAuras[139]    = FILTER_ON_FRIEND -- Renew
 	defaultAuras[114908] = FILTER_ON_FRIEND -- Spirit Shell (shield)
-
 	-- Buff Debuffs
 	defaultAuras[6788]   = FILTER_ON_FRIEND -- Weakened Soul
-
 	-- Debuffs
 	defaultAuras[2944]   = FILTER_BY_PLAYER -- Devouring Plague
 	defaultAuras[14914]  = FILTER_BY_PLAYER -- Holy Fire
@@ -547,7 +573,7 @@ if playerClass == "PRIEST" then
 end
 
 ------------------------------------------------------------------------
--- Rogue
+-- (ro)
 
 if playerClass == "ROGUE" then
 	-- Self Buffs
@@ -578,7 +604,6 @@ if playerClass == "ROGUE" then
 	defaultAuras[2983]   = FILTER_ON_PLAYER -- Sprint
 	defaultAuras[57934]  = FILTER_ON_PLAYER -- Tricks of the Trade
 	defaultAuras[1856]   = FILTER_ON_PLAYER -- Vanish
-
 	-- Debuffs
 	defaultAuras[2094]   = FILTER_ON_ENEMY -- Blind
 	defaultAuras[1833]   = FILTER_ON_ENEMY -- Cheap Shot
@@ -623,10 +648,9 @@ if playerClass == "SHAMAN" then
 	defaultAuras[58876]  = FILTER_ON_PLAYER -- Spirit Walk
 	defaultAuras[79206]  = FILTER_ON_PLAYER -- Spiritwalker's Grace
 	defaultAuras[53390]  = FILTER_ON_PLAYER -- Tidal Waves
-
 	-- Buffs
---	defaultAuras[2825]   = FILTER_ON_FRIEND -- Bloodlust (shaman) -- show all
---	defaultAuras[32182]  = FILTER_ON_FRIEND -- Heroism (shaman) -- show all
+--	defaultAuras[2825]   = FILTER_ON_FRIEND -- Bloodlust (SH) -- show all
+--	defaultAuras[32182]  = FILTER_ON_FRIEND -- Heroism (SH) -- show all
 	defaultAuras[974]    = FILTER_BY_PLAYER -- Earth Shield
 	defaultAuras[8178]   = FILTER_ON_FRIEND -- Grounding Totem Effect
 	defaultAuras[89523]  = FILTER_ON_FRIEND -- Grounding Totem (reflect)
@@ -638,7 +662,6 @@ if playerClass == "SHAMAN" then
 	defaultAuras[73685]  = FILTER_ON_PLAYER -- Unleash Life
 	defaultAuras[118473] = FILTER_BY_PLAYER -- Unleashed Fury (Earthliving)
 	defaultAuras[114896] = FILTER_ON_FRIEND -- Windwalk Totem
-
 	-- Debuffs
 	defaultAuras[61882]  = FILTER_BY_PLAYER -- Earthquake
 	defaultAuras[8050]   = FILTER_BY_PLAYER -- Flame Shock
@@ -647,7 +670,6 @@ if playerClass == "SHAMAN" then
 --	defaultAuras[73684]  = FILTER_BY_PLAYER -- Unleash Earth
 	defaultAuras[73682]  = FILTER_BY_PLAYER -- Unleash Frost
 	defaultAuras[118470] = FILTER_BY_PLAYER -- Unleashed Fury (Flametongue)
-
 	-- Debuffs - Root/Slow
 	defaultAuras[3600]   = FILTER_ON_ENEMY  -- Earthbind <-- Earthbind Totem
 	defaultAuras[64695]  = FILTER_ON_ENEMY  -- Earthgrab <-- Earthgrab Totem
@@ -685,10 +707,8 @@ if playerClass == "WARLOCK" then
 	defaultAuras[108416] = FILTER_ON_PLAYER -- Sacrificial Pact
 	defaultAuras[86211]  = FILTER_ON_PLAYER -- Soul Swap
 	defaultAuras[104773] = FILTER_ON_PLAYER -- Unending Resolve
-
 	-- Buffs
 	defaultAuras[20707]  = FILTER_ON_FRIEND -- Soulstone -- TODO: hide on self?
-
 	-- Debuffs
 	defaultAuras[980]    = FILTER_BY_PLAYER -- Agony
 	defaultAuras[108505] = FILTER_BY_PLAYER -- Archimonde's Vengeance
@@ -710,7 +730,6 @@ if playerClass == "WARLOCK" then
 	defaultAuras[47960]  = FILTER_BY_PLAYER -- Shadowflame
 	defaultAuras[30283]  = FILTER_BY_PLAYER -- Shadowfury
 	defaultAuras[27243]  = FILTER_BY_PLAYER -- Unstable Affliction
-
 	-- Debuffs - Crowd Control
 	defaultAuras[111397] = FILTER_BY_PLAYER   -- Blood Fear
 	defaultAuras[137143] = FILTER_BY_PLAYER   -- Blood Horror
@@ -750,12 +769,10 @@ if playerClass == "WARRIOR" then
 	defaultAuras[50227]  = FILTER_ON_PLAYER -- Sword and Board
 	defaultAuras[125831] = FILTER_ON_PLAYER -- Taste for Blood
 	defaultAuras[122510] = FILTER_ON_PLAYER -- Ultimatum
-
 	-- Buffs
 	defaultAuras[46947]  = FILTER_ON_FRIEND -- Safeguard (damage reduction)
 	defaultAuras[114029] = FILTER_ON_FRIEND -- Safeguard (intercept)
 	defaultAuras[114030] = FILTER_ON_FRIEND -- Vigilance
-
 	-- Debuffs
 	defaultAuras[86346]  = FILTER_BY_PLAYER -- Colossus Smash
 	defaultAuras[114205] = FILTER_BY_PLAYER -- Demoralizing Banner
@@ -779,23 +796,22 @@ end
 -- Racials
 
 local _, playerRace = UnitRace("player")
-
 if playerRace == "BloodElf" then
-	defaultAuras[50613]  = FILTER_BY_PLAYER -- Arcane Torrent (death knight)
-	defaultAuras[80483]  = FILTER_BY_PLAYER -- Arcane Torrent (hunter)
-	defaultAuras[28730]  = FILTER_BY_PLAYER -- Arcane Torrent (mage, paladin, priest, warlock)
-	defaultAuras[129597] = FILTER_BY_PLAYER -- Arcane Torrent (monk)
-	defaultAuras[25046]  = FILTER_BY_PLAYER -- Arcane Torrent (rogue)
-	defaultAuras[69179]  = FILTER_BY_PLAYER -- Arcane Torrent (warrior)
+	defaultAuras[50613]  = FILTER_BY_PLAYER -- Arcane Torrent (DK)
+	defaultAuras[80483]  = FILTER_BY_PLAYER -- Arcane Torrent (HU)
+	defaultAuras[28730]  = FILTER_BY_PLAYER -- Arcane Torrent (MA, PA, PR, WL)
+	defaultAuras[129597] = FILTER_BY_PLAYER -- Arcane Torrent (MO)
+	defaultAuras[25046]  = FILTER_BY_PLAYER -- Arcane Torrent (RO)
+	defaultAuras[69179]  = FILTER_BY_PLAYER -- Arcane Torrent (WR)
 elseif playerRace == "Draenei" then
-	defaultAuras[59545]  = FILTER_BY_PLAYER -- Gift of the Naaru (death knight)
-	defaultAuras[59543]  = FILTER_BY_PLAYER -- Gift of the Naaru (hunter)
-	defaultAuras[59548]  = FILTER_BY_PLAYER -- Gift of the Naaru (mage)
-	defaultAuras[121093] = FILTER_BY_PLAYER -- Gift of the Naaru (monk)
-	defaultAuras[59542]  = FILTER_BY_PLAYER -- Gift of the Naaru (paladin)
-	defaultAuras[59544]  = FILTER_BY_PLAYER -- Gift of the Naaru (priest)
-	defaultAuras[59547]  = FILTER_BY_PLAYER -- Gift of the Naaru (shaman)
-	defaultAuras[28880]  = FILTER_BY_PLAYER -- Gift of the Naaru (warrior)
+	defaultAuras[59545]  = FILTER_BY_PLAYER -- Gift of the Naaru (DK)
+	defaultAuras[59543]  = FILTER_BY_PLAYER -- Gift of the Naaru (HU)
+	defaultAuras[59548]  = FILTER_BY_PLAYER -- Gift of the Naaru (MA)
+	defaultAuras[121093] = FILTER_BY_PLAYER -- Gift of the Naaru (MO)
+	defaultAuras[59542]  = FILTER_BY_PLAYER -- Gift of the Naaru (PA)
+	defaultAuras[59544]  = FILTER_BY_PLAYER -- Gift of the Naaru (PR)
+	defaultAuras[59547]  = FILTER_BY_PLAYER -- Gift of the Naaru (SH)
+	defaultAuras[28880]  = FILTER_BY_PLAYER -- Gift of the Naaru (WR)
 elseif playerRace == "Dwarf" then
 	defaultAuras[20594]  = FILTER_ON_PLAYER -- Stoneform
 elseif playerRace == "NightElf" then
@@ -820,103 +836,140 @@ end
 -- Mortal Wounds
 --[[
 if playerClass == "WARRIOR" or playerClass == "ROGUE" or playerClass == "MONK" then
-	Warrior, Monk, Hunter: Carrion Bird, Crocolisk, Riverbeast, Scorpid
-	defaultAuras[115804] = FILTER -- Mortal Wounds
-	defaultAuras[54680]  = FILTER -- Monstrous Bite (Hunter: Devilsaur)
-	defaultAuras[82654]  = FILTER -- Widow Venom (hunter)
-	defaultAuras[8680]   = FILTER -- Wound Poison (Rogue)
+	defaultAuras[115804] = FILTER -- Mortal Wounds (WR, MO, HU Carrion Bird, Crocolisk, Riverbeast, Scorpid)
+	defaultAuras[54680]  = FILTER -- Monstrous Bite (HU Devilsaur)
+	defaultAuras[82654]  = FILTER -- Widow Venom (HU)
+	defaultAuras[8680]   = FILTER -- Wound Poison (RO)
 end
 ]]
 ------------------------------------------------------------------------
 -- Taunts (tanks only)
 
 if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "WARRIOR" then
-	defaultAuras[56222]  = FILTER_ROLE_TANK -- Dark Command
-	defaultAuras[57604]  = FILTER_ROLE_TANK -- Death Grip -- NEEDS CHECK 57603
-	defaultAuras[20736]  = FILTER_ROLE_TANK -- Distracting Shot
-	defaultAuras[6795]   = FILTER_ROLE_TANK -- Growl
-	defaultAuras[118585] = FILTER_ROLE_TANK -- Leer of the Ox
-	defaultAuras[114198] = FILTER_ROLE_TANK -- Mocking Banner
-	defaultAuras[116189] = FILTER_ROLE_TANK -- Provoke
-	defaultAuras[62124]  = FILTER_ROLE_TANK -- Reckoning
-	defaultAuras[355]    = FILTER_ROLE_TANK -- Taunt
+	defaultAuras[56222]  = FILTER_ROLE_TANK -- Dark Command (DK)
+	defaultAuras[57604]  = FILTER_ROLE_TANK -- Death Grip (DK) -- NEEDS CHECK 49560 51399 57603
+	defaultAuras[6795]   = FILTER_ROLE_TANK -- Growl (DR)
+	defaultAuras[20736]  = FILTER_ROLE_TANK -- Distracting Shot (HU)
+	defaultAuras[118585] = FILTER_ROLE_TANK -- Leer of the Ox (MO)
+	defaultAuras[116189] = FILTER_ROLE_TANK -- Provoke (MO)
+	defaultAuras[118635] = FILTER_ROLE_TANK -- Provoke (MO Black Ox Statue) -- NEEDS CHECK
+	defaultAuras[62124]  = FILTER_ROLE_TANK -- Reckoning (PA)
+	defaultAuras[36213]  = FILTER_ROLE_TANK -- Angered Earth (SH Earth Elemental)
+	defaultAuras[17735]  = FILTER_ROLE_TANK -- Suffering (WL Voidwalker)
+	defaultAuras[114198] = FILTER_ROLE_TANK -- Mocking Banner (WR)
+	defaultAuras[355]    = FILTER_ROLE_TANK -- Taunt (WR)
 end
 
 ------------------------------------------------------------------------
 -- PvP
 
--- Silenced -- TODO: update
-defaultAuras[25046]  = FILTER_PVP -- Arcane Torrent (blood elf - rogue)
-defaultAuras[28730]  = FILTER_PVP -- Arcane Torrent (blood elf - mage, paladin, priest, warlock)
-defaultAuras[50613]  = FILTER_PVP -- Arcane Torrent (blood elf - death knight)
-defaultAuras[69179]  = FILTER_PVP -- Arcane Torrent (blood elf - warrior)
-defaultAuras[80483]  = FILTER_PVP -- Arcane Torrent (blood elf - hunter)
-defaultAuras[129597] = FILTER_PVP -- Arcane Torrent (blood elf - monk)
-defaultAuras[31935]  = FILTER_PVP -- Avenger's Shield (paladin)
-defaultAuras[102051] = FILTER_PVP -- Frostjaw (mage)
-defaultAuras[1330]   = FILTER_PVP -- Garrote - Silence (rogue)
-defaultAuras[50479]  = FILTER_PVP -- Nether Shock (hunter nether ray)
-defaultAuras[15487]  = FILTER_PVP -- Silence (priest)
-defaultAuras[18498]  = FILTER_PVP -- Silenced - Gag Order (warrior)
-defaultAuras[34490]  = FILTER_PVP -- Silencing Shot (hunter)
-defaultAuras[78675]  = FILTER_PVP -- Solar Beam (druid)
-defaultAuras[97547]  = FILTER_PVP -- Solar Beam (druid)
-defaultAuras[113286] = FILTER_PVP -- Solar Beam (symbiosis)
-defaultAuras[113287] = FILTER_PVP -- Solar Beam (symbiosis)
-defaultAuras[113288] = FILTER_PVP -- Solar Beam (symbiosis)
-defaultAuras[116709] = FILTER_PVP -- Spear Hand Strike (monk)
-defaultAuras[24259]  = FILTER_PVP -- Spell Lock (warlock felhunter)
-defaultAuras[47476]  = FILTER_PVP -- Strangulate (death knight)
-
-------------------------------------------------------------------------
--- Random quest related auras
-
-defaultAuras[127372] = FILTER_BY_PLAYER -- Unstable Serum (Klaxxi Enhancement: Raining Blood)
-
-------------------------------------------------------------------------
--- Boss debuffs that Blizzard failed to flag
-
-defaultAuras[106648] = FILTER_ALL -- Brew Explosion (Ook Ook in Stormsnout Brewery)
-defaultAuras[106784] = FILTER_ALL -- Brew Explosion (Ook Ook in Stormsnout Brewery)
-defaultAuras[123059] = FILTER_ALL -- Destabilize (Amber-Shaper Un'sok)
-
-------------------------------------------------------------------------
--- Enchant procs that Blizzard failed to flag with their caster
-
-defaultAuras[116631] = FILTER_DISABLE -- Colossus
-defaultAuras[118334] = FILTER_DISABLE -- Dancing Steel (agi)
-defaultAuras[118335] = FILTER_DISABLE -- Dancing Steel (str)
-defaultAuras[104993] = FILTER_DISABLE -- Jade Spirit
-defaultAuras[116660] = FILTER_DISABLE -- River's Song
-defaultAuras[104509] = FILTER_DISABLE -- Windsong (crit)
-defaultAuras[104423] = FILTER_DISABLE -- Windsong (haste)
-defaultAuras[104510] = FILTER_DISABLE -- Windsong (mastery)
-
-------------------------------------------------------------------------
--- NPC buffs that are completely useless
-
-defaultAuras[63501] = FILTER_DISABLE -- Argent Crusade Champion's Pennant
-defaultAuras[60023] = FILTER_DISABLE -- Scourge Banner Aura (Boneguard Commander in Icecrown)
-defaultAuras[63406] = FILTER_DISABLE -- Darnassus Champion's Pennant
-defaultAuras[63405] = FILTER_DISABLE -- Darnassus Valiant's Pennant
-defaultAuras[63423] = FILTER_DISABLE -- Exodar Champion's Pennant
-defaultAuras[63422] = FILTER_DISABLE -- Exodar Valiant's Pennant
-defaultAuras[63396] = FILTER_DISABLE -- Gnomeregan Champion's Pennant
-defaultAuras[63395] = FILTER_DISABLE -- Gnomeregan Valiant's Pennant
-defaultAuras[63427] = FILTER_DISABLE -- Ironforge Champion's Pennant
-defaultAuras[63426] = FILTER_DISABLE -- Ironforge Valiant's Pennant
-defaultAuras[63433] = FILTER_DISABLE -- Orgrimmar Champion's Pennant
-defaultAuras[63432] = FILTER_DISABLE -- Orgrimmar Valiant's Pennant
-defaultAuras[63399] = FILTER_DISABLE -- Sen'jin Champion's Pennant
-defaultAuras[63398] = FILTER_DISABLE -- Sen'jin Valiant's Pennant
-defaultAuras[63403] = FILTER_DISABLE -- Silvermoon Champion's Pennant
-defaultAuras[63402] = FILTER_DISABLE -- Silvermoon Valiant's Pennant
-defaultAuras[62594] = FILTER_DISABLE -- Stormwind Champion's Pennant
-defaultAuras[62596] = FILTER_DISABLE -- Stormwind Valiant's Pennant
-defaultAuras[63436] = FILTER_DISABLE -- Thunder Bluff Champion's Pennant
-defaultAuras[63435] = FILTER_DISABLE -- Thunder Bluff Valiant's Pennant
-defaultAuras[63430] = FILTER_DISABLE -- Undercity Champion's Pennant
-defaultAuras[63429] = FILTER_DISABLE -- Undercity Valiant's Pennant
+local function AddAurasForPVP(t)
+	-- Disorient
+	t[2094]   = FILTER_PVP -- Blind (RO)
+	t[105421] = FILTER_PVP -- Blinding Light (PA)
+	t[33786]  = FILTER_PVP -- Cyclone (DR)
+	t[118699] = FILTER_PVP -- Fear (WL)
+	t[130616] = FILTER_PVP -- Fear (WL Glyph of Fear)
+	t[5484]   = FILTER_PVP -- Howl of Terror (WL)
+	t[5246]   = FILTER_PVP -- Intimidating Shout (WR)
+	t[115268] = FILTER_PVP -- Mesmerize (WL shivarra)
+	t[8122]   = FILTER_PVP -- Psychic Scream (PR)
+	t[6358]   = FILTER_PVP -- Seduction (WL succubus)
+	t[10326]  = FILTER_PVP -- Turn Evil (PA)
+	-- Knockback
+	t[119403] = FILTER_PVP -- Glyph of Explosive Trap (HU)
+	t[115770] = FILTER_PVP -- Fellash (WL Shivarra)
+	t[108199] = FILTER_PVP -- Gorefiend's Grasp (DK)
+	t[51490]  = FILTER_PVP -- Thunderstorm (SH)
+	t[132469] = FILTER_PVP -- Typhoon (DR)
+	t[102793] = FILTER_PVP -- Ursol's Vortex (DR)
+	t[6360]   = FILTER_PVP -- Whiplash (WL Succubus)
+	-- Incapacitate
+	t[710]    = FILTER_PVP -- Banish (WL)
+	t[137143] = FILTER_PVP -- Blood Horror (WL) -- NEEDS CHECK
+	t[111397] = FILTER_PVP -- Blood Horror (WL) -- NEEDS CHECK
+	t[123393] = FILTER_PVP -- Breath of Fire (MO with glyph)
+	t[605]    = FILTER_PVP -- Dominate Mind (PR)
+	t[31661]  = FILTER_PVP -- Dragon's Breath (MA)
+	t[1776]   = FILTER_PVP -- Gouge (RO)
+	t[51514]  = FILTER_PVP -- Hex (SH)
+	t[88625]  = FILTER_PVP -- Holy Word: Chastise (PR)
+	t[99]     = FILTER_PVP -- Incapacitating Roar (DR)
+	t[6789]   = FILTER_PVP -- Mortal Coil (WL)
+	t[115078] = FILTER_PVP -- Paralysis (MO)
+	t[64044]  = FILTER_PVP -- Psychic Horror (PR)
+	t[107179] = FILTER_PVP -- Quaking Palm (Pandaren)
+	t[20066]  = FILTER_PVP -- Repentence (PA)
+	t[82691]  = FILTER_PVP -- Ring of Frost (MA)
+	t[116844] = FILTER_PVP -- Ring of Peace (MO) -- NEEDS CHECK
+	t[137460] = FILTER_PVP -- Ring of Peace (MO) -- NEEDS CHECK
+	t[6770]   = FILTER_PVP -- Sap (RO)
+	t[8484]   = FILTER_PVP -- Shackle Undead (PR)
+	-- Root
+	t[96294]  = FILTER_PVP -- Chains of Ice (DK Chilblains)
+	t[53148]  = FILTER_PVP -- Charge (HU tenacity pet)
+	t[116706] = FILTER_PVP -- Disable (MO)
+	t[64695]  = FILTER_PVP -- Earthgrab Totem (SH)
+	t[339]    = FILTER_PVP -- Entangling Roots (DR)
+	t[113770] = FILTER_PVP -- Entangling Roots (DR treants)
+	t[33395]  = FILTER_PVP -- Freeze (MA Water Elemental)
+	t[63685]  = FILTER_PVP -- Freeze (SH talent Frozen Power)
+	t[122]    = FILTER_PVP -- Frost Nova (MA)
+	t[135373] = FILTER_PVP -- Entrapment (HU passive)
+	t[87194]  = FILTER_PVP -- Glyph of Mind Blast (PR)
+	t[111340] = FILTER_PVP -- Ice Ward (MA)
+	t[102359] = FILTER_PVP -- Mass Entanglement (DR talent)
+	t[136634] = FILTER_PVP -- Narrow Escape (HU passive talent)
+	t[114404] = FILTER_PVP -- Void Tendrils (PR)
+	-- Silence
+	t[25046]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Rogue)
+	t[28730]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Mage, Paladin, Priest, Warlock)
+	t[50613]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Death Knight)
+	t[69179]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Warrior)
+	t[80483]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Hunter)
+	t[129597] = FILTER_PVP -- Arcane Torrent (Blood Elf - Monk)
+	t[108194] = FILTER_PVP -- Asphyxiate (DK, functions as silence if target immune to stun)
+	t[31935]  = FILTER_PVP -- Avenger's Shield (PA)
+	t[102051] = FILTER_PVP -- Frostjaw (MA)
+	t[1330]   = FILTER_PVP -- Garrote - Silence (RO)
+	t[114237] = FILTER_PVP -- Glyph of Fae Silence (DR) -- NEEDS CHECK
+	t[50479]  = FILTER_PVP -- Nether Shock (HU Nether Ray)
+	t[15487]  = FILTER_PVP -- Silence (PR)
+	t[18498]  = FILTER_PVP -- Silenced - Gag Order (WR)
+	t[34490]  = FILTER_PVP -- Silencing Shot (HU)
+	t[78675]  = FILTER_PVP -- Solar Beam (DR)
+	t[97547]  = FILTER_PVP -- Solar Beam (DR)
+	t[116709] = FILTER_PVP -- Spear Hand Strike (MO)
+	t[24259]  = FILTER_PVP -- Spell Lock (WL Felhunter)
+	t[47476]  = FILTER_PVP -- Strangulate (DK)
+	-- Stun
+	t[108194] = FILTER_PVP -- Asphyxiate (DK)
+	t[89766]  = FILTER_PVP -- Axe Toss (WL Felguard)
+	t[117526] = FILTER_PVP -- Binding Shot (HU)
+	t[119392] = FILTER_PVP -- Charging Ox Wave (MO)
+	t[1833]   = FILTER_PVP -- Cheap Shot (RO)
+	t[44572]  = FILTER_PVP -- Deep Freeze (MA)
+	t[105593] = FILTER_PVP -- Fist of Justice (PA)
+	t[120086] = FILTER_PVP -- Fists of Fury (MO)
+	t[91800]  = FILTER_PVP -- Gnaw (DK Ghoul)
+	t[853]    = FILTER_PVP -- Hammer of Justice (PA)
+	t[119072] = FILTER_PVP -- Holy Wrath (PA)
+	t[24394]  = FILTER_PVP -- Intimidation (HU pet)
+	t[408]    = FILTER_PVP -- Kidney Shot (RO)
+	t[22570]  = FILTER_PVP -- Maim (DR)
+	t[119381] = FILTER_PVP -- Leg Sweep (MO)
+	t[5211]   = FILTER_PVP -- Mighty Bash (DR)
+	t[91797]  = FILTER_PVP -- Monstrous Blow (DK Ghoul with Transformation)
+	t[118345] = FILTER_PVP -- Pulverize (SH Primal Earth Elemental)
+	t[163505] = FILTER_PVP -- Rake (DR with Prowl)
+	t[115001] = FILTER_PVP -- Remorseless Winter (DK)
+	t[30283]  = FILTER_PVP -- Shadowfury (WL)
+	t[132168] = FILTER_PVP -- Shockwave (WR)
+	t[118905] = FILTER_PVP -- Static Charge (SH Capacitor Totem)
+	t[132169] = FILTER_PVP -- Storm Bolt (WR)
+	t[22703]  = FILTER_PVP -- Summon Infernal (WL)
+	t[20549]  = FILTER_PVP -- War Stomp (Tauren)
+end
 
 ------------------------------------------------------------------------
 
@@ -956,10 +1009,13 @@ ns.UpdateAuraList = function()
 	wipe(auraList)
 	AddAurasToList(ns.defaultAuras)
 	AddAurasToList(oUFPhanxAuraConfig.customFilters)
+	if ns.config.PVP then
+		AddAurasForPVP(auraList)
+	end
+	-- Remove default auras the player deleted
 	for id in pairs(oUFPhanxAuraConfig.deleted) do
 		auraList[id] = nil
 	end
-
 	-- Update all the things
 	for _, obj in pairs(oUF.objects) do
 		if obj.Auras then
