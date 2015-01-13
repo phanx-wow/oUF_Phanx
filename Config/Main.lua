@@ -47,107 +47,26 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local statusbar = panel:CreateDropdown(L.Texture, nil, Media:List("statusbar"))
+	local statusbar = panel:CreateMediaDropdown(L.Texture, nil, "statusbar")
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
 	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
 
-	local valueBG = statusbar:CreateTexture(nil, "OVERLAY")
-	valueBG:SetPoint("LEFT", statusbar.valueText, -2, 1)
-	valueBG:SetPoint("RIGHT", statusbar.valueText, 5, 1)
-	valueBG:SetHeight(15)
-	valueBG:SetVertexColor(0.35, 0.35, 0.35)
-	statusbar.valueBG = valueBG
-
 	function statusbar:OnValueChanged(value)
-		local file = Media:Fetch("statusbar", value)
-		valueBG:SetTexture(file)
-
 		if value == db.statusbar then return end
-
 		db.statusbar = value
 		ns.SetAllStatusBarTextures()
 	end
 
-	do
-		local button_OnClick = statusbar.button:GetScript("OnClick")
-		statusbar.button:SetScript("OnClick", function(self)
-			button_OnClick(self)
-			statusbar.list:Hide()
-
-			local function GetButtonBackground(self)
-				if not self.bg then
-					local bg = self:CreateTexture(nil, "BACKGROUND")
-					bg:SetPoint("TOPLEFT", -3, 0)
-					bg:SetPoint("BOTTOMRIGHT", 3, 0)
-					bg:SetVertexColor(0.35, 0.35, 0.35)
-					self.bg = bg
-				end
-				return self.bg
-			end
-
-			local function SetButtonBackgroundTextures(self)
-				local numButtons = 0
-				local buttons = statusbar.list.buttons
-				for i = 1, #buttons do
-					local button = buttons[i]
-					if i > 1 then
-						button:SetPoint("TOPLEFT", buttons[i - 1], "BOTTOMLEFT", 0, -1)
-					end
-					if button.value and button:IsShown() then
-						local bg = button.bg or GetButtonBackground(button)
-						bg:SetTexture(Media:Fetch("statusbar", button.value))
-						local file, size = button.label:GetFont()
-						button.label:SetFont(file, size, "OUTLINE")
-						numButtons = numButtons + 1
-					end
-				end
-				statusbar.list:SetHeight(statusbar.list:GetHeight() + (numButtons * 1))
-			end
-
-			local OnShow = statusbar.list:GetScript("OnShow")
-			statusbar.list:SetScript("OnShow", function(self)
-				OnShow(self)
-				SetButtonBackgroundTextures(self)
-			end)
-
-			local OnVerticalScroll = statusbar.list.scrollFrame:GetScript("OnVerticalScroll")
-			statusbar.list.scrollFrame:SetScript("OnVerticalScroll", function(self, delta)
-				OnVerticalScroll(self, delta)
-				SetButtonBackgroundTextures(self)
-			end)
-
-			button_OnClick(self)
-			self:SetScript("OnClick", button_OnClick)
-		end)
-	end
-
 	--------------------------------------------------------------------
 
-	local font = panel:CreateDropdown(L.Font, nil, Media:List("font"))
+	local font = panel:CreateMediaDropdown(L.Font, nil, "font")
 	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
 	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
 
 	function font:OnValueChanged(value)
-		local _, height, flags = self.valueText:GetFont()
-		self.valueText:SetFont(Media:Fetch("font", value), height, flags)
-
 		if value == db.font then return end
-
 		db.font = value
 		ns.SetAllFonts()
-	end
-
-	function font:OnListButtonChanged(button, value, selected)
-		if button:IsShown() then
-			button.label:SetFont(Media:Fetch("font", value), UIDROPDOWNMENU_DEFAULT_TEXT_HEIGHT)
-		end
-	end
-
-	font.__SetValue = font.SetValue
-	function font:SetValue(value)
-		local _, height, flags = self.valueText:GetFont()
-		self.valueText:SetFont(Media:Fetch("font", value), height, flags)
-		self:__SetValue(value)
 	end
 
 	--------------------------------------------------------------------
