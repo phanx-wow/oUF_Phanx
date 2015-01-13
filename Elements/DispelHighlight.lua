@@ -90,7 +90,7 @@ function Update(self, event, unit)
 			for i = 1, 40 do
 				local name, _, _, _, type, _, _, _, stealable, _, id = UnitBuff(unit, i)
 				if not name then break end
-				if (canSteal and stealable) or (type and canPurge[EnrageEffects[id] and "Enrage" or InvulnerableEffects[id] and "Invulnerable" or type])) then
+				if (canSteal and stealable) or (type and canPurge[EnrageEffects[id] and "Enrage" or InvulnerableEffects[id] and "Invulnerable" or type]) then
 					-- print("debuffType", type)
 					debuffType = type
 					dispellable = true
