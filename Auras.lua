@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Copyright (c) 2008-2014 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2008-2015 Phanx <addons@phanx.net>. All rights reserved.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 	https://github.com/Phanx/oUF_Phanx
@@ -711,7 +711,6 @@ if playerClass == "WARLOCK" then
 	defaultAuras[20707]  = FILTER_ON_FRIEND -- Soulstone -- TODO: hide on self?
 	-- Debuffs
 	defaultAuras[980]    = FILTER_BY_PLAYER -- Agony
-	defaultAuras[108505] = FILTER_BY_PLAYER -- Archimonde's Vengeance
 	defaultAuras[124915] = FILTER_BY_PLAYER -- Chaos Wave
 	defaultAuras[17962]  = FILTER_BY_PLAYER -- Conflagrate (slow)
 	defaultAuras[172]    = FILTER_BY_PLAYER -- Corruption -- NEEDS CHECK
@@ -1055,7 +1054,7 @@ end
 
 local filterFuncs = {
 	default = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)
-		local v auraList[spellID]
+		local v = auraList[spellID]
 		return not v or bit_band(v, FILTER_DISABLE) == 0
 	end,
 	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable, shouldConsolidate, spellID, canApplyAura, isBossAura, isCastByPlayer, value1, value2, value3)

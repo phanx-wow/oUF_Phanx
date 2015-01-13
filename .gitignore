@@ -5,6 +5,8 @@
 *.ods
 .svn/
 Libs/
+Media/FrameGlow.blp
+Media/Glow.blp
 CHANGELOG.bbcode
 
 # Windows garbage ----------------------------------------------------------#
