@@ -601,6 +601,12 @@ do
 		sb.texture:SetHorizTile(false)
 		sb.texture:SetVertTile(false)
 
+		local SmoothBar = parent.SmoothBar or parent.__owner and parent.__owner.SmoothBar
+		if SmoothBar then
+			SmoothBar(nil, sb) -- nil should be frame but isn't used
+			sb.__smooth = true
+		end
+
 		hooksecurefunc(sb, "SetReverseFill", SetReverseFill)
 		hooksecurefunc(sb, "SetValue", SetTexCoord)
 
