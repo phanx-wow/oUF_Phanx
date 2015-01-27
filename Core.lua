@@ -535,7 +535,7 @@ local FALLBACK_FONT_SIZE = 16 -- some Blizzard bug
 
 function ns.CreateFontString(parent, size, justify)
 	local file = Media:Fetch("font", ns.config.font) or STANDARD_TEXT_FONT
-	if not size or size == 0 then size = FALLBACK_FONT_SIZE end
+	if not size or size < 6 then size = FALLBACK_FONT_SIZE end
 	size = size * ns.config.fontScale
 
 	local fs = parent:CreateFontString(nil, "OVERLAY")
@@ -557,7 +557,7 @@ function ns.SetAllFonts()
 	for i = 1, #ns.fontstrings do
 		local fontstring = ns.fontstrings[i]
 		local _, size = fontstring:GetFont()
-		if not size or size == 0 then size = FALLBACK_FONT_SIZE end
+		if not size or size < 6 then size = FALLBACK_FONT_SIZE end
 		fontstring:SetFont(file, size, outline)
 		fontstring:SetShadowOffset(shadow, -shadow)
 	end
@@ -589,7 +589,7 @@ do
 		end
 	end
 
-	function ns.CreateStatusBar(parent, size, justify, noBG)
+	function ns.CreateStatusBar(parent, size, justify, noBG, noSmoothing)
 		local file = Media:Fetch("statusbar", ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
 
 		local sb = CreateFrame("StatusBar", nil, parent)
@@ -601,7 +601,7 @@ do
 		sb.texture:SetHorizTile(false)
 		sb.texture:SetVertTile(false)
 
-		local SmoothBar = parent.SmoothBar or parent.__owner and parent.__owner.SmoothBar
+		local SmoothBar = not noSmoothing and (parent.SmoothBar or parent.__owner and parent.__owner.SmoothBar)
 		if SmoothBar then
 			SmoothBar(nil, sb) -- nil should be frame but isn't used
 			sb.__smooth = true
