@@ -94,7 +94,7 @@ function ns.AddCastbar(self)
 	local uconfig = ns.uconfig[unit]
 	local height = config.height * (uconfig.height or 1) * (1 - config.powerHeight)
 
-	local Castbar = ns.CreateStatusBar(self)
+	local Castbar = ns.CreateStatusBar(self, nil, nil, nil, true) -- no smoothing
 	Castbar:SetPoint("TOPLEFT", self, "BOTTOMLEFT", height, -10)
 	Castbar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, -10)
 	Castbar:SetHeight(height)
