@@ -221,14 +221,14 @@ local function Spawn(self, unit, isSingle)
 		self:Tag(self.Level, "[difficulty][level][shortclassification]")
 
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
-		self.Name:SetPoint("LEFT", self.Level, "RIGHT", 1, 0)
-		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -5)
+		self.Name:SetPoint("LEFT", self.Level, "RIGHT", 0, 0)
+		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
 		self:Tag(self.Name, "[unitcolor][name]")
 
 	elseif unit ~= "player" and not strmatch(unit, "pet") then
 		self.Name = ns.CreateFontString(self.overlay, 20, "LEFT")
-		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -5)
-		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -5)
+		self.Name:SetPoint("BOTTOMLEFT", self.Health, "TOPLEFT", 2, -4)
+		self.Name:SetPoint("BOTTOMRIGHT", self.Health, "TOPRIGHT", -2, -4)
 		self:Tag(self.Name, "[unitcolor][name]")
 	end
 
