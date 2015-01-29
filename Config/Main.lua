@@ -49,7 +49,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	local statusbar = panel:CreateMediaDropdown(L.Texture, nil, "statusbar")
 	statusbar:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -12)
-	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -12)
+	statusbar:SetPoint("TOPRIGHT", notes, "BOTTOM", -12, -16)
 
 	function statusbar:OnValueChanged(value)
 		if value == db.statusbar then return end
@@ -60,8 +60,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	--------------------------------------------------------------------
 
 	local font = panel:CreateMediaDropdown(L.Font, nil, "font")
-	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -12)
-	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -12)
+	font:SetPoint("TOPLEFT", statusbar, "BOTTOMLEFT", 0, -8)
+	font:SetPoint("TOPRIGHT", statusbar, "BOTTOMRIGHT", 0, -8)
 
 	function font:OnValueChanged(value)
 		if value == db.font then return end
@@ -80,13 +80,13 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		db.fontOutline = value
 		ns.SetAllFonts()
 	end
-	outline:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -12)
-	outline:SetPoint("TOPRIGHT", font, "BOTTOMRIGHT", 0, -12)
+	outline:SetPoint("TOPLEFT", font, "BOTTOMLEFT", 0, -8)
+	outline:SetPoint("TOPRIGHT", font, "BOTTOMRIGHT", 0, -8)
 
 	--------------------------------------------------------------------
 
 	local shadow = panel:CreateCheckbox(L.Shadow)
-	shadow:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", 0, -12)
+	shadow:SetPoint("TOPLEFT", outline, "BOTTOMLEFT", 0, -8)
 
 	function shadow:OnValueChanged(value)
 		db.fontShadow = value
@@ -95,95 +95,11 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 
 	--------------------------------------------------------------------
 
-	local borderSize = panel:CreateSlider(L.BorderSize, nil, 12, 24, 2)
-	borderSize:SetPoint("TOPLEFT", shadow, "BOTTOMLEFT", 0, -12)
-	borderSize:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -24 - shadow:GetHeight())
-
-	function borderSize:OnValueChanged(value)
-		db.borderSize = value
-		for i = 1, #ns.borderedObjects do
-			ns.borderedObjects[i]:SetBorderSize(value)
-		end
-		return value
-	end
-
-	--------------------------------------------------------------------
-
-	local borderColor = panel:CreateColorPicker(L.BorderColor, L.BorderColor_Desc)
-	borderColor:SetPoint("LEFT", borderSize, "RIGHT", 24, -4)
-
-	function borderColor:GetColor()
-		return unpack(db.borderColor)
-	end
-
-	function borderColor:OnValueChanged(r, g, b)
-		db.borderColor[1] = r
-		db.borderColor[2] = g
-		db.borderColor[3] = b
-		for i = 1, #ns.borderedObjects do
-			ns.borderedObjects[i]:SetBorderColor(r, g, b)
-		end
-		for i = 1, #ns.objects do
-			local frame = ns.objects[i]
-			if frame.UpdateBorder then
-				frame:UpdateBorder()
-			end
-		end
-	end
-
-	--------------------------------------------------------------------
-
-	local dispelFilter = panel:CreateCheckbox(L.FilterDebuffHighlight, L.FilterDebuffHighlight_Desc)
-	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -24)
-
-	function dispelFilter:OnValueChanged(value)
-		db.dispelFilter = value
-		for i = 1, #ns.objects do
-			local frame = ns.objects[i]
-			if frame.DispelHighlight then
-				frame.DispelHighlight.filter = value
-				frame.DispelHighlight:ForceUpdate()
-			end
-		end
-	end
-
-	--------------------------------------------------------------------
-
-	local healFilter = panel:CreateCheckbox(L.IgnoreOwnHeals, L.IgnoreOwnHeals_Desc)
-	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -12)
-
-	function healFilter:OnValueChanged(value)
-		db.ignoreOwnHeals = value
-		for i = 1, #ns.objects do
-			local frame = ns.objects[i]
-			if frame.HealPrediction and frame:IsShown() then
-				frame.HealPrediction:ForceUpdate()
-			end
-		end
-	end
-
-	--------------------------------------------------------------------
-
-	local threatLevels = panel:CreateCheckbox(L.ThreatLevels, L.ThreatLevels_Desc)
-	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -12)
-
-	function threatLevels:OnValueChanged(value)
-		db.ignoreOwnHeals = value
-		for i = 1, #ns.objects do
-			local frame = ns.objects[i]
-			if frame.ThreatHighlight and frame:IsShown() then
-				frame.ThreatHighlight:ForceUpdate()
-			end
-		end
-	end
-
-	--------------------------------------------------------------------
-
 	local healthColor
 
 	local healthColorMode = panel:CreateDropdown(L.HealthColor, L.HealthColor_Desc)
-	healthColorMode:SetPoint("TOPLEFT", borderSize, "BOTTOMLEFT", 0, -12)
-	healthColorMode:SetPoint("TOPRIGHT", borderSize, "BOTTOMRIGHT", 0, -12)
+	healthColorMode:SetPoint("TOPLEFT", shadow, "BOTTOMLEFT", 0, -10)
+	healthColorMode:SetPoint("TOPRIGHT", outline, "BOTTOMRIGHT", 0, -10 - shadow:GetHeight() - 8)
 	
 	healthColorMode:SetList({
 		{ value = "CLASS",  text = L.ColorClass  },
@@ -243,8 +159,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	--------------------------------------------------------------------
 
 	local healthBG = panel:CreateSlider(L.HealthBG, L.HealthBG_Desc, 0, 3, 0.05, true)
-	healthBG:SetPoint("TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -12)
-	healthBG:SetPoint("TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -12)
+	healthBG:SetPoint("TOPLEFT", healthColorMode, "BOTTOMLEFT", 0, -10)
+	healthBG:SetPoint("TOPRIGHT", healthColorMode, "BOTTOMRIGHT", 0, -10)
 
 	function healthBG:OnValueChanged(value)
 		db.healthBG = value
@@ -309,7 +225,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	--------------------------------------------------------------------
 
 	powerColor = panel:CreateColorPicker(L.PowerColorCustom)
-	powerColor:SetPoint("LEFT", powerColorMode, "RIGHT", 24, -4)
+	powerColor:SetPoint("LEFT", powerColorMode, "RIGHT", 24, -8)
 
 	function powerColor:GetColor()
 		return unpack(db.powerColor)
@@ -333,8 +249,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	--------------------------------------------------------------------
 
 	local powerBG = panel:CreateSlider(L.PowerBG, L.PowerBG_Desc, 0, 3, 0.05, true)
-	powerBG:SetPoint("TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -12)
-	powerBG:SetPoint("TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -12)
+	powerBG:SetPoint("TOPLEFT", powerColorMode, "BOTTOMLEFT", 0, -10)
+	powerBG:SetPoint("TOPRIGHT", powerColorMode, "BOTTOMRIGHT", 0, -10)
 
 	function powerBG:OnValueChanged(value)
 		db.powerBG = value
@@ -379,6 +295,90 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 			end
 		end
 		return value
+	end
+
+	--------------------------------------------------------------------
+
+	local dispelFilter = panel:CreateCheckbox(L.FilterDebuffHighlight, L.FilterDebuffHighlight_Desc)
+	dispelFilter:SetPoint("TOPLEFT", notes, "BOTTOM", 12, -12)
+
+	function dispelFilter:OnValueChanged(value)
+		db.dispelFilter = value
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
+			if frame.DispelHighlight then
+				frame.DispelHighlight.filter = value
+				frame.DispelHighlight:ForceUpdate()
+			end
+		end
+	end
+
+	--------------------------------------------------------------------
+
+	local healFilter = panel:CreateCheckbox(L.IgnoreOwnHeals, L.IgnoreOwnHeals_Desc)
+	healFilter:SetPoint("TOPLEFT", dispelFilter, "BOTTOMLEFT", 0, -12)
+
+	function healFilter:OnValueChanged(value)
+		db.ignoreOwnHeals = value
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
+			if frame.HealPrediction and frame:IsShown() then
+				frame.HealPrediction:ForceUpdate()
+			end
+		end
+	end
+
+	--------------------------------------------------------------------
+
+	local threatLevels = panel:CreateCheckbox(L.ThreatLevels, L.ThreatLevels_Desc)
+	threatLevels:SetPoint("TOPLEFT", healFilter, "BOTTOMLEFT", 0, -12)
+
+	function threatLevels:OnValueChanged(value)
+		db.ignoreOwnHeals = value
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
+			if frame.ThreatHighlight and frame:IsShown() then
+				frame.ThreatHighlight:ForceUpdate()
+			end
+		end
+	end
+
+	--------------------------------------------------------------------
+
+	local borderSize = panel:CreateSlider(L.BorderSize, nil, 12, 24, 2)
+	borderSize:SetPoint("TOPLEFT", threatLevels, "BOTTOMLEFT", 0, -10)
+	borderSize:SetPoint("RIGHT", -32, 0)
+
+	function borderSize:OnValueChanged(value)
+		db.borderSize = value
+		for i = 1, #ns.borderedObjects do
+			ns.borderedObjects[i]:SetBorderSize(value)
+		end
+		return value
+	end
+
+	--------------------------------------------------------------------
+
+	local borderColor = panel:CreateColorPicker(L.BorderColor, L.BorderColor_Desc)
+	borderColor:SetPoint("TOPLEFT", borderSize, "BOTTOMLEFT", 0, -8)
+
+	function borderColor:GetColor()
+		return unpack(db.borderColor)
+	end
+
+	function borderColor:OnValueChanged(r, g, b)
+		db.borderColor[1] = r
+		db.borderColor[2] = g
+		db.borderColor[3] = b
+		for i = 1, #ns.borderedObjects do
+			ns.borderedObjects[i]:SetBorderColor(r, g, b)
+		end
+		for i = 1, #ns.objects do
+			local frame = ns.objects[i]
+			if frame.UpdateBorder then
+				frame:UpdateBorder()
+			end
+		end
 	end
 
 	--------------------------------------------------------------------

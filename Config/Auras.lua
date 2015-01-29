@@ -56,31 +56,27 @@ LibStub("PhanxConfig-OptionsPanel").CreateOptionsPanel(L.Auras, "oUF Phanx", fun
 	-- Sub-panel for adding an aura:
 
 	addPanel = CreateFrame("Frame", nil, panel)
-	addPanel:SetPoint("TOPLEFT", notes, "BOTTOM", 8, -16)
+	addPanel:SetPoint("TOPLEFT", notes, "BOTTOM", 8, -12)
 	addPanel:SetPoint("BOTTOMRIGHT", -16, 16)
 	addPanel:SetBackdrop(panelBackdrop)
 	addPanel:SetBackdropColor(0, 0, 0, 0.75)
 	addPanel:SetBackdropBorderColor(0.8, 0.8, 0.8)
 	do
 		local title, notes = panel.CreateHeader(addPanel, L.AddAura, L.AddAura_Desc)
-		title:SetPoint("TOPLEFT", 16, -32)
-		title:SetPoint("TOPRIGHT", -16, -32)
-		title:SetJustifyH("CENTER")
-		notes:SetJustifyH("CENTER")
-		notes:SetHeight(16) -- only one line
 
-		local addBox = CreateFrame("EditBox", nil, addPanel, "InputBoxTemplate")
-		addBox:SetPoint("TOP", notes, "BOTTOM", -43, -24)
+		local addButton = CreateFrame("Button", nil, addPanel, "UIPanelButtonTemplate")
+		addButton:SetPoint("TOPRIGHT", notes, "BOTTOMRIGHT", 0, -24)
+		addButton:SetSize(80, 24)
+		addButton:SetText(OKAY)
+
+		local addBox = panel.CreateEditBox(addPanel)
+		addBox:SetPoint("TOPLEFT", notes, "BOTTOMLEFT", 0, -23)
+		addBox:SetPoint("RIGHT", addButton, "LEFT", -4, 0)
 		addBox:SetSize(160, 24)
 		addBox:SetAltArrowKeyMode(false)
 		addBox:SetAutoFocus(false)
 		addBox:SetMaxLetters(6)
 		addBox:SetNumeric(true)
-
-		local addButton = CreateFrame("Button", nil, addPanel, "UIPanelButtonTemplate")
-		addButton:SetPoint("LEFT", addBox, "RIGHT", 6, 0)
-		addButton:SetSize(80, 24)
-		addButton:SetText(OKAY)
 
 		local addText = addPanel:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 		addText:SetPoint("TOPLEFT", addBox, "BOTTOMLEFT", 0, -4)
