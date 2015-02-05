@@ -773,7 +773,8 @@ if playerClass == "WARRIOR" then
 	defaultAuras[114029] = FILTER_ON_FRIEND -- Safeguard (intercept)
 	defaultAuras[114030] = FILTER_ON_FRIEND -- Vigilance
 	-- Debuffs
-	defaultAuras[86346]  = FILTER_BY_PLAYER -- Colossus Smash
+	defaultAuras[86346]  = FILTER_BY_PLAYER -- Colossus Smash -- DEPRECATED?
+	defaultAuras[167105] = FILTER_BY_PLAYER -- Colossus Smash
 	defaultAuras[114205] = FILTER_BY_PLAYER -- Demoralizing Banner
 	defaultAuras[1160]   = FILTER_BY_PLAYER -- Demoralizing Shout
 	defaultAuras[676]    = FILTER_BY_PLAYER -- Disarm
@@ -782,11 +783,13 @@ if playerClass == "WARRIOR" then
 	defaultAuras[5246]   = FILTER_BY_PLAYER -- Intimidating Shout -- NEEDS CHECK
 	defaultAuras[20511]  = FILTER_BY_PLAYER -- Intimidating Shout -- NEEDS CHECK
 	defaultAuras[12323]  = FILTER_BY_PLAYER -- Piercing Howl
+	defaultAuras[772]    = FILTER_BY_PLAYER -- Rend
 	defaultAuras[64382]  = FILTER_BY_PLAYER -- Shattering Throw
 	defaultAuras[46968]  = FILTER_BY_PLAYER -- Shockwave
 	defaultAuras[18498]  = FILTER_BY_PLAYER -- Silenced - Gag Order
 	defaultAuras[107566] = FILTER_BY_PLAYER -- Staggering Shout
-	defaultAuras[107570] = FILTER_BY_PLAYER -- Storm Bolt
+	defaultAuras[107570] = FILTER_BY_PLAYER -- Storm Bolt -- DEPRECATED?
+	defaultAuras[132169] = FILTER_BY_PLAYER -- Storm Bolt
 	defaultAuras[355]    = FILTER_BY_PLAYER -- Taunt
 	defaultAuras[105771] = FILTER_BY_PLAYER -- Warbringer
 end
@@ -831,16 +834,6 @@ elseif playerRace == "Worgen" then
 	defaultAuras[68992]  = FILTER_ON_PLAYER -- Darkflight
 end
 
-------------------------------------------------------------------------
--- Mortal Wounds
---[[
-if playerClass == "WARRIOR" or playerClass == "ROGUE" or playerClass == "MONK" then
-	defaultAuras[115804] = FILTER -- Mortal Wounds (WR, MO, HU Carrion Bird, Crocolisk, Riverbeast, Scorpid)
-	defaultAuras[54680]  = FILTER -- Monstrous Bite (HU Devilsaur)
-	defaultAuras[82654]  = FILTER -- Widow Venom (HU)
-	defaultAuras[8680]   = FILTER -- Wound Poison (RO)
-end
-]]
 ------------------------------------------------------------------------
 -- Taunts (tanks only)
 
@@ -968,7 +961,14 @@ local function AddAurasForPVP(t)
 	t[132169] = FILTER_PVP -- Storm Bolt (WR)
 	t[22703]  = FILTER_PVP -- Summon Infernal (WL)
 	t[20549]  = FILTER_PVP -- War Stomp (Tauren)
+	-- Healing Reduction
+	t[115804] = FILTER_PVP -- Mortal Wounds (WR, MO, HU Carrion Bird, Crocolisk, Riverbeast, Scorpid)
+	t[54680]  = FILTER_PVP -- Monstrous Bite (HU Devilsaur)
+	t[82654]  = FILTER_PVP -- Widow Venom (HU)
+	t[8680]   = FILTER_PVP -- Wound Poison (RO)
 end
+
+-- TODO: Show PVE healing reductions for healers?
 
 ------------------------------------------------------------------------
 
