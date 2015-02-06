@@ -51,10 +51,10 @@ Functions.lua
 Frames.lua
 
 #@do-not-package@
-Config\Libs\LibAboutPanel\LibAboutPanel.lua
 Config\Libs\PhanxConfig-ColorPicker\PhanxConfig-ColorPicker.lua
 Config\Libs\PhanxConfig-Checkbox\PhanxConfig-Checkbox.lua
 Config\Libs\PhanxConfig-Dropdown\PhanxConfig-Dropdown.lua
+Config\Libs\PhanxConfig-EditBox\PhanxConfig-EditBox.lua
 Config\Libs\PhanxConfig-Header\PhanxConfig-Header.lua
 Config\Libs\PhanxConfig-MediaDropdown\PhanxConfig-MediaDropdown.lua
 Config\Libs\PhanxConfig-OptionsPanel\PhanxConfig-OptionsPanel.lua
