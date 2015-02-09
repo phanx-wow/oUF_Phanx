@@ -659,8 +659,9 @@ if playerClass == "SHAMAN" then
 	defaultAuras[61295]  = FILTER_BY_PLAYER -- Riptide
 	defaultAuras[98007]  = FILTER_ON_FRIEND -- Spirit Link Totem
 	defaultAuras[114893] = FILTER_ON_FRIEND -- Stone Bulwark
+	defaultAuras[165462] = FILTER_ON_PLAYER -- Unleash Flame
 	defaultAuras[73685]  = FILTER_ON_PLAYER -- Unleash Life
-	defaultAuras[118473] = FILTER_BY_PLAYER -- Unleashed Fury (Earthliving)
+	defaultAuras[118473] = FILTER_BY_PLAYER -- Unleashed Fury
 	defaultAuras[114896] = FILTER_ON_FRIEND -- Windwalk Totem
 	-- Debuffs
 	defaultAuras[61882]  = FILTER_BY_PLAYER -- Earthquake
@@ -669,7 +670,7 @@ if playerClass == "SHAMAN" then
 	defaultAuras[17364]  = FILTER_BY_PLAYER -- Stormstrike
 --	defaultAuras[73684]  = FILTER_BY_PLAYER -- Unleash Earth
 	defaultAuras[73682]  = FILTER_BY_PLAYER -- Unleash Frost
-	defaultAuras[118470] = FILTER_BY_PLAYER -- Unleashed Fury (Flametongue)
+	defaultAuras[118470] = FILTER_BY_PLAYER -- Unleashed Fury
 	-- Debuffs - Root/Slow
 	defaultAuras[3600]   = FILTER_ON_ENEMY  -- Earthbind <-- Earthbind Totem
 	defaultAuras[64695]  = FILTER_ON_ENEMY  -- Earthgrab <-- Earthgrab Totem
