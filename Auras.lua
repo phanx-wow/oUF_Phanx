@@ -280,7 +280,8 @@ if playerClass == "DRUID" then
 	defaultAuras[33745]  = FILTER_BY_PLAYER -- Lacerate
 	defaultAuras[22570]  = FILTER_ON_ENEMY  -- Maim
 	defaultAuras[5211]   = FILTER_ON_ENEMY  -- Mighty Bash
-	defaultAuras[8921]   = FILTER_BY_PLAYER -- Moonfire
+	defaultAuras[8921]   = FILTER_BY_PLAYER -- Moonfire -- REMOVED?
+	defaultAuras[164812] = FILTER_BY_PLAYER -- Moonfire
 	defaultAuras[9005]   = FILTER_BY_PLAYER -- Pounce -- NEEDS CHECK
 	defaultAuras[102546] = FILTER_BY_PLAYER -- Pounce -- NEEDS CHECK
 	defaultAuras[9007]   = FILTER_BY_PLAYER -- Pounce Bleed
@@ -290,7 +291,8 @@ if playerClass == "DRUID" then
 	defaultAuras[106839] = FILTER_ON_ENEMY  -- Skull Bash -- NOT CURRENTLY USED
 	defaultAuras[78675]  = FILTER_ON_ENEMY  -- Solar Beam (silence)
 	defaultAuras[97547]  = FILTER_ON_ENEMY  -- Solar Beam (interrupt)
-	defaultAuras[93402]  = FILTER_BY_PLAYER -- Sunfire
+	defaultAuras[93402]  = FILTER_BY_PLAYER -- Sunfire -- REMOVED?
+	defaultAuras[164815] = FILTER_BY_PLAYER -- Sunfire
 	defaultAuras[77758]  = FILTER_BY_PLAYER -- Thrash (bear)
 	defaultAuras[106830] = FILTER_BY_PLAYER -- Thrash (cat)
 	defaultAuras[61391]  = FILTER_ON_ENEMY  -- Typhoon
