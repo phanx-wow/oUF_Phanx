@@ -542,6 +542,7 @@ function ns.CreateFontString(parent, size, justify)
 	fs:SetFont(file, size, ns.config.fontOutline)
 	fs:SetJustifyH(justify or "LEFT")
 	fs:SetShadowOffset(ns.config.fontShadow and 1 or 0, ns.config.fontShadow and -1 or 0)
+	fs:SetWordWrap(false)
 	fs.baseSize = size
 
 	tinsert(ns.fontstrings, fs)

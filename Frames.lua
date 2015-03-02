@@ -578,6 +578,7 @@ local function Spawn(self, unit, isSingle)
 		self.PvP = self.overlay:CreateFontString(nil, "OVERLAY")
 		self.PvP:SetPoint("CENTER", self, "TOPLEFT", -1, 4) -- "BOTTOM")
 		self.PvP:SetFont("Fonts\\ARIALN.ttf", 18, "OUTLINE")
+		self.PvP:SetWordWrap(false)
 		self.PvP:SetText(RANGE_INDICATOR)
 		self.PvP.SetTexture = ns.noop
 		self.PvP.PostUpdate = ns.PvP_PostUpdate
