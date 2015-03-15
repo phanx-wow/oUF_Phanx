@@ -88,6 +88,13 @@ local defaultAuras = {
 	[32182]  = FILTER_ON_PLAYER, -- Heroism (SH)
 	[160452] = FILTER_ON_PLAYER, -- Netherwinds (HU: Nether Ray)
 	[80353]  = FILTER_ON_PLAYER, -- Time Warp (MA)
+	-- Consumables - Warlords of Draenor
+	[156423] = FILTER_ON_PLAYER, -- Draenic Agility Potion
+	[156430] = FILTER_ON_PLAYER, -- Draenic Armor Potion
+	[156432] = FILTER_ON_PLAYER, -- Draenic Channeled Mana Potion
+	[156426] = FILTER_ON_PLAYER, -- Draenic Intellect Potion
+	[156428] = FILTER_ON_PLAYER, -- Draenic Strength Potion
+	[173260] = FILTER_ON_PLAYER, -- Shieldtronic Shield
 	-- Crowd Control
 	[710]    = FILTER_ALL, -- Banish
 	[33786]  = FILTER_ALL, -- Cyclone
@@ -224,6 +231,7 @@ if playerClass == "DRUID" then
 	defaultAuras[108292] = FILTER_ON_PLAYER -- Dream of Cenarius (Feral)
 	defaultAuras[108293] = FILTER_ON_PLAYER -- Dream of Cenarius (Guardian)
 	defaultAuras[108294] = FILTER_ON_PLAYER -- Dream of Cenarius (Restoration)
+	defaultAuras[157228] = FILTER_ON_PLAYER -- Empowered Moonkin
 	defaultAuras[5229]   = FILTER_ON_PLAYER -- Enrage
 	defaultAuras[124769] = FILTER_ON_PLAYER -- Frenzied Regeneration <-- glyph
 	defaultAuras[108293] = FILTER_ON_PLAYER -- Heart of the Wild (Guardian)
