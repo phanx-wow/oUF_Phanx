@@ -1,3 +1,8 @@
+### Version 6.1.0.75 (2015 March 14)
+
+* Fixed text wrapping issues in WoW 6.1
+* Updated more aura IDs
+
 ### Version 6.0.3.74 (2015 Feb 4)
 
 * Updated some aura IDs (if something is still missing/wrong for your class please let me know)
