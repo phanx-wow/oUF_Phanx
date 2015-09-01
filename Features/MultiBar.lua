@@ -51,7 +51,7 @@ function ns.CreateMultiBar(frame, numBars, textSize, leftToRight)
 	multibar:SetScript("OnHide", ns.ExtraBar_OnHide)
 
 	local barWidth = floor((frame:GetWidth() - (numBars + 1)) / numBars + 0.5)
-	local RIGHT, LEFT = leftToRight and "LEFT" or "RIGHT", leftToRight and "RIGHT" or "LEFT"
+	local RIGHT, LEFT, X = leftToRight and "LEFT" or "RIGHT", leftToRight and "RIGHT" or "LEFT", leftToRight and 1 or -1
 
 	for i = 1, numBars do
 		local bar = ns.CreateStatusBar(multibar, textSize, "CENTER")
@@ -61,24 +61,23 @@ function ns.CreateMultiBar(frame, numBars, textSize, leftToRight)
 		bar:SetMinMaxValues(0, 1)
 		bar:SetValue(1)
 
+		bar:SetPoint("TOP", 0, -1)
+		bar:SetPoint("BOTTOM", 0, 1)
+		if i > 1 then
+			bar:SetPoint(RIGHT, multibar[i-1], "TOP"..LEFT, X, 0)
+			if i == numBars then
+				-- Fill up remaining space left by rounding
+				-- the bar width down to avoid fuzzy edges.
+				bar:SetPoint(LEFT, multibar, X, 0)
+			end
+		else
+			bar:SetPoint(RIGHT, multibar, X, 0)
+		end
+
 		bar.Hide = Bar_Hide
 		bar.Show = Bar_Show
 		bar.IsShown = Bar_IsShown
 		bar.SetShown = Bar_SetShown
-
-		if i > 1 then
-			bar:SetPoint("TOP"..RIGHT, multibar[i-1], "TOP"..LEFT, -1, 0)
-			bar:SetPoint("BOTTOM"..RIGHT, multibar[i-1], "BOTTOM"..LEFT, -1, 0)
-			if i == numBars then
-				-- Fill up remaining space left by rounding
-				-- the bars down to avoid fuzzy edges.
-				bar:SetPoint("TOP"..LEFT, multibar, -1, -1)
-				bar:SetPoint("BOTTOM"..LEFT, multibar, -1, 1)
-			end
-		else
-			bar:SetPoint("TOP"..RIGHT, multibar, -1, -1)
-			bar:SetPoint("BOTTOM"..RIGHT, multibar, -1, 1)
-		end
 
 		bar.__owner = frame
 		multibar[i] = bar

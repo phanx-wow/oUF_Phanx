@@ -593,7 +593,7 @@ do
 	function ns.CreateStatusBar(parent, size, justify, noBG, noSmoothing)
 		local file = Media:Fetch("statusbar", ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
 
-		local sb = CreateFrame("StatusBar", nil, parent)
+		local sb = CreateFrame("StatusBar", "$parent_TempName"..random(1000000,9000000), parent) -- global name to avoid Blizzard /fstack error
 		sb:SetStatusBarTexture(file)
 		tinsert(ns.statusbars, sb)
 
