@@ -18,7 +18,7 @@ function Orbs.Create(parent, num, size, statusbar, orientation, reverse, style)
 	-- normal direction is LTR or TTB, reverse is RTL or BTT
 	local orbs = {}
 	for i = 1, num do
-		local orb = CreateFrame("Frame", nil, parent)
+		local orb = CreateFrame("Frame", "oUFPhanxOrb"..random(100000), parent)
 		orb:SetSize(size or 20, size or 20)
 		orb.size = size or 20
 
