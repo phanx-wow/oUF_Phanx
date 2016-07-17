@@ -12,8 +12,6 @@ local _, playerClass = UnitClass("player")
 local colors = oUF.colors
 local config
 
-local function noop() end
-
 ns.frames, ns.headers, ns.objects = {}, {}, {}
 
 local function Spawn(self, unit, isSingle)
@@ -308,7 +306,7 @@ local function Spawn(self, unit, isSingle)
 		local el = ns.Orbs.Create(self.overlay, 6, 20) -- TODO: switch to multibar?
 		el.powerType = powerType
 		--el.Override = updateFunc
-		el.UpdateTexture = noop -- fuck off oUF >:(
+		el.UpdateTexture = nop -- fuck off oUF >:(
 		self[element] = el
 
 		local function SetAlpha(self, alpha)
@@ -580,7 +578,8 @@ local function Spawn(self, unit, isSingle)
 		self.PvP:SetFont("Fonts\\ARIALN.ttf", 18, "OUTLINE")
 		self.PvP:SetWordWrap(false)
 		self.PvP:SetText(RANGE_INDICATOR)
-		self.PvP.SetTexture = ns.noop
+		self.PvP.SetTexture = nop
+		self.PvP.SetTexCoord = nop
 		self.PvP.PostUpdate = ns.PvP_PostUpdate
 	end
 
@@ -734,8 +733,8 @@ local function Spawn(self, unit, isSingle)
 	-- Threat --
 	------------
 	self.Threat = {
-		Hide = noop, -- oUF stahp
-		IsObjectType = noop,
+		Hide = nop, -- oUF stahp
+		IsObjectType = nop,
 		Override = ns.Threat_Override,
 	}
 
