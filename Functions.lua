@@ -431,6 +431,16 @@ function ns.Stagger_PostUpdate(bar, maxHealth, stagger, staggerPercent, r, g, b)
 end
 
 ------------------------------------------------------------------------
+--	Phase icon
+------------------------------------------------------------------------
+
+function ns.PhaseIcon_PostUpdate(icon, inPhase)
+	if not inPhase and not UnitIsPlayer(icon.__owner.unit) then
+		return icon:Hide()
+	end
+end
+
+------------------------------------------------------------------------
 --	PvP icon
 ------------------------------------------------------------------------
 

@@ -531,6 +531,7 @@ local function Spawn(self, unit, isSingle)
 		phase:SetBlendMode("ADD")
 		phase:SetDesaturated(true)
 		phase:SetVertexColor(0.4, 0.8, 1)
+		phase.PostUpdate = ns.PhaseIcon_PostUpdate
 		self.PhaseIcon = phase
 	end
 
