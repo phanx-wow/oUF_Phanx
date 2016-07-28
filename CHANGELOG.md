@@ -1,3 +1,7 @@
+### Version 7.0.3.0 (2016 Jul)
+
+* Updated for WoW 7.0
+
 ### Version 6.1.0.75 (2015 March 14)
 
 * Fixed text wrapping issues in WoW 6.1
@@ -196,7 +200,7 @@
 * Improved visual integration of eclipse bar, druid mana bar, rune bars, and totem bars
 * Moved player frame orbs to the bottom to match the position of target frame orbs and avoid overlapping totem and rune bars
 
-#### Version 5.1.0.275 (2012 Nov 29)
+### Version 5.1.0.275 (2012 Nov 29)
 
 * Added Destabilize to the list of improperly flagged boss debuffs to show
 * Fixed an error in the DebuffHighlight module

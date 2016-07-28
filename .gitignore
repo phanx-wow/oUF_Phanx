@@ -1,16 +1,3 @@
-# Miscellaneous ------------------------------------------------------------#
-
-*.bak
-*.bat
-*.ods
-.svn/
-Libs/
+Libs
 Media/FrameGlow.blp
 Media/Glow.blp
-CHANGELOG.bbcode
-
-# Windows garbage ----------------------------------------------------------#
-
-Desktop.ini
-ehthumbs.db
-Thumbs.db

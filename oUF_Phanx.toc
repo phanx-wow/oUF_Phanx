@@ -1,4 +1,4 @@
-## Interface: 60100
+## Interface: 70000
 ## Version: @project-version@
 
 ## Title: oUF: Phanx
