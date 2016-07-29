@@ -179,10 +179,17 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		SetUnitConfig(panel.selectedUnit, "combatText", value)
 	end
 
+	local druidMana = panel.CreateCheckbox(unitSettings, L.SecondaryPower, L.SecondaryPower_Desc)
+	druidMana:SetPoint("TOPLEFT", combatText, "BOTTOMLEFT", 0, -8)
+	function druidMana:OnValueChanged(value)
+		oUFPhanxConfig.druidMana = value
+	end
+	druidMana.checkedKey = "druidMana"
+
 	local classHeader = unitSettings:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	classHeader:SetPoint("TOPLEFT", combatText, "BOTTOMLEFT", 2, -24)
 	do
-		local offset, left, right, bottom, top = 0.025, unpack(CLASS_BUTTONS[playerClass])
+		local offset, left, right, bottom, top = 0.025, unpack(CLASS_ICON_TCOORDS[playerClass])
 		local classIcon = format([[|TInterface\Glues\CharacterCreate\UI-CharacterCreate-Classes:14:14:0:0:256:256:%s:%s:%s:%s|t]], (left + offset) * 256, (right - offset) * 256, (bottom + offset) * 256, (top - offset) * 256)
 		classHeader:SetFormattedText("%s |c%s%s|r", classIcon, (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass].colorStr, format(L.ClassFeatures, UnitClass("player")))
 	end
@@ -199,38 +206,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		runeBars.checkedKey = "runeBars"
 		tinsert(classFeatures, runeBars)
 
-	elseif playerClass == "DRUID" then
-
-		local druidMana = panel.CreateCheckbox(unitSettings, L.DruidManaBar, L.DruidManaBar_Desc)
-		druidMana:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", -2, -12)
-		function druidMana:OnValueChanged(value)
-			oUFPhanxConfig.druidMana = value
-		end
-		druidMana.checkedKey = "druidMana"
-		tinsert(classFeatures, druidMana)
-
---		local eclipseBarIcons
-
-		local eclipseBar = panel.CreateCheckbox(unitSettings, L.EclipseBar, L.EclipseBar_Desc)
-		eclipseBar:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -8)
-		function eclipseBar:OnValueChanged(value)
-			oUFPhanxConfig.eclipseBar = value
---			eclipseBarIcons:SetEnabled(value)
-		end
-		eclipseBar.checkedKey = "eclipseBar"
-		tinsert(classFeatures, eclipseBar)
---[[
-		eclipseBarIcons = panel.CreateCheckbox(unitSettings, L.EclipseBarIcons, L.EclipseBarIcons_Desc)
-		eclipseBarIcons:SetPoint("TOPLEFT", eclipseBar, "BOTTOMLEFT", 0, -8)
-		function eclipseBarIcons:OnValueChanged(value)
-			oUFPhanxConfig.eclipseBarIcons = value
-		end
-		eclipseBarIcons.checkedKey = "eclipseBarIcons"
-		eclipseBarIcons.enabledKey = "eclipseBar"
-		tinsert(classFeatures, eclipseBarIcons)
-]]
 	elseif playerClass == "MONK" then
-
+--[[
 		local staggerBar = panel.CreateCheckbox(unitSettings, L.StaggerBar, L.StaggerBar_Desc)
 		staggerBar:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", -2, -12)
 		function staggerBar:OnValueChanged(value)
@@ -238,7 +215,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		end
 		staggerBar.checkedKey = "staggerBar"
 		tinsert(classFeatures, staggerBar)
-
+]]
 	elseif playerClass == "SHAMAN" then
 
 		local totemBars = panel.CreateCheckbox(unitSettings, L.TotemBars, L.TotemBars_Desc)
@@ -351,7 +328,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 			unitTitle:SetText(unitLabel[unit])
 
-		   enable:SetValue(not GetUnitConfig(unit, "disable"))
+			enable:SetValue(not GetUnitConfig(unit, "disable"))
 			power:SetValue(GetUnitConfig(unit, "power"))
 			castbar:SetValue(GetUnitConfig(unit, "castbar"))
 			combatText:SetValue(GetUnitConfig(unit, "combatText"))
@@ -360,6 +337,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 			height:SetValue(GetUnitConfig(unit, "height") or 1)
 
 			if unit == "player" then
+				druidMana:Show()
+				druidMana:SetValue(oUFPhanxConfig.druidMana)
 				classHeader:SetShown(#classFeatures > 0)
 				for i = 1, #classFeatures do
 					local box = classFeatures[i]
@@ -370,6 +349,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 					end
 				end
 			else
+				druidMana:Hide()
 				classHeader:Hide()
 				for i = 1, #classFeatures do
 					classFeatures[i]:Hide()

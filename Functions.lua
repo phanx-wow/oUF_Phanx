@@ -130,8 +130,8 @@ do
 		GHOST = "Geist" -- TOO LONG OMG
 	end
 
-	local UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapped, UnitIsTappedByPlayer, UnitIsTappedByAllThreatList, UnitIsEnemy, UnitReaction, UnitCanAssist
-		 = UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapped, UnitIsTappedByPlayer, UnitIsTappedByAllThreatList, UnitIsEnemy, UnitReaction, UnitCanAssist
+	local UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapDenied, UnitIsEnemy, UnitReaction, UnitCanAssist
+		 = UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapDenied, UnitIsEnemy, UnitReaction, UnitCanAssist
 
 	function ns.Health_PostUpdate(bar, unit, cur, max)
 		local frame = bar.__owner
@@ -160,7 +160,7 @@ do
 		if UnitIsPlayer(unit) then
 			local _, class = UnitClass(unit)
 			color = colors.class[class]
-		elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) and not UnitIsTappedByAllThreatList(unit) then
+		elseif UnitIsTapDenied(unit) then
 			color = colors.tapped
 		elseif UnitIsEnemy(unit, "player") then
 			color = colors.reaction[1]
@@ -312,93 +312,27 @@ do
 end
 
 ------------------------------------------------------------------------
---	Combo points
+--	ClassIcons
 ------------------------------------------------------------------------
 
-function ns.ComboPoints_Override(self, event, unit)
-	if unit == "pet" then return end
-
-	local cp
-	if UnitHasVehicleUI("player") then
-		cp = GetComboPoints("vehicle", "target")
-	else
-		cp = GetComboPoints("player", "target")
-end
-
-	ns.Orbs.Update(self.CPoints, cp)
-end
-
-------------------------------------------------------------------------
--- ClassIcons: monk chi
-------------------------------------------------------------------------
-
-local SPELL_POWER_CHI = SPELL_POWER_CHI
-
-function ns.Chi_Override(self, event, unit, powerType)
-	if unit ~= self.unit or (powerType and powerType ~= "CHI") then return end
-
-	local num = UnitPower("player", SPELL_POWER_CHI)
-	local max = UnitPowerMax("player", SPELL_POWER_CHI)
-
-	--print("UpdateChi", num, max)
-	ns.Orbs.Update(self.ClassIcons, num, max)
-end
-
-------------------------------------------------------------------------
---	ClassIcons: paladin holy power
-------------------------------------------------------------------------
-
-local SPELL_POWER_HOLY_POWER = SPELL_POWER_HOLY_POWER
-
-function ns.HolyPower_Override(self, event, unit, powerType)
-	if unit ~= self.unit or (powerType and powerType ~= "HOLY_POWER") then return end
-
-	local num = UnitPower("player", SPELL_POWER_HOLY_POWER)
-	local max = UnitPowerMax("player", SPELL_POWER_HOLY_POWER)
-
-	--print("UpdateHolyPower", num, max)
-	ns.Orbs.Update(self.ClassIcons, num, max)
-end
-
-------------------------------------------------------------------------
---	ClassIcons: priest shadow orbs
-------------------------------------------------------------------------
-
-local SPELL_POWER_SHADOW_ORBS = SPELL_POWER_SHADOW_ORBS
-
-function ns.ShadowOrbs_Override(self, event, unit, powerType)
-	if unit ~= self.unit or (powerType and powerType ~= "SHADOW_ORBS") then return end
-
-	local num = UnitPower("player", SPELL_POWER_SHADOW_ORBS)
-	local max = UnitPowerMax("player", SPELL_POWER_SHADOW_ORBS)
-
-	--print("UpdateShadowOrbs", num, max)
-	ns.Orbs.Update(self.ClassIcons, num, max)
-end
-
-------------------------------------------------------------------------
---	ClassIcons: warlock soul shards
-------------------------------------------------------------------------
-
-local SPELL_POWER_SOUL_SHARDS = SPELL_POWER_SOUL_SHARDS
-
-function ns.SoulShards_Override(self, event, unit, powerType)
-	if unit ~= self.unit or (powerType and powerType ~= "SOUL_SHARDS") then return end
-
-	local num = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
-	local max = UnitPowerMax("player", SPELL_POWER_SOUL_SHARDS)
-
-	--print("UpdateShadowOrbs", num, max)
-	ns.Orbs.Update(self.ClassIcons, num, max)
-end
-
-------------------------------------------------------------------------
---	Demonic fury
-------------------------------------------------------------------------
-
-function ns.DemonicFury_PostUpdate(bar, fury, maxFury, inMetamorphosis)
-	--print("DemonicFury PostUpdate", fury, maxFury, inMetamorphosis)
-	bar.value:SetFormattedText("%.0f%%", fury / maxFury)
+function ns.ClassIcons_PostUpdate(element, cur, max, hasMaxChanged, event)
+	--print("ClassIcons PostUpdate", cur, max, hasMaxChanged)
+	ns.Orbs.Update(element, cur, max)
+	--[[
+	for i = 1, max do
+		local icon = element[i]
+		if i > cur then
+			icon.bg:SetVertexColor(0.4, 0.4, 0.4)
+			icon.bg:SetAlpha(0.5)
+			icon.fg:Hide()
+			icon:Show()
+		else
+			icon.bg:SetVertexColor(0.25, 0.25, 0.25)
+			icon.bg:SetAlpha(1)
+			icon.fg:Show()
+		end
+	end
+	]]
 end
 
 ------------------------------------------------------------------------
@@ -410,15 +344,8 @@ function ns.DruidMana_PostUpdate(bar, unit, mana, maxMana)
 end
 
 ------------------------------------------------------------------------
---	Eclipse bar
-------------------------------------------------------------------------
-
-function ns.Eclipse_PostUpdate(bar, unit, power, powerMax)
-	bar.value:SetText(power)
-end
-
-------------------------------------------------------------------------
 --	Stagger
+--	TODO reimplement or remove
 ------------------------------------------------------------------------
 
 function ns.Stagger_PostUpdate(bar, maxHealth, stagger, staggerPercent, r, g, b)

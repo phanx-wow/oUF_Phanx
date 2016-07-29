@@ -22,7 +22,7 @@ oUF.Tags.Methods["unitcolor"] = function(unit)
 	elseif UnitIsPlayer(unit) then
 		local _, class = UnitClass(unit)
 		color = oUF.colors.class[class]
-	elseif UnitIsTapped(unit) and not UnitIsTappedByPlayer(unit) and not UnitIsTappedByAllThreatList(unit) then
+	elseif UnitIsTapDenied(unit) then
 		color = oUF.colors.tapped
 	elseif UnitIsEnemy(unit, "player") then
 		color = oUF.colors.reaction[1]
@@ -116,69 +116,6 @@ do
 		end
 		if pct and pct > 0 and pct < 300 then
 			return format("%s%d%%", colors[status] or colors[0], pct + 0.5)
-		end
-	end
-end
-
-------------------------------------------------------------------------
---	Buffs
-
-do
-	local EVANGELISM = GetSpellInfo(81661) -- 81660 for rank 1
-	local DARK_EVANGELISM = GetSpellInfo(87118) -- 87117 for rank 1
-	oUF.Tags.Events["evangelism"] = "UNIT_AURA"
-	oUF.Tags.Methods["evangelism"] = function(unit)
-		if unit == "player" then
-			local name, _, icon, count = UnitBuff("player", EVANGELISM)
-			if name then return count end
-
-			name, _, icon, count = UnitBuff("player", DARK_EVANGELISM)
-			return name and count
-		end
-	end
-end
-
-do
-	local MAELSTROM_WEAPON = GetSpellInfo(53817)
-	oUF.Tags.Events["maelstrom"] = "UNIT_AURA"
-	oUF.Tags.Methods["maelstrom"] = function(unit)
-		if unit == "player" then
-			local name, _, icon, count = UnitBuff("player", MAELSTROM_WEAPON)
-			return name and count
-		end
-	end
-end
-
-do
-	local EARTH_SHIELD = GetSpellInfo(974)
-	local LIGHTNING_SHIELD = GetSpellInfo(324)
-	local WATER_SHIELD = GetSpellInfo(52127)
-
-	local EARTH_TEXT = setmetatable({}, { __index = function(t,i)
-		return format("|cffa7c466%d|r", i)
-	end })
-	local LIGHTNING_TEXT = setmetatable({}, { __index = function(t,i)
-		return format("|cff7f97f7%d|r", i)
-	end })
-	local WATER_TEXT = setmetatable({}, { __index = function(t,i)
-		return format("|cff7cbdff%d|r", i)
-	end })
-
-	oUF.Tags.Events["elementalshield"] = "UNIT_AURA"
-	oUF.Tags.Methods["elementalshield"] = function(unit)
-		local name, _, icon, count = UnitBuff(unit, EARTH_SHIELD, nil, "PLAYER")
-		if name then
-			return EARTH_TEXT[count]
-		end
-		if unit == "player" then
-			name, _, icon, count = UnitBuff(unit, LIGHTNING_SHIELD)
-			if name then
-				return LIGHTNING_TEXT[count]
-			end
-			name, _, icon, count = UnitBuff(unit, WATER_SHIELD)
-			if name then
-				return WATER_TEXT[count]
-			end
 		end
 	end
 end

@@ -239,207 +239,32 @@ local function Spawn(self, unit, isSingle)
 		self:Tag(self.ThreatText, "[threatpct]")
 	end
 
-	------------------
-	-- Combo points --
-	------------------
-	-- TODO: make sure it never overlaps with ClassIcons
-	if unit == "player" then
-		local el = ns.Orbs.Create(self.overlay, MAX_COMBO_POINTS, 20)
-		el.Override = ns.ComboPoints_Override
-		self.CPoints = el
-
-		for i = MAX_COMBO_POINTS, 1, -1 do
-			local orb = el[i]
-			if i == 1 then
-				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
-			else
-				orb:SetPoint("BOTTOMRIGHT", el[i - 1], "BOTTOMLEFT", 2, 0)
-			end
-			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-			orb.fg:SetVertexColor(1, 0.8, 0)
-		end
-	end
-
 	------------------------------
 	-- Class-specific resources --
 	------------------------------
-	if unit == "player" and (playerClass == "DRUID" or playerClass == "MONK" or playerClass == "PALADIN" or playerClass == "PRIEST" or playerClass == "WARLOCK") then
+	if unit == "player" then
+
+		local ClassIcons = ns.Orbs.Create(self.overlay, 6, 20)
+		ClassIcons[1]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
+
+		ClassIcons.PostUpdate = ns.ClassIcons_PostUpdate
+		ClassIcons.UpdateTexture = nop -- fuck off oUF >:(
+		self.ClassIcons = ClassIcons
+
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
-		local element, powerType, updateFunc = "ClassIcons"
-
-		--------------------
-		-- Wild mushrooms --
-		--------------------
-		if playerClass == "DRUID" then
-			element = "WildMushrooms"
-			updateFunc = ns.WildMushrooms_Override
-
-		---------
-		-- Chi --
-		---------
-		elseif playerClass == "MONK" then
-			powerType = SPELL_POWER_LIGHT_FORCE
-			updateFunc = ns.Chi_Override
-
-		----------------
-		-- Holy power --
-		----------------
-		elseif playerClass == "PALADIN" then
-			powerType = SPELL_POWER_HOLY_POWER
-			updateFunc = ns.HolyPower_Override
-
-		-----------------
-		-- Shadow orbs --
-		-----------------
-		elseif playerClass == "PRIEST" then
-			powerType = SPELL_POWER_SHADOW_ORBS
-			updateFunc = ns.ShadowOrbs_Override
-
-		-----------------
-		-- Soul shards --
-		-----------------
-		elseif playerClass == "WARLOCK" then
-			powerType = SPELL_POWER_SOUL_SHARDS
-			updateFunc = ns.SoulShards_Override
-		end
-
-		local el = ns.Orbs.Create(self.overlay, 6, 20) -- TODO: switch to multibar?
-		el.powerType = powerType
-		--el.Override = updateFunc
-		el.UpdateTexture = nop -- fuck off oUF >:(
-		self[element] = el
-
-		local function SetAlpha(self, alpha)
-			--print("SetAlpha", self.id, alpha)
-			if alpha == 1 then
-				self.bg:SetVertexColor(0.25, 0.25, 0.25)
-				self.bg:SetAlpha(1)
-				self.fg:Show()
-			else
-				self.bg:SetVertexColor(0.4, 0.4, 0.4)
-				self.bg:SetAlpha(0.5)
-				self.fg:Hide()
-			end
-		end
 		for i = 1, 5 do
-			local orb = el[i]
-			if i == 1 then
-				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
-			else
-				orb:SetPoint("BOTTOMRIGHT", el[i - 1], "BOTTOMLEFT", 2, 0)
-			end
-			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-			orb.fg:SetVertexColor(color.r, color.g, color.b)
-			orb.SetAlpha = SetAlpha
+			ClassIcons[i].bg:SetVertexColor(0.25, 0.25, 0.25)
+			ClassIcons[i].fg:SetVertexColor(color.r, color.g, color.b)
 		end
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				local color = CUSTOM_CLASS_COLORS[playerClass]
-				for i = 1, #el do
-					el[i].fg:SetVertexColor(color.r, color.g, color.b)
+				for i = 1, #ClassIcons do
+					ClassIcons[i].fg:SetVertexColor(color.r, color.g, color.b)
 				end
 			end)
 		end
-	end
-
-	--------------------
-	-- Stacking buffs --
-	--------------------
-	if unit == "player" and (playerClass == "MAGE" or playerClass == "SHAMAN") then
-		local aura, filter, maxCount, actviate, activateEvents
-		if playerClass == "MAGE" then
-			aura = GetSpellInfo(36032) -- Arcane Charge
-			filter = "HARMFUL"
-			maxCount = 4
-			activate = function()
-				return GetSpecialization() == 1
-			end
-			activateEvents = "PLAYER_SPECIALIZATION_CHANGED"
-		elseif playerClass == "SHAMAN" then
-			aura = GetSpellInfo(53817) -- Maelstrom Weapon
-			maxCount = 5
-			activate = function()
-				return GetSpecialization() == 2 and UnitLevel("player") >= 50
-			end
-			activateEvents = "PLAYER_SPECIALIZATION_CHANGED PLAYER_LEVEL_UP"
-		end
-
-		local el = ns.Orbs.Create(self.overlay, maxCount, 20)
-		el.aura = aura
-		el.filter = filter
-		el.activate = activate
-		el.activateEvents = activateEvents
-		self.AuraStack = el
-
-		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
-
-		local function SetAlpha(orb, alpha)
-			if alpha == 1 then
-				orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-				orb.bg:SetAlpha(1)
-				orb.fg:Show()
-			else
-				orb.bg:SetVertexColor(0.4, 0.4, 0.4)
-				orb.bg:SetAlpha(0.5)
-				orb.fg:Hide()
-			end
-		end
-
-		for i = 1, #el do
-			local orb = el[i]
-			if i == 1 then
-				orb:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
-			else
-				orb:SetPoint("BOTTOMRIGHT", el[i - 1], "BOTTOMLEFT", 2, 0)
-			end
-			orb.bg:SetVertexColor(0.25, 0.25, 0.25)
-			orb.fg:SetVertexColor(color.r, color.g, color.b)
-			orb.SetAlpha = SetAlpha
-		end
-
-		if CUSTOM_CLASS_COLORS then
-			CUSTOM_CLASS_COLORS:RegisterCallback(function()
-				color = CUSTOM_CLASS_COLORS[playerClass]
-				for i = 1, #el do
-					el[i].fg:SetVertexColor(color.r, color.g, color.b)
-				end
-			end)
-		end
-	end
-
-	--------------------
-	-- Burning embers --
-	--------------------
-	if unit == "player" and playerClass == "WARLOCK" then
-		self.BurningEmbers = ns.CreateBurningEmbers(self)
-	end
-
-	----------------
-	-- EclipseBar --
-	----------------
-	if unit == "player" and playerClass == "DRUID" and config.eclipseBar then
-		self.EclipseBar = ns.CreateEclipseBar(self)
-		--[[
-		local eclipseBar = ns.CreateStatusBar(self, 16, "CENTER")
-		eclipseBar:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
-		eclipseBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
-		eclipseBar:SetHeight(FRAME_HEIGHT * config.powerHeight)
-
-		eclipseBar.value:Hide()
-		eclipseBar.value:SetPoint("CENTER", eclipseBar, 0, 1)
-		self:RegisterForMouseover(eclipseBar.value)
-
-		eclipseBar:Hide()
-		eclipseBar:SetScript("OnShow", ns.ExtraBar_OnShow)
-		eclipseBar:SetScript("OnHide", ns.ExtraBar_OnHide)
-		eclipseBar.borderOffset = 2
-
-		eclipseBar.bg.multiplier = config.powerBG
-
-		eclipseBar.PostUpdate = ns.Eclipse_PostUpdate
-		self.Eclipse = eclipseBar
-		]]
 	end
 
 	-----------
@@ -456,44 +281,30 @@ local function Spawn(self, unit, isSingle)
 		self.Totems = ns.CreateTotems(self)
 	end
 
-	----------------------------------------------
-	-- Demonic fury / Druid mana / Monk stagger --
-	----------------------------------------------
-	if unit == "player" and (playerClass == "WARLOCK" or (playerClass == "DRUID" and config.druidMana) or (playerClass == "MONK" and config.staggerBar)) then
-		local otherPower = ns.CreateStatusBar(self, 16, "CENTER")
-		otherPower:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
-		otherPower:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
-		otherPower:SetHeight(FRAME_HEIGHT * config.powerHeight)
+	-------------------------
+	-- Secondary power bar --
+	-------------------------
+	if unit == "player" and config.druidMana then
+		local DruidMana = ns.CreateStatusBar(self, 16, "CENTER")
+		DruidMana:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
+		DruidMana:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
+		DruidMana:SetHeight(FRAME_HEIGHT * config.powerHeight)
 
-		otherPower.value:SetPoint("CENTER", otherPower, 0, 1)
+		DruidMana.value:SetPoint("CENTER", DruidMana, 0, 1)
 
-		otherPower.value:Hide()
-		self:RegisterForMouseover(otherPower.value)
+		DruidMana.value:Hide()
+		self:RegisterForMouseover(DruidMana.value)
 
-		otherPower:Hide()
-		otherPower:SetScript("OnShow", ns.ExtraBar_OnShow)
-		otherPower:SetScript("OnHide", ns.ExtraBar_OnHide)
-		otherPower.borderOffset = 2
+		DruidMana:Hide()
+		DruidMana:SetScript("OnShow", ns.ExtraBar_OnShow)
+		DruidMana:SetScript("OnHide", ns.ExtraBar_OnHide)
+		DruidMana.borderOffset = 2
 
-		otherPower.colorPower = true
-		otherPower.bg.multiplier = config.powerBG
+		DruidMana.colorPower = true
+		DruidMana.bg.multiplier = config.powerBG
 
-		if playerClass == "WARLOCK" then
-			local color = oUF.colors.power.DEMONIC_FURY
-			otherPower.value:SetTextColor(color[1], color[2], color[3])
-			otherPower.PostUpdate = ns.DemonicFury_PostUpdate
-			self.DemonicFury = otherPower
-
-		elseif playerClass == "DRUID" then
-			local color = oUF.colors.power.MANA
-			otherPower.value:SetTextColor(color[1], color[2], color[3])
-			otherPower.PostUpdate = ns.DruidMana_PostUpdate
-			self.DruidMana = otherPower
-
-		else
-			otherPower.PostUpdate = ns.Stagger_PostUpdate
-			self.Stagger = otherPower
-		end
+		DruidMana.PostUpdate = ns.DruidMana_PostUpdate
+		self.DruidMana = DruidMana
 	end
 
 	-----------------------

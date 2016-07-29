@@ -30,6 +30,14 @@ function Orbs.Create(parent, num, size, statusbar, orientation, reverse, style)
 		orb.fg:SetAllPoints(true)
 		orb.fg:SetTexture("Interface\\AddOns\\oUF_Phanx\\media\\OrbFG")
 
+		if i > 1 then
+			if reverse then
+				orb:SetPoint("LEFT", orbs[i-1], "RIGHT", -2, 0)
+			else
+				orb:SetPoint("RIGHT", orbs[i-1], "LEFT", 2, 0)
+			end
+		end
+
 		if statusbar then
 			local spiral = CreateFrame("Cooldown", nil, orb)
 			spiral.noCooldownCount = true
@@ -69,19 +77,20 @@ end
 ------------------------------------------------------------------------
 --	Update an orb group
 --
-function Orbs.Update(orbs, num, max)
+function Orbs.Update(orbs, cur, max)
+	cur = cur or 0
 	max = max or orbs.max or #orbs
-	--print("Orbs.Update", num, max)
-	if num == 0 or max == 0 then
+	--print("Orbs.Update", cur, max)
+	if cur == 0 or max == 0 then
 		for i = 1, #orbs do
 			orbs[i]:Hide()
 		end
 	else
-		--local full = num == max
+		--local full = cur == max
 		for i = 1, #orbs do
 			local orb = orbs[i]
-			if i <= num then
-				--print(i, "<= num", num)
+			if i <= cur then
+				--print(i, "<= cur", cur)
 			--	if full then
 			--		orb.bg:SetVertexColor(1, 0.9, 0.25)
 			--	else
