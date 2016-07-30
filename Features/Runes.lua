@@ -12,12 +12,6 @@ if select(2, UnitClass("player")) ~= "DEATHKNIGHT" then return end
 
 local _, ns = ...
 
-local colors = oUF.colors.runes
-colors[1][1], colors[1][2], colors[1][3] = 0.8, 0.2, 0.2 -- Blood
-colors[3][1], colors[3][2], colors[3][3] = 0,   0.8, 1   -- Frost
-colors[2][1], colors[2][2], colors[2][3] = 0.3, 0.9, 0   -- Unholy
-colors[4][1], colors[4][2], colors[4][3] = 0.8, 0.5, 1   -- Death
-
 local Runes
 
 local ColorGradient = oUF.ColorGradient
@@ -25,7 +19,7 @@ local SMOOTH_COLORS = oUF.colors.smooth
 local unpack = unpack
 
 local function Rune_OnUpdate(bar, elapsed)
-	if bar.mouseover then
+	if bar.mouseover and not bar.ready then
 		local duration, max = bar.duration, bar.max
 		if duration < max then
 			bar.value:SetFormattedText(SecondsToTimeAbbrev(max - duration))
@@ -36,10 +30,11 @@ end
 
 local function Rune_OnEnter(bar)
 	bar.mouseover = true
-	if not bar.ready then
+	if bar.duration and not bar.ready then 
 		bar.value:Show()
-		if bar.duration > 0 then
+		if not bar.hookedOnUpdate then
 			bar:HookScript("OnUpdate", Rune_OnUpdate)
+			bar.hookedOnUpdate = true
 		end
 	end
 end
@@ -49,7 +44,7 @@ local function Rune_OnLeave(bar)
 	bar.value:Hide()
 end
 
-local function PostUpdateRune(element, bar, id, start, duration, ready)
+local function PostUpdateRune(element, bar, i, start, duration, ready)
 	bar.ready = ready
 	if ready then
 		bar:GetStatusBarTexture():SetAlpha(1)
@@ -57,12 +52,25 @@ local function PostUpdateRune(element, bar, id, start, duration, ready)
 		bar:GetStatusBarTexture():SetAlpha(0.5)
 	end
 
+	local color
+	if element.colorPower then
+		color = oUF.colors.power.RUNES
+	elseif element.colorClass then
+		color = oUF.colors.class.DEATHKNIGHT
+	end
+	if color then
+		local mu = bar.bg.multiplier
+		bar:SetStatusBarColor(color[1], color[2], color[3])
+		bar.bg:SetVertexColor(color[1] * mu, color[2] * mu, color[3] * mu)
+	end
+
+	local shown = element:IsShown()
 	for i = 1, #element do
 		if element[i]:IsShown() then
-			return element:Show()
+			return shown or element:Show()
 		end
 	end
-	element:Hide()
+	return shown and element:Hide()
 end
 
 ns.CreateRunes = function(frame)
@@ -71,7 +79,7 @@ ns.CreateRunes = function(frame)
 	end
 
 	Runes = ns.CreateMultiBar(frame, 6, 16, true)
-	Runes.PostUpdateRune = PostUpdateRune
+	Runes.PostUpdate = PostUpdateRune
 
 	for i = 1, #Runes do
 		local bar = Runes[i]

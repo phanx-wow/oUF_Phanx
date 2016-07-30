@@ -84,7 +84,6 @@ local function Spawn(self, unit, isSingle)
 	health:SetPoint("TOPLEFT", self, "TOPLEFT", 1, -1)
 	health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
 	health:SetPoint("BOTTOM", self, "BOTTOM", 0, 1)
-	self.Health = health
 
 	health.texture:SetDrawLayer("ARTWORK")
 
@@ -105,11 +104,11 @@ local function Spawn(self, unit, isSingle)
 		health.bg:SetVertexColor(r * healthBG, g * healthBG, b * healthBG)
 	end
 
-	-- Blizzard bug, UNIT_HEALTH doesn't fire for bossN units in 5.2+
-	health.frequentUpdates = true -- unit == "boss"
-
+	health.frequentUpdates = true
 	health.PostUpdate = ns.Health_PostUpdate
 	self:RegisterForMouseover(health)
+	self:SmoothBar(health)
+	self.Health = health
 
 	---------------------------------
 	-- Predicted healing & absorbs --
@@ -181,7 +180,6 @@ local function Spawn(self, unit, isSingle)
 		power:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 1, 1)
 		power:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -1, 1)
 		power:SetHeight(POWER_HEIGHT)
-		self.Power = power
 
 		health:SetPoint("BOTTOM", power, "TOP", 0, 1)
 
@@ -206,8 +204,10 @@ local function Spawn(self, unit, isSingle)
 			power.bg:SetVertexColor(r / powerBG, g / powerBG, b / powerBG)
 		end
 
-		power.frequentUpdates = unit == "player" or unit == "target" or unit == "focus" or unit == "boss"
+		power.frequentUpdates = true
 		power.PostUpdate = ns.Power_PostUpdate
+		self:SmoothBar(power)
+		self.Power = power
 	end
 
 	---------------------------
@@ -243,7 +243,6 @@ local function Spawn(self, unit, isSingle)
 	-- Class-specific resources --
 	------------------------------
 	if unit == "player" then
-
 		local ClassIcons = ns.Orbs.Create(self.overlay, 6, 20)
 		ClassIcons[1]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
 
@@ -272,6 +271,20 @@ local function Spawn(self, unit, isSingle)
 	-----------
 	if unit == "player" and playerClass == "DEATHKNIGHT" and config.runeBars then
 		self.Runes = ns.CreateRunes(self)
+
+		local powerColorMode = config.powerColorMode
+		self.Runes.colorClass = powerColorMode == "CLASS"
+		self.Runes.colorPower = powerColorMode == "POWER"
+
+		if powerColorMode == "CUSTOM" then
+			local r, g, b = unpack(config.powerColor)
+			for i = 1, #self.Runes do
+				local bar = self.Runes[i]
+				bar:SetStatusBarColor(r, g, b)
+				local mu = bar.bg.multiplier
+				bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
+			end
+		end
 	end
 
 	------------
@@ -279,12 +292,26 @@ local function Spawn(self, unit, isSingle)
 	------------
 	if unit == "player" and playerClass == "SHAMAN" and config.totemBars then
 		self.Totems = ns.CreateTotems(self)
+
+		local powerColorMode = config.powerColorMode
+		self.Totems.colorClass = powerColorMode == "CLASS"
+		self.Totems.colorPower = powerColorMode == "POWER"
+
+		if powerColorMode == "CUSTOM" then
+			local r, g, b = unpack(config.powerColor)
+			for i = 1, #self.Totems do
+				local bar = self.Totems[i]
+				bar:SetStatusBarColor(r, g, b)
+				local mu = bar.bg.multiplier
+				bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
+			end
+		end
 	end
 
 	-------------------------
 	-- Secondary power bar --
 	-------------------------
-	if unit == "player" and config.druidMana then
+	if unit == "player" and ns.configPC.druidMana then
 		local DruidMana = ns.CreateStatusBar(self, 16, "CENTER")
 		DruidMana:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
 		DruidMana:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
@@ -304,6 +331,7 @@ local function Spawn(self, unit, isSingle)
 		DruidMana.bg.multiplier = config.powerBG
 
 		DruidMana.PostUpdate = ns.DruidMana_PostUpdate
+		self:SmoothBar(DruidMana)
 		self.DruidMana = DruidMana
 	end
 
@@ -375,10 +403,12 @@ local function Spawn(self, unit, isSingle)
 	-- Role icons --
 	----------------
 	if unit == "player" or unit == "party" then
-		self.LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and -2 or 2, 0)
-		self.LFDRole:SetSize(16, 16)
-		-- TODO: use the borderless icons
+		local LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
+		LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and -2 or 2, 0)
+		LFDRole:SetSize(16, 16)
+		LFDRole:SetTexture("Interface\\LFGFRAME\\LFGROLE")
+		LFDRole.Override = ns.LFDRole_Override
+		self.LFDRole = LFDRole
 	end
 
 	---------------

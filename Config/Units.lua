@@ -179,13 +179,6 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 		SetUnitConfig(panel.selectedUnit, "combatText", value)
 	end
 
-	local druidMana = panel.CreateCheckbox(unitSettings, L.SecondaryPower, L.SecondaryPower_Desc)
-	druidMana:SetPoint("TOPLEFT", combatText, "BOTTOMLEFT", 0, -8)
-	function druidMana:OnValueChanged(value)
-		oUFPhanxConfig.druidMana = value
-	end
-	druidMana.checkedKey = "druidMana"
-
 	local classHeader = unitSettings:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	classHeader:SetPoint("TOPLEFT", combatText, "BOTTOMLEFT", 2, -24)
 	do
@@ -196,10 +189,17 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 
 	local classFeatures = {}
 
+	local druidMana = panel.CreateCheckbox(unitSettings, L.SecondaryPower, L.SecondaryPower_Desc)
+	druidMana:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", -2, -12)
+	function druidMana:OnValueChanged(value)
+		oUFPhanxConfigPC.druidMana = value
+	end
+	tinsert(classFeatures, druidMana)
+
 	if playerClass == "DEATHKNIGHT" then
 
 		local runeBars = panel.CreateCheckbox(unitSettings, L.RuneBars, L.RuneBars_Desc)
-		runeBars:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", -2, -12)
+		runeBars:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -8)
 		function runeBars:OnValueChanged(value)
 			oUFPhanxConfig.runeBars = value
 		end
@@ -209,7 +209,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	elseif playerClass == "MONK" then
 --[[
 		local staggerBar = panel.CreateCheckbox(unitSettings, L.StaggerBar, L.StaggerBar_Desc)
-		staggerBar:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", -2, -12)
+		staggerBar:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -8)
 		function staggerBar:OnValueChanged(value)
 			oUFPhanxConfig.staggerBar = value
 		end
@@ -219,7 +219,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 	elseif playerClass == "SHAMAN" then
 
 		local totemBars = panel.CreateCheckbox(unitSettings, L.TotemBars, L.TotemBars_Desc)
-		totemBars:SetPoint("TOPLEFT", classHeader, "BOTTOMLEFT", -2, -12)
+		totemBars:SetPoint("TOPLEFT", druidMana, "BOTTOMLEFT", 0, -8)
 		function totemBars:OnValueChanged(value)
 			oUFPhanxConfig.totemBars = value
 		end
@@ -337,19 +337,19 @@ LibStub("PhanxConfig-OptionsPanel"):New(L.UnitSettings, "oUF Phanx", function(pa
 			height:SetValue(GetUnitConfig(unit, "height") or 1)
 
 			if unit == "player" then
-				druidMana:Show()
-				druidMana:SetValue(oUFPhanxConfig.druidMana)
 				classHeader:SetShown(#classFeatures > 0)
+				druidMana:SetValue(oUFPhanxConfigPC.druidMana)
 				for i = 1, #classFeatures do
 					local box = classFeatures[i]
 					box:Show()
-					box:SetChecked(oUFPhanxConfig[box.checkedKey])
+					if box.checkedKey then
+						box:SetChecked(oUFPhanxConfig[box.checkedKey])
+					end
 					if box.enabledKey then
 						box:SetEnabled(oUFPhanxConfig[box.enabledKey])
 					end
 				end
 			else
-				druidMana:Hide()
 				classHeader:Hide()
 				for i = 1, #classFeatures do
 					classFeatures[i]:Hide()

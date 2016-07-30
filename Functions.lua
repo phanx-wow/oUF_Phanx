@@ -358,6 +358,36 @@ function ns.Stagger_PostUpdate(bar, maxHealth, stagger, staggerPercent, r, g, b)
 end
 
 ------------------------------------------------------------------------
+--	Dungeon role icon
+------------------------------------------------------------------------
+
+local roleTexCoords = {
+	DAMAGER = { 0.25, 0.5, 0, 1 },
+	TANK    = { 0.5, 0.75, 0, 1 },
+	HEALER  = { 0.75, 1, 0, 1 },
+}
+
+function ns.LFDRole_Override(self, event)
+	local lfdrole = self.LFDRole
+	if(lfdrole.PreUpdate) then
+		lfdrole:PreUpdate()
+	end
+
+	local role = UnitGroupRolesAssigned(self.unit)
+	local coords = roleTexCoords[role or ""]
+	if coords then
+		lfdrole:SetTexCoord(unpack(coords))
+		lfdrole:Show()
+	else
+		lfdrole:Hide()
+	end
+
+	if(lfdrole.PostUpdate) then
+		return lfdrole:PostUpdate(role)
+	end
+end
+
+------------------------------------------------------------------------
 --	Phase icon
 ------------------------------------------------------------------------
 
@@ -428,36 +458,44 @@ function ns.Auras_PostCreateIcon(element, button)
 end
 
 local function FindAuraTimer(button, unit)
-	if not OmniCC then
-		return true
-	end
-	for i = 1, button:GetNumChildren() do
-		local child = select(i, button:GetChildren())
-		if child.text and (child.icon == button.icon or child.cooldown == button.cd) then
-			-- found it!
-			child.ClearAllPoints = noop
-			child.SetAlpha = noop
-			child.SetPoint = noop
-			child.SetScale = noop
+	local timer
+	if OmniCC then
+		for i = 1, button:GetNumChildren() do
+			local child = select(i, button:GetChildren())
+			if child.text and (child.icon == button.icon or child.cooldown == button.cd) then
+				child.ClearAllPoints = noop
+				child.SetAlpha = noop
+				child.SetPoint = noop
+				child.SetScale = noop
 
-			child.text:ClearAllPoints()
-			child.text.ClearAllPoints = noop
+				timer = child.text
 
-			child.text:SetPoint("CENTER", button, "TOP", 0, 2)
-			child.text.SetPoint = noop
-
-			child.text:SetFont(ns.config.font, unit:match("^party") and 14 or 18, ns.config.fontOutline)
-			child.text.SetFont = noop
-
-			child.text:SetTextColor(1, 0.8, 0)
-			child.text.SetTextColor = noop
-			child.text.SetVertexColor = noop
-
-			tinsert(ns.fontstrings, child.text)
-
-			return child.text
+				break
+			end
 		end
+	else
+		local region = button.cd:GetRegions()
+		timer = region.SetText and region
 	end
+	if timer then
+		timer:ClearAllPoints()
+		timer.ClearAllPoints = noop
+
+		timer:SetPoint("CENTER", button, "TOP", 0, 2)
+		timer.SetPoint = noop
+
+		timer:SetFont(ns.GetFontFile(), unit:match("^party") and 12 or 16, ns.config.fontOutline)
+		timer.SetFont = noop
+
+		timer:SetTextColor(1, 0.8, 0)
+		timer.SetTextColor = noop
+		timer.SetVertexColor = noop
+
+		tinsert(ns.fontstrings, timer)
+
+		return timer
+	end
+	return true
 end
 
 function ns.Auras_PostUpdateIcon(element, unit, button, index, offset)
@@ -475,7 +513,7 @@ function ns.Auras_PostUpdateIcon(element, unit, button, index, offset)
 end
 
 function ns.Auras_PostUpdate(self, unit)
-	self.__owner.Health:ForceUpdate() -- required to detect Dead => Ghost
+	-- self.__owner.Health:ForceUpdate() -- required to detect Dead => Ghost
 	-- TODO: check if PLAYER_FLAGS_CHANGED or UNIT_FLAGS can work for this
 end
 

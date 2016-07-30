@@ -196,22 +196,38 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		{ value = "CUSTOM", text = L.ColorCustom },
 	})
 
+	local function SetBarColor(bar, mode)
+		bar.colorClass = mode == "CLASS"
+		bar.colorReaction = mode == "CLASS"
+		bar.colorPower = mode == "POWER"
+		if mode == "CUSTOM" then
+			local mu = power.bg.multiplier
+			local r, g, b = unpack(db.powerColor)
+			bar:SetStatusBarColor(r, g, b)
+			bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
+		elseif frame:IsShown() then
+			bar:ForceUpdate()
+		end
+	end
 	function powerColorMode:OnValueChanged(value, text)
 		db.powerColorMode = value
 		for i = 1, #ns.objects do
 			local frame = ns.objects[i]
-			local power = frame.Power
-			if type(power) == "table" then
-				power.colorClass = value == "CLASS"
-				power.colorReaction = value == "CLASS"
-				power.colorPower = value == "POWER"
-				if value == "CUSTOM" then
-					local mu = power.bg.multiplier
-					local r, g, b = unpack(db.powerColor)
-					power:SetStatusBarColor(r, g, b)
-					power.bg:SetVertexColor(r * mu, g * mu, b * mu)
-				elseif frame:IsShown() then
-					power:ForceUpdate()
+			SetBarColor(frame.Power)
+			SetBarColor(frame.DruidMana)
+			if frame.ClassIcons then
+				for i = 1, #frame.ClassIcons do
+					SetBarColor(frame.ClassIcons[i])
+				end
+			end
+			if frame.Runes then
+				for i = 1, #frame.Runes do
+					SetBarColor(frame.Runes[i])
+				end
+			end
+			if frame.Totems then
+				for i = 1, #frame.Totems do
+					SetBarColor(frame.Totems[i])
 				end
 			end
 		end

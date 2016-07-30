@@ -17,10 +17,14 @@ ns.statusbars = {}
 --	Default configuration
 ------------------------------------------------------------------------
 
+ns.configDefaultPC = {
+	druidMana = true,       -- show secondary mana bar
+}
+
 ns.configDefault = {
 	width = 225,
 	height = 30,
-	powerHeight = 0.2,				-- how much of the frame's height should be occupied by the power bar
+	powerHeight = 0.2,      -- how much of the frame's height should be occupied by the power bar
 
 	backdrop = { bgFile = [[Interface\BUTTONS\WHITE8X8]] },
 	backdropColor = { 32/256, 32/256, 32/256, 1 },
@@ -30,19 +34,16 @@ ns.configDefault = {
 	font = "PT Sans Bold",
 	fontOutline = "OUTLINE",
 	fontShadow = true,
-	fontScale = 1, -- no UI
+	fontScale = 1,          -- no UI
 
-	dispelFilter = true,				-- only highlight the frame for debuffs you can dispel
-	ignoreOwnHeals = false,			-- only show incoming heals from other players
-	threatLevels = true,				-- show threat levels instead of binary aggro
+	dispelFilter = true,    -- only highlight the frame for debuffs you can dispel
+	ignoreOwnHeals = false, -- show only incoming heals from other players
+	threatLevels = true,    -- show threat levels instead of binary aggro
 
-	combatText = false,				-- show combat feedback text
-	druidMana = false,				-- [druid] show a mana bar in cat/bear forms
-	eclipseBar = true,				-- [druid] show an eclipse bar
-	eclipseBarIcons = false,		-- [druid] show animated icons on the eclipse bar
-	runeBars = true,					-- [deathknight] show rune cooldown bars
-	staggerBar = true,				-- [monk] show stagger bar
-	totemBars = true,					-- [shaman] show totem duration bars
+	combatText = false,     -- show combat feedback text
+	runeBars = true,        -- [deathknight] show rune cooldown bars
+	staggerBar = true,      -- [monk] show stagger bar
+	totemBars = true,       -- [shaman] show totem duration bars
 
 	healthColor = { 0.2, 0.2, 0.2 },
 	healthColorMode = "CUSTOM",
@@ -55,7 +56,7 @@ ns.configDefault = {
 	borderColor = { 0.5, 0.5, 0.5 },
 	borderSize = 16,
 
-	PVP = false, -- enable PVP mode, currently only affects aura filtering
+	PVP = false,            -- enable PVP mode, currently only affects aura filtering
 }
 
 ------------------------------------------------------------------------
@@ -269,6 +270,10 @@ function Loader:ADDON_LOADED(event, addon)
 	-- Global unit settings:
 	oUFPhanxUnitConfig = initDB(oUFPhanxUnitConfig, ns.uconfigDefault)
 	ns.uconfig = oUFPhanxUnitConfig
+
+	-- Per-character settings:
+	oUFPhanxConfigPC = initDB(oUFPhanxConfigPC, ns.configDefaultPC)
+	ns.configPC = oUFPhanxConfigPC
 
 	-- Aura settings stored per character:
 	local AURA_CONFIG_VERSION = 3
@@ -533,8 +538,12 @@ end
 
 local FALLBACK_FONT_SIZE = 16 -- some Blizzard bug
 
+function ns.GetFontFile()
+	return Media:Fetch("font", ns.config.font) or STANDARD_TEXT_FONT
+end
+
 function ns.CreateFontString(parent, size, justify)
-	local file = Media:Fetch("font", ns.config.font) or STANDARD_TEXT_FONT
+	local file = ns.GetFontFile()
 	if not size or size < 6 then size = FALLBACK_FONT_SIZE end
 	size = size * ns.config.fontScale
 
@@ -550,7 +559,7 @@ function ns.CreateFontString(parent, size, justify)
 end
 
 function ns.SetAllFonts()
-	local file = Media:Fetch("font", ns.config.font) or STANDARD_TEXT_FONT
+	local file = ns.GetFontFile()
 	local outline = ns.config.fontOutline
 	local shadow = ns.config.fontShadow and 1 or 0
 	--print("SetAllFonts", strmatch(file, "[^/\\]+$"), outline)
@@ -574,26 +583,42 @@ end
 ------------------------------------------------------------------------
 
 do
+	local function SetOrientation(self, orientation)
+		self.__vertical = orientation == "VERTICAL"
+	end
+
 	local function SetReverseFill(self, reverse)
 		self.__reverse = reverse
 	end
 
-	local function SetTexCoord(self, v)
+	local function SetValue(self, v)
 		local mn, mx = self:GetMinMaxValues()
 		if v > 0 and v > mn and v <= mx then
 			local pct = (v - mn) / (mx - mn)
-			if self.__reverse then
-				self.texture:SetTexCoord(1 - pct, 1, 0, 1)
+			if self.__vertical then
+				if self.__reverse then
+					self.texture:SetTexCoord(0, 1, 1 - pct, 1)
+				else
+					self.texture:SetTexCoord(0, 1, 0, pct)
+				end
 			else
-				self.texture:SetTexCoord(0, pct, 0, 1)
+				if self.__reverse then
+					self.texture:SetTexCoord(1 - pct, 1, 0, 1)
+				else
+					self.texture:SetTexCoord(0, pct, 0, 1)
+				end
 			end
 		end
 	end
 
-	function ns.CreateStatusBar(parent, size, justify, noBG, noSmoothing)
-		local file = Media:Fetch("statusbar", ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
+	function ns.GetBarTexture()
+		return Media:Fetch("statusbar", ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
+	end
 
-		local sb = CreateFrame("StatusBar", "$parent_TempName"..random(1000000,9000000), parent) -- global name to avoid Blizzard /fstack error
+	function ns.CreateStatusBar(parent, size, justify, noBG, noSmoothing)
+		local file = ns.GetBarTexture()
+
+		local sb = CreateFrame("StatusBar", "oUFPhanxStatusBar"..(1 + #ns.statusbars), parent) -- global name to avoid Blizzard /fstack error
 		sb:SetStatusBarTexture(file)
 		tinsert(ns.statusbars, sb)
 
@@ -602,14 +627,9 @@ do
 		sb.texture:SetHorizTile(false)
 		sb.texture:SetVertTile(false)
 
-		local SmoothBar = not noSmoothing and (parent.SmoothBar or parent.__owner and parent.__owner.SmoothBar)
-		if SmoothBar then
-			SmoothBar(nil, sb) -- nil should be frame but isn't used
-			sb.__smooth = true
+		if size then
+			sb.value = ns.CreateFontString(sb, size, justify)
 		end
-
-		hooksecurefunc(sb, "SetReverseFill", SetReverseFill)
-		hooksecurefunc(sb, "SetValue", SetTexCoord)
 
 		if not noBG then
 			sb.bg = sb:CreateTexture(nil, "BACKGROUND")
@@ -618,17 +638,23 @@ do
 			tinsert(ns.statusbars, sb.bg)
 		end
 
-		if size then
-			sb.value = ns.CreateFontString(sb, size, justify)
+		local SmoothBar = not noSmoothing and (parent.SmoothBar or parent.__owner and parent.__owner.SmoothBar)
+		if SmoothBar then
+			SmoothBar(nil, sb) -- nil should be frame but isn't used
+			sb.__smooth = true
 		end
+
+		hooksecurefunc(sb, "SetOrientation", SetOrientation)
+		hooksecurefunc(sb, "SetReverseFill", SetReverseFill)
+		hooksecurefunc(sb, "SetValue", SetValue)
 
 		return sb
 	end
 end
 
 function ns.SetAllStatusBarTextures()
-	local file = Media:Fetch("statusbar", ns.config.statusbar) or "Interface\\TargetingFrame\\UI-StatusBar"
-	--print("SetAllFonts", strmatch(file, "[^/\\]+$"))
+	local file = ns.GetBarTexture()
+	--print("SetAllStatusBarTextures", strmatch(file, "[^/\\]+$"))
 
 	for i = 1, #ns.statusbars do
 		local sb = ns.statusbars[i]
