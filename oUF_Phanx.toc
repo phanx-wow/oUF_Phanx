@@ -17,29 +17,24 @@
 ## Dependencies: oUF
 ## OptionalDependencies: LibResInfo-1.0, LibSharedMedia-3.0, PhanxConfigWidgets
 ## SavedVariables: oUFPhanxConfig, oUFPhanxUnitConfig
-## SavedVariablesPerCharacter: oUFPhanxAuraConfig
+## SavedVariablesPerCharacter: oUFPhanxAuraConfig, oUFPhanxConfigPC
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibResInfo-1.0\LibResInfo-1.0.lua
 Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
 
-Features\MultiBar.lua
-Features\Orbs.lua
+Plugins\Smooth.lua
 
 Elements\AFK.lua
-Elements\AuraStack.lua
-Elements\BurningEmbers.lua
 Elements\CombatText.lua
-Elements\DemonicFury.lua
 Elements\DispelHighlight.lua
 Elements\ResInfo.lua
-Elements\WildMushrooms.lua
 
+Features\MultiBar.lua
+Features\Orbs.lua
 Features\Border.lua
-Features\BurningEmbers.lua
 Features\Castbar.lua
-Features\EclipseBar.lua
 Features\Runes.lua
 Features\Tags.lua
 Features\Totems.lua
