@@ -223,7 +223,7 @@
 * Removed support for oUF_boring_totembar plugin  
   *Totems are now supported natively by oUF, so there's no need for a plugin.*
 * Removed PT Serif font  
-  *If you were using it, just keep the file and don’t change the font option dropdown or — better yet — install [SharedMedia](http://www.curse.com/addons/wow/sharedmedia) and follow the “MyMedia” instructions.*
+  *If you were using it, just keep the file and don’t change the font option dropdown or — better yet — install [SharedMedia](https://mods.curse.com/addons/wow/sharedmedia) and follow the “MyMedia” instructions.*
 
 ### Version 5.0.5.256 (2012 Oct 28)
 
