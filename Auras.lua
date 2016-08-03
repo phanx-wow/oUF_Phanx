@@ -3,7 +3,7 @@
 	Fully-featured PVE-oriented layout for oUF.
 	Copyright (c) 2008-2016 Phanx <addons@phanx.net>. All rights reserved.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-	http://www.curse.com/addons/wow/ouf-phanx
+	https://mods.curse.com/addons/wow/ouf-phanx
 	https://github.com/Phanx/oUF_Phanx
 ------------------------------------------------------------------------
 	Filter settings stored as bitfields.
@@ -19,51 +19,47 @@ local bit_band, bit_bor = bit.band, bit.bor
 ------------------------------------------------------------------------
 
 -- Permanent filters, checked on login and respec:
-local FILTER_ALL            = 0x1000000
-local FILTER_DISABLE        = 0x2000000
-local FILTER_PVP            = 0x4000000 -- only show in PVP
-local FILTER_PVE            = 0x8000000 -- only show in PVE
+local FILTER_ALL          = 0x1000000
+local FILTER_NONE         = 0x2000000
 
-local FILTER_UNIT_FOCUS     = 0x0100000 -- Additionally show on focus frame
-local FILTER_UNIT_TOT       = 0x0200000 -- Additionally show on tot frame
+local FILTER_UNIT_FOCUS   = 0x0100000 -- Additionally show on focus frame
+local FILTER_UNIT_TOT     = 0x0200000 -- Additionally show on tot frame
 
-local FILTER_ROLE_MASK      = 0x00F0000
-local FILTER_ROLE_TANK      = 0x0010000
-local FILTER_ROLE_HEALER    = 0x0020000
-local FILTER_ROLE_DAMAGER   = 0x0040000
+local FILTER_ROLE_MASK    = 0x00F0000
+local FILTER_ROLE_TANK    = 0x0010000
+local FILTER_ROLE_HEALER  = 0x0020000
+local FILTER_ROLE_DAMAGER = 0x0040000
 
 -- Dynamic filters, checked in realtime:
-local FILTER_BY_MASK        = 0x000FF00
-local FILTER_BY_PLAYER      = 0x0000100
+local FILTER_BY_MASK      = 0x000FF00
+local FILTER_BY_PLAYER    = 0x0000100
 
-local FILTER_ON_MASK        = 0x00000FF
-local FILTER_ON_PLAYER      = 0x0000001
-local FILTER_ON_OTHER       = 0x0000002
-local FILTER_ON_FRIEND      = 0x0000004
-local FILTER_ON_ENEMY       = 0x0000008
+local FILTER_ON_MASK      = 0x00000FF
+local FILTER_ON_PLAYER    = 0x0000001
+local FILTER_ON_OTHER     = 0x0000002
+local FILTER_ON_FRIEND    = 0x0000004
+local FILTER_ON_ENEMY     = 0x0000008
 
 ns.auraFilterValues = {
-	FILTER_ALL               = FILTER_ALL,
-	FILTER_DISABLE           = FILTER_DISABLE,
-	FILTER_PVP               = FILTER_PVP,
-	FILTER_PVE               = FILTER_PVE,
+	FILTER_ALL            = FILTER_ALL,
+	FILTER_NONE           = FILTER_NONE,
 
-	FILTER_UNIT_FOCUS        = FILTER_UNIT_FOCUS,
-	FILTER_UNIT_TOT          = FILTER_UNIT_TOT,
+	FILTER_UNIT_FOCUS     = FILTER_UNIT_FOCUS,
+	FILTER_UNIT_TOT       = FILTER_UNIT_TOT,
 
-	FILTER_ROLE_MASK         = FILTER_ROLE_MASK,
-	FILTER_ROLE_TANK         = FILTER_ROLE_TANK,
-	FILTER_ROLE_HEALER       = FILTER_ROLE_HEALER,
-	FILTER_ROLE_DAMAGER      = FILTER_ROLE_DAMAGER,
+	FILTER_ROLE_MASK      = FILTER_ROLE_MASK,
+	FILTER_ROLE_TANK      = FILTER_ROLE_TANK,
+	FILTER_ROLE_HEALER    = FILTER_ROLE_HEALER,
+	FILTER_ROLE_DAMAGER   = FILTER_ROLE_DAMAGER,
 
-	FILTER_BY_MASK           = FILTER_BY_MASK,
-	FILTER_BY_PLAYER         = FILTER_BY_PLAYER,
+	FILTER_BY_MASK        = FILTER_BY_MASK,
+	FILTER_BY_PLAYER      = FILTER_BY_PLAYER,
 
-	FILTER_ON_MASK           = FILTER_ON_MASK,
-	FILTER_ON_PLAYER         = FILTER_ON_PLAYER,
-	FILTER_ON_OTHER          = FILTER_ON_OTHER,
-	FILTER_ON_FRIEND         = FILTER_ON_FRIEND,
-	FILTER_ON_ENEMY          = FILTER_ON_ENEMY,
+	FILTER_ON_MASK        = FILTER_ON_MASK,
+	FILTER_ON_PLAYER      = FILTER_ON_PLAYER,
+	FILTER_ON_OTHER       = FILTER_ON_OTHER,
+	FILTER_ON_FRIEND      = FILTER_ON_FRIEND,
+	FILTER_ON_ENEMY       = FILTER_ON_ENEMY,
 }
 
 local roleFilter = {
@@ -125,28 +121,28 @@ local a = {
 	[106784] = FILTER_ALL, -- Brew Explosion (Ook Ook in Stormsnout Brewery)
 	[123059] = FILTER_ALL, -- Destabilize (Amber-Shaper Un'sok)
 	-- NPC buffs that are completely useless
-	[63501] = FILTER_DISABLE, -- Argent Crusade Champion's Pennant
-	[60023] = FILTER_DISABLE, -- Scourge Banner Aura (Boneguard Commander in Icecrown)
-	[63406] = FILTER_DISABLE, -- Darnassus Champion's Pennant
-	[63405] = FILTER_DISABLE, -- Darnassus Valiant's Pennant
-	[63423] = FILTER_DISABLE, -- Exodar Champion's Pennant
-	[63422] = FILTER_DISABLE, -- Exodar Valiant's Pennant
-	[63396] = FILTER_DISABLE, -- Gnomeregan Champion's Pennant
-	[63395] = FILTER_DISABLE, -- Gnomeregan Valiant's Pennant
-	[63427] = FILTER_DISABLE, -- Ironforge Champion's Pennant
-	[63426] = FILTER_DISABLE, -- Ironforge Valiant's Pennant
-	[63433] = FILTER_DISABLE, -- Orgrimmar Champion's Pennant
-	[63432] = FILTER_DISABLE, -- Orgrimmar Valiant's Pennant
-	[63399] = FILTER_DISABLE, -- Sen'jin Champion's Pennant
-	[63398] = FILTER_DISABLE, -- Sen'jin Valiant's Pennant
-	[63403] = FILTER_DISABLE, -- Silvermoon Champion's Pennant
-	[63402] = FILTER_DISABLE, -- Silvermoon Valiant's Pennant
-	[62594] = FILTER_DISABLE, -- Stormwind Champion's Pennant
-	[62596] = FILTER_DISABLE, -- Stormwind Valiant's Pennant
-	[63436] = FILTER_DISABLE, -- Thunder Bluff Champion's Pennant
-	[63435] = FILTER_DISABLE, -- Thunder Bluff Valiant's Pennant
-	[63430] = FILTER_DISABLE, -- Undercity Champion's Pennant
-	[63429] = FILTER_DISABLE, -- Undercity Valiant's Pennant
+	[ 63501] = FILTER_NONE, -- Argent Crusade Champion's Pennant
+	[ 60023] = FILTER_NONE, -- Scourge Banner Aura (Boneguard Commander in Icecrown)
+	[ 63406] = FILTER_NONE, -- Darnassus Champion's Pennant
+	[ 63405] = FILTER_NONE, -- Darnassus Valiant's Pennant
+	[ 63423] = FILTER_NONE, -- Exodar Champion's Pennant
+	[ 63422] = FILTER_NONE, -- Exodar Valiant's Pennant
+	[ 63396] = FILTER_NONE, -- Gnomeregan Champion's Pennant
+	[ 63395] = FILTER_NONE, -- Gnomeregan Valiant's Pennant
+	[ 63427] = FILTER_NONE, -- Ironforge Champion's Pennant
+	[ 63426] = FILTER_NONE, -- Ironforge Valiant's Pennant
+	[ 63433] = FILTER_NONE, -- Orgrimmar Champion's Pennant
+	[ 63432] = FILTER_NONE, -- Orgrimmar Valiant's Pennant
+	[ 63399] = FILTER_NONE, -- Sen'jin Champion's Pennant
+	[ 63398] = FILTER_NONE, -- Sen'jin Valiant's Pennant
+	[ 63403] = FILTER_NONE, -- Silvermoon Champion's Pennant
+	[ 63402] = FILTER_NONE, -- Silvermoon Valiant's Pennant
+	[ 62594] = FILTER_NONE, -- Stormwind Champion's Pennant
+	[ 62596] = FILTER_NONE, -- Stormwind Valiant's Pennant
+	[ 63436] = FILTER_NONE, -- Thunder Bluff Champion's Pennant
+	[ 63435] = FILTER_NONE, -- Thunder Bluff Valiant's Pennant
+	[ 63430] = FILTER_NONE, -- Undercity Champion's Pennant
+	[ 63429] = FILTER_NONE, -- Undercity Valiant's Pennant
 }
 
 ns.defaultAuras = a
@@ -155,12 +151,57 @@ ns.defaultAuras = a
 -- Death Knight
 
 if playerClass == "DEATHKNIGHT" then
+	a[ 48707] = FILTER_BY_PLAYER -- Anti-Magic Shell
+	a[221562] = FILTER_BY_PLAYER -- Asphyxiate -- NEEDS CHECK, 108194
+	a[206977] = FILTER_BY_PLAYER -- Blood Mirror
+	a[ 55078] = FILTER_BY_PLAYER -- Blood Plague
+	a[195181] = FILTER_BY_PLAYER -- Bone Shield
+	a[194844] = FILTER_BY_PLAYER -- Bonestorm
+	a[152279] = FILTER_BY_PLAYER -- Breath of Sindragosa
+	a[ 45524] = FILTER_BY_PLAYER -- Chains of Ice
+	a[111673] = FILTER_BY_PLAYER -- Control Undead
+	a[207319] = FILTER_BY_PLAYER -- Corpse Shield
+	a[101568] = FILTER_BY_PLAYER -- Dark Succor
+	a[ 63560] = FILTER_BY_PLAYER -- Dark Transformation
+	a[ 43265] = FILTER_BY_PLAYER -- Death and Decay
+	a[194310] = FILTER_BY_PLAYER -- Festering Wound
+	a[190780] = FILTER_BY_PLAYER -- Frost Breath
+	a[ 55095] = FILTER_BY_PLAYER -- Frost Fever
+	a[206930] = FILTER_BY_PLAYER -- Heart Strike
+	a[ 48792] = FILTER_BY_PLAYER -- Icebound Fortitude
+	a[194879] = FILTER_BY_PLAYER -- Icy Talons
+	a[ 51124] = FILTER_BY_PLAYER -- Killing Machine
+	a[206940] = FILTER_BY_PLAYER -- Mark of Blood
+	a[216974] = FILTER_BY_PLAYER -- Necrosis
+	a[207256] = FILTER_BY_PLAYER -- Obliteration
+	a[219788] = FILTER_BY_PLAYER -- Ossuary
+	a[  3714] = FILTER_BY_PLAYER -- Path of Frost
+	a[ 51271] = FILTER_BY_PLAYER -- Pillar of Frost
+	a[196770] = FILTER_BY_PLAYER -- Remorseless Winter
+	a[ 59052] = FILTER_BY_PLAYER -- Rime
+	a[194679] = FILTER_BY_PLAYER -- Rune Tap
+	a[191748] = FILTER_BY_PLAYER -- Scouge of Worlds (artifact)
+	a[116888] = FILTER_BY_PLAYER -- Shroud of Purgatory (talent: Purgatory)
+	a[130736] = FILTER_BY_PLAYER -- Soul Reaper
+	a[ 55233] = FILTER_BY_PLAYER -- Vampiric Blood
+	a[191587] = FILTER_BY_PLAYER -- Virulent Plague
+	a[211794] = FILTER_BY_PLAYER -- Winter is Coming
+	a[212552] = FILTER_BY_PLAYER -- Wraith Walk
+end
+
+------------------------------------------------------------------------
+-- Demon Hunter
+
+if playerClass == "DEMONHUNTER" then
 end
 
 ------------------------------------------------------------------------
 -- Druid
 
 if playerClass == "DRUID" then
+	a[ 29166] = FILTER_ON_FRIEND -- Innervate
+	a[102342] = FILTER_ON_FRIEND -- Ironbark
+	a[106898] = FILTER_ON_FRIEND -- Stampeding Roar
 	a[210723] = FILTER_BY_PLAYER -- Ashmane's Frenzy (artifact)
 	a[  1850] = FILTER_BY_PLAYER -- Dash
 	a[ 22812] = FILTER_BY_PLAYER -- Barkskin
@@ -180,8 +221,6 @@ if playerClass == "DRUID" then
 	a[102560] = FILTER_BY_PLAYER -- Incarnation: Chosen of Elune
 	a[102558] = FILTER_BY_PLAYER -- Incarnation: Guardian of Ursoc
 	a[102543] = FILTER_BY_PLAYER -- Incarnation: King of the Jungle
-	a[ 29166] = FILTER_ON_FRIEND -- Innervate
-	a[102342] = FILTER_ON_FRIEND -- Ironbark
 	a[192081] = FILTER_BY_PLAYER -- Ironfur
 	a[164547] = FILTER_BY_PLAYER -- Lunar Empowerment
 	a[ 22570] = FILTER_BY_PLAYER -- Maim
@@ -199,7 +238,6 @@ if playerClass == "DRUID" then
 	a[210664] = FILTER_BY_PLAYER -- Scent of Blood (artifact)
 	a[ 78675] = FILTER_BY_PLAYER -- Solar Beam
 	a[164545] = FILTER_BY_PLAYER -- Solar Empowerment
-	a[106898] = FILTER_ON_FRIEND -- Stampeding Roar
 	a[191034] = FILTER_BY_PLAYER -- Starfire
 	a[202347] = FILTER_BY_PLAYER -- Stellar Flare
 	a[164815] = FILTER_BY_PLAYER -- Sunfire -- NEEDS CHECK, 93402
@@ -333,6 +371,7 @@ if playerClass == "WARLOCK" then
 	a[108416] = FILTER_BY_PLAYER -- Dark Pact
 	a[205146] = FILTER_BY_PLAYER -- Demonic Calling
 	a[ 48018] = FILTER_BY_PLAYER -- Demonic Circle -- TODO show on the side as a separate thingy
+	a[193396] = FILTER_BY_PLAYER -- Demonic Empowerment
 	a[171982] = FILTER_BY_PLAYER -- Demonic Synergy -- too passive?
 	a[   603] = FILTER_BY_PLAYER -- Doom
 	a[  1098] = FILTER_BY_PLAYER -- Enslave Demon
@@ -422,124 +461,6 @@ if playerClass == "DEATHKNIGHT" or playerClass == "DRUID" or playerClass == "MON
 end
 
 ------------------------------------------------------------------------
--- PvP
-
-local function AddAurasForPVP(t)
-	-- Disorient
-	t[2094]   = FILTER_PVP -- Blind (RO)
-	t[105421] = FILTER_PVP -- Blinding Light (PA)
-	t[33786]  = FILTER_PVP -- Cyclone (DR)
-	t[118699] = FILTER_PVP -- Fear (WL)
-	t[130616] = FILTER_PVP -- Fear (WL Glyph of Fear)
-	t[5484]   = FILTER_PVP -- Howl of Terror (WL)
-	t[5246]   = FILTER_PVP -- Intimidating Shout (WR)
-	t[115268] = FILTER_PVP -- Mesmerize (WL shivarra)
-	t[8122]   = FILTER_PVP -- Psychic Scream (PR)
-	t[6358]   = FILTER_PVP -- Seduction (WL succubus)
-	t[10326]  = FILTER_PVP -- Turn Evil (PA)
-	-- Knockback
-	t[119403] = FILTER_PVP -- Glyph of Explosive Trap (HU)
-	t[115770] = FILTER_PVP -- Fellash (WL Shivarra)
-	t[108199] = FILTER_PVP -- Gorefiend's Grasp (DK)
-	t[51490]  = FILTER_PVP -- Thunderstorm (SH)
-	t[132469] = FILTER_PVP -- Typhoon (DR)
-	t[102793] = FILTER_PVP -- Ursol's Vortex (DR)
-	t[6360]   = FILTER_PVP -- Whiplash (WL Succubus)
-	-- Incapacitate
-	t[710]    = FILTER_PVP -- Banish (WL)
-	t[137143] = FILTER_PVP -- Blood Horror (WL) -- NEEDS CHECK
-	t[111397] = FILTER_PVP -- Blood Horror (WL) -- NEEDS CHECK
-	t[123393] = FILTER_PVP -- Breath of Fire (MO with glyph)
-	t[605]    = FILTER_PVP -- Dominate Mind (PR)
-	t[31661]  = FILTER_PVP -- Dragon's Breath (MA)
-	t[1776]   = FILTER_PVP -- Gouge (RO)
-	t[51514]  = FILTER_PVP -- Hex (SH)
-	t[88625]  = FILTER_PVP -- Holy Word: Chastise (PR)
-	t[99]     = FILTER_PVP -- Incapacitating Roar (DR)
-	t[6789]   = FILTER_PVP -- Mortal Coil (WL)
-	t[115078] = FILTER_PVP -- Paralysis (MO)
-	t[64044]  = FILTER_PVP -- Psychic Horror (PR)
-	t[107179] = FILTER_PVP -- Quaking Palm (Pandaren)
-	t[20066]  = FILTER_PVP -- Repentence (PA)
-	t[82691]  = FILTER_PVP -- Ring of Frost (MA)
-	t[116844] = FILTER_PVP -- Ring of Peace (MO) -- NEEDS CHECK
-	t[137460] = FILTER_PVP -- Ring of Peace (MO) -- NEEDS CHECK
-	t[6770]   = FILTER_PVP -- Sap (RO)
-	t[8484]   = FILTER_PVP -- Shackle Undead (PR)
-	-- Root
-	t[96294]  = FILTER_PVP -- Chains of Ice (DK Chilblains)
-	t[53148]  = FILTER_PVP -- Charge (HU tenacity pet)
-	t[116706] = FILTER_PVP -- Disable (MO)
-	t[64695]  = FILTER_PVP -- Earthgrab Totem (SH)
-	t[339]    = FILTER_PVP -- Entangling Roots (DR)
-	t[113770] = FILTER_PVP -- Entangling Roots (DR treants)
-	t[33395]  = FILTER_PVP -- Freeze (MA Water Elemental)
-	t[63685]  = FILTER_PVP -- Freeze (SH talent Frozen Power)
-	t[122]    = FILTER_PVP -- Frost Nova (MA)
-	t[135373] = FILTER_PVP -- Entrapment (HU passive)
-	t[87194]  = FILTER_PVP -- Glyph of Mind Blast (PR)
-	t[111340] = FILTER_PVP -- Ice Ward (MA)
-	t[102359] = FILTER_PVP -- Mass Entanglement (DR talent)
-	t[136634] = FILTER_PVP -- Narrow Escape (HU passive talent)
-	t[114404] = FILTER_PVP -- Void Tendrils (PR)
-	-- Silence
-	t[25046]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Rogue)
-	t[28730]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Mage, Paladin, Priest, Warlock)
-	t[50613]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Death Knight)
-	t[69179]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Warrior)
-	t[80483]  = FILTER_PVP -- Arcane Torrent (Blood Elf - Hunter)
-	t[129597] = FILTER_PVP -- Arcane Torrent (Blood Elf - Monk)
-	t[108194] = FILTER_PVP -- Asphyxiate (DK, functions as silence if target immune to stun)
-	t[31935]  = FILTER_PVP -- Avenger's Shield (PA)
-	t[102051] = FILTER_PVP -- Frostjaw (MA)
-	t[1330]   = FILTER_PVP -- Garrote - Silence (RO)
-	t[114237] = FILTER_PVP -- Glyph of Fae Silence (DR) -- NEEDS CHECK
-	t[50479]  = FILTER_PVP -- Nether Shock (HU Nether Ray)
-	t[15487]  = FILTER_PVP -- Silence (PR)
-	t[18498]  = FILTER_PVP -- Silenced - Gag Order (WR)
-	t[34490]  = FILTER_PVP -- Silencing Shot (HU)
-	t[78675]  = FILTER_PVP -- Solar Beam (DR)
-	t[97547]  = FILTER_PVP -- Solar Beam (DR)
-	t[116709] = FILTER_PVP -- Spear Hand Strike (MO)
-	t[24259]  = FILTER_PVP -- Spell Lock (WL Felhunter)
-	t[47476]  = FILTER_PVP -- Strangulate (DK)
-	-- Stun
-	t[108194] = FILTER_PVP -- Asphyxiate (DK)
-	t[89766]  = FILTER_PVP -- Axe Toss (WL Felguard)
-	t[117526] = FILTER_PVP -- Binding Shot (HU)
-	t[119392] = FILTER_PVP -- Charging Ox Wave (MO)
-	t[1833]   = FILTER_PVP -- Cheap Shot (RO)
-	t[44572]  = FILTER_PVP -- Deep Freeze (MA)
-	t[105593] = FILTER_PVP -- Fist of Justice (PA)
-	t[120086] = FILTER_PVP -- Fists of Fury (MO)
-	t[91800]  = FILTER_PVP -- Gnaw (DK Ghoul)
-	t[853]    = FILTER_PVP -- Hammer of Justice (PA)
-	t[119072] = FILTER_PVP -- Holy Wrath (PA)
-	t[24394]  = FILTER_PVP -- Intimidation (HU pet)
-	t[408]    = FILTER_PVP -- Kidney Shot (RO)
-	t[22570]  = FILTER_PVP -- Maim (DR)
-	t[119381] = FILTER_PVP -- Leg Sweep (MO)
-	t[5211]   = FILTER_PVP -- Mighty Bash (DR)
-	t[91797]  = FILTER_PVP -- Monstrous Blow (DK Ghoul with Transformation)
-	t[118345] = FILTER_PVP -- Pulverize (SH Primal Earth Elemental)
-	t[163505] = FILTER_PVP -- Rake (DR with Prowl)
-	t[115001] = FILTER_PVP -- Remorseless Winter (DK)
-	t[30283]  = FILTER_PVP -- Shadowfury (WL)
-	t[132168] = FILTER_PVP -- Shockwave (WR)
-	t[118905] = FILTER_PVP -- Static Charge (SH Capacitor Totem)
-	t[132169] = FILTER_PVP -- Storm Bolt (WR)
-	t[22703]  = FILTER_PVP -- Summon Infernal (WL)
-	t[20549]  = FILTER_PVP -- War Stomp (Tauren)
-	-- Healing Reduction
-	t[115804] = FILTER_PVP -- Mortal Wounds (WR, MO, HU Carrion Bird, Crocolisk, Riverbeast, Scorpid)
-	t[54680]  = FILTER_PVP -- Monstrous Bite (HU Devilsaur)
-	t[82654]  = FILTER_PVP -- Widow Venom (HU)
-	t[8680]   = FILTER_PVP -- Wound Poison (RO)
-end
-
--- TODO: Show PVE healing reductions for healers?
-
-------------------------------------------------------------------------
 
 local auraList = {}
 ns.AuraList = auraList
@@ -548,15 +469,12 @@ local auraList_focus = {}
 local auraList_targettarget = {}
 
 local function AddAurasToList(auras)
-	local PVP = ns.config.PVP
 	local role = ns.GetPlayerRole()
 	local filterForRole = roleFilter[role]
 	for id, v in pairs(auras) do
 		local skip
 		if bit_band(v, FILTER_ALL) == 0 then
-			if (bit_band(v, FILTER_PVP) > 0 and not PVP)
-			or (bit_band(v, FILTER_PVE) > 0 and PVP)
-			or (bit_band(v, FILTER_ROLE_MASK) > 0 and bit_band(v, filterForRole) == 0) then
+			if (bit_band(v, FILTER_ROLE_MASK) > 0 and bit_band(v, filterForRole) == 0) then
 				skip = true
 			end
 		end
@@ -577,9 +495,6 @@ ns.UpdateAuraList = function()
 	wipe(auraList)
 	AddAurasToList(ns.defaultAuras)
 	AddAurasToList(oUFPhanxAuraConfig.customFilters)
-	if ns.config.PVP then
-		AddAurasForPVP(auraList)
-	end
 	-- Remove default auras the player deleted
 	for id in pairs(oUFPhanxAuraConfig.deleted) do
 		auraList[id] = nil
@@ -613,7 +528,7 @@ local function checkFilter(v, self, unit, caster)
 	elseif bit_band(v, FILTER_ON_PLAYER) > 0 then
 		return unit == "player" and not self.__owner.isGroupFrame
 	else
-		return bit_band(v, FILTER_DISABLE) == 0
+		return bit_band(v, FILTER_NONE) == 0
 	end
 end
 
@@ -624,46 +539,44 @@ end
 local filterFuncs = {
 	default = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
 		local v = auraList[spellID]
-		return not v or bit_band(v, FILTER_DISABLE) == 0
+		return not v or bit_band(v, FILTER_NONE) == 0
 	end,
 	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
 		local v = auraList[spellID]
-		--debug("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, "[vehicle]", caster == "vehicle")
 		if v then
 			return checkFilter(v, self, unit, caster)
+		else
+			return isBossAura or caster == "vehicle"
 		end
-		return caster and UnitIsUnit(caster, "vehicle") and not UnitIsPlayer("vehicle")
 	end,
 	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
 		local v = auraList[spellID]
-		--debug("CustomAuraFilter", "[unit]", unit, "[caster]", caster, "[name]", name, "[id]", spellID, "[filter]", v, "[vehicle]", caster == "vehicle")
-		return caster and unitIsPlayer[caster] and v and bit_band(v, FILTER_BY_PLAYER) > 0
+		if v then
+			return caster and unitIsPlayer[caster] and bit_band(v, FILTER_BY_PLAYER) > 0
+		else
+			return isBossAura or caster == "vehicle"
+		end
 	end,
 	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
 		local v = auraList[spellID]
-		if isBossAura then
-			local show = not v or bit_band(v, FILTER_DISABLE) == 0
-			-- if show then debug("CustomAuraFilter", spellID, name, "BOSS") end
-			return show
-		elseif v then
+		if v then
 			local show = checkFilter(v, self, unit, caster)
-			-- if show then debug("CustomAuraFilter", spellID, name, "FILTER", v, caster) end
 			return show
+		elseif isBossAura then
+			return true
+		elseif caster == "vehicle" then
+			return true
 		elseif not caster and not IsInInstance() then
-			-- EXPERIMENTAL: ignore debuffs from players outside the group, eg. on world bosses.
+			-- EXPERIMENTAL: ignore debuffs from players outside the group, eg. world bosses
 			return
 		elseif UnitCanAttack("player", unit) and not UnitPlayerControlled(unit) then
-			-- Hostile NPC. Show auras cast by the unit, or auras cast by the player's vehicle.
-			-- print("hostile NPC")
-			local show = not caster or caster == unit or (UnitIsUnit(caster, "vehicle") and not UnitIsPlayer("vehicle"))
-			-- if show then debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or (caster == unit) and "SELFCAST" or "VEHICLE") end
-			return show
+			-- Hostile NPC.
+			-- Show auras cast by the unit, and auras of unknown origin.
+			return not caster or caster == unit
 		else
-			-- Friendly target or hostile player. Show auras cast by the player's vehicle.
-			-- print("hostile player / friendly unit")
-			local show = not caster or (UnitIsUnit(caster, "vehicle") and not UnitIsPlayer("vehicle"))
-			-- if show then debug("CustomAuraFilter", spellID, name, (not caster) and "UNKNOWN" or "VEHICLE") end
-			return show
+			-- Friendly target or hostile player
+			-- Show auras of unknown origin
+			return not caster
 		end
 	end,
 	party = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
@@ -684,8 +597,8 @@ filterFuncs.targettarget = function(self, unit, iconFrame, name, rank, icon, cou
 	end
 end
 
---ns.CustomAuraFilters = filterFuncs
-
+ns.CustomAuraFilters = filterFuncs
+--[[
 local tempfilter = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
 	if isBossAura then
 		return true
@@ -699,3 +612,4 @@ local tempfilter = function(self, unit, iconFrame, name, rank, icon, count, debu
 end
 
 ns.CustomAuraFilters = setmetatable({}, { __index = function() return tempfilter end })
+]]
