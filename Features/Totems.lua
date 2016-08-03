@@ -7,79 +7,55 @@
 	https://github.com/Phanx/oUF_Phanx
 ----------------------------------------------------------------------]]
 
-if select(2, UnitClass("player")) ~= "SHAMAN" then return end
-
 local _, ns = ...
+local _, class = UnitClass("player")
 
 local Totems
-
-local TOTEM_COLORS = {
-	[1] = { 0.6, 1,   0.2 }, -- Earth
-	[2] = { 1,   0.6, 0.2 }, -- Fire
-	[3] = { 0.2, 0.8, 1   }, -- Water
-	[4] = { 0.8, 0.4, 1   }, -- Air
-}
-oUF.colors.totems = TOTEM_COLORS
 
 local ColorGradient = oUF.ColorGradient
 local SMOOTH_COLORS = oUF.colors.smooth
 local SecondsToTimeAbbrev = SecondsToTimeAbbrev
 local unpack = unpack
 
-local function Totem_OnEnter(bar)
-	bar.isMouseOver = true
-
-	bar.iconFrame:Show()
-	bar.value:Show()
-	bar.value:SetParent(bar.iconFrame)
-end
-
-local function Totem_OnLeave(bar)
-	bar.isMouseOver = nil
-
-	bar.iconFrame:Hide()
-	bar.value:Hide()
-	bar.value:SetParent(bar)
-end
-
-local function Totem_OnUpdate(bar, elapsed)
-	local duration = bar.duration - elapsed
-	if duration > 0 then
-		bar.duration = duration
-		bar:SetValue(duration)
-		if bar.isMouseOver or bar.__owner.isMouseOver then
-			bar.value:SetFormattedText(SecondsToTimeAbbrev(duration))
-			bar.value:SetTextColor(ColorGradient(bar.duration, bar.max, unpack(SMOOTH_COLORS)))
-		end
+local function TotemBar_OnUpdate(bar, elapsed)
+	local timeLeft = bar.duration - elapsed
+	if timeLeft > 0 then
+		bar.timeLeft = timeLeft
+		bar:SetValue(timeLeft)
+		bar.value:SetFormattedText(SecondsToTimeAbbrev(timeLeft))
+		bar.value:SetTextColor(ColorGradient(bar.timeLeft, bar.duration, unpack(SMOOTH_COLORS)))
 	else
 		bar:SetValue(0)
 	end
 end
 
 local function Totems_PostUpdate(element, id, _, name, start, duration, icon)
-	local bar = element[id]
-
+	local totem = element[id]
+	local bar = totem.Bar
+		
 	bar.duration = duration
-	bar.max = duration
-
+	bar.timeLeft = duration
 	if duration > 0 then
-		bar:EnableMouse(true)
 		bar:SetMinMaxValues(0, duration)
-		bar:SetScript("OnUpdate", Totem_OnUpdate)
-		bar.icon:SetTexture(icon)
-		element:Show()
+		bar:SetScript("OnUpdate", TotemBar_OnUpdate)
 	else
-		Totem_OnLeave(bar)
-		bar:EnableMouse(false)
 		bar:SetScript("OnUpdate", nil)
 		bar:SetValue(0)
-		bar.icon:SetTexture(nil)
-		for i = 1, #element do
-			if element[i].duration > 0 then
-				return element:Show()
-			end
-		end
-		element:Hide()
+	end
+
+	local color
+	if element.colorClass then
+		color = oUF.colors.class[class]
+	elseif element.colorPower then
+		color = oUF.colors.power[UnitPowerType("player")]
+	else
+		color = ns.config.powerColor
+	end
+	if color then
+		local r, g, b = color[1], color[2], color[3]
+		local mu = bar.bg.multiplier
+		bar:SetStatusBarColor(r, g, b)
+		bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
 	end
 end
 
@@ -87,45 +63,47 @@ ns.CreateTotems = function(frame)
 	if Totems then
 		return Totems
 	end
+	
+	local config = ns.config
+	local uconfig = ns.uconfig.player
 
-	Totems = ns.CreateMultiBar(frame, 4, 16, true)
-	Totems.PostUpdate = Totems_PostUpdate
+	Totems = {
+		side = "LEFT",
+	}
+	for i = 1, 4 do
+		local totem = CreateFrame("Frame", nil, frame)
+		totem:SetWidth(config.height * (1 - config.powerHeight) - 1)
 
-	local iconSize = Totems[1]:GetWidth() * 0.5
+		totem:EnableMouse(true)
+		totem:SetScript("OnEnter", Totem_OnEnter)
+		totem:SetScript("OnLeave", Totem_OnLeave)
 
-	for i = 1, #Totems do
-		local bar = Totems[i]
-		
-		bar.duration = 0
-		bar:SetMinMaxValues(0, 1)
+		ns.CreateBorder(totem)
 
-		bar:SetHitRectInsets(0, 0, -10, 0)
-		bar:SetReverseFill(true) -- TODO: experimental
+		local bar = ns.CreateStatusBar(totem, 16, "CENTER", nil, true)
+		bar:SetPoint("BOTTOMLEFT", 1, 1)
+		bar:SetPoint("BOTTOMRIGHT", -1, -1)
+		bar:SetHeight(config.height * config.powerHeight)
+		totem.Bar = bar
 
-		bar:EnableMouse(true)
-		bar:SetScript("OnEnter", Totem_OnEnter)
-		bar:SetScript("OnLeave", Totem_OnLeave)
-
-		bar.value:SetPoint("CENTER", bar, 1, 1)
-		bar.value:Hide()
-
-		bar.iconFrame = CreateFrame("Frame", nil, bar)
-		bar.iconFrame:SetPoint("CENTER")
-		bar.iconFrame:SetSize(iconSize, iconSize)
-		bar.iconFrame:Hide()
-
-		bar.icon = bar.iconFrame:CreateTexture(nil, "BACKGROUND")
-		bar.icon:SetAllPoints(true)
-		bar.icon:SetTexCoord(0.09, 0.91, 0.08, 0.91)
-
-		ns.CreateBorder(bar.iconFrame)
-
-		local color = bar.color or TOTEM_COLORS[i]
-		local r, g, b, mu = color[1], color[2], color[3], bar.bg.multiplier or 1
-		bar:SetStatusBarColor(r, g, b)
-		bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
-
+		bar.value:SetPoint("BOTTOM", bar, "TOP")
 		tinsert(frame.mouseovers, bar.value)
+
+		local icon = totem:CreateTexture(nil, "ARTWORK")
+		icon:SetPoint("TOPLEFT", 1, -1)
+		icon:SetPoint("TOPRIGHT", -1, 1)
+		icon:SetPoint("BOTTOM", bar, "TOP", 0, 1)
+		icon:SetTexCoord(0.09, 0.91, 0.08, 0.91)
+		totem.Icon = icon
+
+		local anchor = i > 1 and Totems[i-1] or frame
+		if side == "LEFT" then
+			totem:SetPoint("BOTTOMRIGHT", anchor, "LEFT", -6, 0)
+		else
+			totem:SetPoint("LEFT", anchor, "RIGHT", 6, 0)
+		end
+
+		Totems[i] = totem
 	end
 
 	return Totems
