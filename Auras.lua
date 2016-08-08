@@ -82,6 +82,7 @@ local a = {
 	[102342] = FILTER_ON_PLAYER, -- Ironbark
 	[ 33206] = FILTER_ON_PLAYER, -- Pain Suppression
 	[ 10060] = FILTER_ON_PLAYER, -- Power Infusion
+	[ 64901] = FILTER_ON_PLAYER, -- Symbol of Hope
 	-- Crowd Control
 	[   710] = FILTER_ON_ENEMY, -- Banish
 	[   339] = FILTER_ON_ENEMY, -- Entangling Roots
@@ -92,6 +93,7 @@ local a = {
 	[211015] = FILTER_ON_ENEMY, -- Hex (Cockroach)
 	[211010] = FILTER_ON_ENEMY, -- Hex (Snake)
 	[211004] = FILTER_ON_ENEMY, -- Hex (Spider)
+	[196942] = FILTER_ON_ENEMY, -- Hex (Voodoo Totem)
 	[  5484] = FILTER_ON_ENEMY, -- Howl of Terror
 	[217832] = FILTER_ON_ENEMY, -- Imprison
 	[   118] = FILTER_ON_ENEMY, -- Polymorph
@@ -420,6 +422,47 @@ end
 -- Priest
 
 if playerClass == "PRIEST" then
+	-- Abilities
+	a[194384] = FILTER_BY_PLAYER -- Atonement
+	a[ 47585] = FILTER_BY_PLAYER -- Disperson
+	a[   586] = FILTER_BY_PLAYER -- Fade
+	a[ 47788] = FILTER_BY_PLAYER -- Guardian Spirit
+	a[ 14914] = FILTER_BY_PLAYER -- Holy Fire
+	a[200196] = FILTER_BY_PLAYER -- Holy Word: Chastise
+	a[  1706] = FILTER_BY_PLAYER -- Levitate
+	a[   605] = FILTER_BY_PLAYER -- Mind Control
+	a[ 33206] = FILTER_BY_PLAYER -- Pain Suppression
+	a[ 81782] = FILTER_BY_PLAYER -- Power Word: Barrier
+	a[    17] = FILTER_BY_PLAYER -- Power Word: Shield
+	a[ 41635] = FILTER_BY_PLAYER -- Prayer of Mending
+	a[  8122] = FILTER_BY_PLAYER -- Psychic Scream
+	a[ 47536] = FILTER_BY_PLAYER -- Rapture
+	a[   139] = FILTER_BY_PLAYER -- Renew
+	a[187464] = FILTER_BY_PLAYER -- Shadow Mend
+	a[   589] = FILTER_BY_PLAYER -- Shadow Word: Pain
+	a[ 15487] = FILTER_BY_PLAYER -- Silence
+	a[ 15286] = FILTER_BY_PLAYER -- Vampiric Embrace
+	a[ 34914] = FILTER_BY_PLAYER -- Vampiric Touch
+	a[227386] = FILTER_BY_PLAYER -- Voidform -- NEEDS CHECK
+	-- Talents
+	a[200183] = FILTER_BY_PLAYER -- Apotheosis
+	a[214121] = FILTER_BY_PLAYER -- Body and Mind
+	a[152118] = FILTER_BY_PLAYER -- Clarity of Will
+	a[ 19236] = FILTER_BY_PLAYER -- Desperate Prayer
+	a[197030] = FILTER_BY_PLAYER -- Divinity
+	a[205369] = FILTER_BY_PLAYER -- Mind Bomb
+	a[226943] = FILTER_BY_PLAYER -- Mind Bomb (stun)
+	a[204213] = FILTER_BY_PLAYER -- Purge the Wicked
+	a[214621] = FILTER_BY_PLAYER -- Schism
+	a[219521] = FILTER_BY_PLAYER -- Shadow Covenant
+	a[124430] = FILTER_BY_PLAYER -- Shadowy Insight
+	a[204263] = FILTER_BY_PLAYER -- Shining Force
+	a[114255] = FILTER_BY_PLAYER -- Surge of Light -- NEEDS CHECK, 128654
+	a[123254] = FILTER_BY_PLAYER -- Twist of Fate
+	-- Artifact Traits
+	a[196644] = FILTER_BY_PLAYER -- Blessing of T'uure
+	a[197763] = FILTER_BY_PLAYER -- Borrowed Time
+	a[208065] = FILTER_BY_PLAYER -- Light of T'uure
 end
 
 ------------------------------------------------------------------------
@@ -439,38 +482,36 @@ if playerClass == "SHAMAN" then
 	a[108271] = FILTER_BY_PLAYER -- Astral Shift
 	a[218825] = FILTER_BY_PLAYER -- Boulderfist
 	a[187878] = FILTER_BY_PLAYER -- Crash Lightning
-	a[118522] = FILTER_BY_PLAYER -- Elemental Blast: Critical Strike -- 10s duration on a 12s cooldown
-	a[173183] = FILTER_BY_PLAYER -- Elemental Blast: Haste -- 10s duration on a 12s cooldown
-	a[173184] = FILTER_BY_PLAYER -- Elemental Blast: Mastery -- 10s duration on a 12s cooldown
+	a[188089] = FILTER_BY_PLAYER -- Earthen Spike -- 10s duration on a 20s cooldown
+	a[ 64695] = FILTER_ON_ENEMY  -- Earthgrab (Totem) -- NEEDS CHECK
+--	a[118522] = FILTER_BY_PLAYER -- Elemental Blast: Critical Strike -- 10s duration on a 12s cooldown
+--	a[173183] = FILTER_BY_PLAYER -- Elemental Blast: Haste -- 10s duration on a 12s cooldown
+--	a[173184] = FILTER_BY_PLAYER -- Elemental Blast: Mastery -- 10s duration on a 12s cooldown
 	a[ 16246] = FILTER_BY_PLAYER -- Elemental Focus
 	a[188389] = FILTER_BY_PLAYER -- Flame Shock
 	a[194084] = FILTER_BY_PLAYER -- Flametongue
 	a[196840] = FILTER_BY_PLAYER -- Frost Shock
 	a[196834] = FILTER_BY_PLAYER -- Frostbrand
-	a[210714] = FILTER_BY_PLAYER -- Icefury
-	a[ 77756] = FILTER_BY_PLAYER -- Lava Surge
-	a[197209] = FILTER_BY_PLAYER -- Lightning Rod -- NEEDS CHECK
-	a[ 58875] = FILTER_BY_PLAYER -- Spirit Walk
-	a[201846] = FILTER_BY_PLAYER -- Stormbringer
-	a[188089] = FILTER_BY_PLAYER -- Earthen Spike -- 10s duration on a 20s cooldown
-	a[ 64695] = FILTER_ON_ENEMY  -- Earthgrab (Totem) -- NEEDS CHECK
 	a[198300] = FILTER_BY_PLAYER -- Gathering Storms (artifact) -- +2% damage to next Stormstrike per Crash Lightning target
 	a[ 73920] = FILTER_BY_PLAYER -- Healing Rain
 	a[215785] = FILTER_BY_PLAYER -- Hot Hand
+	a[210714] = FILTER_BY_PLAYER -- Icefury
 	a[202004] = FILTER_BY_PLAYER -- Landslide
+	a[ 77756] = FILTER_BY_PLAYER -- Lava Surge
+	a[197209] = FILTER_BY_PLAYER -- Lightning Rod -- NEEDS CHECK
 	a[191877] = FILTER_BY_PLAYER -- Power of the Maelstrom (artifact) -- buffs next 3 LBs, 20s duration
 	a[ 61295] = FILTER_BY_PLAYER -- Riptide
-	a[ 98007] = FILTER_ON_FRIEND -- Spirit Link Totem -- NEEDS CHECK
+	a[ 98007] = FILTER_ON_FRIEND -- Spirit Link Totem
 	a[ 58875] = FILTER_BY_PLAYER -- Spirit Walk
 	a[ 79206] = FILTER_BY_PLAYER -- Spiritwalker's Grace
 	a[135621] = FILTER_ON_ENEMY  -- Static Charge (Lightning Surge Totem) -- NEEDS CHECK
+--	a[201846] = FILTER_BY_PLAYER -- Stormbringer -- see spell alert overlay, action button proc glow
 	a[205495] = FILTER_BY_PLAYER -- Stormkeeper (artifact) -- buffs next 3 LB/CBs, 15s duration
 	a[ 51490] = FILTER_BY_PLAYER -- Thunderstorm
 	a[ 53390] = FILTER_BY_PLAYER -- Tidal Waves
---	a[] = FILTER_ON_ENEMY -- Voodoo Totem -- NEEDS CHECK
 --	a[   546] = FILTER_ON_FRIEND -- Water Walking -- TODO: show only OOC
 	a[192082] = FILTER_ON_FRIEND -- Wind Rush (Totem)
-	a[201898] = FILTER_BY_PLAYER -- Windsong -- 20s duration on a 45s cooldown
+--	a[201898] = FILTER_BY_PLAYER -- Windsong -- 20s duration on a 45s cooldown
 end
 
 ------------------------------------------------------------------------
