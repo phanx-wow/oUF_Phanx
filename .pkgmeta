@@ -4,6 +4,14 @@ manual-changelog:
    filename: CHANGELOG.md
    markup-type: markdown
 
+ignore:
+   - CHANGELOG.md
+   - README.md
+   - LibStub.toc
+   - CallbackHandler-1.0.xml
+   - LibResInfo-1.0.toc
+   - lib.xml
+
 enable-nolib-creation: no
 
 externals:
