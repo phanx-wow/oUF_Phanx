@@ -1,6 +1,8 @@
-### Version 7.0.3.0 (2016 Jul)
+### Version 7.0.3.0 (2016 Aug 13)
 
 * Updated for WoW 7.0
+* Includes an updated copy of oUF -- the official version will not work!
+* The aura filter lists for most classes were compiled using Wowhead. Please report any missing buffs/debuffs (with their ID) or any buffs/debuffs that are included in the default filters that don't actually need to be shown. Thanks.
 
 ### Version 6.1.0.75 (2015 March 14)
 

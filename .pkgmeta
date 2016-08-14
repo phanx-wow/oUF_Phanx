@@ -19,6 +19,8 @@ externals:
    Config/Libs/PhanxConfig-MediaDropdown: git://github.com/Phanx/PhanxConfig-MediaDropdown.git
    Config/Libs/PhanxConfig-OptionsPanel: git://github.com/Phanx/PhanxConfig-OptionsPanel.git
    Config/Libs/PhanxConfig-Slider: git://github.com/Phanx/PhanxConfig-Slider.git
+   oUF: https://github.com/ls-/oUF.git
 
 move-folders:
    oUF_Phanx/Config: oUF_Phanx_Config
+   oUF_Phanx/oUF: oUF
