@@ -85,6 +85,7 @@ local a = {
 	[ 64901] = FILTER_ON_PLAYER, -- Symbol of Hope
 	-- Crowd Control
 	[   710] = FILTER_ON_ENEMY, -- Banish
+	[  2094] = FILTER_ON_ENEMY, -- Blind
 	[   339] = FILTER_ON_ENEMY, -- Entangling Roots
 	[  5782] = FILTER_ON_ENEMY, -- Fear
 	[  3355] = FILTER_ON_ENEMY, -- Freezing Trap -- NEEDS CHECK, 212365
@@ -96,6 +97,7 @@ local a = {
 	[196942] = FILTER_ON_ENEMY, -- Hex (Voodoo Totem)
 	[  5484] = FILTER_ON_ENEMY, -- Howl of Terror
 	[217832] = FILTER_ON_ENEMY, -- Imprison
+	[199743] = FILTER_ON_ENEMY, -- Parley
 	[   118] = FILTER_ON_ENEMY, -- Polymorph
 	[ 61308] = FILTER_ON_ENEMY, -- Polymorph (Black Cat)
 	[161354] = FILTER_ON_ENEMY, -- Polymorph (Monkey)
@@ -155,6 +157,7 @@ ns.defaultAuras = a
 -- Death Knight
 
 if playerClass == "DEATHKNIGHT" then
+	-- Abilities
 	a[ 48707] = FILTER_BY_PLAYER -- Anti-Magic Shell
 	a[221562] = FILTER_BY_PLAYER -- Asphyxiate -- NEEDS CHECK, 108194
 	a[206977] = FILTER_BY_PLAYER -- Blood Mirror
@@ -180,19 +183,22 @@ if playerClass == "DEATHKNIGHT" then
 	a[196770] = FILTER_BY_PLAYER -- Remorseless Winter (self)
 	a[211793] = FILTER_BY_PLAYER -- Remorseless Winter (slow)
 	a[ 59052] = FILTER_BY_PLAYER -- Rime
-	a[191748] = FILTER_BY_PLAYER -- Scouge of Worlds (artifact)
-	a[116888] = FILTER_BY_PLAYER -- Shroud of Purgatory (talent: Purgatory)
 	a[130736] = FILTER_BY_PLAYER -- Soul Reaper
 	a[ 55233] = FILTER_BY_PLAYER -- Vampiric Blood
 	a[191587] = FILTER_BY_PLAYER -- Virulent Plague
 	a[211794] = FILTER_BY_PLAYER -- Winter is Coming
 	a[212552] = FILTER_BY_PLAYER -- Wraith Walk
+	-- Talents
+	a[116888] = FILTER_BY_PLAYER -- Shroud of Purgatory (from Purgatory)
+	-- Artifact Traits
+	a[191748] = FILTER_BY_PLAYER -- Scouge of Worlds
 end
 
 ------------------------------------------------------------------------
 -- Demon Hunter
 
 if playerClass == "DEMONHUNTER" then
+	-- Abilities
 	a[207709] = FILTER_BY_PLAYER -- Blade Turning
 	a[207690] = FILTER_BY_PLAYER -- Bloodlet
 	a[212800] = FILTER_BY_PLAYER -- Blur
@@ -202,6 +208,8 @@ if playerClass == "DEMONHUNTER" then
 	a[162264] = FILTER_BY_PLAYER -- Metamorphosis
 	a[207810] = FILTER_BY_PLAYER -- Nether Bond
 	a[196555] = FILTER_BY_PLAYER -- Netherwalk
+	-- Talents
+	-- Artifact Traits
 end
 
 ------------------------------------------------------------------------
@@ -211,8 +219,7 @@ if playerClass == "DRUID" then
 	a[ 29166] = FILTER_ON_FRIEND -- Innervate
 	a[102342] = FILTER_ON_FRIEND -- Ironbark
 	a[106898] = FILTER_ON_FRIEND -- Stampeding Roar
-
-	a[210723] = FILTER_BY_PLAYER -- Ashmane's Frenzy (artifact)
+	-- Abilities
 	a[  1850] = FILTER_BY_PLAYER -- Dash
 	a[ 22812] = FILTER_BY_PLAYER -- Barkskin
 	a[106951] = FILTER_BY_PLAYER -- Berserk
@@ -239,13 +246,11 @@ if playerClass == "DRUID" then
 	a[164812] = FILTER_BY_PLAYER -- Moonfire -- NEEDS CHECK, 8921
 	a[ 69369] = FILTER_BY_PLAYER -- Predatory Swiftness
 	a[158792] = FILTER_BY_PLAYER -- Pulverize
-	a[200851] = FILTER_BY_PLAYER -- Rage of the Sleeper (artifact)
 	a[155722] = FILTER_BY_PLAYER -- Rake
 	a[  8936] = FILTER_BY_PLAYER -- Regrowth
 	a[   774] = FILTER_BY_PLAYER -- Rejuvenation
 	a[  1079] = FILTER_BY_PLAYER -- Rip
 	a[ 52610] = FILTER_BY_PLAYER -- Savage Roar
-	a[210664] = FILTER_BY_PLAYER -- Scent of Blood (artifact)
 	a[ 78675] = FILTER_BY_PLAYER -- Solar Beam
 	a[164545] = FILTER_BY_PLAYER -- Solar Empowerment
 	a[191034] = FILTER_BY_PLAYER -- Starfire
@@ -258,12 +263,18 @@ if playerClass == "DRUID" then
 	a[102793] = FILTER_BY_PLAYER -- Ursol's Vortex
 	a[202425] = FILTER_BY_PLAYER -- Warrior of Elune
 	a[ 48438] = FILTER_BY_PLAYER -- Wild Growth
+	-- Talents
+	-- Artifact Traits
+	a[210723] = FILTER_BY_PLAYER -- Ashmane's Frenzy
+	a[200851] = FILTER_BY_PLAYER -- Rage of the Sleeper
+	a[210664] = FILTER_BY_PLAYER -- Scent of Blood
 end
 
 ------------------------------------------------------------------------
 -- Hunter
 
 if playerClass == "HUNTER" then
+	-- Abilities
 	a[131894] = FILTER_BY_PLAYER -- A Murder of Crows (Beast Mastery, Marksmanship)
 	a[206505] = FILTER_BY_PLAYER -- A Murder of Crows (Survival)
 	a[186257] = FILTER_BY_PLAYER -- Aspect of the Cheetah
@@ -290,12 +301,15 @@ if playerClass == "HUNTER" then
 	a[193526] = FILTER_BY_PLAYER -- Trueshot
 	a[187131] = FILTER_BY_PLAYER -- Vulnerable
 	a[195645] = FILTER_BY_PLAYER -- Wing Clip
+	-- Talents
+	-- Artifact Traits
 end
 
 ------------------------------------------------------------------------
 -- Mage
 
 if playerClass == "MAGE" then
+	-- Abilities
 	a[ 12042] = FILTER_BY_PLAYER -- Arcane Power
 	a[157981] = FILTER_BY_PLAYER -- Blast Wave
 	a[108843] = FILTER_BY_PLAYER -- Blazing Speed
@@ -324,14 +338,16 @@ if playerClass == "MAGE" then
 	a[ 82691] = FILTER_BY_PLAYER -- Ring of Frost
 	a[ 31589] = FILTER_BY_PLAYER -- Slow
 	a[   130] = FILTER_BY_PLAYER -- Slow Fall
+	-- Talents
+	-- Artifact Traits
 end
 
 ------------------------------------------------------------------------
 -- Monk
 
 if playerClass == "MONK" then
+	-- Abilities
 	a[228563] = FILTER_BY_PLAYER -- Blackout Combo
-	a[116768] = FILTER_BY_PLAYER -- Blackout Kick! (talent: Combo Breaker)
 	a[115181] = FILTER_BY_PLAYER -- Breath of Fire
 	a[119085] = FILTER_BY_PLAYER -- Chi Torpedo
 	a[122278] = FILTER_BY_PLAYER -- Dampen Harm
@@ -363,13 +379,16 @@ if playerClass == "MONK" then
 	a[152173] = FILTER_BY_PLAYER -- Serenity
 	a[198909] = FILTER_BY_PLAYER -- Song of Chi-Ji
 	a[196733] = FILTER_BY_PLAYER -- Special Delivery -- NEEDS CHECK
-	a[205320] = FILTER_BY_PLAYER -- Strike of the Windlord (artifact)
 	a[202090] = FILTER_BY_PLAYER -- Teachings of the Monastery
 	a[116680] = FILTER_BY_PLAYER -- Thunder Focus Tea
 	a[116841] = FILTER_BY_PLAYER -- Tiger's Lust
 	a[115080] = FILTER_BY_PLAYER -- Touch of Death
 	a[122470] = FILTER_BY_PLAYER -- Touch of Karma
 	a[115176] = FILTER_BY_PLAYER -- Zen Meditation
+	-- Talents
+	a[116768] = FILTER_BY_PLAYER -- Blackout Kick! (from Combo Breaker)
+	-- Artifact Traits
+	a[205320] = FILTER_BY_PLAYER -- Strike of the Windlord
 end
 
 ------------------------------------------------------------------------
@@ -386,7 +405,7 @@ if playerClass == "PALADIN" then
 	a[203538] = FILTER_ON_FRIEND -- Greater Blessing of Kings
 	a[203528] = FILTER_ON_FRIEND -- Greater Blessing of Might
 	a[203539] = FILTER_ON_FRIEND -- Greater Blessing of Wisdom
-
+	-- Abilities
 	a[204150] = FILTER_BY_PLAYER -- Aegis of Light
 	a[ 31850] = FILTER_BY_PLAYER -- Ardent Defender
 	a[ 31842] = FILTER_BY_PLAYER -- Avenging Wrath (Holy)
@@ -416,6 +435,8 @@ if playerClass == "PALADIN" then
 	a[132403] = FILTER_BY_PLAYER -- Shield of the Righteous
 	a[184662] = FILTER_BY_PLAYER -- Shield of Vengeance
 	a[209785] = FILTER_BY_PLAYER -- The Fires of Justice
+	-- Talents
+	-- Artifact Traits
 end
 
 ------------------------------------------------------------------------
@@ -469,21 +490,61 @@ end
 -- Rogue
 
 if playerClass == "ROGUE" then
+	-- Abilities
+	a[ 13750] = FILTER_BY_PLAYER -- Adrenaline Rush
+	a[ 13877] = FILTER_BY_PLAYER -- Blade Flurry
+	a[199740] = FILTER_BY_PLAYER -- Bribe
+	a[  1833] = FILTER_BY_PLAYER -- Cheap Shot
+	a[ 31224] = FILTER_BY_PLAYER -- Cloak of Shadows
+	a[  3409] = FILTER_BY_PLAYER -- Crippling Poison (debuff)
+	a[  2818] = FILTER_BY_PLAYER -- Deadly Poison (debuff)
+	a[  5277] = FILTER_BY_PLAYER -- Evasion
+	a[  1966] = FILTER_BY_PLAYER -- Feint
+	a[   703] = FILTER_BY_PLAYER -- Garrote
+	a[  1776] = FILTER_BY_PLAYER -- Gouge
+	a[   408] = FILTER_BY_PLAYER -- Kidney Shot
+	a[195452] = FILTER_BY_PLAYER -- Nightblade
+	a[185763] = FILTER_BY_PLAYER -- Pistol Shot
+	a[199754] = FILTER_BY_PLAYER -- Riposte
+	a[193356] = FILTER_BY_PLAYER -- Roll the Bones - Broadsides
+	a[199600] = FILTER_BY_PLAYER -- Roll the Bones - Buried Treasure
+	a[193358] = FILTER_BY_PLAYER -- Roll the Bones - Grand Melee
+	a[199603] = FILTER_BY_PLAYER -- Roll the Bones - Jolly Roger
+	a[193357] = FILTER_BY_PLAYER -- Roll the Bones - Shark Infested Waters
+	a[193359] = FILTER_BY_PLAYER -- Roll the Bones - True Bearing
+	a[  1943] = FILTER_BY_PLAYER -- Rupture
+	a[121471] = FILTER_BY_PLAYER -- Shadow Blades
+	a[185422] = FILTER_BY_PLAYER -- Shadow Dance
+	a[ 36554] = FILTER_BY_PLAYER -- Shadowstep
+	a[  2983] = FILTER_BY_PLAYER -- Sprint
+	a[212283] = FILTER_BY_PLAYER -- Symbols of Death
+	a[ 57934] = FILTER_BY_PLAYER -- Tricks of the Trade
+	a[  1856] = FILTER_BY_PLAYER -- Vanish
+	a[ 79140] = FILTER_BY_PLAYER -- Vendetta
+--	a[  8680] = FILTER_BY_PLAYER -- Wound Poison -- who cares?
+	-- Talents
+	a[200803] = FILTER_BY_PLAYER -- Agonizing Poison
+	a[196937] = FILTER_BY_PLAYER -- Ghostly Strike
+	a[ 16511] = FILTER_BY_PLAYER -- Hemorrhage
+	a[135345] = FILTER_BY_PLAYER -- Internal Bleeding
+	a[ 51690] = FILTER_BY_PLAYER -- Killing Spree
+	a[137619] = FILTER_BY_PLAYER -- Marked for Death
+	a[  5171] = FILTER_BY_PLAYER -- Slice and Dice
+	-- Artifact Traits
+	a[220901] = FILTER_BY_PLAYER -- Goremaw's Bite (regen)
+	a[209786] = FILTER_BY_PLAYER -- Goremaw's Bite (slow)
+	a[192759] = FILTER_BY_PLAYER -- Kingsbane (dot)
+	a[192853] = FILTER_BY_PLAYER -- Kingsbane (+damage)
 end
 
 ------------------------------------------------------------------------
 -- Shaman
 
 if playerClass == "SHAMAN" then
-	a[114050] = FILTER_BY_PLAYER -- Ascendance (Elemental)
-	a[114051] = FILTER_BY_PLAYER -- Ascendance (Enhancement)
-	a[114052] = FILTER_BY_PLAYER -- Ascendance (Restoration)
 	a[108281] = FILTER_BY_PLAYER -- Ancestral Guidance
 	a[108271] = FILTER_BY_PLAYER -- Astral Shift
-	a[218825] = FILTER_BY_PLAYER -- Boulderfist
 	a[187878] = FILTER_BY_PLAYER -- Crash Lightning
 	a[188089] = FILTER_BY_PLAYER -- Earthen Spike -- 10s duration on a 20s cooldown
-	a[ 64695] = FILTER_ON_ENEMY  -- Earthgrab (Totem) -- NEEDS CHECK
 --	a[118522] = FILTER_BY_PLAYER -- Elemental Blast: Critical Strike -- 10s duration on a 12s cooldown
 --	a[173183] = FILTER_BY_PLAYER -- Elemental Blast: Haste -- 10s duration on a 12s cooldown
 --	a[173184] = FILTER_BY_PLAYER -- Elemental Blast: Mastery -- 10s duration on a 12s cooldown
@@ -492,26 +553,33 @@ if playerClass == "SHAMAN" then
 	a[194084] = FILTER_BY_PLAYER -- Flametongue
 	a[196840] = FILTER_BY_PLAYER -- Frost Shock
 	a[196834] = FILTER_BY_PLAYER -- Frostbrand
-	a[198300] = FILTER_BY_PLAYER -- Gathering Storms (artifact) -- +2% damage to next Stormstrike per Crash Lightning target
 	a[ 73920] = FILTER_BY_PLAYER -- Healing Rain
 	a[215785] = FILTER_BY_PLAYER -- Hot Hand
 	a[210714] = FILTER_BY_PLAYER -- Icefury
 	a[202004] = FILTER_BY_PLAYER -- Landslide
 	a[ 77756] = FILTER_BY_PLAYER -- Lava Surge
 	a[197209] = FILTER_BY_PLAYER -- Lightning Rod -- NEEDS CHECK
-	a[191877] = FILTER_BY_PLAYER -- Power of the Maelstrom (artifact) -- buffs next 3 LBs, 20s duration
 	a[ 61295] = FILTER_BY_PLAYER -- Riptide
 	a[ 98007] = FILTER_ON_FRIEND -- Spirit Link Totem
 	a[ 58875] = FILTER_BY_PLAYER -- Spirit Walk
 	a[ 79206] = FILTER_BY_PLAYER -- Spiritwalker's Grace
-	a[135621] = FILTER_ON_ENEMY  -- Static Charge (Lightning Surge Totem) -- NEEDS CHECK
 --	a[201846] = FILTER_BY_PLAYER -- Stormbringer -- see spell alert overlay, action button proc glow
-	a[205495] = FILTER_BY_PLAYER -- Stormkeeper (artifact) -- buffs next 3 LB/CBs, 15s duration
 	a[ 51490] = FILTER_BY_PLAYER -- Thunderstorm
 	a[ 53390] = FILTER_BY_PLAYER -- Tidal Waves
 --	a[   546] = FILTER_ON_FRIEND -- Water Walking -- TODO: show only OOC
-	a[192082] = FILTER_ON_FRIEND -- Wind Rush (Totem)
 --	a[201898] = FILTER_BY_PLAYER -- Windsong -- 20s duration on a 45s cooldown
+	-- Talents
+	a[114050] = FILTER_BY_PLAYER -- Ascendance (Elemental)
+	a[114051] = FILTER_BY_PLAYER -- Ascendance (Enhancement)
+	a[114052] = FILTER_BY_PLAYER -- Ascendance (Restoration)
+	a[218825] = FILTER_BY_PLAYER -- Boulderfist
+	a[ 64695] = FILTER_ON_ENEMY  -- Earthgrab (Totem) -- NEEDS CHECK
+	a[135621] = FILTER_ON_ENEMY  -- Static Charge (Lightning Surge Totem) -- NEEDS CHECK
+	a[192082] = FILTER_ON_FRIEND -- Wind Rush (Totem)
+	-- Artifact Traits
+	a[198300] = FILTER_BY_PLAYER -- Gathering Storms -- +2% damage to next Stormstrike per Crash Lightning target
+	a[191877] = FILTER_BY_PLAYER -- Power of the Maelstrom -- buffs next 3 LBs, 20s duration
+	a[205495] = FILTER_BY_PLAYER -- Stormkeeper -- buffs next 3 LB/CBs, 15s duration
 end
 
 ------------------------------------------------------------------------
@@ -521,8 +589,6 @@ if playerClass == "WARLOCK" then
 	a[   980] = FILTER_BY_PLAYER -- Agony
 	a[117828] = FILTER_BY_PLAYER -- Backdraft
 	a[111400] = FILTER_BY_PLAYER -- Burning Rush
-	a[199281] = FILTER_BY_PLAYER -- Compounding Horror (artifact)
-	a[196546] = FILTER_BY_PLAYER -- Conflagration of Chaos (artifact)
 	a[146739] = FILTER_BY_PLAYER -- Corruption
 	a[108416] = FILTER_BY_PLAYER -- Dark Pact
 	a[205146] = FILTER_BY_PLAYER -- Demonic Calling
@@ -545,17 +611,61 @@ if playerClass == "WARLOCK" then
 	a[205178] = FILTER_BY_PLAYER -- Soul Effigy
 	a[196098] = FILTER_BY_PLAYER -- Soul Harvest
 --	a[ 20707] = FILTER_BY_PLAYER -- Soulstone -- OOC
-	a[211583] = FILTER_BY_PLAYER -- Stolen Power (artifact)
-	a[216695] = FILTER_BY_PLAYER -- Tormented Souls (artifact)
 --	a[  5697] = FILTER_BY_PLAYER -- Unending Breath -- OOC
 	a[104773] = FILTER_BY_PLAYER -- Unending Resolve
 	a[ 30108] = FILTER_BY_PLAYER -- Unstable Affliction
+	-- Talents
+	-- Artifact Traits
+	a[199281] = FILTER_BY_PLAYER -- Compounding Horror
+	a[196546] = FILTER_BY_PLAYER -- Conflagration of Chaos
+	a[211583] = FILTER_BY_PLAYER -- Stolen Power
+	a[216695] = FILTER_BY_PLAYER -- Tormented Souls
 end
 
 ------------------------------------------------------------------------
 -- Warrior
 
 if playerClass == "WARRIOR" then
+	-- Abilities
+	a[  1719] = FILTER_BY_PLAYER -- Battle Cry
+	a[ 18499] = FILTER_BY_PLAYER -- Berserker Rage
+	a[227847] = FILTER_BY_PLAYER -- Bladestorm
+	a[105771] = FILTER_BY_PLAYER -- Charge
+	a[115767] = FILTER_BY_PLAYER -- Deep Wounds
+	a[  1160] = FILTER_BY_PLAYER -- Demoralizing Shout
+	a[118038] = FILTER_BY_PLAYER -- Die by the Sword
+	a[184364] = FILTER_BY_PLAYER -- Enraged Regeneration
+	a[204488] = FILTER_BY_PLAYER -- Focused Rage
+	a[  1715] = FILTER_BY_PLAYER -- Hamstring
+	a[190456] = FILTER_BY_PLAYER -- Ignore Pain
+	a[  5246] = FILTER_BY_PLAYER -- Intimidating Shout
+	a[ 12975] = FILTER_BY_PLAYER -- Last Stand
+	a[ 12323] = FILTER_BY_PLAYER -- Piercing Howl
+	a[132404] = FILTER_BY_PLAYER -- Shield Block
+	a[   871] = FILTER_BY_PLAYER -- Shield Wall
+	a[ 23920] = FILTER_BY_PLAYER -- Spell Reflection
+	a[206333] = FILTER_BY_PLAYER -- Taste for Blood
+	a[  6343] = FILTER_BY_PLAYER -- Thunder Clap
+	-- Talents
+	a[107574] = FILTER_BY_PLAYER -- Avatar
+	a[ 46924] = FILTER_BY_PLAYER -- Bladestorm
+	a[ 12292] = FILTER_BY_PLAYER -- Bloodbath
+	a[197690] = FILTER_BY_PLAYER -- Defensive Stance
+	a[118000] = FILTER_BY_PLAYER -- Dragon Roar
+	a[207982] = FILTER_BY_PLAYER -- Focused Rage
+	a[215572] = FILTER_BY_PLAYER -- Frothing Berserker
+	a[   772] = FILTER_BY_PLAYER -- Rend
+	a[ 46968] = FILTER_BY_PLAYER -- Shockwave
+	a[107570] = FILTER_BY_PLAYER -- Storm Bolt
+	a[215537] = FILTER_BY_PLAYER -- Trauma
+--	a[122510] = FILTER_BY_PLAYER -- Ultimatum -- action button glow + spell alert overlay
+	a[202573] = FILTER_BY_PLAYER -- Vengeance: Focused Rage
+	a[202547] = FILTER_BY_PLAYER -- Vengeance: Ignore Pain
+	a[215562] = FILTER_BY_PLAYER -- War Machine
+	a[215570] = FILTER_BY_PLAYER -- Wrecking Ball
+	-- Artifact Traits
+	a[203524] = FILTER_BY_PLAYER -- Neltharion's Fury
+	a[205546] = FILTER_BY_PLAYER -- Odyn's Fury (dot) -- NEEDS CHECK, 205546
 end
 
 ------------------------------------------------------------------------
