@@ -1,3 +1,7 @@
+### Version 7.0.3.1 (2016 Aug 14)
+
+* Fixed an error when opening the aura configuration panel
+
 ### Version 7.0.3.0 (2016 Aug 13)
 
 * Updated for WoW 7.0

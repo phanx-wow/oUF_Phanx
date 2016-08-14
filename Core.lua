@@ -302,9 +302,9 @@ function Loader:ADDON_LOADED(event, addon)
 			end
 		end
 	end
-	-- Remove default values
+	-- Remove default values and auras that no longer exist in the game
 	for id, flag in pairs(oUFPhanxAuraConfig.customFilters) do
-		if flag == ns.defaultAuras[id] then
+		if flag == ns.defaultAuras[id] or not GetSpellInfo(id) then
 			oUFPhanxAuraConfig.customFilters[id] = nil
 		end
 	end

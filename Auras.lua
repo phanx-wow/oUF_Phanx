@@ -20,7 +20,7 @@ local bit_band, bit_bor = bit.band, bit.bor
 
 -- Permanent filters, checked on login and respec:
 local FILTER_ALL          = 0x1000000
-local FILTER_NONE         = 0x2000000
+local FILTER_DISABLE      = 0x2000000
 
 local FILTER_UNIT_FOCUS   = 0x0100000 -- Additionally show on focus frame
 local FILTER_UNIT_TOT     = 0x0200000 -- Additionally show on tot frame
@@ -42,7 +42,7 @@ local FILTER_ON_ENEMY     = 0x0000008
 
 ns.auraFilterValues = {
 	FILTER_ALL            = FILTER_ALL,
-	FILTER_NONE           = FILTER_NONE,
+	FILTER_DISABLE        = FILTER_DISABLE,
 
 	FILTER_UNIT_FOCUS     = FILTER_UNIT_FOCUS,
 	FILTER_UNIT_TOT       = FILTER_UNIT_TOT,
@@ -127,28 +127,28 @@ local a = {
 	[106784] = FILTER_ALL, -- Brew Explosion (Ook Ook in Stormsnout Brewery)
 	[123059] = FILTER_ALL, -- Destabilize (Amber-Shaper Un'sok)
 	-- NPC buffs that are completely useless
-	[ 63501] = FILTER_NONE, -- Argent Crusade Champion's Pennant
-	[ 60023] = FILTER_NONE, -- Scourge Banner Aura (Boneguard Commander in Icecrown)
-	[ 63406] = FILTER_NONE, -- Darnassus Champion's Pennant
-	[ 63405] = FILTER_NONE, -- Darnassus Valiant's Pennant
-	[ 63423] = FILTER_NONE, -- Exodar Champion's Pennant
-	[ 63422] = FILTER_NONE, -- Exodar Valiant's Pennant
-	[ 63396] = FILTER_NONE, -- Gnomeregan Champion's Pennant
-	[ 63395] = FILTER_NONE, -- Gnomeregan Valiant's Pennant
-	[ 63427] = FILTER_NONE, -- Ironforge Champion's Pennant
-	[ 63426] = FILTER_NONE, -- Ironforge Valiant's Pennant
-	[ 63433] = FILTER_NONE, -- Orgrimmar Champion's Pennant
-	[ 63432] = FILTER_NONE, -- Orgrimmar Valiant's Pennant
-	[ 63399] = FILTER_NONE, -- Sen'jin Champion's Pennant
-	[ 63398] = FILTER_NONE, -- Sen'jin Valiant's Pennant
-	[ 63403] = FILTER_NONE, -- Silvermoon Champion's Pennant
-	[ 63402] = FILTER_NONE, -- Silvermoon Valiant's Pennant
-	[ 62594] = FILTER_NONE, -- Stormwind Champion's Pennant
-	[ 62596] = FILTER_NONE, -- Stormwind Valiant's Pennant
-	[ 63436] = FILTER_NONE, -- Thunder Bluff Champion's Pennant
-	[ 63435] = FILTER_NONE, -- Thunder Bluff Valiant's Pennant
-	[ 63430] = FILTER_NONE, -- Undercity Champion's Pennant
-	[ 63429] = FILTER_NONE, -- Undercity Valiant's Pennant
+	[ 63501] = FILTER_DISABLE, -- Argent Crusade Champion's Pennant
+	[ 60023] = FILTER_DISABLE, -- Scourge Banner Aura (Boneguard Commander in Icecrown)
+	[ 63406] = FILTER_DISABLE, -- Darnassus Champion's Pennant
+	[ 63405] = FILTER_DISABLE, -- Darnassus Valiant's Pennant
+	[ 63423] = FILTER_DISABLE, -- Exodar Champion's Pennant
+	[ 63422] = FILTER_DISABLE, -- Exodar Valiant's Pennant
+	[ 63396] = FILTER_DISABLE, -- Gnomeregan Champion's Pennant
+	[ 63395] = FILTER_DISABLE, -- Gnomeregan Valiant's Pennant
+	[ 63427] = FILTER_DISABLE, -- Ironforge Champion's Pennant
+	[ 63426] = FILTER_DISABLE, -- Ironforge Valiant's Pennant
+	[ 63433] = FILTER_DISABLE, -- Orgrimmar Champion's Pennant
+	[ 63432] = FILTER_DISABLE, -- Orgrimmar Valiant's Pennant
+	[ 63399] = FILTER_DISABLE, -- Sen'jin Champion's Pennant
+	[ 63398] = FILTER_DISABLE, -- Sen'jin Valiant's Pennant
+	[ 63403] = FILTER_DISABLE, -- Silvermoon Champion's Pennant
+	[ 63402] = FILTER_DISABLE, -- Silvermoon Valiant's Pennant
+	[ 62594] = FILTER_DISABLE, -- Stormwind Champion's Pennant
+	[ 62596] = FILTER_DISABLE, -- Stormwind Valiant's Pennant
+	[ 63436] = FILTER_DISABLE, -- Thunder Bluff Champion's Pennant
+	[ 63435] = FILTER_DISABLE, -- Thunder Bluff Valiant's Pennant
+	[ 63430] = FILTER_DISABLE, -- Undercity Champion's Pennant
+	[ 63429] = FILTER_DISABLE, -- Undercity Valiant's Pennant
 }
 
 ns.defaultAuras = a
@@ -240,7 +240,7 @@ if playerClass == "DRUID" then
 	a[102543] = FILTER_BY_PLAYER -- Incarnation: King of the Jungle
 	a[192081] = FILTER_BY_PLAYER -- Ironfur
 	a[164547] = FILTER_BY_PLAYER -- Lunar Empowerment
-	a[ 22570] = FILTER_BY_PLAYER -- Maim
+	a[203123] = FILTER_BY_PLAYER -- Maim
 	a[192083] = FILTER_BY_PLAYER -- Mark of Ursol
 	a[ 33763] = FILTER_BY_PLAYER -- Lifebloom
 	a[164812] = FILTER_BY_PLAYER -- Moonfire -- NEEDS CHECK, 8921
@@ -797,7 +797,7 @@ local function checkFilter(v, self, unit, caster)
 	elseif bit_band(v, FILTER_ON_PLAYER) > 0 then
 		return unit == "player" and not self.__owner.isGroupFrame
 	else
-		return bit_band(v, FILTER_NONE) == 0
+		return bit_band(v, FILTER_DISABLE) == 0
 	end
 end
 
@@ -808,7 +808,7 @@ end
 local filterFuncs = {
 	default = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
 		local v = auraList[spellID]
-		return not v or bit_band(v, FILTER_NONE) == 0
+		return not v or bit_band(v, FILTER_DISABLE) == 0
 	end,
 	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
 		local v = auraList[spellID]
