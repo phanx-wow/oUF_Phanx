@@ -430,16 +430,17 @@ local function Spawn(self, unit, isSingle)
 	----------------
 	if unit == "player" then
 		local GAP = 6
+		local ROWS = 2
 
 		self.Buffs = CreateFrame("Frame", nil, self)
 		self.Buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
 		self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
-		self.Buffs:SetHeight(FRAME_HEIGHT)
+		self.Buffs:SetHeight((FRAME_HEIGHT * ROWS) + (GAP * (ROWS - 1)))
 
 		self.Buffs["growth-x"] = "LEFT"
 		self.Buffs["growth-y"] = "UP"
 		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
-		self.Buffs["num"] = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP))
+		self.Buffs["num"] = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP)) * ROWS
 		self.Buffs["size"] = FRAME_HEIGHT
 		self.Buffs["spacing-x"] = GAP
 		self.Buffs["spacing-y"] = GAP
@@ -453,56 +454,59 @@ local function Spawn(self, unit, isSingle)
 	elseif unit == "pet" then
 		local GAP = 6
 
-		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
-		self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
-		self.Buffs:SetHeight(FRAME_HEIGHT)
+		self.Auras = CreateFrame("Frame", nil, self)
+		self.Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
+		self.Auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
+		self.Auras:SetHeight(FRAME_HEIGHT)
 
-		self.Buffs["growth-x"] = "LEFT"
-		self.Buffs["growth-y"] = "UP"
-		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
-		self.Buffs["num"] = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP))
-		self.Buffs["size"] = FRAME_HEIGHT
-		self.Buffs["spacing-x"] = GAP
-		self.Buffs["spacing-y"] = GAP
+		self.Auras["gap"] = true
+		self.Auras["growth-x"] = "LEFT"
+		self.Auras["growth-y"] = "UP"
+		self.Auras["initialAnchor"] = "BOTTOMRIGHT"
+		self.Auras["num"] = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP))
+		self.Auras["size"] = FRAME_HEIGHT
+		self.Auras["spacing-x"] = GAP
+		self.Auras["spacing-y"] = GAP
 
-		self.Buffs.CustomFilter   = ns.CustomAuraFilters.pet
-		self.Buffs.PostCreateIcon = ns.Auras_PostCreateIcon
-		self.Buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		self.Auras.CustomFilter   = ns.CustomAuraFilters.pet
+		self.Auras.PostCreateIcon = ns.Auras_PostCreateIcon
+		self.Auras.PostUpdateIcon = ns.Auras_PostUpdateIcon
 
-		self.Buffs.parent = self
+		self.Auras.parent = self
 	elseif unit == "party" then
 		local GAP = 6
+		local MAX_ICONS = 5
 
-		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetPoint("RIGHT", self, "LEFT", -10, 0)
-		self.Buffs:SetHeight(FRAME_HEIGHT)
-		self.Buffs:SetWidth((FRAME_HEIGHT * 4) + (GAP * 3))
+		self.Auras = CreateFrame("Frame", nil, self)
+		self.Auras:SetPoint("RIGHT", self, "LEFT", -10, 0)
+		self.Auras:SetHeight(FRAME_HEIGHT)
+		self.Auras:SetWidth((FRAME_HEIGHT * (MAX_ICONS + 1)) + (GAP * MAX_ICONS))
 
-		self.Buffs["growth-x"] = "LEFT"
-		self.Buffs["growth-y"] = "DOWN"
-		self.Buffs["initialAnchor"] = "RIGHT"
-		self.Buffs["num"] = 4
-		self.Buffs["size"] = FRAME_HEIGHT
-		self.Buffs["spacing-x"] = GAP
-		self.Buffs["spacing-y"] = GAP
+		self.Auras["growth-x"] = "LEFT"
+		self.Auras["growth-y"] = "DOWN"
+		self.Auras["initialAnchor"] = "RIGHT"
+		self.Auras["num"] = MAX_ICONS
+		self.Auras["size"] = FRAME_HEIGHT
+		self.Auras["spacing-x"] = GAP
 
-		self.Buffs.CustomFilter   = ns.CustomAuraFilters.party
-		self.Buffs.PostCreateIcon = ns.Auras_PostCreateIcon
-		self.Buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
-		self.Buffs.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
+		self.Auras.CustomFilter   = ns.CustomAuraFilters.party
+		self.Auras.PostCreateIcon = ns.Auras_PostCreateIcon
+		self.Auras.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		self.Auras.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
 
-		self.Buffs.parent = self
+		self.Auras.parent = self
 	elseif unit == "target" then
 		local GAP = 6
+		local ROWS = 3
 
-		local MAX_ICONS = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP))
-		local NUM_BUFFS = 2
-		local NUM_DEBUFFS = MAX_ICONS - 2
-		local ROW_HEIGHT = (FRAME_HEIGHT * 2) + (GAP * 2)
+		local ICONS_PER_ROW   = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP)) * ROWS
+		local BUFFS_PER_ROW   = 2
+		local DEBUFFS_PER_ROW = ICONS_PER_ROW - BUFFS_PER_ROW
+		local MAX_BUFFS       = ROWS * BUFFS_PER_ROW
+		local MAX_DEBUFFS     = ROWS * DEBUFFS_PER_ROW
 
 		self.Debuffs = CreateFrame("Frame", nil, self)
-		self.Debuffs:SetHeight(ROW_HEIGHT)
+		self.Debuffs:SetHeight((FRAME_HEIGHT * ROWS) + (GAP * 2 * (ROWS - 1)))
 		self.Debuffs.parent = self
 
 		self.Debuffs["growth-y"] = "UP"
@@ -517,7 +521,7 @@ local function Spawn(self, unit, isSingle)
 		self.Debuffs.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
 
 		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetHeight(ROW_HEIGHT)
+		self.Buffs:SetHeight((FRAME_HEIGHT * ROWS) + (GAP * 2 * (ROWS - 1)))
 		self.Buffs.parent = self
 
 		self.Buffs["growth-y"] = "UP"
@@ -542,17 +546,17 @@ local function Spawn(self, unit, isSingle)
 
 			a:ClearAllPoints()
 			a:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 2, 24)
-			a:SetWidth((FRAME_HEIGHT * NUM_DEBUFFS) + (GAP * (NUM_DEBUFFS - 1)))
+			a:SetWidth((FRAME_HEIGHT * DEBUFFS_PER_ROW) + (GAP * (DEBUFFS_PER_ROW - 1)))
 			a["growth-x"] = "RIGHT"
 			a["initialAnchor"] = "BOTTOMLEFT"
-			a["num"] = NUM_DEBUFFS
+			a["num"] = MAX_DEBUFFS
 
 			b:ClearAllPoints()
 			b:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 2, 24)
-			b:SetWidth((FRAME_HEIGHT * NUM_BUFFS) + (GAP * (NUM_BUFFS - 1)))
+			b:SetWidth((FRAME_HEIGHT * BUFFS_PER_ROW) + (GAP * (BUFFS_PER_ROW - 1)))
 			b["growth-x"] = "LEFT"
 			b["initialAnchor"] = "BOTTOMRIGHT"
-			b["num"] = NUM_BUFFS
+			b["num"] = MAX_BUFFS
 
 			if not initial then
 				a:ForceUpdate()
@@ -628,16 +632,6 @@ local function Spawn(self, unit, isSingle)
 	if unit ~= "arena" and unit ~= "boss" and not strmatch(unit, ".target$") then
 		self.ResInfo = ns.CreateFontString(self.overlay, 16, "CENTER")
 		self.ResInfo:SetPoint("CENTER", 0, 1)
-	end
-
-	------------------------
-	-- Plugin: oUF_Smooth --
-	------------------------
-	if IsAddOnLoaded("oUF_Smooth") and not strmatch(unit, ".target$") then
-		self.Health.Smooth = true
-		if self.Power then
-			self.Power.Smooth = true
-		end
 	end
 
 	-----------
@@ -734,7 +728,6 @@ function ns.Factory(oUF)
 
 		bar.bar:SetAllPoints(bar)
 		bar.bar:SetStatusBarTexture(BAR_TEXTURE)
-		--bar.bar:SetAlpha(0.8) -- I don't remember why I did this?
 
 		bar.bg:ClearAllPoints()
 		bar.bg:SetAllPoints(bar)
@@ -749,20 +742,4 @@ function ns.Factory(oUF)
 
 		ns.CreateBorder(bar, nil, nil, bar.bar, "OVERLAY")
 	end
-
---[[ Seems no longer necessary?
-	local fixertimer = 2
-	local fixer = CreateFrame("Frame") -- I don't understand why this is necessary... but it is.
-	fixer:SetScript("OnUpdate", function(self, elapsed)
-		fixertimer = fixertimer - elapsed
-		if fixertimer <= 0 then
-			self:Hide()
-			self:SetScript("OnUpdate", nil)
-			fixertimer, fixer = nil, nil
-			for i = 1, #oUF.objects do
-				oUF.objects[i]:UpdateAllElements("ForceUpdate")
-			end
-		end
-	end)
-]]
 end
