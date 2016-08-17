@@ -806,11 +806,11 @@ local function debug(...)
 end
 
 local filterFuncs = {
-	default = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
+	default = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll, timeMod)
 		local v = auraList[spellID]
 		return not v or bit_band(v, FILTER_DISABLE) == 0
 	end,
-	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
+	player = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll, timeMod)
 		local v = auraList[spellID]
 		if v then
 			return checkFilter(v, self, unit, caster)
@@ -818,7 +818,7 @@ local filterFuncs = {
 			return isBossAura or caster == "vehicle"
 		end
 	end,
-	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
+	pet = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll, timeMod)
 		local v = auraList[spellID]
 		if v then
 			return caster and unitIsPlayer[caster] and bit_band(v, FILTER_BY_PLAYER) > 0
@@ -826,22 +826,22 @@ local filterFuncs = {
 			return isBossAura or caster == "vehicle"
 		end
 	end,
-	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
+	target = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll, timeMod)
 		local v = auraList[spellID]
 		if v then
 			local show = checkFilter(v, self, unit, caster)
 			return show
-		elseif isBossAura then
+		elseif isBossAura or caster == "vehicle" then
 			return true
-		elseif caster == "vehicle" then
-			return true
-		elseif not caster and not IsInInstance() then
+		elseif icon.isDebuff and not caster and not IsInInstance() then
 			-- EXPERIMENTAL: ignore debuffs from players outside the group, eg. world bosses
 			return
 		elseif UnitCanAttack("player", unit) and not UnitPlayerControlled(unit) then
-			-- Hostile NPC.
-			-- Show auras cast by the unit, and auras of unknown origin.
-			return not caster or caster == unit
+			-- Hostile NPC
+			-- Show auras of unknown origin
+			-- Show auras cast by the unit
+			-- Show buffs with a duration < 1 hour
+			return (not caster or caster == unit) or (not iconFrame.isDebuff and duration < 3600)
 		else
 			-- Friendly target or hostile player
 			-- Show auras of unknown origin
@@ -867,18 +867,3 @@ filterFuncs.targettarget = function(self, unit, iconFrame, name, rank, icon, cou
 end
 
 ns.CustomAuraFilters = filterFuncs
---[[
-local tempfilter = function(self, unit, iconFrame, name, rank, icon, count, debuffType, duration, expirationTime, caster, canStealOrPurge, _, spellID, canApplyAura, isBossAura, casterIsPlayer, nameplateShowAll)
-	if isBossAura then
-		return true
-	elseif iconFrame.isDebuff then
-		return TargetFrame_ShouldShowDebuffs(unit, caster, nameplateShowAll, casterIsPlayer)
-	elseif UnitCanAttack("player", unit) then
-		return canStealOrPurge
-	else
-		return duration > 0 and expirationTime - GetTime() <= 30
-	end
-end
-
-ns.CustomAuraFilters = setmetatable({}, { __index = function() return tempfilter end })
-]]
