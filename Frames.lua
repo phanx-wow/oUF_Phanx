@@ -243,7 +243,7 @@ local function Spawn(self, unit, isSingle)
 	-- Class-specific resources --
 	------------------------------
 	if unit == "player" then
-		local ClassIcons = ns.Orbs.Create(self.overlay, 6, 20)
+		local ClassIcons = ns.Orbs.Create(self.overlay, 10, 20)
 		ClassIcons[1]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
 
 		ClassIcons.PostUpdate = ns.ClassIcons_PostUpdate
