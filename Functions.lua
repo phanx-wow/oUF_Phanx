@@ -403,7 +403,7 @@ end
 
 local PLAYER_FACTION = UnitFactionGroup("player")
 
-function ns.PvP_PostUpdate(element, status)
+function ns.PvP_PostUpdate(element, unit, status)
 	--print("PvP PostUpdate", element.__owner.unit, status)
 	if not status then return end
 	if status == PLAYER_FACTION then

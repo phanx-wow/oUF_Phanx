@@ -416,10 +416,9 @@ local function Spawn(self, unit, isSingle)
 	---------------
 	if unit == "target" then -- unit == "player" or unit == "target" or unit == "party" then
 		self.PvP = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.PvP:SetPoint("CENTER", self, "TOPLEFT", -1, 4) -- "BOTTOM")
-		self.PvP:SetFont("Fonts\\ARIALN.ttf", 18, "OUTLINE")
-		self.PvP:SetWordWrap(false)
-		self.PvP:SetText(RANGE_INDICATOR)
+		self.PvP:SetPoint("CENTER", self, "TOPLEFT", -2, 2)
+		self.PvP:SetFont("Interface\\AddOns\\oUF_Phanx\\Media\\PTSans-Bold.ttf", 24, "OUTLINE")
+		self.PvP:SetText("•")
 		self.PvP.SetTexture = nop
 		self.PvP.SetTexCoord = nop
 		self.PvP.PostUpdate = ns.PvP_PostUpdate
