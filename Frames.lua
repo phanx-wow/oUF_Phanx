@@ -431,107 +431,109 @@ local function Spawn(self, unit, isSingle)
 		local GAP = 6
 		local ROWS = 2
 
-		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
-		self.Buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
-		self.Buffs:SetHeight((FRAME_HEIGHT * ROWS) + (GAP * (ROWS - 1)))
+		local buffs = CreateFrame("Frame", nil, self)
+		buffs:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
+		buffs:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
+		buffs:SetHeight((FRAME_HEIGHT * ROWS) + (GAP * (ROWS - 1)))
 
-		self.Buffs["growth-x"] = "LEFT"
-		self.Buffs["growth-y"] = "UP"
-		self.Buffs["initialAnchor"] = "BOTTOMRIGHT"
-		self.Buffs["num"] = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP)) * ROWS
-		self.Buffs["size"] = FRAME_HEIGHT
-		self.Buffs["spacing-x"] = GAP
-		self.Buffs["spacing-y"] = GAP
+		buffs["growth-x"] = "LEFT"
+		buffs["growth-y"] = "UP"
+		buffs["initialAnchor"] = "BOTTOMRIGHT"
+		buffs["num"] = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP)) * ROWS
+		buffs["size"] = FRAME_HEIGHT
+		buffs["spacing-x"] = GAP
+		buffs["spacing-y"] = GAP
 
-		self.Buffs.CustomFilter   = ns.CustomAuraFilters.player
-		self.Buffs.PostCreateIcon = ns.Auras_PostCreateIcon
-		self.Buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
-		self.Buffs.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
+		buffs.CustomFilter   = ns.CustomAuraFilters.player
+		buffs.PostCreateIcon = ns.Auras_PostCreateIcon
+		buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		buffs.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
 
-		self.Buffs.parent = self
+		self.Buffs = buffs
 	elseif unit == "pet" then
 		local GAP = 6
 
-		self.Auras = CreateFrame("Frame", nil, self)
-		self.Auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
-		self.Auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
-		self.Auras:SetHeight(FRAME_HEIGHT)
+		local auras = CreateFrame("Frame", nil, self)
+		auras:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 24)
+		auras:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 24)
+		auras:SetHeight(FRAME_HEIGHT)
 
-		self.Auras["gap"] = true
-		self.Auras["growth-x"] = "LEFT"
-		self.Auras["growth-y"] = "UP"
-		self.Auras["initialAnchor"] = "BOTTOMRIGHT"
-		self.Auras["num"] = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP))
-		self.Auras["size"] = FRAME_HEIGHT
-		self.Auras["spacing-x"] = GAP
-		self.Auras["spacing-y"] = GAP
+		auras["gap"] = true
+		auras["growth-x"] = "LEFT"
+		auras["growth-y"] = "UP"
+		auras["initialAnchor"] = "BOTTOMRIGHT"
+		auras["num"] = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP))
+		auras["size"] = FRAME_HEIGHT
+		auras["spacing-x"] = GAP
+		auras["spacing-y"] = GAP
 
-		self.Auras.CustomFilter   = ns.CustomAuraFilters.pet
-		self.Auras.PostCreateIcon = ns.Auras_PostCreateIcon
-		self.Auras.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		auras.CustomFilter   = ns.CustomAuraFilters.pet
+		auras.PostCreateIcon = ns.Auras_PostCreateIcon
+		auras.PostUpdateIcon = ns.Auras_PostUpdateIcon
 
-		self.Auras.parent = self
+		self.Auras = auras
 	elseif unit == "party" then
 		local GAP = 6
 		local MAX_ICONS = 5
 
-		self.Auras = CreateFrame("Frame", nil, self)
-		self.Auras:SetPoint("RIGHT", self, "LEFT", -10, 0)
-		self.Auras:SetHeight(FRAME_HEIGHT)
-		self.Auras:SetWidth((FRAME_HEIGHT * (MAX_ICONS + 1)) + (GAP * MAX_ICONS))
+		local auras = CreateFrame("Frame", nil, self)
+		auras:SetPoint("RIGHT", self, "LEFT", -10, 0)
+		auras:SetHeight(FRAME_HEIGHT)
+		auras:SetWidth((FRAME_HEIGHT * (MAX_ICONS + 1)) + (GAP * MAX_ICONS))
 
-		self.Auras["growth-x"] = "LEFT"
-		self.Auras["growth-y"] = "DOWN"
-		self.Auras["initialAnchor"] = "RIGHT"
-		self.Auras["num"] = MAX_ICONS
-		self.Auras["size"] = FRAME_HEIGHT
-		self.Auras["spacing-x"] = GAP
+		auras["growth-x"] = "LEFT"
+		auras["growth-y"] = "DOWN"
+		auras["initialAnchor"] = "RIGHT"
+		auras["num"] = MAX_ICONS
+		auras["size"] = FRAME_HEIGHT
+		auras["spacing-x"] = GAP
 
-		self.Auras.CustomFilter   = ns.CustomAuraFilters.party
-		self.Auras.PostCreateIcon = ns.Auras_PostCreateIcon
-		self.Auras.PostUpdateIcon = ns.Auras_PostUpdateIcon
-		self.Auras.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
+		auras.CustomFilter   = ns.CustomAuraFilters.party
+		auras.PostCreateIcon = ns.Auras_PostCreateIcon
+		auras.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		auras.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
 
-		self.Auras.parent = self
+		self.Auras = auras
 	elseif unit == "target" then
 		local GAP = 6
 		local ROWS = 3
 
-		local ICONS_PER_ROW   = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP)) * ROWS
+		local ICONS_PER_ROW   = floor((FRAME_WIDTH + GAP) / (FRAME_HEIGHT + GAP))
 		local BUFFS_PER_ROW   = 2
 		local DEBUFFS_PER_ROW = ICONS_PER_ROW - BUFFS_PER_ROW
 		local MAX_BUFFS       = ROWS * BUFFS_PER_ROW
 		local MAX_DEBUFFS     = ROWS * DEBUFFS_PER_ROW
 
-		self.Debuffs = CreateFrame("Frame", nil, self)
-		self.Debuffs:SetHeight((FRAME_HEIGHT * ROWS) + (GAP * 2 * (ROWS - 1)))
-		self.Debuffs.parent = self
+		local debuffs = CreateFrame("Frame", nil, self)
+		debuffs:SetHeight((FRAME_HEIGHT * ROWS) + (GAP * 2 * (ROWS - 1)))
 
-		self.Debuffs["growth-y"] = "UP"
-		self.Debuffs["showType"] = true
-		self.Debuffs["size"] = FRAME_HEIGHT
-		self.Debuffs["spacing-x"] = GAP
-		self.Debuffs["spacing-y"] = GAP * 2
+		debuffs["growth-y"] = "UP"
+		debuffs["showType"] = true
+		debuffs["size"] = FRAME_HEIGHT
+		debuffs["spacing-x"] = GAP
+		debuffs["spacing-y"] = GAP * 2
 
-		self.Debuffs.CustomFilter   = ns.CustomAuraFilters.target
-		self.Debuffs.PostCreateIcon = ns.Auras_PostCreateIcon
-		self.Debuffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
-		self.Debuffs.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
+		debuffs.CustomFilter   = ns.CustomAuraFilters.target
+		debuffs.PostCreateIcon = ns.Auras_PostCreateIcon
+		debuffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		debuffs.PostUpdate     = ns.Auras_PostUpdate -- required to detect Dead => Ghost
 
-		self.Buffs = CreateFrame("Frame", nil, self)
-		self.Buffs:SetHeight((FRAME_HEIGHT * ROWS) + (GAP * 2 * (ROWS - 1)))
-		self.Buffs.parent = self
+		self.Debuffs = debuffs
 
-		self.Buffs["growth-y"] = "UP"
-		self.Buffs["showType"] = false
-		self.Buffs["size"] = FRAME_HEIGHT
-		self.Buffs["spacing-x"] = GAP
-		self.Buffs["spacing-y"] = GAP * 2
+		local buffs = CreateFrame("Frame", nil, self)
+		buffs:SetHeight((FRAME_HEIGHT * ROWS) + (GAP * 2 * (ROWS - 1)))
 
-		self.Buffs.CustomFilter   = ns.CustomAuraFilters.target
-		self.Buffs.PostCreateIcon = ns.Auras_PostCreateIcon
-		self.Buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
+		buffs["growth-y"] = "UP"
+		buffs["showType"] = false
+		buffs["size"] = FRAME_HEIGHT
+		buffs["spacing-x"] = GAP
+		buffs["spacing-y"] = GAP * 2
+
+		buffs.CustomFilter   = ns.CustomAuraFilters.target
+		buffs.PostCreateIcon = ns.Auras_PostCreateIcon
+		buffs.PostUpdateIcon = ns.Auras_PostUpdateIcon
+
+		self.Buffs = buffs
 
 		local function UpdateAurasForRole(self, role, initial)
 			--print("Updating auras for new role:", role)
