@@ -467,9 +467,7 @@ local function FindAuraTimer(button, unit)
 				child.SetAlpha = noop
 				child.SetPoint = noop
 				child.SetScale = noop
-
 				timer = child.text
-
 				break
 			end
 		end
@@ -495,17 +493,13 @@ local function FindAuraTimer(button, unit)
 
 		return timer
 	end
-	return true
+	return not OmniCC
 end
 
 function ns.Auras_PostUpdateIcon(element, unit, button, index, offset)
-	local name, _, texture, count, type, duration, timeLeft, caster, isStealable, shouldConsolidate, spellID = UnitAura(unit, index, button.filter)
+	local name, _, texture, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod = UnitAura(unit, index, button.filter)
 
-	if playerUnits[caster] then
-		button.icon:SetDesaturated(false)
-	else
-		button.icon:SetDesaturated(true)
-	end
+	button.icon:SetDesaturated(not playerUnits[caster or ""])
 
 	if not button.timer then
 		button.timer = FindAuraTimer(button, unit)
