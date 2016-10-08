@@ -272,7 +272,7 @@ do
 	local UnitIsDeadOrGhost, UnitPowerType, UnitPower, UnitPowerMax
 	    = UnitIsDeadOrGhost, UnitPowerType, UnitPower, UnitPowerMax
 
-	function ns.Power_PostUpdate(self, unit, cur, max)
+	function ns.Power_PostUpdate(self, unit, cur, max, min, ptoken, ptype)
 		if max == 0 then
 			self.__owner.Health:SetPoint("BOTTOM", self.__owner, "BOTTOM", 0, 1)
 			return self:Hide()
@@ -291,20 +291,19 @@ do
 
 		if not self.value then return end
 
-		local _, type = UnitPowerType(unit)
-		local color = colors.power[type] or colors.power.FUEL
+		local color = colors.power[ptoken] or colors.power.FUEL
 		if cur < max then
 			if self.__owner.isMouseOver then
-				self.value:SetFormattedText("%s.|cff%02x%02x%02x%s|r", si(UnitPower(unit)), color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
-			elseif type == "MANA" then
-				self.value:SetFormattedText("%d|cff%02x%02x%02x%%|r", floor(UnitPower(unit) / UnitPowerMax(unit) * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
+				self.value:SetFormattedText("%s.|cff%02x%02x%02x%s|r", si(cur), color[1] * 255, color[2] * 255, color[3] * 255, si(max))
+			elseif ptoken == "MANA" then
+				self.value:SetFormattedText("%d|cff%02x%02x%02x%%|r", floor(cur / max * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
 			elseif cur > 0 then
-				self.value:SetFormattedText("%d|cff%02x%02x%02x|r", floor(UnitPower(unit) / UnitPowerMax(unit) * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
+				self.value:SetText(cur)
 			else
 				self.value:SetText(nil)
 			end
-		elseif type == "MANA" and self.__owner.isMouseOver then
-			self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(UnitPowerMax(unit)))
+		elseif ptoken == "MANA" and self.__owner.isMouseOver then
+			self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(max))
 		else
 			self.value:SetText(nil)
 		end
