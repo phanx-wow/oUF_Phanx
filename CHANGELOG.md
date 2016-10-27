@@ -1,3 +1,7 @@
+### Version 7.1.0.0
+
+* Fixed an error that occurred as a result of Blizzard sending health updates for non-existent units
+
 ### Version 7.0.3.2
 
 * Fixed an error with combo points for rogues (ticket #11)

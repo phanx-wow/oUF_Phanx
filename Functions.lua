@@ -134,6 +134,7 @@ do
 		 = UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapDenied, UnitIsEnemy, UnitReaction, UnitCanAssist
 
 	function ns.Health_PostUpdate(bar, unit, cur, max)
+		if not unit then return end -- Blizz bug in 7.1
 		local frame = bar.__owner
 
 		ns.HealPrediction_Override(frame, "Health_PostUpdate", unit)
