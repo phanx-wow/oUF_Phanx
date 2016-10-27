@@ -7,10 +7,10 @@ manual-changelog:
 ignore:
    - CHANGELOG.md
    - README.md
-   - LibStub.toc
-   - CallbackHandler-1.0.xml
-   - LibResInfo-1.0.toc
-   - lib.xml
+   - Libs/CallbackHandler-1.0/CallbackHandler-1.0.xml
+   - Libs/LibResInfo-1.0/LibResInfo-1.0.toc
+   - Libs/LibSharedMedia-3.0/lib.xml
+   - Libs/LibStub/LibStub.toc
 
 enable-nolib-creation: no
 
@@ -27,8 +27,6 @@ externals:
    Config/Libs/PhanxConfig-MediaDropdown: git://github.com/Phanx/PhanxConfig-MediaDropdown.git
    Config/Libs/PhanxConfig-OptionsPanel: git://github.com/Phanx/PhanxConfig-OptionsPanel.git
    Config/Libs/PhanxConfig-Slider: git://github.com/Phanx/PhanxConfig-Slider.git
-   oUF: https://github.com/ls-/oUF.git
 
 move-folders:
    oUF_Phanx/Config: oUF_Phanx_Config
-   oUF_Phanx/oUF: oUF
