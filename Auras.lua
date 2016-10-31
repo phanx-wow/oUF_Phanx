@@ -244,6 +244,7 @@ if playerClass == "DRUID" then
 	a[192083] = FILTER_BY_PLAYER -- Mark of Ursol
 	a[ 33763] = FILTER_BY_PLAYER -- Lifebloom
 	a[164812] = FILTER_BY_PLAYER -- Moonfire -- NEEDS CHECK, 8921
+	a[155625] = FILTER_BY_PLAYER -- Moonfire (Cat Form)
 	a[ 69369] = FILTER_BY_PLAYER -- Predatory Swiftness
 	a[158792] = FILTER_BY_PLAYER -- Pulverize
 	a[155722] = FILTER_BY_PLAYER -- Rake
@@ -631,15 +632,18 @@ if playerClass == "WARRIOR" then
 	a[ 18499] = FILTER_BY_PLAYER -- Berserker Rage
 	a[227847] = FILTER_BY_PLAYER -- Bladestorm
 	a[105771] = FILTER_BY_PLAYER -- Charge
+	a[ 97463] = FILTER_ON_FRIEND -- Commanding Shout
 	a[115767] = FILTER_BY_PLAYER -- Deep Wounds
 	a[  1160] = FILTER_BY_PLAYER -- Demoralizing Shout
 	a[118038] = FILTER_BY_PLAYER -- Die by the Sword
+	a[184362] = FILTER_BY_PLAYER -- Enrage
 	a[184364] = FILTER_BY_PLAYER -- Enraged Regeneration
 	a[204488] = FILTER_BY_PLAYER -- Focused Rage
 	a[  1715] = FILTER_BY_PLAYER -- Hamstring
 	a[190456] = FILTER_BY_PLAYER -- Ignore Pain
 	a[  5246] = FILTER_BY_PLAYER -- Intimidating Shout
 	a[ 12975] = FILTER_BY_PLAYER -- Last Stand
+	a[ 85739] = FILTER_BY_PLAYER -- Meat Cleaver
 	a[ 12323] = FILTER_BY_PLAYER -- Piercing Howl
 	a[132404] = FILTER_BY_PLAYER -- Shield Block
 	a[   871] = FILTER_BY_PLAYER -- Shield Wall
@@ -833,7 +837,7 @@ local filterFuncs = {
 			return show
 		elseif isBossAura or caster == "vehicle" then
 			return true
-		elseif icon.isDebuff and not caster and not IsInInstance() then
+		elseif icon.isDebuff and not caster then -- and not IsInInstance() then
 			-- EXPERIMENTAL: ignore debuffs from players outside the group, eg. world bosses
 			return
 		elseif UnitCanAttack("player", unit) and not UnitPlayerControlled(unit) then
