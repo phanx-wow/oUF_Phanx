@@ -837,7 +837,7 @@ local filterFuncs = {
 			return show
 		elseif isBossAura or caster == "vehicle" then
 			return true
-		elseif icon.isDebuff and not caster then -- and not IsInInstance() then
+		elseif iconFrame.isDebuff and not caster then -- and not IsInInstance() then
 			-- EXPERIMENTAL: ignore debuffs from players outside the group, eg. world bosses
 			return
 		elseif UnitCanAttack("player", unit) and not UnitPlayerControlled(unit) then
