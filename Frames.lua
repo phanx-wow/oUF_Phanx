@@ -415,13 +415,12 @@ local function Spawn(self, unit, isSingle)
 	-- PvP icons --
 	---------------
 	if unit == "target" then -- unit == "player" or unit == "target" or unit == "party" then
-		self.PvP = self.overlay:CreateFontString(nil, "OVERLAY")
-		self.PvP:SetPoint("CENTER", self, "TOPLEFT", -2, 2)
-		self.PvP:SetFont("Interface\\AddOns\\oUF_Phanx\\Media\\PTSans-Bold.ttf", 24, "OUTLINE")
-		self.PvP:SetText("•")
-		self.PvP.SetTexture = nop
-		self.PvP.SetTexCoord = nop
-		self.PvP.PostUpdate = ns.PvP_PostUpdate
+		local pvp = self.overlay:CreateTexture(nil, "OVERLAY")
+		pvp:SetPoint("CENTER", self, "TOPLEFT", -3, 2)
+		pvp:SetSize(15, 15)
+		pvp.SetTexCoord = nop
+		pvp.PostUpdate = ns.PvP_PostUpdate
+		self.PvP = pvp
 	end
 
 	----------------

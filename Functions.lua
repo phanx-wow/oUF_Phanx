@@ -131,7 +131,7 @@ do
 	end
 
 	local UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapDenied, UnitIsEnemy, UnitReaction, UnitCanAssist
-		 = UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapDenied, UnitIsEnemy, UnitReaction, UnitCanAssist
+	    = UnitIsConnected, UnitIsGhost, UnitIsDead, UnitIsPlayer, UnitClass, UnitIsTapDenied, UnitIsEnemy, UnitReaction, UnitCanAssist
 
 	function ns.Health_PostUpdate(bar, unit, cur, max)
 		if not unit then return end -- Blizz bug in 7.1
@@ -403,18 +403,30 @@ end
 
 local PLAYER_FACTION = UnitFactionGroup("player")
 
+local pvpTextures = {
+	ffa = "Interface\\AddOns\\oUF_Phanx\\Media\\DotCircle",
+	Alliance = "Interface\\AddOns\\oUF_Phanx\\Media\\DotCircle",
+	Horde = "Interface\\AddOns\\oUF_Phanx\\Media\\DotCircle"
+}
+
 function ns.PvP_PostUpdate(element, unit, status)
 	--print("PvP PostUpdate", element.__owner.unit, status)
-	if not status then return end
-	if status == PLAYER_FACTION then
+	if not status or status == PLAYER_FACTION then
 		return element:Hide()
-	elseif status == "ffa" then
-		return element:SetTextColor(0.8, 0.4, 0, 0.75)
-	elseif status == "Alliance" then
-		return element:SetTextColor(0.2, 0.4, 1, 0.75)
-	elseif status == "Horde" then
-		return element:SetTextColor(0.6, 0, 0, 0.75)
 	end
+
+	local tex = pvpTextures[status] or pvpTextures[PLAYER_FACTION]
+	element:SetTexture(tex)
+
+	if status == "ffa" then
+		element:SetVertexColor(0.8, 0.4, 0, 0.75)
+	elseif status == "Alliance" then
+		element:SetVertexColor(0.2, 0.4, 1, 0.75)
+	elseif status == "Horde" then
+		element:SetVertexColor(0.6, 0, 0, 0.75)
+	end
+
+	element:Show()
 end
 
 ------------------------------------------------------------------------
