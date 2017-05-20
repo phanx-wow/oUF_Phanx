@@ -1,7 +1,7 @@
 --[[--------------------------------------------------------------------
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
-	Copyright (c) 2008-2016 Phanx <addons@phanx.net>. All rights reserved.
+	Copyright (c) 2008-2017 Phanx <addons@phanx.net>. All rights reserved.
 	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
 	http://www.curse.com/addons/wow/ouf-phanx
 	https://github.com/Phanx/oUF_Phanx
@@ -205,7 +205,7 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 			local r, g, b = unpack(db.powerColor)
 			bar:SetStatusBarColor(r, g, b)
 			bar.bg:SetVertexColor(r * mu, g * mu, b * mu)
-		elseif frame:IsShown() then
+		elseif bar:IsVisible() and bar.ForceUpdate then
 			bar:ForceUpdate()
 		end
 	end
