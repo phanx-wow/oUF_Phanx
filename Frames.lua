@@ -85,7 +85,7 @@ local function Spawn(self, unit, isSingle)
 	health:SetPoint("TOPRIGHT", self, "TOPRIGHT", -1, -1)
 	health:SetPoint("BOTTOM", self, "BOTTOM", 0, 1)
 
-	health.texture:SetDrawLayer("ARTWORK")
+	health.fg:SetDrawLayer("ARTWORK")
 
 	health.value:SetParent(self.overlay)
 	health.value:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -2, FRAME_HEIGHT * config.powerHeight - 4)
@@ -116,8 +116,8 @@ local function Spawn(self, unit, isSingle)
 	do
 		local healing = ns.CreateStatusBar(health, nil, nil, true)
 		healing:SetWidth(FRAME_WIDTH - 2) -- health:GetWidth() doesn't work for some reason
-		healing:SetPoint("TOPLEFT", health.texture, "TOPRIGHT")
-		healing:SetPoint("BOTTOMLEFT", health.texture, "BOTTOMRIGHT")
+		healing:SetPoint("TOPLEFT", health.fg, "TOPRIGHT")
+		healing:SetPoint("BOTTOMLEFT", health.fg, "BOTTOMRIGHT")
 		healing:SetStatusBarColor(0.25, 1, 0.25, 0.5)
 
 		local spark = healing:CreateTexture(nil, "OVERLAY")
@@ -140,8 +140,8 @@ local function Spawn(self, unit, isSingle)
 
 		local absorbs = ns.CreateStatusBar(health, nil, nil, true)
 		absorbs:SetWidth(FRAME_WIDTH - 2) -- health:GetWidth() doesn't work for some reason
-		absorbs:SetPoint("TOPLEFT", healing.texture, "TOPRIGHT")
-		absorbs:SetPoint("BOTTOMLEFT", healing.texture, "BOTTOMRIGHT")
+		absorbs:SetPoint("TOPLEFT", healing.fg, "TOPRIGHT")
+		absorbs:SetPoint("BOTTOMLEFT", healing.fg, "BOTTOMRIGHT")
 		absorbs:SetStatusBarColor(0.25, 0.8, 1, 0.5)
 
 		local spark = absorbs:CreateTexture(nil, "OVERLAY")

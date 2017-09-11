@@ -425,32 +425,26 @@ end
 
 ------------------------------------------------------------------------
 
-function Loader:PLAYER_FOCUS_CHANGED(event)
-	if UnitExists("focus") then
-		if UnitIsEnemy("focus", "player") then
-			PlaySound("igCreatureAggroSelect")
-		elseif UnitIsFriend("player", "focus") then
-			PlaySound("igCharacterNPCSelect")
+local function playTargetSound(unit)
+	if UnitExists(unit) then
+		if UnitIsEnemy(unit, "player") then
+			PlaySound(SOUNDKIT.IG_CREATURE_AGGRO_SELECT)
+		elseif UnitIsFriend("player", unit) then
+			PlaySound(SOUNDKIT.IG_CHARACTER_NPC_SELECT)
 		else
-			PlaySound("igCreatureNeutralSelect")
+			PlaySound(SOUNDKIT.IG_CREATURE_NEUTRAL_SELECT)
 		end
 	else
-		PlaySound("INTERFACESOUND_LOSTTARGETUNIT")
+		PlaySound(SOUNDKIT.INTERFACE_SOUND_LOST_TARGET_UNIT)
 	end
 end
 
+function Loader:PLAYER_FOCUS_CHANGED(event)
+	playTargetSound("focus")
+end
+
 function Loader:PLAYER_TARGET_CHANGED(event)
-	if UnitExists("target") then
-		if UnitIsEnemy("target", "player") then
-			PlaySound("igCreatureAggroSelect")
-		elseif UnitIsFriend("player", "target") then
-			PlaySound("igCharacterNPCSelect")
-		else
-			PlaySound("igCreatureNeutralSelect")
-		end
-	else
-		PlaySound("INTERFACESOUND_LOSTTARGETUNIT")
-	end
+	playTargetSound("target")
 end
 
 local announcedPVP
@@ -458,7 +452,7 @@ function Loader:UNIT_FACTION(event, unit)
 	if UnitIsPVPFreeForAll("player") or UnitIsPVP("player") then
 		if not announcedPVP then
 			announcedPVP = true
-			PlaySound("igPVPUpdate")
+			PlaySound(SOUNDKIT.IG_PVP_UPDATE)
 		end
 	else
 		announcedPVP = nil
@@ -597,15 +591,15 @@ do
 			local pct = (v - mn) / (mx - mn)
 			if self.__vertical then
 				if self.__reverse then
-					self.texture:SetTexCoord(0, 1, 1 - pct, 1)
+					self.fg:SetTexCoord(0, 1, 1 - pct, 1)
 				else
-					self.texture:SetTexCoord(0, 1, 0, pct)
+					self.fg:SetTexCoord(0, 1, 0, pct)
 				end
 			else
 				if self.__reverse then
-					self.texture:SetTexCoord(1 - pct, 1, 0, 1)
+					self.fg:SetTexCoord(1 - pct, 1, 0, 1)
 				else
-					self.texture:SetTexCoord(0, pct, 0, 1)
+					self.fg:SetTexCoord(0, pct, 0, 1)
 				end
 			end
 		end
@@ -622,10 +616,10 @@ do
 		sb:SetStatusBarTexture(file)
 		tinsert(ns.statusbars, sb)
 
-		sb.texture = sb:GetStatusBarTexture()
-		sb.texture:SetDrawLayer("BORDER")
-		sb.texture:SetHorizTile(false)
-		sb.texture:SetVertTile(false)
+		sb.fg = sb:GetStatusBarTexture()
+		sb.fg:SetDrawLayer("BORDER")
+		sb.fg:SetHorizTile(false)
+		sb.fg:SetVertTile(false)
 
 		if size then
 			sb.value = ns.CreateFontString(sb, size, justify)

@@ -248,8 +248,8 @@ do
 		if (absorbs / maxHealth) >= 0.1 and missing > 0 then
 			local bar = element.absorbsBar
 			bar:Show()
-			bar:SetPoint("TOPLEFT", parent.texture, "TOPRIGHT")
-			bar:SetPoint("BOTTOMLEFT", parent.texture, "BOTTOMRIGHT")
+			bar:SetPoint("TOPLEFT", parent.fg, "TOPRIGHT")
+			bar:SetPoint("BOTTOMLEFT", parent.fg, "BOTTOMRIGHT")
 			bar:SetMinMaxValues(0, maxHealth)
 			if absorbs > missing then
 				bar:SetValue(missing)
