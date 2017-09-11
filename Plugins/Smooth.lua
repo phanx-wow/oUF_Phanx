@@ -7,7 +7,7 @@ local smoothing = {}
 local abs, min, max, next = math.abs, math.min, math.max, next
 
 f:SetScript('OnUpdate', function()
-	local limit = 30/GetFramerate()
+	local limit = 30 / GetFramerate()
 	for bar, value in next, smoothing do
 		local cur = bar:GetValue()
 		local new = cur + min((value-cur)/3, max(value-cur, limit))
@@ -24,8 +24,9 @@ f:SetScript('OnUpdate', function()
 end)
 
 local function Smooth(self, value)
+	local cur = self:GetValue()
 	local _, max = self:GetMinMaxValues()
-	if value == self:GetValue() or (self._max and self._max ~= max) then
+	if value == cur or (self._max and self._max ~= max) or (abs(value - cur) / max > 0.5) then
 		smoothing[self] = nil
 		self:SetValue_(value)
 	else

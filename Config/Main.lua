@@ -214,10 +214,10 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		for i = 1, #ns.objects do
 			local frame = ns.objects[i]
 			SetBarColor(frame.Power)
-			SetBarColor(frame.DruidMana)
-			if frame.ClassIcons then
-				for i = 1, #frame.ClassIcons do
-					SetBarColor(frame.ClassIcons[i])
+			SetBarColor(frame.AdditionalPower)
+			if frame.ClassPower then
+				for i = 1, #frame.ClassPower do
+					SetBarColor(frame.ClassPower[i])
 				end
 			end
 			if frame.Runes then
@@ -285,11 +285,11 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 				end
 			end
 
-			local DruidMana = frame.DruidMana
-			if DruidMana then
+			local AdditionalPower = frame.AdditionalPower
+			if AdditionalPower then
 				local r, g, b = unpack(oUF.colors.power.MANA)
-				DruidMana.bg.multiplier = value
-				DruidMana:ForceUpdate()
+				AdditionalPower.bg.multiplier = value
+				AdditionalPower:ForceUpdate()
 			end
 
 			local Runes = frame.Runes
@@ -338,8 +338,8 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 		db.ignoreOwnHeals = value
 		for i = 1, #ns.objects do
 			local frame = ns.objects[i]
-			if frame.HealPrediction and frame:IsShown() then
-				frame.HealPrediction:ForceUpdate()
+			if frame.HealthPrediction and frame:IsShown() then
+				frame.HealthPrediction:ForceUpdate()
 			end
 		end
 	end

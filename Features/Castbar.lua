@@ -24,7 +24,7 @@ function prototype:PostCastStart(unit, name, rank, castid)
 	local color
 	if UnitIsUnit(unit, "player") then
 		color = colors.class[playerClass]
-	elseif self.interrupt then
+	elseif self.notInterruptible then
 		color = colors.uninterruptible
 	elseif UnitIsFriend(unit, "player") then
 		color = colors.reaction[5]
@@ -53,7 +53,7 @@ function prototype:PostChannelStart(unit, name, rank, text)
 	local color
 	if UnitIsUnit(unit, "player") then
 		color = colors.class[playerClass]
-	elseif self.interrupt then
+	elseif self.notInterruptible then
 		color = colors.reaction[4]
 	elseif UnitIsFriend(unit, "player") then
 		color = colors.reaction[5]

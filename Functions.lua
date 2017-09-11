@@ -137,7 +137,7 @@ do
 		if not unit then return end -- Blizz bug in 7.1
 		local frame = bar.__owner
 
-		ns.HealPrediction_Override(frame, "Health_PostUpdate", unit)
+		ns.HealthPrediction_Override(frame, "Health_PostUpdate", unit)
 
 		local absent = not UnitIsConnected(unit) and PLAYER_OFFLINE or UnitIsGhost(unit) and GHOST or UnitIsDead(unit) and DEAD
 		if absent then
@@ -197,16 +197,16 @@ do
 end
 
 ------------------------------------------------------------------------
---	HealPrediction
+--	HealthPrediction
 ------------------------------------------------------------------------
 
 do
 	local UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals
 	    = UnitHealth, UnitHealthMax, UnitGetTotalAbsorbs, UnitGetIncomingHeals
 
-	function ns.HealPrediction_Override(self, event, unit)
-		--print("HealPrediction Override", event, unit)
-		local element = self.HealPrediction
+	function ns.HealthPrediction_Override(self, event, unit)
+		--print("HealthPrediction Override", event, unit)
+		local element = self.HealthPrediction
 		local parent = self.Health
 
 		local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
@@ -273,7 +273,7 @@ do
 	local UnitIsDeadOrGhost, UnitPowerType, UnitPower, UnitPowerMax
 	    = UnitIsDeadOrGhost, UnitPowerType, UnitPower, UnitPowerMax
 
-	function ns.Power_PostUpdate(self, unit, cur, max, min, ptoken, ptype)
+	function ns.Power_PostUpdate(self, unit, cur, min, max)
 		if max == 0 then
 			self.__owner.Health:SetPoint("BOTTOM", self.__owner, "BOTTOM", 0, 1)
 			return self:Hide()
@@ -292,18 +292,19 @@ do
 
 		if not self.value then return end
 
-		local color = colors.power[ptoken] or colors.power.FUEL
+		local _, powerType = UnitPowerType(unit)
+		local color = colors.power[powerType] or colors.power.FUEL
 		if cur < max then
 			if self.__owner.isMouseOver then
 				self.value:SetFormattedText("%s.|cff%02x%02x%02x%s|r", si(cur), color[1] * 255, color[2] * 255, color[3] * 255, si(max))
-			elseif ptoken == "MANA" then
+			elseif powerType == "MANA" then
 				self.value:SetFormattedText("%d|cff%02x%02x%02x%%|r", floor(cur / max * 100 + 0.5), color[1] * 255, color[2] * 255, color[3] * 255)
 			elseif cur > 0 then
 				self.value:SetText(cur)
 			else
 				self.value:SetText(nil)
 			end
-		elseif ptoken == "MANA" and self.__owner.isMouseOver then
+		elseif powerType == "MANA" and self.__owner.isMouseOver then
 			self.value:SetFormattedText("|cff%02x%02x%02x%s|r", color[1] * 255, color[2] * 255, color[3] * 255, si(max))
 		else
 			self.value:SetText(nil)
@@ -312,11 +313,11 @@ do
 end
 
 ------------------------------------------------------------------------
---	ClassIcons
+--	ClassPower
 ------------------------------------------------------------------------
 
-function ns.ClassIcons_PostUpdate(element, cur, max, hasMaxChanged, event)
-	--print("ClassIcons PostUpdate", cur, max, hasMaxChanged)
+function ns.ClassPower_PostUpdate(element, cur, max, hasMaxChanged, event)
+	--print("ClassPower PostUpdate", cur, max, hasMaxChanged)
 	ns.Orbs.Update(element, cur, max)
 	--[[
 	for i = 1, max do
@@ -339,7 +340,7 @@ end
 --	Druid mana
 ------------------------------------------------------------------------
 
-function ns.DruidMana_PostUpdate(bar, unit, mana, maxMana)
+function ns.AdditionalPower_PostUpdate(bar, unit, mana, maxMana)
 	bar.value:SetFormattedText(si(mana, true))
 end
 
@@ -348,12 +349,13 @@ end
 --	TODO reimplement or remove
 ------------------------------------------------------------------------
 
-function ns.Stagger_PostUpdate(bar, maxHealth, stagger, staggerPercent, r, g, b)
-	if staggerPercent < 5 then
+function ns.Stagger_PostUpdate(bar, cur, max)
+	local perc = cur / max * 100
+	if perc < 5 then
 		return bar:Hide()
 	end
-	--print("Stagger PostUpdate", stagger, staggerPercent)
-	bar.value:SetFormattedText("%.0f%%", staggerPercent)
+	--print("Stagger PostUpdate", stagger, perc)
+	bar.value:SetFormattedText("%.0f%%", perc)
 	bar:Show()
 end
 
@@ -367,8 +369,8 @@ local roleTexCoords = {
 	HEALER  = { 0.75, 1, 0, 1 },
 }
 
-function ns.LFDRole_Override(self, event)
-	local lfdrole = self.LFDRole
+function ns.GroupRoleIndicator_Override(self, event)
+	local lfdrole = self.GroupRoleIndicator
 	if(lfdrole.PreUpdate) then
 		lfdrole:PreUpdate()
 	end
@@ -391,7 +393,7 @@ end
 --	Phase icon
 ------------------------------------------------------------------------
 
-function ns.PhaseIcon_PostUpdate(icon, inPhase)
+function ns.PhaseIndicator_PostUpdate(icon, inPhase)
 	if not inPhase and not UnitIsPlayer(icon.__owner.unit) then
 		return icon:Hide()
 	end
@@ -409,7 +411,7 @@ local pvpTextures = {
 	Horde = "Interface\\AddOns\\oUF_Phanx\\Media\\DotCircle"
 }
 
-function ns.PvP_PostUpdate(element, unit, status)
+function ns.PvPIndicator_PostUpdate(element, unit, status)
 	--print("PvP PostUpdate", element.__owner.unit, status)
 	if not status or status == PLAYER_FACTION then
 		return element:Hide()

@@ -164,10 +164,10 @@ local function Spawn(self, unit, isSingle)
 		cap:SetVertexColor(0, 1, 0)
 		absorbs.cap = cap
 
-		self.HealPrediction = {
+		self.HealthPrediction = {
 			healingBar = healing,
 			absorbsBar = absorbs,
-			Override = ns.HealPrediction_Override,
+			Override = ns.HealthPrediction_Override,
 		}
 	end
 
@@ -243,24 +243,24 @@ local function Spawn(self, unit, isSingle)
 	-- Class-specific resources --
 	------------------------------
 	if unit == "player" then
-		local ClassIcons = ns.Orbs.Create(self.overlay, 10, 20)
-		ClassIcons[1]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
+		local ClassPower = ns.Orbs.Create(self.overlay, 10, 20)
+		ClassPower[1]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
 
-		ClassIcons.PostUpdate = ns.ClassIcons_PostUpdate
-		ClassIcons.UpdateTexture = nop -- fuck off oUF >:(
-		self.ClassIcons = ClassIcons
+		ClassPower.PostUpdate = ns.ClassPower_PostUpdate
+		ClassPower.UpdateTexture = nop -- fuck off oUF >:(
+		self.ClassPower = ClassPower
 
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
 		for i = 1, 5 do
-			ClassIcons[i].bg:SetVertexColor(0.25, 0.25, 0.25)
-			ClassIcons[i].fg:SetVertexColor(color.r, color.g, color.b)
+			ClassPower[i].bg:SetVertexColor(0.25, 0.25, 0.25)
+			ClassPower[i].fg:SetVertexColor(color.r, color.g, color.b)
 		end
 
 		if CUSTOM_CLASS_COLORS then
 			CUSTOM_CLASS_COLORS:RegisterCallback(function()
 				local color = CUSTOM_CLASS_COLORS[playerClass]
-				for i = 1, #ClassIcons do
-					ClassIcons[i].fg:SetVertexColor(color.r, color.g, color.b)
+				for i = 1, #ClassPower do
+					ClassPower[i].fg:SetVertexColor(color.r, color.g, color.b)
 				end
 			end)
 		end
@@ -312,27 +312,27 @@ local function Spawn(self, unit, isSingle)
 	-- Secondary power bar --
 	-------------------------
 	if unit == "player" and ns.configPC.druidMana then
-		local DruidMana = ns.CreateStatusBar(self, 16, "CENTER")
-		DruidMana:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
-		DruidMana:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
-		DruidMana:SetHeight(FRAME_HEIGHT * config.powerHeight)
+		local AdditionalPower = ns.CreateStatusBar(self, 16, "CENTER")
+		AdditionalPower:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 0)
+		AdditionalPower:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, 0)
+		AdditionalPower:SetHeight(FRAME_HEIGHT * config.powerHeight)
 
-		DruidMana.value:SetPoint("CENTER", DruidMana, 0, 1)
+		AdditionalPower.value:SetPoint("CENTER", AdditionalPower, 0, 1)
 
-		DruidMana.value:Hide()
-		self:RegisterForMouseover(DruidMana.value)
+		AdditionalPower.value:Hide()
+		self:RegisterForMouseover(AdditionalPower.value)
 
-		DruidMana:Hide()
-		DruidMana:SetScript("OnShow", ns.ExtraBar_OnShow)
-		DruidMana:SetScript("OnHide", ns.ExtraBar_OnHide)
-		DruidMana.borderOffset = 2
+		AdditionalPower:Hide()
+		AdditionalPower:SetScript("OnShow", ns.ExtraBar_OnShow)
+		AdditionalPower:SetScript("OnHide", ns.ExtraBar_OnHide)
+		AdditionalPower.borderOffset = 2
 
-		DruidMana.colorPower = true
-		DruidMana.bg.multiplier = config.powerBG
+		AdditionalPower.colorPower = true
+		AdditionalPower.bg.multiplier = config.powerBG
 
-		DruidMana.PostUpdate = ns.DruidMana_PostUpdate
-		self:SmoothBar(DruidMana)
-		self.DruidMana = DruidMana
+		AdditionalPower.PostUpdate = ns.AdditionalPower_PostUpdate
+		self:SmoothBar(AdditionalPower)
+		self.AdditionalPower = AdditionalPower
 	end
 
 	-----------------------
@@ -343,13 +343,13 @@ local function Spawn(self, unit, isSingle)
 		self.Status:SetPoint("LEFT", self, "BOTTOMLEFT", 2, 2)
 		self:Tag(self.Status, "[leadericon][mastericon]")
 
-		self.Resting = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Resting:SetPoint("LEFT", self, "TOPLEFT", 0, 6)
-		self.Resting:SetSize(30, 28)
+		self.RestingIndicator = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.RestingIndicator:SetPoint("LEFT", self, "TOPLEFT", 0, 6)
+		self.RestingIndicator:SetSize(30, 28)
 
-		self.Combat = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.Combat:SetPoint("RIGHT", self, "TOPRIGHT", 0, 6)
-		self.Combat:SetSize(32, 32)
+		self.CombatIndicator = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.CombatIndicator:SetPoint("RIGHT", self, "TOPRIGHT", 0, 6)
+		self.CombatIndicator:SetSize(32, 32)
 	elseif unit == "party" or unit == "target" then
 		self.Status = ns.CreateFontString(self.overlay, 16, "RIGHT")
 		self.Status:SetPoint("RIGHT", self, "BOTTOMRIGHT", -2, 0)
@@ -370,45 +370,45 @@ local function Spawn(self, unit, isSingle)
 		phase:SetBlendMode("ADD")
 		phase:SetDesaturated(true)
 		phase:SetVertexColor(0.4, 0.8, 1)
-		phase.PostUpdate = ns.PhaseIcon_PostUpdate
-		self.PhaseIcon = phase
+		phase.PostUpdate = ns.PhaseIndicator_PostUpdate
+		self.PhaseIndicator = phase
 	end
 
 	---------------------
 	-- Quest boss icon --
 	---------------------
 	if unit == "target" then
-		self.QuestIcon = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.QuestIcon:SetPoint("CENTER", self, "LEFT", 0, 0)
-		self.QuestIcon:SetSize(32, 32)
+		self.QuestIndicator = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.QuestIndicator:SetPoint("CENTER", self, "LEFT", 0, 0)
+		self.QuestIndicator:SetSize(32, 32)
 	end
 
 	-----------------------
 	-- Raid target icons --
 	-----------------------
-	self.RaidIcon = self.overlay:CreateTexture(nil, "OVERLAY")
-	self.RaidIcon:SetPoint("CENTER", self, 0, 0)
-	self.RaidIcon:SetSize(32, 32)
+	self.RaidTargetIndicator = self.overlay:CreateTexture(nil, "OVERLAY")
+	self.RaidTargetIndicator:SetPoint("CENTER", self, 0, 0)
+	self.RaidTargetIndicator:SetSize(32, 32)
 
 	----------------------
 	-- Ready check icon --
 	----------------------
 	if unit == "player" or unit == "party" then
-		self.ReadyCheck = self.overlay:CreateTexture(nil, "OVERLAY")
-		self.ReadyCheck:SetPoint("CENTER", self)
-		self.ReadyCheck:SetSize(FRAME_HEIGHT, FRAME_HEIGHT)
+		self.ReadyCheckIndicator = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.ReadyCheckIndicator:SetPoint("CENTER", self)
+		self.ReadyCheckIndicator:SetSize(FRAME_HEIGHT, FRAME_HEIGHT)
 	end
 
 	----------------
 	-- Role icons --
 	----------------
 	if unit == "player" or unit == "party" then
-		local LFDRole = self.overlay:CreateTexture(nil, "OVERLAY")
-		LFDRole:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and -2 or 2, 0)
-		LFDRole:SetSize(16, 16)
-		LFDRole:SetTexture("Interface\\LFGFRAME\\LFGROLE")
-		LFDRole.Override = ns.LFDRole_Override
-		self.LFDRole = LFDRole
+		local GroupRoleIndicator = self.overlay:CreateTexture(nil, "OVERLAY")
+		GroupRoleIndicator:SetPoint("CENTER", self, unit == "player" and "LEFT" or "RIGHT", unit == "player" and -2 or 2, 0)
+		GroupRoleIndicator:SetSize(16, 16)
+		GroupRoleIndicator:SetTexture("Interface\\LFGFRAME\\LFGROLE")
+		GroupRoleIndicator.Override = ns.GroupRoleIndicator_Override
+		self.GroupRoleIndicator = GroupRoleIndicator
 	end
 
 	---------------
@@ -419,8 +419,8 @@ local function Spawn(self, unit, isSingle)
 		pvp:SetPoint("CENTER", self, "TOPLEFT", -3, 2)
 		pvp:SetSize(15, 15)
 		pvp.SetTexCoord = nop
-		pvp.PostUpdate = ns.PvP_PostUpdate
-		self.PvP = pvp
+		pvp.PostUpdate = ns.PvPIndicator_PostUpdate
+		self.PvPIndicator = pvp
 	end
 
 	----------------
