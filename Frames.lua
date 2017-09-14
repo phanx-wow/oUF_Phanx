@@ -243,11 +243,11 @@ local function Spawn(self, unit, isSingle)
 	-- Class-specific resources --
 	------------------------------
 	if unit == "player" then
-		local ClassPower = ns.Orbs.Create(self.overlay, 10, 20)
+		local ClassPower = ns.Orbs.Create(self.overlay, 10, 20, true)
 		ClassPower[1]:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 2, 5)
 
 		ClassPower.PostUpdate = ns.ClassPower_PostUpdate
-		ClassPower.UpdateTexture = nop -- fuck off oUF >:(
+		ClassPower.UpdateColor = nop -- override for oUF
 		self.ClassPower = ClassPower
 
 		local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[playerClass]
