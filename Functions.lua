@@ -511,9 +511,7 @@ local function FindAuraTimer(button, unit)
 end
 
 function ns.Auras_PostUpdateIcon(element, unit, button, index, offset)
-	local name, _, texture, count, dispelType, duration, expires, caster, isStealable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, _, nameplateShowAll, timeMod = UnitAura(unit, index, button.filter)
-
-	button.icon:SetDesaturated(not playerUnits[caster or ""])
+	button.icon:SetDesaturated(not playerUnits[button.caster or ""])
 
 	if not button.timer then
 		button.timer = FindAuraTimer(button, unit)
