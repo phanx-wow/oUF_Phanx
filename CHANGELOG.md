@@ -1,3 +1,7 @@
+### Version 7.3.5.0
+
+* Updated for WoW 7.3 and oUF 7.0
+
 ### Version 7.1.0.0
 
 * Fixed an error that occurred as a result of Blizzard sending health updates for non-existent units
