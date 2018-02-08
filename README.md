@@ -7,5 +7,5 @@ oUF Phanx
 **FR** — Portraits d'unités avec nombreuses fonctionnalités visant à JcE et quelques options.  
 **PT** — Quadros de unidade de oUF com muitas funções orientadas o JxA e umas poucas opções.
 
-* [Download from Curse](http://mods.curse.com/addons/wow/ouf-phanx)
-* [Download from WoWInterface](http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html)
+* [Download from Curse](https://www.curseforge.com/wow/addons/ouf-phanx)
+* [Download from WoWInterface](https://www.wowinterface.com/downloads/info13993-oUF_Phanx.html)

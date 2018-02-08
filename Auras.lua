@@ -2,8 +2,8 @@
 	oUF_Phanx
 	Fully-featured PVE-oriented layout for oUF.
 	Copyright (c) 2008-2017 Phanx <addons@phanx.net>. All rights reserved.
-	http://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
-	https://mods.curse.com/addons/wow/ouf-phanx
+	https://www.wowinterface.com/downloads/info13993-oUF_Phanx.html
+	https://www.curseforge.com/wow/addons/ouf-phanx
 	https://github.com/Phanx/oUF_Phanx
 ------------------------------------------------------------------------
 	Filter settings stored as bitfields.
