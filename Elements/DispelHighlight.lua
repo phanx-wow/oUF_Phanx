@@ -43,14 +43,6 @@ for debuffType, color in pairs(colors) do
 	oUF.colors.debuff[debuffType] = color
 end
 
--- IDs pulled from wowdb.com using Adirelle's script:
--- https://github.com/Adirelle/LibDispellable-1.0/blob/master/fetchEnrageList.sh
-local InvulnerableEffects = {
-	-- curl -s http://www.wowdb.com/spells?filter-mechanic=25 | perl -ne 'm@http://www.wowdb.com/spells/(\d+)\-@ and print "$1\n";' | sort -nu
-	[25771] = true, [34518] = true, [38916] = true, [41625] = true, [84958] = true,
-	-- curl -s http://www.wowdb.com/spells?filter-mechanic=29 | perl -ne 'm@http://www.wowdb.com/spells/(\d+)\-@ and print "$1\n";' | sort -nu
-	[9192] = true, [9220] = true, [12774] = true, [44097] = true, [44098] = true, [44099] = true, [44100] = true, [44101] = true, [44102] = true, [44104] = true, [44105] = true, [44106] = true, [45209] = true, [50095] = true, [64830] = true, [64831] = true, [64832] = true, [64833] = true, [64834] = true, [64835] = true, [64836] = true, [64837] = true, [64838] = true, [64839] = true, [64885] = true, [64892] = true, [64893] = true, [65365] = true, [66382] = true, [66383] = true, [66384] = true, [66385] = true, [66386] = true, [66387] = true, [66804] = true, [69003] = true, [69007] = true, [69095] = true, [69096] = true, [69348] = true, [69349] = true, [69559] = true, [70233] = true, [70234] = true, [70235] = true, [70242] = true, [70243] = true, [70244] = true, [74461] = true, [74463] = true, [74929] = true, [77979] = true, [78532] = true, [78541] = true, [78552] = true, [78571] = true, [78604] = true, [78605] = true, [78607] = true, [86897] = true, [86910] = true, [86924] = true, [88400] = true, [88404] = true, [97608] = true, [97625] = true, [97626] = true, [97632] = true, [98026] = true, [98145] = true, [99121] = true, [101507] = true, [104659] = true, [104702] = true, [110162] = true, [133864] = true, [133937] = true, [133938] = true, [135965] = true, [135966] = true, [141652] = true, [142223] = true, [142224] = true, [142226] = true, [148206] = true, [148244] = true, [148245] = true, [148658] = true, [156736] = true, [160861] = true, [166700] = true, [168342] = true, [168343] = true, [171470] = true, [171479] = true, [171930] = true, [172745] = true, [172849] = true, [175357] = true, [177597] = true,
-}
 
 local DefaultDispelPriority = { Curse = 2, Disease = 4, Magic = 1, Poison = 3 }
 local ClassDispelPriority   = { Curse = 3, Disease = 1, Magic = 4, Poison = 2 }
@@ -87,7 +79,7 @@ function Update(self, event, unit)
 			for i = 1, 40 do
 				local name, _, _, _, type, _, _, _, stealable, _, id = UnitBuff(unit, i)
 				if not name then break end
-				if (canSteal and stealable) or (type and canPurge[InvulnerableEffects[id] and "Invulnerable" or type]) then
+				if (canSteal and stealable) or (type and canPurge[type]) then
 					-- print("debuffType", type)
 					debuffType = type
 					dispellable = true
@@ -208,7 +200,6 @@ f:SetScript("OnEvent", function(self, event)
 
 	elseif playerClass == "WARRIOR" then
 		canPurge.Magic        = IsSpellKnown(23922) or nil -- Shield Slam
-		canPurge.Invulnerable = IsSpellKnown(64382) or nil -- Shattering Throw
 	end
 
 	wipe(ClassDispelPriority)
