@@ -40,7 +40,9 @@ local colors = { -- these are nicer than DebuffTypeColor
 	Magic        = { 0,   0.8, 1   },
 	Poison       = { 0,   0.8, 0   },
 }
-oUF.colors.debuff = colors
+for debuffType, color in pairs(colors) do
+	oUF.colors.debuff[debuffType] = color
+end
 
 -- IDs pulled from wowdb.com using Adirelle's script:
 -- https://github.com/Adirelle/LibDispellable-1.0/blob/master/fetchEnrageList.sh
