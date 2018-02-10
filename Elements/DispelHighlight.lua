@@ -32,17 +32,12 @@ assert(oUF, "DispelHighlight element requires oUF")
 
 local _, playerClass = UnitClass("player")
 
-local colors = { -- these are nicer than DebuffTypeColor
-	Curse        = { 0.8, 0,   1   },
-	Disease      = { 0.8, 0.6, 0   },
-	Invulnerable = { 1,   1,   0.4 },
-	Magic        = { 0,   0.8, 1   },
-	Poison       = { 0,   0.8, 0   },
-}
-for debuffType, color in pairs(colors) do
-	oUF.colors.debuff[debuffType] = color
-end
 
+local colors = oUF.colors.debuff
+colors.Curse   = { 0.8, 0,   1 }
+colors.Disease = { 0.8, 0.6, 0 }
+colors.Magic   = { 0,   0.8, 1 }
+colors.Poison  = { 0,   0.8, 0 }
 
 local DefaultDispelPriority = { Curse = 2, Disease = 4, Magic = 1, Poison = 3 }
 local ClassDispelPriority   = { Curse = 3, Disease = 1, Magic = 4, Poison = 2 }
