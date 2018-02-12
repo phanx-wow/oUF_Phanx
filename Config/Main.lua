@@ -197,9 +197,12 @@ LibStub("PhanxConfig-OptionsPanel"):New(oUFPhanxOptions, nil, function(panel)
 	})
 
 	local function SetBarColor(bar, mode)
+		if not bar then return end
+
 		bar.colorClass = mode == "CLASS"
 		bar.colorReaction = mode == "CLASS"
 		bar.colorPower = mode == "POWER"
+
 		if mode == "CUSTOM" then
 			local mu = power.bg.multiplier
 			local r, g, b = unpack(db.powerColor)
