@@ -115,12 +115,17 @@ local a = {
 	[  9484] = FILTER_ON_ENEMY, -- Shackle Undead
 	[162480] = FILTER_ON_ENEMY, -- Steel Trap
 	[ 19386] = FILTER_ON_ENEMY, -- Wyvern Sting
-	-- Consumables - Legion
-	[188030] = FILTER_BY_PLAYER, -- Leytorrent Potion -- channeled
+	-- Legion Artifact Proc
+	[242584] = FILTER_ON_PLAYER, -- Concordance of the Legionfall (agility)
+	[242586] = FILTER_ON_PLAYER, -- Concordance of the Legionfall (intellect)
+	[242583] = FILTER_ON_PLAYER, -- Concordance of the Legionfall (strength)
+	[243096] = FILTER_ON_PLAYER, -- Concordance of the Legionfall (versatility)
+	-- Legion Consumables
+	[188030] = FILTER_BY_PLAYER, -- Leytorrent Potion (channeled)
 	[188027] = FILTER_BY_PLAYER, -- Potion of Deadly Grace
 	[188028] = FILTER_BY_PLAYER, -- Potion of the Old War
 	[188029] = FILTER_BY_PLAYER, -- Unbending Potion
-	-- Random quest related auras
+	-- Quest related auras
 	[127372] = FILTER_ON_PLAYER, -- Unstable Serum (Klaxxi Enhancement: Raining Blood)
 	-- Boss debuffs that Blizzard failed to flag
 	[106648] = FILTER_ALL, -- Brew Explosion (Ook Ook in Stormsnout Brewery)
