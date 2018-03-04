@@ -11,7 +11,7 @@
 
 ## Author: Phanx
 ## X-Email: addons@phanx.net
-## X-License: All Rights Reserved
+## X-License: All rights reserved
 ## X-Website: https://github.com/Phanx/oUF_Phanx
 ## X-Curse-Project-ID: 19939
 ## X-WoWI-ID: 13993
