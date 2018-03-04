@@ -652,7 +652,7 @@ function ns.Factory(oUF)
 	config = ns.config
 	uconfig = ns.uconfig
 
-	-- Remove irrelevant rightclick menu entries
+	--[[ Remove irrelevant rightclick menu entries - causing taint?
 	for _, menu in pairs(UnitPopupMenus) do
 		for i = #menu, 1, -1 do
 			local name = menu[i]
@@ -660,7 +660,7 @@ function ns.Factory(oUF)
 				tremove(menu, i)
 			end
 		end
-	end
+	end]]
 
 	-- SPAWN MORE OVERLORDS!
 	oUF:RegisterStyle("Phanx", Spawn)
