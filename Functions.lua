@@ -393,9 +393,9 @@ end
 local PLAYER_FACTION = UnitFactionGroup("player")
 
 local pvpTextures = {
-	ffa = "Interface\\AddOns\\oUF_Phanx\\Media\\DotCircle",
-	Alliance = "Interface\\AddOns\\oUF_Phanx\\Media\\DotCircle",
-	Horde = "Interface\\AddOns\\oUF_Phanx\\Media\\DotCircle"
+	Alliance = "Interface\\AddOns\\oUF_Phanx\\Media\\DotDiamond",
+	Horde = "Interface\\AddOns\\oUF_Phanx\\Media\\DotCircle",
+	FFA = "Interface\\AddOns\\oUF_Phanx\\Media\\DotSquare",
 }
 
 function ns.PvPIndicator_PostUpdate(element, unit, status)
@@ -407,12 +407,12 @@ function ns.PvPIndicator_PostUpdate(element, unit, status)
 	local tex = pvpTextures[status] or pvpTextures[PLAYER_FACTION]
 	element:SetTexture(tex)
 
-	if status == "ffa" then
-		element:SetVertexColor(0.8, 0.4, 0, 0.75)
+	if status == "FFA" then
+		element:SetVertexColor(0.8, 0.4, 0)
 	elseif status == "Alliance" then
-		element:SetVertexColor(0.2, 0.4, 1, 0.75)
+		element:SetVertexColor(0.2, 0.4, 1)
 	elseif status == "Horde" then
-		element:SetVertexColor(0.6, 0, 0, 0.75)
+		element:SetVertexColor(0.6, 0, 0)
 	end
 
 	element:Show()
