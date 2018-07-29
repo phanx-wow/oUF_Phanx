@@ -15,7 +15,7 @@ local _, playerClass = UnitClass("player")
 
 local prototype = {}
 
-function prototype:PostCastStart(unit, name, rank, castid)
+function prototype:PostCastStart(unit)
 	if unit == "focus" and UnitIsUnit("focus", "target") then
 		self.duration = self.casting and self.max or 0
 		return
@@ -49,7 +49,7 @@ function prototype:PostCastStart(unit, name, rank, castid)
 	self.__castType = "CAST"
 end
 
-function prototype:PostChannelStart(unit, name, rank, text)
+function prototype:PostChannelStart(unit)
 	local color
 	if UnitIsUnit(unit, "player") then
 		color = colors.class[playerClass]
