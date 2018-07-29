@@ -157,20 +157,7 @@ do
 			end
 		end
 
-		local color
-		if UnitIsPlayer(unit) then
-			local _, class = UnitClass(unit)
-			color = colors.class[class]
-		elseif UnitIsTapDenied(unit) then
-			color = colors.tapped
-		elseif UnitIsEnemy(unit, "player") then
-			color = colors.reaction[1]
-		else
-			color = colors.reaction[UnitReaction(unit, "player") or 5] or colors.reaction[5]
-		end
-		if not color then
-			color = colors.fallback
-		end
+		local color = ns.GetUnitColor(unit)
 
 		-- HEALER: deficit, percent on mouseover
 		-- OTHER:  percent, current on mouseover

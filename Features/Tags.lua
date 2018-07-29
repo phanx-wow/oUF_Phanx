@@ -14,22 +14,10 @@ local GetLootMethod, IsResting, UnitAffectingCombat, UnitBuff, UnitClass, UnitIn
 ------------------------------------------------------------------------
 --	Colors
 
-oUF.Tags.Events["unitcolor"] = "UNIT_HEALTH UNIT_CLASSIFICATION_CHANGED UNIT_CONNECTION UNIT_FACTION UNIT_REACTION"
+oUF.Tags.Events["unitcolor"] = "UNIT_HEALTH UNIT_CONNECTION UNIT_FACTION UNIT_THREAT_SITUATION_UPDATE"
 oUF.Tags.Methods["unitcolor"] = function(unit)
-	local color
-	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
-		color = oUF.colors.disconnected
-	elseif UnitIsPlayer(unit) then
-		local _, class = UnitClass(unit)
-		color = oUF.colors.class[class]
-	elseif UnitIsTapDenied(unit) then
-		color = oUF.colors.tapped
-	elseif UnitIsEnemy(unit, "player") then
-		color = oUF.colors.reaction[1]
-	else
-		color = oUF.colors.reaction[UnitReaction(unit, "player") or 5]
-	end
-	return color and ("|cff%02x%02x%02x"):format(color[1] * 255, color[2] * 255, color[3] * 255) or "|cffffffff"
+	local color = ns.GetUnitColor(unit)
+	return format("|cff%02x%02x%02x", color[1] * 255, color[2] * 255, color[3] * 255)
 end
 
 oUF.Tags.Events["powercolor"] = "UNIT_DISPLAYPOWER"

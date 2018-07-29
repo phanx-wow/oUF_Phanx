@@ -530,6 +530,27 @@ end
 
 ------------------------------------------------------------------------
 
+function ns.GetUnitColor(unit)
+	if UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) then
+		return oUF.colors.disconnected
+	elseif UnitIsPlayer(unit) then
+		local _, class = UnitClass(unit)
+		return class and oUF.colors.class[class] or oUF.colors.fallback
+	elseif UnitIsTapDenied(unit) then
+		return oUF.colors.tapped
+	else
+		local _, threatStatus = UnitDetailedThreatSituation("player", unit)
+		if threatStatus or UnitIsEnemy(unit, "player") then
+			return oUF.colors.reaction[2] -- 2 = Hostile
+		else
+			return oUF.colors.reaction[UnitReaction(unit, "player") or 5] -- 5 = Friendly
+		end
+	end
+	return oUF.colors.fallback
+end
+
+------------------------------------------------------------------------
+
 local FALLBACK_FONT_SIZE = 16 -- some Blizzard bug
 
 function ns.GetFontFile()
