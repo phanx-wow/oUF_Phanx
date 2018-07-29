@@ -214,6 +214,7 @@ if playerClass == "DEMONHUNTER" then
 	a[207810] = FILTER_BY_PLAYER -- Nether Bond
 	a[196555] = FILTER_BY_PLAYER -- Netherwalk
 	-- Talents
+	a[206491] = FILTER_ON_ENEMY -- Nemesis (missing caster)
 	-- Artifact Traits
 end
 
@@ -555,6 +556,7 @@ if playerClass == "SHAMAN" then
 --	a[173183] = FILTER_BY_PLAYER -- Elemental Blast: Haste -- 10s duration on a 12s cooldown
 --	a[173184] = FILTER_BY_PLAYER -- Elemental Blast: Mastery -- 10s duration on a 12s cooldown
 	a[ 16246] = FILTER_BY_PLAYER -- Elemental Focus
+	a[188838] = FILTER_BY_PLAYER -- Flame Shock (restoration)
 	a[188389] = FILTER_BY_PLAYER -- Flame Shock
 	a[194084] = FILTER_BY_PLAYER -- Flametongue
 	a[196840] = FILTER_BY_PLAYER -- Frost Shock
