@@ -49,27 +49,6 @@ oUF.Tags.Methods["leadericon"] = function(unit)
 	end
 end
 
-oUF.Tags.Events["mastericon"] = "PARTY_LOOT_METHOD_CHANGED GROUP_ROSTER_UPDATE"
-oUF.Tags.SharedEvents["PARTY_LOOT_METHOD_CHANGED"] = true
-oUF.Tags.SharedEvents["GROUP_ROSTER_UPDATE"] = true
-oUF.Tags.Methods["mastericon"] = function(unit)
-	local method, pid, rid = GetLootMethod()
-	if method ~= "master" then return end
-	local munit
-	if pid then
-		if pid == 0 then
-			munit = "player"
-		else
-			munit = "party" .. pid
-		end
-	elseif rid then
-		munit = "raid" .. rid
-	end
-	if munit and UnitIsUnit(munit, unit) then
-		return [[|TInterface\GroupFrame\UI-Group-MasterLooter:0:0:0:2|t]]
-	end
-end
-
 oUF.Tags.Events["restingicon"] = "PLAYER_UPDATE_RESTING"
 oUF.Tags.SharedEvents["PLAYER_UPDATE_RESTING"] = true
 oUF.Tags.Methods["restingicon"] = function(unit)

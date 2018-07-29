@@ -339,9 +339,9 @@ local function Spawn(self, unit, isSingle)
 	-- Status icons --
 	-----------------------
 	if unit == "player" then
-		self.Status = ns.CreateFontString(self.overlay, 16, "LEFT")
-		self.Status:SetPoint("LEFT", self, "BOTTOMLEFT", 2, 2)
-		self:Tag(self.Status, "[leadericon][mastericon]")
+		self.LeaderIndicator = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.LeaderIndicator:SetPoint("LEFT", self, "BOTTOMLEFT", 2, 2)
+		self.LeaderIndicator:SetSize(16, 16)
 
 		self.RestingIndicator = self.overlay:CreateTexture(nil, "OVERLAY")
 		self.RestingIndicator:SetPoint("LEFT", self, "TOPLEFT", 0, 6)
@@ -351,9 +351,9 @@ local function Spawn(self, unit, isSingle)
 		self.CombatIndicator:SetPoint("RIGHT", self, "TOPRIGHT", 0, 6)
 		self.CombatIndicator:SetSize(32, 32)
 	elseif unit == "party" or unit == "target" then
-		self.Status = ns.CreateFontString(self.overlay, 16, "RIGHT")
-		self.Status:SetPoint("RIGHT", self, "BOTTOMRIGHT", -2, 0)
-		self:Tag(self.Status, "[mastericon][leadericon]")
+		self.LeaderIndicator = self.overlay:CreateTexture(nil, "OVERLAY")
+		self.LeaderIndicator:SetPoint("RIGHT", self, "BOTTOMRIGHT", -2, 0)
+		self.LeaderIndicator:SetSize(16, 16)
 	end
 
 	----------------
