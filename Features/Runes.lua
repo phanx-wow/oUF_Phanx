@@ -44,24 +44,12 @@ local function Rune_OnLeave(bar)
 	bar.value:Hide()
 end
 
-local function PostUpdateRune(element, bar, i, start, duration, ready)
-	bar.ready = ready
-	if ready then
-		bar:GetStatusBarTexture():SetAlpha(1)
-	else
-		bar:GetStatusBarTexture():SetAlpha(0.5)
-	end
-
-	local color
-	if element.colorPower then
-		color = oUF.colors.power.RUNES
-	elseif element.colorClass then
-		color = oUF.colors.class.DEATHKNIGHT
-	end
-	if color then
-		local mu = bar.bg.multiplier
-		bar:SetStatusBarColor(color[1], color[2], color[3])
-		bar.bg:SetVertexColor(color[1] * mu, color[2] * mu, color[3] * mu)
+local function Runes_PostUpdate(element, runemap)
+	for index, runeID in next, runemap do
+		local bar = element[index]
+		local _, _, ready = GetRuneCooldown(runeID)
+		bar.texture:SetAlpha(ready and 1 or 0.5)
+		bar.ready = ready
 	end
 
 	local shown = element:IsShown()
@@ -79,13 +67,17 @@ ns.CreateRunes = function(frame)
 	end
 
 	Runes = ns.CreateMultiBar(frame, 6, 16, true)
-	Runes.PostUpdate = PostUpdateRune
+	Runes.colorSpec = true
+	Runes.sortOrder = "asc"
+	Runes.PostUpdate = Runes_PostUpdate
 
 	for i = 1, #Runes do
 		local bar = Runes[i]
 		bar:EnableMouse(false)
 		bar:SetScript("OnEnter", Rune_OnEnter)
 		bar:SetScript("OnLeave", Rune_OnLeave)
+
+		bar.texture = bar:GetStatusBarTexture()
 
 		bar.value:SetPoint("CENTER", bar, 0, 1)
 		bar.value:Hide()
