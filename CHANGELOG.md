@@ -1,3 +1,7 @@
+### Version 8.0.1.0
+
+* Updated for WoW 8.0
+
 ### Version 7.3.5.0
 
 * Updated for WoW 7.3 and oUF 7.0
